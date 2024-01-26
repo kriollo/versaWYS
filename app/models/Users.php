@@ -38,15 +38,18 @@ class Users extends \RedBeanPHP\SimpleModel
     }
 
     /**
-     * Get all users.
+     * Get all eventos.
      *
-     * Retrieves all the users from the database.
+     * Retrieves all the eventos from the database.
      *
      * @return array An array of user records.
      */
-    public function all()
+    public function pagination(string $filter = '')
     {
-        return R::getAll('SELECT * FROM users');
+        $filter = $filter ? "WHERE $filter" : '';
+        $result = R::getAll("SELECT SQL_CALC_FOUND_ROWS * FROM users $filter");
+        $total = R::getCell('SELECT FOUND_ROWS()');
+        return ['total' => $total, 'data' => $result];
     }
 
 

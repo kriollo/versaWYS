@@ -26,12 +26,61 @@ class UsersController extends Globalcontrollers
         return $this->template->render('dashboard/usuarios/addUser');
     }
 
-    public function getAllUsers()
+    public function getUsersPaginated()
     {
-        $result = (new models\Users)->all();
+        global $request;
+
+        $page = (int) ($request->get('page') ?? 1);
+        $per_page = (int) ($request->get('per_page') ?? 15);
+        $fitro = (string) ($request->get('filter') ?? '');
+
+        if ($page == "" && !is_numeric($page))
+            $page = 1;
+        if ($per_page == "" && !is_numeric($per_page))
+            $per_page = 15;
+
+        if ($page > 1) {
+            $page = (int) ($page - 1) * $per_page;
+        } else {
+            $page = 0;
+        }
+        $limit = "LIMIT $page , $per_page";
+
+        $filter = "1 = 1";
+        if ($fitro != "")
+            $filter = "name LIKE '%$fitro%' OR email LIKE '%$fitro%' OR role LIKE '%$fitro%' ";
+
+        $filter = "$filter ORDER BY id asc ";
+
+        $users = (new Models\Users())->pagination($filter . $limit);
+        $count = (int) $users['total'];
+
+        $total_pages = ceil($count / $per_page);
+
+        $columns = [
+            ["field" => "id", "title" => "ID"],
+            ["field" => "name", "title" => "Nombre"],
+            ["field" => "email", "title" => "Correo"],
+            ["field" => "role", "title" => "Rol"],
+            ["field" => "status", "title" => "Estado", "type" => "status"],
+            ["field" => "actions", "title" => "Acciones", "type" => "actions", "buttons" => [
+                ["title" => "Editar", "icon" => "bi bi-pencil-fill text-xl text-yellow-500", "class" => "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white", "action" => "editUser", "condition" => "status", "condition_value" => "1"],
+                ["title" => "Cambiar contraseña", "icon" => "bi bi-key-fill text-xl text-blue-500", "class" => "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white", "action" => "changePassword", "condition" => "status", "condition_value" => "1"],
+                ["title" => "Desactivar Usuario", "icon" => "bi bi-trash-fill text-xl text-red-500", "class" => "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white", "action" => "changeStatus", "condition" => "status", "condition_value" => "1"],
+                ["title" => "Activar Usuario", "icon" => "bi bi-recycle text-xl text-green-500", "class" => "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white", "action" => "changeStatus", "condition" => "status", "condition_value" => "0"]
+            ]],
+        ];
+
         Response::json([
             'success' => 1,
-            'data' => $result
+            'data' => $users['data'],
+            'columns' => $columns,
+            'filter' => $fitro,
+            'total' => $count,
+            'from' => ($page) + 1,
+            'to' => ($page) + count($users['data']),
+            'page' => $page,
+            'total_pages' => (int) $total_pages,
         ], 200);
     }
 

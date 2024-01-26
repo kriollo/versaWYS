@@ -2,8 +2,9 @@
 
 // @ts-ignore
 import { computed, ref } from 'vue';
+import { customTable } from '../components/customTable.js';
 import { modal } from '../components/modal.js';
-import { versaAlert, versaFetch } from '../functions.js';
+import { log, versaAlert, versaFetch } from '../functions.js';
 import { app } from '../vue-instancia.js';
 
 app.component('Usersppal', {
@@ -99,48 +100,47 @@ app.component('Usersppal', {
 
         </div>
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg mx-4">
+            <hr class="h-px mt-8 mb-4 bg-gray-200 border-0 dark:bg-gray-700" />
             <tableUsers></tableUsers>
         </div>
     `,
 });
 app.component('tableUsers', {
-    props: {},
     setup() {
-        const users = ref([]);
         const showModal = ref(false);
         const tokenIdSelected = ref('');
-
-        const params = {
-            url: '/admin/users/getAllUsers',
-            method: 'GET',
-            headers: {
-                'content-type': 'application/json',
-            },
-        };
-        const loadUsers = () => {
-            users.value = [];
-            versaFetch(params).then(response => {
-                if (response.success === 1) {
-                    users.value = response.data;
-                }
-            });
-        };
-        loadUsers();
+        const refreshTable = ref(false);
 
         return {
-            users,
-            loadUsers,
             showModal,
             tokenIdSelected,
+            refreshTable,
         };
     },
     methods: {
+        accion(/** @type {Object} */ accion) {
+            log(accion);
+            const actions = {
+                editUser: () => this.editUser(accion.item.tokenid),
+                changePassword: () => this.changePassword(accion.item.tokenid),
+                changeStatus: () => this.changeStatus(accion.item),
+                closeModal: () => (this.showModal = false),
+            };
+            const action = actions[accion.accion] || (() => log('Accion no encontrada'));
+            if (typeof action === 'function') {
+                action();
+            }
+        },
         editUser(tokenid) {
             window.location.href = `/admin/usuarios/editUser/${tokenid}`;
         },
-        deleteUser(user) {
+        changePassword(tokenid) {
+            this.showModal = true;
+            this.tokenIdSelected = tokenid;
+        },
+        changeStatus(item) {
             const swalParams =
-                user.status === '1'
+                item.status === '1'
                     ? {
                           title: '¿Estas seguro?',
                           text: 'El usuario sera desactivado y no podra acceder al sistema',
@@ -168,7 +168,7 @@ app.component('tableUsers', {
                             'content-type': 'application/json',
                         },
                         data: JSON.stringify({
-                            tokenid: user.tokenid,
+                            tokenid: item.tokenid,
                         }),
                     };
                     versaFetch(params).then(response => {
@@ -176,7 +176,9 @@ app.component('tableUsers', {
                             versaAlert({
                                 message: response.message,
                                 type: 'success',
-                                callback: () => this.loadUsers(),
+                                callback: () => {
+                                    this.refreshTable = !this.refreshTable;
+                                },
                             });
                         } else {
                             versaAlert({ message: response.message, title: 'Error', type: 'error' });
@@ -185,80 +187,16 @@ app.component('tableUsers', {
                 }
             });
         },
-        showModalUpdatePass(tokenid) {
-            this.showModal = true;
-            this.tokenIdSelected = tokenid;
-        },
     },
-    template: /*html*/ `
-        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-            <caption
-                class="p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"
-            >
-                Listado de Usuarios
-
-                <modalUpdatePass
-                    origen="usersPpal"
-                    :showModal="showModal"
-                    @accion="showModal = false"
-
-                    :tokenId="tokenIdSelected"
-                ></modalUpdatePass>
-
-            </caption>
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                    <th scope="col" class="px-6 py-3">Nombre</th>
-                    <th scope="col" class="px-6 py-3">Correo</th>
-                    <th scope="col" class="px-6 py-3">Rol</th>
-                    <th scope="col" class="px-6 py-3">Creado el</th>
-                    <th scope="col" class="px-6 py-3">Estado</th>
-                    <th scope="col" class="px-6 py-3"></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="user in users" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {{ user.name }}
-                    </th>
-                    <td class="px-6 py-4">{{ user.email }}</td>
-                    <td class="px-6 py-4">{{ user.role }}</td>
-                    <td class="px-6 py-4">{{ user.created_at }}</td>
-                    <td class="px-6 py-4">
-                        <span v-if="user.status === '1'"
-                            class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100"
-                        >
-                            Activo
-                        </span>
-                        <span v-else
-                            class="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full dark:bg-red-700 dark:text-red-100"
-                        >
-                            Inactivo
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <div class="flex justify-end gap-4">
-                            <button @click="editUser(user.tokenid)" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white" title="editar Usuario">
-                                <svg class="w-6 h-6 text-green-600 dark:text-green-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
-                                    <path d="M6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm-1.391 7.361.707-3.535a3 3 0 0 1 .82-1.533L7.929 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h4.259a2.975 2.975 0 0 1-.15-1.639ZM8.05 17.95a1 1 0 0 1-.981-1.2l.708-3.536a1 1 0 0 1 .274-.511l6.363-6.364a3.007 3.007 0 0 1 4.243 0 3.007 3.007 0 0 1 0 4.243l-6.365 6.363a1 1 0 0 1-.511.274l-3.536.708a1.07 1.07 0 0 1-.195.023Z"/>
-                                </svg>
-                            </button>
-                            <button @click="showModalUpdatePass(user.tokenid)" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white" title="Resetear Contraseña">
-                                <svg class="w-6 h-6 text-blue-600 dark:text-blue-600" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 19">
-                                    <path d="M7.324 9.917A2.479 2.479 0 0 1 7.99 7.7l.71-.71a2.484 2.484 0 0 1 2.222-.688 4.538 4.538 0 1 0-3.6 3.615h.002ZM7.99 18.3a2.5 2.5 0 0 1-.6-2.564A2.5 2.5 0 0 1 6 13.5v-1c.005-.544.19-1.072.526-1.5H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h7.687l-.697-.7ZM19.5 12h-1.12a4.441 4.441 0 0 0-.579-1.387l.8-.795a.5.5 0 0 0 0-.707l-.707-.707a.5.5 0 0 0-.707 0l-.795.8A4.443 4.443 0 0 0 15 8.62V7.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.12c-.492.113-.96.309-1.387.579l-.795-.795a.5.5 0 0 0-.707 0l-.707.707a.5.5 0 0 0 0 .707l.8.8c-.272.424-.47.891-.584 1.382H8.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1.12c.113.492.309.96.579 1.387l-.795.795a.5.5 0 0 0 0 .707l.707.707a.5.5 0 0 0 .707 0l.8-.8c.424.272.892.47 1.382.584v1.12a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1.12c.492-.113.96-.309 1.387-.579l.795.8a.5.5 0 0 0 .707 0l.707-.707a.5.5 0 0 0 0-.707l-.8-.795c.273-.427.47-.898.584-1.392h1.12a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5ZM14 15.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z"/>
-                                </svg>
-                            </button>
-                            <button @click="deleteUser(user)" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white" title="Desactivar Usuario">
-                                <svg class="w-6 h-6" :class="user.status === '0' ? 'text-yellow-300 dark:text-yellow-300':'text-red-500 dark:text-red-500' " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
-                                    <path v-if="user.status === '1'" d="M6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Zm11-3h-6a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2Z"/>
-                                    <path v-else d="M6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Zm11-3h-2V5a1 1 0 0 0-2 0v2h-2a1 1 0 1 0 0 2h2v2a1 1 0 0 0 2 0V9h2a1 1 0 1 0 0-2Z"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>`,
+    template: `
+        <customTable urlData="/admin/users/getUsersPaginated" tablaTitle="Listado de Usuarios" @accion="accion" returnFieldId="tokenid" :refreshData="refreshTable" />
+        <modalUpdatePass
+            origen="usersPpal"
+            :showModal="showModal"
+            @accion="showModal = false"
+            :tokenId="tokenIdSelected"
+        />
+    `,
 });
 app.component('modalUpdatePass', {
     emits: ['accion'],
@@ -420,5 +358,6 @@ app.component('modalUpdatePass', {
 });
 
 app.component('modal', modal);
+app.component('customTable', customTable);
 
 app.mount('.content-wrapper');

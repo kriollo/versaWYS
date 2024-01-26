@@ -30,8 +30,8 @@ Router::get('/admin/usuarios/editUser/{id}',
         ]);
 
 //Rutas de API
-Router::get('/admin/users/getAllUsers',
-    [\app\controllers\UsersController::class, 'getAllUsers']
+Router::get('/admin/users/getUsersPaginated',
+    [\app\controllers\UsersController::class, 'getUsersPaginated']
 )->middleware([
             [AuthMiddleware::class, 'checkSession']
         ]);
