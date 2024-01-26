@@ -1,1 +1,0 @@
-import e from"../store/fileTypes.js";export const useValidFile=(t,i)=>{const s=e.data().fileTypes.find((e=>e.type===i.type));if(!s)return!1;return!!t.find((e=>e===s.ext))};export const useFileZise=(e,t)=>e.size/1e6<=t;
