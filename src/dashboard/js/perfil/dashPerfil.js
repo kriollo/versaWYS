@@ -1,7 +1,5 @@
 'use strict';
 // @ts-ignore
-const { ref, computed, reactive, watch } = Vue;
-import { versaAlert, versaFetch } from '../functions.js';
 import { app } from '../vue-instancia.js';
 app.component('perfilapp', {
     setup() {
@@ -17,7 +15,7 @@ app.component('perfilapp', {
             }
         },
     },
-    template: /*html*/ `
+    template:`
         <div class="mx-4 my-4 lg:flex lg:justify-between max-sm:flex-col max-sm:flex-wrap">
             <div class="flex gap-2">
                 <svg
@@ -27,7 +25,9 @@ app.component('perfilapp', {
                     xmlns="http://www.w3.org/2000/svg"
                 >
                     <path
-                        d="M0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm14-7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm-5-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm-5-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1ZM20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4Z"
+                        fill-rule="evenodd"
+                        d="M10.8 5a3 3 0 0 0-5.6 0H4a1 1 0 1 0 0 2h1.2a3 3 0 0 0 5.6 0H20a1 1 0 1 0 0-2h-9.2ZM4 11h9.2a3 3 0 0 1 5.6 0H20a1 1 0 1 1 0 2h-1.2a3 3 0 0 1-5.6 0H4a1 1 0 1 1 0-2Zm1.2 6H4a1 1 0 1 0 0 2h1.2a3 3 0 0 0 5.6 0H20a1 1 0 1 0 0-2h-9.2a3 3 0 0 0-5.6 0Z"
+                        clip-rule="evenodd"
                     />
                 </svg>
                 <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Perfil</h1>
@@ -71,7 +71,9 @@ app.component('perfilapp', {
                                     d="m1 9 4-4-4-4"
                                 />
                             </svg>
-                            <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">Perfil</span>
+                            <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400"
+                                >Perfil</span
+                            >
                         </div>
                     </li>
                     <li aria-current="page">
@@ -92,9 +94,20 @@ app.component('perfilapp', {
                                 />
                             </svg>
                             <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">
-                                <a @click="accion({accion:'openModal'})" class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer">
-                                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 8v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0Zm12 7h-1v1a1 1 0 0 1-2 0v-1H8a1 1 0 0 1 0-2h1v-1a1 1 0 1 1 2 0v1h1a1 1 0 0 1 0 2Z"/>
+                                <a
+                                    @click="accion({accion:'openModal'})"
+                                    class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer"
+                                >
+                                    <svg
+                                        class="w-6 h-6 text-gray-800 dark:text-white"
+                                        aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                    >
+                                        <path
+                                            d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 8v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0Zm12 7h-1v1a1 1 0 0 1-2 0v-1H8a1 1 0 0 1 0-2h1v-1a1 1 0 1 1 2 0v1h1a1 1 0 0 1 0 2Z"
+                                        />
                                     </svg>
                                     <span class="max-lg:hidden ms-2">Nuevo Perfil</span>
                                 </a>
@@ -105,10 +118,9 @@ app.component('perfilapp', {
             </nav>
         </div>
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg mx-4">
-            <hr class="h-px mt-8 mb-4 bg-gray-200 border-0 dark:bg-gray-700">
-
+            <hr class="h-px mt-8 mb-4 bg-gray-200 border-0 dark:bg-gray-700" />
         </div>
-        `,
+    `,
 });
 
 app.mount('.content-wrapper');
