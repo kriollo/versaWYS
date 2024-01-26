@@ -141,3 +141,5 @@ export const versaAlert = Params => {
         }
     });
 };
+
+export const log = console.log.bind(console);
