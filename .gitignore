@@ -2,4 +2,6 @@
 /versaWYS/vendor/*
 /versaWYS/composer.lock
 /public/dashboard/store/*
+/public/dashboard/**/*.js
+/public/dashboard/**/*.css
 /versaCompileJS/node_modules/*
