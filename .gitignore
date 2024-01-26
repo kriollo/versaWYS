@@ -1,0 +1,5 @@
+/app/templates/.cache/*
+/versaWYS/vendor/*
+/versaWYS/composer.lock
+/public/dashboard/store/*
+/versaCompileJS/node_modules/*

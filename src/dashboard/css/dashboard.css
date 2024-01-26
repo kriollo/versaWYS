@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* feed styles */
+
+body {
+    position: relative;
+    min-height: 100vh;
+}
+
+/* Cambiar el color del scrollbar */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgb(31 41 55 / var(--tw-bg-opacity)); /* Color del thumb (barra deslizadora) */
+    border-radius: 6px; /* Bordes redondeados */
+}
+
+::-webkit-scrollbar-track {
+    background-color: #f1f1f19f; /* Color del track (barra de fondo) */
+}
+
+/* Otros navegadores (Firefox) */
+html {
+    scrollbar-color: rgb(31 41 55 / var(--tw-bg-opacity)) #f1f1f19f;
+}
+
+/* Otra forma de personalizar en Firefox */
+html {
+    scrollbar-color: rgb(31 41 55 / var(--tw-bg-opacity)) transparent;
+}
+
+@media (min-width: 1280px) {
+    .feed-container {
+        height: calc(100vh - 4rem);
+    }
+}
+.DragDropArea {
+    border: 5px dashed #ddd;
+    height: 100%;
+    width: 100%;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: #9cafa736;
+}
+.DragDropArea.active {
+    background-color: #b8d4fe;
+    color: black;
+    border: 2px dashed #618ac9;
+}
+.DragDropArea h2 {
+    font-size: 30px;
+    font-weight: 500;
+    color: #000;
+}
+.DragDropArea span {
+    font-size: 25px;
+    font-weight: 500;
+    color: #000;
+}

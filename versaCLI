@@ -1,0 +1,13 @@
+<?php
+
+declare(strict_types=1);
+
+require_once 'versaWYS/vendor/autoload.php';
+require_once 'versaWYS/kernel/autoload.php';
+
+use versaWYS\kernel\cli\CommandLineInterface;
+
+$config = json_decode(file_get_contents(__DIR__ . '/versaWYS/kernel/config/config.json'), true);
+
+$cli = new CommandLineInterface($argv);
+$cli->run();

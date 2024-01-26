@@ -1,0 +1,6 @@
+{% extends "dashboard/dashboard" %} {% block appDashboard %}
+{{ csrf_field() | raw }}
+<perfilapp></perfilapp>
+{% endblock %} {% block appScript %}
+<script type="module" src="{{ getAssets('dashboard', 'js', '/perfil/dashPerfil.js') }}?{{ date()|date('U') }}"></script>
+{% endblock %}

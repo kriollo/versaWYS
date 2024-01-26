@@ -1,0 +1,7 @@
+{% extends "dashboard/dashboard" %} {% block appDashboard %}
+{{ csrf_field() | raw }}
+<Usersppal></Usersppal>
+
+{% endblock %} {% block appScript %}
+<script type="module" src="{{ getAssets('dashboard', 'js', '/usuarios/usersPpal.js') }}?{{ date()|date('U') }}"></script>
+{% endblock %}
