@@ -11,7 +11,7 @@ class m20231127_CreateTableMigration
     public static function up(): Array
     {
         try{
-            R::exec("CREATE TABLE `migrations` (
+            R::exec("CREATE TABLE `versamigrations` (
                 `id` int(11) NOT NULL AUTO_INCREMENT,
                 `name` varchar(255) NOT NULL,
                 `created_at` datetime NOT NULL,
@@ -27,6 +27,6 @@ class m20231127_CreateTableMigration
 
     public static function down(): void
     {
-        R::exec("DROP TABLE `migrations`;");
+        R::exec("DROP TABLE `versamigrations`;");
     }
 }

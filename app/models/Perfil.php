@@ -9,7 +9,7 @@ use versaWYS\kernel\RedBeanCnn;
 
 class Perfil extends \RedBeanPHP\SimpleModel
 {
-    protected static $table = 'perfil';
+    protected static $table = 'versaperfil';
 
     /**
      * Get all perfil.
@@ -20,7 +20,7 @@ class Perfil extends \RedBeanPHP\SimpleModel
      */
     public function all()
     {
-        return R::getAll('SELECT * FROM perfil');
+        return R::getAll('SELECT * FROM versaperfil');
     }
 
     public function __construct()

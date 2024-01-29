@@ -8,6 +8,10 @@ use versaWYS\kernel\Router;
 use app\middleware\AuthMiddleware;
 use app\middleware\PerfilMiddleware;
 
-Router::get('/admin/perfiles',
-    [\app\controllers\PerfilController::class,'index']
-);
+Router::get(
+    '/admin/perfiles',
+    [\app\controllers\PerfilController::class, 'index']
+)->middleware([
+    [AuthMiddleware::class, 'checkSession'],
+    [AuthMiddleware::class, 'onlyAdmin']
+]);
