@@ -7,6 +7,8 @@ namespace versaWYS\kernel;
 use app\models as models;
 use versaWYS\kernel\helpers\Functions;
 
+//TODO: implementar politica de contraseñas (tiempo de expiración)
+
 class Globalcontrollers
 {
 
