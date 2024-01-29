@@ -15,10 +15,6 @@ export const customTable = {
             type: String,
             required: true,
         },
-        returnFieldId: {
-            type: String,
-            default: 'id',
-        },
         refreshData: {
             type: Boolean,
             default: false,
@@ -43,9 +39,9 @@ export const customTable = {
         });
 
         const getRefreshData = () => {
-            const page = new URLSearchParams(window.location.search).get('page') ?? resumeData.page;
-            const per_page = new URLSearchParams(window.location.search).get('per_page') ?? resumeData.per_page;
-            const filter = new URLSearchParams(window.location.search).get('filter') ?? resumeData.filter;
+            const page = new URLSearchParams(url).get('page') ?? resumeData.page;
+            const per_page = new URLSearchParams(url).get('per_page') ?? resumeData.per_page;
+            const filter = new URLSearchParams(url).get('filter') ?? resumeData.filter;
 
             versaFetch({
                 url: `${url}?page=${page}&per_page=${per_page}&filter=${filter}`,
@@ -87,7 +83,7 @@ export const customTable = {
             this.$emit('accion', { item, accion });
         },
         getParams() {
-            const url = new URL(window.location.href);
+            const url = new URL(this.url);
             const params = new URLSearchParams(url.search);
 
             params.set('page', this.resumeData.page);
