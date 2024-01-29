@@ -8,7 +8,8 @@ use versaWYS\kernel\Globalcontrollers;
 use app\Models as Models;
 use versaWYS\kernel\Response;
 
-class PerfilController extends Globalcontrollers {
+class PerfilController extends Globalcontrollers
+{
 
     public function __construct()
     {
@@ -16,9 +17,8 @@ class PerfilController extends Globalcontrollers {
         parent::__construct($twig, $session);
     }
 
-    public static function index()
+    public function index()
     {
-        global $twig;
-        return $twig->render('dashboard/perfil/dashPerfil');
+        return $this->template->render('dashboard/perfil/dashPerfil');
     }
 }

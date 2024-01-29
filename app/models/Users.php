@@ -9,7 +9,7 @@ use RedBeanPHP\R;
 use versaWYS\kernel\RedBeanCnn;
 
 /**
- * Class Users
+ * Class versausers
  *
  * This class represents the Users model in the application.
  * It provides methods to interact with the users table in the database.
@@ -47,7 +47,7 @@ class Users extends \RedBeanPHP\SimpleModel
     public function pagination(string $filter = '')
     {
         $filter = $filter ? "WHERE $filter" : '';
-        $result = R::getAll("SELECT SQL_CALC_FOUND_ROWS * FROM users $filter");
+        $result = R::getAll("SELECT SQL_CALC_FOUND_ROWS * FROM versausers $filter");
         $total = R::getCell('SELECT FOUND_ROWS()');
         return ['total' => $total, 'data' => $result];
     }
@@ -62,7 +62,7 @@ class Users extends \RedBeanPHP\SimpleModel
      */
     public function find($id, $field = 'id')
     {
-        $result = R::findOne('users', "{$field} = ?", [$id]);
+        $result = R::findOne('versausers', "{$field} = ?", [$id]);
         return $result ? $result->export() : [];
     }
 
@@ -91,7 +91,7 @@ class Users extends \RedBeanPHP\SimpleModel
      */
     public function saveTokenResetPass($email, $token)
     {
-        $user = R::findOne('users', 'email = ?', [$email]);
+        $user = R::findOne('versausers', 'email = ?', [$email]);
         $user->restore_token = $token;
         R::store($user);
     }
@@ -122,7 +122,7 @@ class Users extends \RedBeanPHP\SimpleModel
      */
     public function updatePassword($email, $password)
     {
-        $user = R::findOne('users', 'email = ?', [$email]);
+        $user = R::findOne('versausers', 'email = ?', [$email]);
         $user->password = $password;
         $user->restore_token = null;
         R::store($user);
@@ -130,7 +130,7 @@ class Users extends \RedBeanPHP\SimpleModel
 
     public function create($params)
     {
-        $user = R::dispense('users');
+        $user = R::dispense('versausers');
         $user->tokenid = Functions::generateCSRFToken();
         $user->name = $params['name'];
         $user->email = $params['email'];
@@ -144,7 +144,7 @@ class Users extends \RedBeanPHP\SimpleModel
 
     public function update($params)
     {
-        $user = R::findOne('users', 'tokenid = ?', [$params['tokenid']]);
+        $user = R::findOne('versausers', 'tokenid = ?', [$params['tokenid']]);
         $user->name = $params['name'];
         $user->password = $params['password'];
         $user->role = $params['role'];
@@ -154,14 +154,14 @@ class Users extends \RedBeanPHP\SimpleModel
 
     public function delete($id)
     {
-        $user = R::findOne('users', 'tokenid = ?', [$id]);
+        $user = R::findOne('versausers', 'tokenid = ?', [$id]);
         $user->status = $user->status === '1' ? '0' : '1';
         return R::store($user);
     }
 
     public function updatePassworByTokenId($params)
     {
-        $user = R::findOne('users', 'tokenid = ?', [$params['tokenid']]);
+        $user = R::findOne('versausers', 'tokenid = ?', [$params['tokenid']]);
         $user->password = $params['new_password'];
         $user->updated_at = date('Y-m-d H:i:s');
         return R::store($user);

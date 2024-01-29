@@ -12,7 +12,7 @@ class m20231128_CreateTableUsers
     public static function up(): array
     {
         try {
-            R::exec("CREATE TABLE `users` (
+            R::exec("CREATE TABLE `versausers` (
                 `id` int(11) NOT NULL AUTO_INCREMENT,
                 `tokenid` varchar(255) NOT NULL,
                 `name` varchar(255) NOT NULL,
@@ -47,6 +47,6 @@ class m20231128_CreateTableUsers
 
     public static function down(): void
     {
-        R::exec("DROP TABLE `users`;");
+        R::exec("DROP TABLE `versausers`;");
     }
 }

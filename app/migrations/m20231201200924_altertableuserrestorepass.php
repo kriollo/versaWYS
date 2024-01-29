@@ -12,7 +12,7 @@ class m20231201200924_altertableuserrestorepass
     {
         try {
 
-            R::exec("ALTER TABLE `users`
+            R::exec("ALTER TABLE `versausers`
             ADD COLUMN `restore_token` VARCHAR(255) NULL AFTER `status`;");
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
