@@ -15,21 +15,21 @@ class m20240129162151_perfildetalle
             R::exec("CREATE TABLE IF NOT EXISTS `versaperfildetalle` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
                 `perfil_id` INT(11) NOT NULL,
-                `modulo_id` INT(11) NOT NULL,
+                `menu_id` INT(11) NOT NULL,
                 `estado` TINYINT(1) NOT NULL DEFAULT 1,
                 `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (`id`),
                 INDEX `fk_perfildetalle_perfil_idx` (`perfil_id` ASC) VISIBLE,
-                INDEX `fk_perfildetalle_modulo_idx` (`modulo_id` ASC) VISIBLE,
+                INDEX `fk_perfildetalle_menu_idx` (`menu_id` ASC) VISIBLE,
                 CONSTRAINT `fk_perfildetalle_perfil`
                   FOREIGN KEY (`perfil_id`)
-                  REFERENCES `perfil` (`id`)
+                  REFERENCES `versaperfil` (`id`)
                   ON DELETE NO ACTION
                   ON UPDATE NO ACTION,
-                CONSTRAINT `fk_perfildetalle_modulo`
-                  FOREIGN KEY (`modulo_id`)
-                  REFERENCES `modulo` (`id`)
+                CONSTRAINT `fk_perfildetalle_menu`
+                  FOREIGN KEY (`menu_id`)
+                  REFERENCES `versamenu` (`id`)
                   ON DELETE NO ACTION
                   ON UPDATE NO ACTION)
               ENGINE = InnoDB

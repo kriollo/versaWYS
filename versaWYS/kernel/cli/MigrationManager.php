@@ -51,7 +51,7 @@ class MigrationManager
                     exit;
                 }
 
-                $manager = R::dispense('migrations');
+                $manager = R::dispense('versamigrations');
                 $manager->name = $className;
                 $manager->created_at = date('Y-m-d H:i:s');
                 R::store($manager);
@@ -102,7 +102,7 @@ class MigrationManager
                 exit;
             }
 
-            R::exec("DELETE FROM migrations WHERE name = '$className'");
+            R::exec("DELETE FROM versamigrations WHERE name = '$className'");
 
             echo "Migración ejecutada con éxito.\n";
             self::close();
@@ -169,7 +169,7 @@ class MigrationManager
 
     public static function checkIfExecuted($migration)
     {
-        $migrations = R::findAll('migrations');
+        $migrations = R::findAll('versamigrations');
         foreach ($migrations as $m) {
             if ($m->name == $migration) {
                 return true;

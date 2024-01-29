@@ -6,20 +6,29 @@ namespace app\migrations;
 
 use RedBeanPHP\R;
 
-class m20240129160457_modulo
+class m20240128160458_submenu
 {
     public static function up()
     {
         try {
 
-            R::exec("CREATE TABLE IF NOT EXISTS `versamodulo` (
+            R::exec("CREATE TABLE IF NOT EXISTS `versasubmenu` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
-                `nombre` VARCHAR(255) NOT NULL,
+                `id_menu` INT(11) NOT NULL,
                 `descripcion` VARCHAR(255) NOT NULL,
+                `url` VARCHAR(255) NOT NULL,
                 `icono` VARCHAR(255) NOT NULL,
+                `posicion` INT(11) NOT NULL DEFAULT '0',
+                `estado` TINYINT(1) NOT NULL DEFAULT '1',
                 `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (`id`)
+                PRIMARY KEY (`id`),
+                INDEX `fk_submenu_menu_idx` (`id_menu` ASC) VISIBLE,
+                CONSTRAINT `fk_submenu_menu_idx`
+                    FOREIGN KEY (`id_menu`)
+                    REFERENCES `versamenu` (`id`)
+                    ON DELETE NO ACTION
+                    ON UPDATE NO ACTION
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
@@ -32,7 +41,7 @@ class m20240129160457_modulo
     {
         try {
 
-            R::exec("DROP TABLE IF EXISTS `versamodulo`;");
+            R::exec("DROP TABLE IF EXISTS `versamenu`;");
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
         } catch (\Exception $e) {

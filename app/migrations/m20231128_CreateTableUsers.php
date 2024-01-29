@@ -27,7 +27,7 @@ class m20231128_CreateTableUsers
                 UNIQUE KEY `tokenid` (`tokenid`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-            $users = R::dispense('users');
+            $users = R::dispense('versausers');
             $users->tokenid = Functions::generateCSRFToken();
             $users->name = 'admin';
             $users->email = 'admin@wys.cl';
@@ -39,7 +39,6 @@ class m20231128_CreateTableUsers
             R::store($users);
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
-
         } catch (\Exception $e) {
             return ['message' => $e->getMessage(), 'success' => false];
         }
