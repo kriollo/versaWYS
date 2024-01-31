@@ -27,6 +27,8 @@ versaWYS-PHP ofrece las siguientes características:
     -   Serve - Config - Controller - Models - Middleware - Migrations - Routes
 -   Manejo de Sesiones y Cookies: Manejo de sesiones y cookies desde el núcleo del framework.
 -   Envio de correos electrónicos con sinfony\mailer, puedes adjuntar archivo, embeding de imagenes, formato de correo en texto, html templating o usar una plantilla twig.
+-   Puedes agregar la ruta absoluta de las imagenes o archivos publicos desde el archivo de configuración `config.json`, en el apartado `assets`.
+    -   `getAssets('dashboard', 'img', '/404.svg')` retorna la ruta absoluta de la imagen para las plantillas Twig.
 
 ## Seguridad
 
