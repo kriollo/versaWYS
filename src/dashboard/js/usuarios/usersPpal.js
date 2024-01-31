@@ -6,6 +6,8 @@ import { customTable } from '../components/customTable.js';
 import { modal } from '../components/modal.js';
 import { log, versaAlert, versaFetch } from '../functions.js';
 import { app } from '../vue-instancia.js';
+// @ts-ignore
+import Swal from 'sweetalert2';
 
 app.component('Usersppal', {
     setup() {},
@@ -157,7 +159,6 @@ app.component('tableUsers', {
                           cancelButtonText: 'Cancelar',
                       };
 
-            // @ts-ignore
             Swal.fire(swalParams).then(result => {
                 if (result.isConfirmed) {
                     const params = {

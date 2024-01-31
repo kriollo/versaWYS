@@ -22,7 +22,9 @@
         {% block appBody %}{% endblock %} {% block appFooter %}{% endblock %}
 
         <!-- SweetAlert2 -->
+        {# //
         <script src="/public/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+        #}
 
         <script src="/public/vendor/flowbite/flowbite.min.js"></script>
         <script src="{{ getAssets('dashboard', 'js', '/dashboard.js') }}?{{ date()|date('U') }}"></script>
@@ -33,7 +35,8 @@
                 "imports": {
                     "vue": "{{ assets_url('public/vendor/vue/vue.esm-browser.prod.js') }}",
                     "vue-demi": "{{ assets_url('public/vendor/vue/vue-demi-v3.mjs') }}",
-                    "pinia": "{{ assets_url('public/vendor/vue/pinia@2.1.7.esm-browser.prod.js') }}"
+                    "pinia": "{{ assets_url('public/vendor/vue/pinia@2.1.7.esm-browser.prod.js') }}",
+                    "sweetalert2": "{{ assets_url('public/vendor/sweetalert2/sweetalert2.mjs') }}"
                 }
             }
         </script>
@@ -44,7 +47,8 @@
                     "vue": "{{ assets_url('public/vendor/vue/vue.esm-browser.js') }}",
                     "vue-demi": "{{ assets_url('public/vendor/vue/vue-demi-v3.mjs') }}",
                     "pinia": "{{ assets_url('public/vendor/vue/pinia@2.1.7.esm-browser.js') }}",
-                    "@vue/devtools-api": "https://cdn.jsdelivr.net/npm/@vue/devtools-api/lib/esm/index.js"
+                    "@vue/devtools-api": "https://cdn.jsdelivr.net/npm/@vue/devtools-api/lib/esm/index.js",
+                    "sweetalert2": "{{ assets_url('public/vendor/sweetalert2/sweetalert2.mjs') }}"
                 }
             }
         </script>
