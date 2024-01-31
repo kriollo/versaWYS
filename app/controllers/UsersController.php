@@ -18,7 +18,9 @@ class UsersController extends Globalcontrollers
     }
     public function index()
     {
-        return $this->template->render('dashboard/usuarios/dashUsers');
+        return $this->template->render('dashboard/usuarios/dashUsers', [
+            'menu_op' => ['id_menu' => 0]
+        ]);
     }
 
     public function addUserTemplate()

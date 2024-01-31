@@ -15,7 +15,7 @@ app.component('perfilapp', {
             }
         },
     },
-    template:`
+    template: `
         <div class="mx-4 my-4 lg:flex lg:justify-between max-sm:flex-col max-sm:flex-wrap">
             <div class="flex gap-2">
                 <svg
@@ -119,6 +119,25 @@ app.component('perfilapp', {
         </div>
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg mx-4">
             <hr class="h-px mt-8 mb-4 bg-gray-200 border-0 dark:bg-gray-700" />
+        </div>
+    `,
+});
+
+app.component('perfiles', {
+    props: {
+       
+    },
+    setup () {
+       return {
+          
+       }
+    },
+    methods: {
+        
+    },
+    template: `
+        <div>
+            
         </div>
     `,
 });

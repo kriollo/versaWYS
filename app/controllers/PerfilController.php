@@ -19,6 +19,8 @@ class PerfilController extends Globalcontrollers
 
     public function index()
     {
-        return $this->template->render('dashboard/perfil/dashPerfil');
+        return $this->template->render('dashboard/perfil/dashPerfil', [
+            'menu_op' => ['id_menu' => 0]
+        ]);
     }
 }

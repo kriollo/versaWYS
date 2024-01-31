@@ -15,9 +15,10 @@ class m20240128160458_submenu
             R::exec("CREATE TABLE IF NOT EXISTS `versasubmenu` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
                 `id_menu` INT(11) NOT NULL,
+                `nombre` VARCHAR(255) NOT NULL,
                 `descripcion` VARCHAR(255) NOT NULL,
                 `url` VARCHAR(255) NOT NULL,
-                `icono` VARCHAR(255) NOT NULL,
+                `icono` VARCHAR(255) NOT NULL DEFAULT 'bi bi-circle',
                 `posicion` INT(11) NOT NULL DEFAULT '0',
                 `estado` TINYINT(1) NOT NULL DEFAULT '1',
                 `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
