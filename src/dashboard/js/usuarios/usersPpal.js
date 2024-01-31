@@ -8,6 +8,9 @@ import { log, versaAlert, versaFetch } from '../functions.js';
 import { app } from '../vue-instancia.js';
 // @ts-ignore
 import Swal from 'sweetalert2';
+// @ts-ignore
+import sheet from '/public/vendor/sweetalert2/sweetalert2.dark.min.css' assert { type: 'css' };
+document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
 
 app.component('Usersppal', {
     setup() {},
