@@ -1,5 +1,8 @@
 // @ts-ignore
 import Swal from 'sweetalert2';
+// @ts-ignore
+import SwalStyles from '/public/vendor/sweetalert2/sweetalert2.dark.min.css' assert { type: 'css' };
+document.adoptedStyleSheets = [...document.adoptedStyleSheets, SwalStyles];
 /**
  * Verifica si existe una cookie llamada 'debug'.
  * @returns {boolean} True si la cookie existe, de lo contrario False.
@@ -9,7 +12,7 @@ export const existeCookieBuild = () => {
     return cookie !== undefined;
 };
 
-const validateResponeStatus = (status) => {
+const validateResponeStatus = status => {
     const errorMap = new Map([
         [400, 'El Servidor no pudo procesar la solicitud'],
         [401, 'No está autorizado para acceder a este recurso'],
@@ -28,7 +31,7 @@ const validateResponeStatus = (status) => {
     }
 
     return result;
-}
+};
 
 /**
  * Performs a fetch request with the provided parameters.
