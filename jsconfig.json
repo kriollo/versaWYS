@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "checkJs": true,
-    "target": "es2019",
+    "target": "es2015",
     "lib": ["es2015", "es2019", "dom", "scripthost", "dom.iterable"],
     "sourceMap": true,
     "allowJs": true,
@@ -9,7 +9,7 @@
     "module": "esnext",
     "moduleResolution": "node"
   },
-  "exclude": ["public/vendor/**/*"],
+  "exclude": ["./public/vendor/**/*"],
   "include": ["./src/**/*", "public/vendor", "public/web/js/main.js"],
   "typeAcquisition": {
     "enable": true,
@@ -32,7 +32,8 @@
       "pinia",
       "Vue",
       "Pinia",
-      "Swal"
+      "Swal",
+      "sweetalert2"
     ]
   }
 }
