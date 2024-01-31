@@ -52,7 +52,7 @@ versaWYS-PHP ofrece las siguientes características de seguridad:
 2. ingresar a versaWYS: `cd versaWYS` y ejecutar el comando `composer install` para instalar las dependencias.
 3. Crear una base de datos en MySQL.
 4. Configurar el archivo `config.json` con los datos de conexión a la base de datos y el nombre de la aplicación.
-5. Ejecutar el comando `php versaWYS migrate:up` para crear las tablas necesarias en la base de datos, sólo si requieres acceso de usuario.
+5. Ejecutar el comando `php versaCLI migrate:up` para crear las tablas necesarias en la base de datos, sólo si requieres acceso de usuario.
 
 ## Uso
 
@@ -112,6 +112,24 @@ o puedes configurar un VirtualHost en Apache para acceder a la aplicación desde
             "name_from": "WYS Soluciones Inform\u00e1ticas",
             "username": "mail@wys.cl",
             "password": "*"
+        },
+        "assets": {
+            "dashboard": {
+                "js": {
+                    "src": "src\/dashboard\/js",
+                    "dist": "public\/dashboard\/js"
+                },
+                "css": {
+                    "src": "src\/dashboard\/css",
+                    "dist": "public\/dashboard\/css"
+                },
+                "img": {
+                    "dist": "public\/dashboard\/img"
+                },
+                "store": {
+                    "dist": "public\/dashboard\/store"
+                }
+            }
         }
     }
 
