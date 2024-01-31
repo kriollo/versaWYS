@@ -27,8 +27,8 @@ versaWYS-PHP ofrece las siguientes características:
     -   Serve - Config - Controller - Models - Middleware - Migrations - Routes
 -   Manejo de Sesiones y Cookies: Manejo de sesiones y cookies desde el núcleo del framework.
 -   Envio de correos electrónicos con sinfony\mailer, puedes adjuntar archivo, embeding de imagenes, formato de correo en texto, html templating o usar una plantilla twig.
--   Puedes agregar la ruta absoluta de las imagenes o archivos publicos desde el archivo de configuración `config.json`, en el apartado `assets`.
-    -   `getAssets('dashboard', 'img', '/404.svg')` retorna la ruta absoluta de la imagen para las plantillas Twig.
+-   Puedes configurar las rutas de las imagenes o archivos publicos desde el archivo de configuración `config.json`, en el apartado `assets`.
+    -   desde la plantilla Twig utilizas la función `{{ getAssets('dashboard', 'img', '/404.svg') }}`, el cual retorna la ruta absoluta de la imagen
 
 ## Seguridad
 
@@ -48,23 +48,22 @@ versaWYS-PHP ofrece las siguientes características de seguridad:
 -   Apache 2.4 o superior
 -   Modulo Apache mod_rewrite
 
-## Instalación
+## Inicio Rápido
 
-1. Clonar el repositorio o descargar zip, dejar en el directorio de tu servidor web.
-2. ingresar a versaWYS: `cd versaWYS` y ejecutar el comando `composer install` para instalar las dependencias.
-3. Crear una base de datos en MySQL.
-4. Configurar el archivo `config.json` con los datos de conexión a la base de datos y el nombre de la aplicación.
-5. Ejecutar el comando `php versaCLI migrate:up` para crear las tablas necesarias en la base de datos, sólo si requieres acceso de usuario.
+Para comenzar con `versaWYS-PHP`, sigue estos pasos:
 
-## Uso
+1. Clona el repositorio: `git clone https://github.com/kriollo/versaWYS.git`
+2. Instala las dependencias: `cd versaWYS && composer install`
+3. Configura tu base de datos y actualiza `config.json` con tus credenciales.
+4. Ejecuta `php versaCLI migrate:up` para configurar tu base de datos.
+5. Inicia el servidor de desarrollo: `php versaCLI serve`
 
-puedes ejecutar el comando `php -S localhost:8000` para iniciar el servidor web de PHP y acceder a la aplicación desde tu navegador web.
-o puedes configurar un VirtualHost en Apache para acceder a la aplicación desde un dominio local.
+Ahora puedes acceder a tu nueva aplicación `versaWYS-PHP` en `http://localhost:8000`.
 
 ## Archivo de Configuración `versaWYS\kernel\config\config.json`
 
     {
-        "framework": "versaWYS-PHP 0.8.5",
+        "framework": "versaWYS-PHP 0.9.5",
         "DB": {
             "DB_HOST": "localhost",
             "DB_USER": "local",
