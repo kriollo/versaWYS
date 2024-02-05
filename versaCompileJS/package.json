@@ -10,6 +10,7 @@
   "author": "Jorge Jara H.(jjara@wys.cl)",
   "license": "MIT",
   "dependencies": {
+    "chalk": "4.1.0",
     "glob": "^10.3.10",
     "glob-promise": "^6.0.5",
     "gulp": "4.0.2",

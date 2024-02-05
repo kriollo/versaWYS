@@ -3,14 +3,15 @@ const { minify } = require('terser');
 const { watch } = require('gulp');
 const { glob } = require('glob');
 const path = require('path');
+const chalk = require('chalk');
 const log = console.log.bind(console);
+const error = console.error.bind(console);
 
 const PATH_SOURCE = '../src';
 const PATH_DIST = '../public';
 
-const mapRuta = ruta => {
-    return path.join(PATH_DIST, path.relative(PATH_SOURCE, ruta)); //ruta.replace('\\', '/').replace(PATH_SOURCE, PATH_DIST).replace('\\', '/');
-};
+const mapRuta = ruta => path.join(PATH_DIST, path.relative(PATH_SOURCE, ruta));
+
 const init = async () => {
     try {
         const watchDir = `${PATH_SOURCE}/**/*.js`;
@@ -19,12 +20,12 @@ const init = async () => {
             .on('add', path => compile(path))
             .on('change', path => compile(path))
             .on('unlink', path => deleteFile(path));
-        log(`Watching ${watchDir}`);
+        log(chalk.green(`Watching ${watchDir}`));
 
         // Ejecutar la compilación al inicio
         await compileAll(watchDir);
     } catch (error) {
-        console.error('Error al iniciar:', error);
+        error(chalk.red('Error al iniciar:'), error);
     }
 };
 
@@ -38,7 +39,7 @@ const compile = path => {
     if (outputPath) {
         compileJS(path, outputPath);
     } else {
-        console.log(`Tipo no reconocido: ${extension}`);
+        log(chalk.yellow(`Tipo no reconocido: ${extension}`));
     }
 };
 const compileJS = async (source, destination) => {
@@ -46,17 +47,22 @@ const compileJS = async (source, destination) => {
         const data = await fs.readFile(source, 'utf-8');
         if (!data) return;
 
+        const startTime = Date.now();
         const filename = path.basename(source);
-        log(`Compilando ${filename}`);
+        log(chalk.blue(`Compilando ${filename}`));
 
         const result = await minify({ [filename]: data }, { toplevel: true, compress: true, module: true });
-        log(`Escribiendo ${destination}`);
+        const endTime = Date.now();
+        log(chalk.green(`Escribiendo ${destination}`));
 
         const destinationDir = path.dirname(destination);
         await fs.mkdir(destinationDir, { recursive: true });
         await fs.writeFile(destination, result.code, 'utf-8');
-    } catch (error) {
-        console.error(`Error durante la compilación JS: ${error}`);
+
+        const elapsedTime = endTime - startTime;
+        log(chalk.gray(`Compilación exitosa (${elapsedTime} ms)`));
+    } catch (errora) {
+        error(chalk.red(`Error durante la compilación JS: ${errora}`));
     }
 };
 const compileAll = async watchDir => {
@@ -65,14 +71,14 @@ const compileAll = async watchDir => {
         for (const file of files) {
             compile(file);
         }
-    } catch (error) {
-        console.error('Error durante la compilación inicial:', error);
+    } catch (errora) {
+        error(chalk.red('Error durante la compilación inicial:'), errora);
     }
 };
 const deleteFile = async ruta => {
     const newPath = mapRuta(ruta.replace('\\', '/'));
     try {
-        log(`Eliminando ${newPath}`);
+        log(chalk.yellow(`Eliminando ${newPath}`));
 
         const stat = await fs.stat(newPath);
         if (stat.isDirectory()) {
@@ -89,9 +95,9 @@ const deleteFile = async ruta => {
             await fs.rmdir(dir);
         }
 
-        log(`Eliminación exitosa: ${newPath}`);
-    } catch (error) {
-        console.error(`Error al eliminar el archivo/directorio ${newPath}: ${error}`);
+        log(chalk.gray(`Eliminación exitosa: ${newPath}`));
+    } catch (errora) {
+        error(chalk.red(`Error al eliminar el archivo/directorio ${newPath}: ${errora}`));
     }
 };
 
