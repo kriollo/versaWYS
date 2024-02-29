@@ -47,6 +47,7 @@ versaWYS-PHP ofrece las siguientes características de seguridad:
 -   MySQL 5.7 o superior
 -   Apache 2.4 o superior
 -   Modulo Apache mod_rewrite
+-   node 18 o superior
 
 ## Inicio Rápido
 
@@ -64,13 +65,20 @@ Para comenzar con `versaWYS-PHP`, sigue estos pasos:
 
 Ahora puedes acceder a tu nueva aplicación `versaWYS-PHP` en `http://localhost:8000`.
 
--   Para compiliar los archivos css, abre una nueva terminal y sigue estos pasos:
+## Compilación de Archivos CSS y JS
+
+-   Abre una terminal y sigue estos pasos: (necesitas tener instalado node)
+
     -   `cd versaCompileJS`
-    -   `.\tailwindcss.exe -i ../src/dashboard/css/dashboard.css -o ../public/dashboard/css/dashboard.css --watch  --minify`
--   Para compiliar los archivos js, abre una nueva terminal y sigue los siguientes pasos: (debes tener node.js instalado)
-    -   `cd versaCompileJS`
-    -   `pnpm install`
-    -   `pnpm run watch`
+    -   `npm install`
+
+-   Para compiliar los archivos css:
+
+    -   `npx tailwindcss -i ../src/dashboard/css/dashboard.css -o ../public/dashboard/css/dashboard.css --watch  --minify`
+
+-   Para compiliar los archivos js
+
+    -   `npm run watch`
 
 ## Archivo de Configuración `versaWYS\kernel\config\config.json`
 
