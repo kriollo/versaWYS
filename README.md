@@ -56,13 +56,21 @@ Para comenzar con `versaWYS-PHP`, sigue estos pasos:
 2. Instala las dependencias: `cd versaWYS && composer install`
 3. Agregar la siguiente linea en: `\versaWYS\vendor\twig\twig\src\Loader\FilesystemLoader.php`
     - Buscar Función: `protected function findTemplate(string $name, bool $throw = true)`
-    - Agregar la siguiente linea despues de: `$name = $this->normalizeName($name);`
+    - Agregar la siguiente linea después de: `$name = $this->normalizeName($name);`
     - `$name .= !str_ends_with($name,'.twig') ? '.twig':''; // VersaWYS add para evitar que se busque el archivo sin la extensión`
 4. Configura tu base de datos y actualiza `config.json` con tus credenciales.
 5. Ejecuta `php versaCLI migrate:up` para configurar tu base de datos.
 6. Inicia el servidor de desarrollo: `php versaCLI serve`
 
 Ahora puedes acceder a tu nueva aplicación `versaWYS-PHP` en `http://localhost:8000`.
+
+-   Para compiliar los archivos css, abre una nueva terminal y sigue estos pasos:
+    -   `cd versaCompileJS`
+    -   `.\tailwindcss.exe -i ../src/dashboard/css/dashboard.css -o ../public/dashboard/css/dashboard.css --watch  --minify`
+-   Para compiliar los archivos js, abre una nueva terminal y sigue los siguientes pasos: (debes tener node.js instalado)
+    -   `cd versaCompileJS`
+    -   `pnpm install`
+    -   `pnpm run watch`
 
 ## Archivo de Configuración `versaWYS\kernel\config\config.json`
 
