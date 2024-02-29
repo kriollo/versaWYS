@@ -1,12 +1,12 @@
-{% extends 'dashboard/layout/layout' %} {% block appBody %} {% include 'dashboard/components/nav' %}
+{% extends 'dashboard/layout/layout.twig' %} {% block appBody %} {% include 'dashboard/components/nav.twig' %}
 <div class="flex pt-16 bg-gray-50 dark:bg-gray-900 pb-24">
-    {% include 'dashboard/components/aside' %}
+    {% include 'dashboard/components/aside.twig' %}
     <div class="fixed inset-0 z-10 hidden bg-gray-900/50 dark:bg-gray-900/90" id="sidebarBackdrop"></div>
 
     <div id="main-content" class="content-wrapper relative w-full h-full bg-gray-50 lg:ml-64 dark:bg-gray-900">
         {% block appDashboard %}{% endblock %}
     </div>
-    {% include 'dashboard/components/footer' %}
+    {% include 'dashboard/components/footer.twig' %}
 </div>
 
 {% endblock %}

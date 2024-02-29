@@ -44,7 +44,7 @@ class VersaModuleManager
         }
 
         $template = <<<'EOT'
-                        {% extends "dashboard/dashboard" %} {% block appDashboard %}
+                        {% extends "dashboard/dashboard.twig" %} {% block appDashboard %}
                         {{ csrf_field() | raw }}
                         <$moduleNameapp></$moduleNameapp>
                         {% endblock %} {% block appScript %}
