@@ -15,6 +15,7 @@ class m20240128160457_menu
             R::exec("CREATE TABLE IF NOT EXISTS `versamenu` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
                 `nombre` VARCHAR(255) NOT NULL,
+                `seccion` VARCHAR(255) NOT NULL,
                 `descripcion` VARCHAR(255) NOT NULL,
                 `icono` VARCHAR(255) NOT NULL,
                 `posicion` INT(11) NOT NULL DEFAULT '0',
