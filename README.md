@@ -67,10 +67,10 @@ Ahora puedes acceder a tu nueva aplicación `versaWYS-PHP` en `http://localhost:
 
 ## Compilación de Archivos CSS y JS
 
--   Abre una terminal y sigue estos pasos: (necesitas tener instalado node)
+-   Abre una terminal y sigue estos pasos: (necesitas tener instalado node y pnpm `npm i pnpm`)
 
     -   `cd versaCompileJS`
-    -   `npm install`
+    -   `pnpm install`
 
 -   Para compiliar los archivos css:
 
@@ -78,7 +78,7 @@ Ahora puedes acceder a tu nueva aplicación `versaWYS-PHP` en `http://localhost:
 
 -   Para compiliar los archivos js
 
-    -   `npm run watch`
+    -   `pnpm run watch`
 
 ## Archivo de Configuración `versaWYS\kernel\config\config.json`
 
