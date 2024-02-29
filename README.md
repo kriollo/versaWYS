@@ -55,7 +55,9 @@ Para comenzar con `versaWYS-PHP`, sigue estos pasos:
 1. Clona el repositorio: `git clone https://github.com/kriollo/versaWYS.git`
 2. Instala las dependencias: `cd versaWYS && composer install`
 3. Agregar la siguiente linea en: C:\Nextcloud\htdocs\versaWYS-PHP\versaWYS\vendor\twig\twig\src\Loader\FilesystemLoader.php
-    - $name .= !str_ends_with($name,'.twig') ? '.twig':''; // VersaWYS add para evitar que se busque el archivo sin la extensión
+    - Buscar Función: `protected function findTemplate(string $name, bool $throw = true)`
+    - Agregar la siguiente linea despues de: `$name = $this->normalizeName($name);`
+    - `$name .= !str_ends_with($name,'.twig') ? '.twig':''; // VersaWYS add para evitar que se busque el archivo sin la extensión`
 4. Configura tu base de datos y actualiza `config.json` con tus credenciales.
 5. Ejecuta `php versaCLI migrate:up` para configurar tu base de datos.
 6. Inicia el servidor de desarrollo: `php versaCLI serve`
