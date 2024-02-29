@@ -61,7 +61,7 @@ Para comenzar con `versaWYS-PHP`, sigue estos pasos:
 
 Ahora puedes acceder a tu nueva aplicación `versaWYS-PHP` en `http://localhost:8000`.
 
-## Compilación de Archivos CSS y JS
+## Minificación y ofuscación de archivos CSS y JS
 
 -   Abre una terminal y sigue estos pasos: (necesitas tener instalado node y pnpm `npm i pnpm`)
 
