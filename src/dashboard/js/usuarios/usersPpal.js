@@ -1,53 +1,51 @@
 'use strict';
 
+import { html } from '@/vendor/code-tag/code-tag-esm.js';
+// @ts-ignore
+import Swal from 'sweetalert2';
 // @ts-ignore
 import { computed, ref } from 'vue';
 import { customTable } from '../components/customTable.js';
 import { modal } from '../components/modal.js';
 import { log, versaAlert, versaFetch } from '../functions.js';
 import { app } from '../vue-instancia.js';
-// @ts-ignore
-import Swal from 'sweetalert2';
-// @ts-ignore
-import SwalStyles from '/public/vendor/sweetalert2/sweetalert2.dark.min.css' assert { type: 'css' };
-document.adoptedStyleSheets = [...document.adoptedStyleSheets, SwalStyles];
 
 app.component('Usersppal', {
     setup() {},
-    template: /*html*/ `
-        <div class="mx-4 my-4 lg:flex lg:justify-between max-sm:flex-col max-sm:flex-wrap">
+    template: html`
+        <div
+            class="mx-4 my-4 lg:flex lg:justify-between max-sm:flex-col max-sm:flex-wrap">
             <div class="flex gap-2">
                 <svg
                     class="w-6 h-6 text-gray-800 dark:text-white"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
-                    viewBox="0 0 20 18"
-                >
+                    viewBox="0 0 20 18">
                     <path
-                        d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"
-                    />
+                        d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z" />
                 </svg>
-                <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Usuarios</h1>
+                <h1
+                    class="text-2xl font-semibold text-gray-900 dark:text-white">
+                    Usuarios
+                </h1>
             </div>
 
             <nav class="flex" aria-label="Breadcrumb">
-                <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+                <ol
+                    class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
                     <li class="inline-flex items-center">
                         <a
                             href="/admin/dashboard"
-                            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
-                        >
+                            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
                             <svg
                                 class="w-3 h-3 me-2.5"
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor"
-                                viewBox="0 0 20 20"
-                            >
+                                viewBox="0 0 20 20">
                                 <path
-                                    d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"
-                                />
+                                    d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
                             </svg>
                             Home
                         </a>
@@ -59,17 +57,18 @@ app.component('Usersppal', {
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
-                                viewBox="0 0 6 10"
-                            >
+                                viewBox="0 0 6 10">
                                 <path
                                     stroke="currentColor"
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     stroke-width="2"
-                                    d="m1 9 4-4-4-4"
-                                />
+                                    d="m1 9 4-4-4-4" />
                             </svg>
-                            <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">Usuarios</span>
+                            <span
+                                class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">
+                                Usuarios
+                            </span>
                         </div>
                     </li>
                     <li aria-current="page">
@@ -79,30 +78,37 @@ app.component('Usersppal', {
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
-                                viewBox="0 0 6 10"
-                            >
+                                viewBox="0 0 6 10">
                                 <path
                                     stroke="currentColor"
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     stroke-width="2"
-                                    d="m1 9 4-4-4-4"
-                                />
+                                    d="m1 9 4-4-4-4" />
                             </svg>
-                            <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">
-                                <a href="/admin/usuarios/addUser" class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                    <svg class="w-6 h-6 text-gray-800 dark:text-white me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
-                                        <path d="M6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Zm11-3h-2V5a1 1 0 0 0-2 0v2h-2a1 1 0 1 0 0 2h2v2a1 1 0 0 0 2 0V9h2a1 1 0 1 0 0-2Z"/>
+                            <span
+                                class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">
+                                <a
+                                    href="/admin/usuarios/addUser"
+                                    class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                    <svg
+                                        class="w-6 h-6 text-gray-800 dark:text-white me-2"
+                                        aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 18">
+                                        <path
+                                            d="M6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Zm11-3h-2V5a1 1 0 0 0-2 0v2h-2a1 1 0 1 0 0 2h2v2a1 1 0 0 0 2 0V9h2a1 1 0 1 0 0-2Z" />
                                     </svg>
-                                    <span class="max-lg:hidden ms-2">Agregar Nuevo usuario</span>
+                                    <span class="max-lg:hidden ms-2">
+                                        Agregar Nuevo usuario
+                                    </span>
                                 </a>
                             </span>
                         </div>
                     </li>
                 </ol>
             </nav>
-
-
         </div>
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg mx-4">
             <hr class="h-px mt-8 mb-4 bg-gray-200 border-0 dark:bg-gray-700" />
@@ -130,7 +136,8 @@ app.component('tableUsers', {
                 changeStatus: () => this.changeStatus(accion.item),
                 closeModal: () => (this.showModal = false),
             };
-            const action = actions[accion.accion] || (() => log('Accion no encontrada'));
+            const action =
+                actions[accion.accion] || (() => log('Accion no encontrada'));
             if (typeof action === 'function') {
                 action();
             }
@@ -184,26 +191,28 @@ app.component('tableUsers', {
                                 },
                             });
                         } else {
-                            versaAlert({ message: response.message, title: 'Error', type: 'error' });
+                            versaAlert({
+                                message: response.message,
+                                title: 'Error',
+                                type: 'error',
+                            });
                         }
                     });
                 }
             });
         },
     },
-    template: /*html*/ `
+    template: html`
         <customTable
             urlData="/admin/users/getUsersPaginated"
             tablaTitle="Listado de Usuarios"
             @accion="accion"
-            :refreshData="refreshTable"
-        />
+            :refreshData="refreshTable" />
         <modalUpdatePass
             origen="usersPpal"
             :showModal="showModal"
             @accion="showModal = false"
-            :tokenId="tokenIdSelected"
-        />
+            :tokenId="tokenIdSelected" />
     `,
 });
 app.component('modalUpdatePass', {
@@ -264,13 +273,19 @@ app.component('modalUpdatePass', {
             if (!(formChangePass instanceof HTMLFormElement)) return false;
             const formData = new FormData(formChangePass);
             const newPass = document.getElementById('new_password');
-            const confirmNewPass = document.getElementById('comfirm_new_password');
+            const confirmNewPass = document.getElementById(
+                'comfirm_new_password'
+            );
 
             if (!(newPass instanceof HTMLInputElement)) return;
             if (!(confirmNewPass instanceof HTMLInputElement)) return;
 
             if (newPass.value !== confirmNewPass.value) {
-                versaAlert({ message: 'Las contraseñas no coinciden', title: 'Error', type: 'error' });
+                versaAlert({
+                    message: 'Las contraseñas no coinciden',
+                    title: 'Error',
+                    type: 'error',
+                });
                 return;
             }
 
@@ -297,37 +312,44 @@ app.component('modalUpdatePass', {
                         errors += `<li>${response.errors[key]}</li>`;
                     }
 
-                    versaAlert({ html: `${response.message}<ul>${errors}</ul>`, title: 'Error', type: 'error' });
+                    versaAlert({
+                        html: `${response.message}<ul>${errors}</ul>`,
+                        title: 'Error',
+                        type: 'error',
+                    });
                 }
             });
         },
     },
-    template: `
-        <modal :idModal="origen+'_resetPass'" :showModal="showModalLocal" @accion="accion">
+    template: html`
+        <modal
+            :idModal="origen+'_resetPass'"
+            :showModal="showModalLocal"
+            @accion="accion">
             <template v-slot:modalTitle>
                 <div class="flex justify-between">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Actualizar Contraseña</h3>
+                    <h3
+                        class="text-lg font-medium text-gray-900 dark:text-white">
+                        Actualizar Contraseña
+                    </h3>
 
                     <div class="float-left">
                         <button
                             @click="accion({accion: 'closeModal'})"
                             type="button"
-                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                        >
+                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
                             <svg
                                 class="w-3 h-3"
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
-                                viewBox="0 0 14 14"
-                            >
+                                viewBox="0 0 14 14">
                                 <path
                                     stroke="currentColor"
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     stroke-width="2"
-                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                />
+                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                             </svg>
                         </button>
                     </div>
@@ -335,32 +357,34 @@ app.component('modalUpdatePass', {
             </template>
             <template v-slot:modalBody>
                 <form class="space-y-4" id="formChangePass">
-                    <input type="hidden" name="csrf_token" :value="csrf_token" />
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        :value="csrf_token" />
                     <input type="hidden" name="tokenid" :value="tokenId" />
                     <div class="relative">
-                        <label for="new_password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                            >Contraseña</label
-                        >
+                        <label
+                            for="new_password"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Contraseña
+                        </label>
                         <span
                             @click="tooglePassword('new_password','imgShowPassNew','imgHiddenPassNew')"
                             id="togglePasswordNew"
-                            class="absolute end-0 flex items-center cursor-pointer pr-2 top-[60%]"
-                        >
+                            class="absolute end-0 flex items-center cursor-pointer pr-2 top-[60%]">
                             <svg
                                 class="hidden w-6 h-6 text-gray-800 dark:text-slate-400"
                                 id="imgShowPassNew"
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
-                                viewbox="0 0 20 18"
-                            >
+                                viewbox="0 0 20 18">
                                 <path
                                     stroke="currentColor"
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     stroke-width="2"
-                                    d="M1.933 10.909A4.357 4.357 0 0 1 1 9c0-1 4-6 9-6m7.6 3.8A5.068 5.068 0 0 1 19 9c0 1-3 6-9 6-.314 0-.62-.014-.918-.04M2 17 18 1m-5 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                                />
+                                    d="M1.933 10.909A4.357 4.357 0 0 1 1 9c0-1 4-6 9-6m7.6 3.8A5.068 5.068 0 0 1 19 9c0 1-3 6-9 6-.314 0-.62-.014-.918-.04M2 17 18 1m-5 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                             </svg>
                             <svg
                                 class="show w-6 h-6 text-gray-800 dark:text-slate-400"
@@ -368,11 +392,16 @@ app.component('modalUpdatePass', {
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
-                                viewbox="0 0 20 14"
-                            >
-                                <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                    <path d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-                                    <path d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z" />
+                                viewbox="0 0 20 14">
+                                <g
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2">
+                                    <path
+                                        d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                                    <path
+                                        d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z" />
                                 </g>
                             </svg>
                         </span>
@@ -382,36 +411,32 @@ app.component('modalUpdatePass', {
                             id="new_password"
                             placeholder="••••••••"
                             class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                            required
-                        />
+                            required />
                     </div>
 
                     <div class="relative">
                         <label
                             for="comfirm_new_password"
-                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                            >Contraseña</label
-                        >
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Contraseña
+                        </label>
                         <span
                             @click="tooglePassword('comfirm_new_password','imgShowPassConfirmNew','imgHiddenPassConfirmNew')"
                             id="togglePasswordConfirmNew"
-                            class="absolute end-0 flex items-center cursor-pointer pr-2 top-[60%]"
-                        >
+                            class="absolute end-0 flex items-center cursor-pointer pr-2 top-[60%]">
                             <svg
                                 class="hidden w-6 h-6 text-gray-800 dark:text-slate-400"
                                 id="imgShowPassConfirmNew"
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
-                                viewbox="0 0 20 14"
-                            >
+                                viewbox="0 0 20 14">
                                 <path
                                     stroke="currentColor"
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     stroke-width="2"
-                                    d="M1.933 10.909A4.357 4.357 0 0 1 1 9c0-1 4-6 9-6m7.6 3.8A5.068 5.068 0 0 1 19 9c0 1-3 6-9 6-.314 0-.62-.014-.918-.04M2 17 18 1m-5 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                                />
+                                    d="M1.933 10.909A4.357 4.357 0 0 1 1 9c0-1 4-6 9-6m7.6 3.8A5.068 5.068 0 0 1 19 9c0 1-3 6-9 6-.314 0-.62-.014-.918-.04M2 17 18 1m-5 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                             </svg>
                             <svg
                                 class="show w-6 h-6 text-gray-800 dark:text-slate-400"
@@ -419,11 +444,16 @@ app.component('modalUpdatePass', {
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
-                                viewbox="0 0 20 14"
-                            >
-                                <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                                    <path d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-                                    <path d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z" />
+                                viewbox="0 0 20 14">
+                                <g
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2">
+                                    <path
+                                        d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                                    <path
+                                        d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z" />
                                 </g>
                             </svg>
                         </span>
@@ -433,8 +463,7 @@ app.component('modalUpdatePass', {
                             id="comfirm_new_password"
                             placeholder="••••••••"
                             class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                            required
-                        />
+                            required />
                     </div>
                 </form>
             </template>
@@ -442,19 +471,18 @@ app.component('modalUpdatePass', {
                 <button
                     @click="accion({accion: 'closeModal'})"
                     type="button"
-                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                >
+                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                     Cancelar
                 </button>
                 <button
                     @click="sendResetPass()"
                     type="button"
-                    class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-                >
+                    class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
                     Actualizar Contraseña
                 </button>
             </template>
-        </modal>`,
+        </modal>
+    `,
 });
 
 app.component('modal', modal);

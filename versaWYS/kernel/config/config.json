@@ -25,7 +25,7 @@
         "key": "WYS",
         "lifetime": 3600,
         "user_cookie": {
-            "domain": "localhost",
+            "domain": "versawys",
             "enable": true,
             "key_encript": "X8f3p@9Vde0WvKauzI8C2",
             "lifetime": 3600,

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel;
 
-use versaWYS\kernel\helpers\Functions;
+
 
 class Request
 {
@@ -38,7 +38,7 @@ class Request
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $this->params = filter_var_array($_GET ?? [], FILTER_SANITIZE_SPECIAL_CHARS);
         } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (strtolower($this->contentType) === 'application/json') {
+            if ($this->contentType != "" && strtolower($this->contentType) === 'application/json') {
                 $this->params = json_decode(file_get_contents('php://input'), true);
             } else {
                 $this->params = $_POST;
@@ -252,7 +252,6 @@ class Request
      */
     public function isApiCall()
     {
-        $headers = getallheaders();
         if ($this->getHeader('Content-Type') === null) {
             return false;
         }

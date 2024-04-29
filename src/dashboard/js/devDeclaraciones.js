@@ -1,0 +1,2 @@
+var vue;
+var Vuex;

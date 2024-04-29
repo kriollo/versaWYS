@@ -1,3 +1,5 @@
+'use strict';
+import { html } from '@/vendor/code-tag/code-tag-esm.js';
 // @ts-ignore
 import { computed, ref } from 'vue';
 export const inputSaveCancel = {
@@ -39,7 +41,9 @@ export const inputSaveCancel = {
         };
     },
     methods: {
-        accion(/** @type {{accion: String; id: Number; newData: String;}} */ accion) {
+        accion(
+            /** @type {{accion: String; id: Number; newData: String;}} */ accion
+        ) {
             const actions = {
                 updateData: () => {
                     this.$emit('accion', accion);
@@ -55,11 +59,16 @@ export const inputSaveCancel = {
             }
         },
     },
-    template: `
+    template: html`
         <div class="relative w-full">
-            <input :type="type" :id="'txtInput_'+idProps+'_'+field" v-model="newData" class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500">
+            <input
+                :type="type"
+                :id="'txtInput_'+idProps+'_'+field"
+                v-model="newData"
+                class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" />
             <div class="absolute top-0 end-0 flex m-0 p-0">
-                <button @click="accion({
+                <button
+                    @click="accion({
                         accion: 'updateData',
                         id: idProps,
                         newData: newData,
@@ -70,7 +79,8 @@ export const inputSaveCancel = {
                     class=" p-2.5 text-sm font-medium h-full text-white bg-green-700 rounded-s-lg border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
                     <i class="bi bi-floppy"></i>
                 </button>
-                <button @click="accion({
+                <button
+                    @click="accion({
                         id: idProps,
                         from: from,
                         accion: 'cancelUpdate',
@@ -82,5 +92,5 @@ export const inputSaveCancel = {
                 </button>
             </div>
         </div>
-        `,
+    `,
 };

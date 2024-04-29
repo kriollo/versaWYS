@@ -1,13 +1,20 @@
 {
   "compilerOptions": {
-    "checkJs": true,
-    "target": "es2015",
-    "lib": ["es2015", "es2019", "dom", "scripthost", "dom.iterable"],
-    "sourceMap": true,
     "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "checkJs": true,
     "esModuleInterop": true,
+    "lib": ["es2020", "es2015", "es2019", "dom", "scripthost", "dom.iterable", "ES5", "ES6", "esnext"],
     "module": "esnext",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "outDir": "./public/",
+    "paths": {
+      "@/*": ["./public/*"]
+    },
+    "resolveJsonModule": true,
+    "rootDir": ".",
+    "sourceMap": true,
+    "target": "es2022"
   },
   "exclude": ["./public/vendor/**/*"],
   "include": ["./src/**/*", "public/vendor", "public/web/js/main.js"],
@@ -33,7 +40,7 @@
       "Vue",
       "Pinia",
       "Swal",
-      "sweetalert2"
+      "code-tag"
     ]
   }
 }

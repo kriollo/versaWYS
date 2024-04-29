@@ -1,14 +1,24 @@
 // @ts-ignore
 import Swal from 'sweetalert2';
 // @ts-ignore
-import SwalStyles from '/public/vendor/sweetalert2/sweetalert2.dark.min.css' assert { type: 'css' };
-document.adoptedStyleSheets = [...document.adoptedStyleSheets, SwalStyles];
+const SwalStyles = await import(
+    // @ts-ignore
+    '@/vendor/sweetalert2/sweetalert2.dark.min.css',
+    { with: { type: 'css' } }
+);
+document.adoptedStyleSheets = [
+    ...document.adoptedStyleSheets,
+    SwalStyles.default,
+];
+
 /**
  * Verifica si existe una cookie llamada 'debug'.
  * @returns {boolean} True si la cookie existe, de lo contrario False.
  */
 export const existeCookieBuild = () => {
-    const cookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('debug'));
+    const cookie = document.cookie
+        .split(';')
+        .find(cookie => cookie.trim().startsWith('debug'));
     return cookie !== undefined;
 };
 
@@ -59,12 +69,20 @@ export const versaFetch = async params => {
 
     try {
         const response = await fetch(url, init);
-        const json = response.headers.get('Content-Type')?.includes('application/json');
+        const json = response.headers
+            .get('Content-Type')
+            ?.includes('application/json');
         if (!validateResponeStatus(response.status)) {
-            if (response.headers.get('Content-Type')?.includes('application/json')) {
+            if (
+                response.headers
+                    .get('Content-Type')
+                    ?.includes('application/json')
+            ) {
                 const message = await response.json();
                 return message;
-            } else if (response.headers.get('Content-Type')?.includes('text/html')) {
+            } else if (
+                response.headers.get('Content-Type')?.includes('text/html')
+            ) {
                 const message = await response.text();
                 throw new Error(message);
             }
@@ -126,7 +144,14 @@ export const getTime = () => {
  * @param {function} [Params.callback] - The callback function to be executed when the alert is closed.
  */
 export const versaAlert = Params => {
-    const { title = '¡Éxito!', message = '', html = '', type = 'success', AutoClose = true, callback } = Params;
+    const {
+        title = '¡Éxito!',
+        message = '',
+        html = '',
+        type = 'success',
+        AutoClose = true,
+        callback,
+    } = Params;
 
     Swal.fire({
         title: title,
@@ -148,3 +173,25 @@ export const versaAlert = Params => {
 };
 
 export const log = console.log.bind(console);
+
+/**
+ * Selects the first element that matches the specified selector within the given context.
+ *
+ * @param {string} selector - The CSS selector to match the element.
+ * @param {Document|Element} [context=document] - The context within which to search for the element.
+ * @returns {Element|null} - The first matching element, or null if no element is found.
+ */
+export const $ = (selector, context = document) => {
+    return context.querySelector(selector);
+};
+
+/**
+ * Returns a list of elements that match the given selector within the specified context.
+ *
+ * @param {string} selector - The CSS selector to match elements against.
+ * @param {Document|Element} [context=document] - The context within which to search for elements. Defaults to the document.
+ * @returns {NodeList} - A list of elements that match the selector.
+ */
+export const $$ = (selector, context = document) => {
+    return context.querySelectorAll(selector);
+};

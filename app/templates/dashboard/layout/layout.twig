@@ -4,14 +4,26 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        {# <link href="/public/vendor/sweetalert2/sweetalert2.dark.min.css" rel="stylesheet" /> #}
+        {#
+        <link
+            href="/public/vendor/sweetalert2/sweetalert2.dark.min.css"
+            rel="stylesheet" />
+        #}
 
-        <link href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css" rel="stylesheet" />
+        <link
+            href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css"
+            rel="stylesheet" />
 
-        <link href="/public/vendor/flowbite/flowbite.min.css" rel="stylesheet" />
-        <link href="{{ getAssets('dashboard', 'css', '/dashboard.css') }}" rel="stylesheet" />
+        <link
+            href="/public/vendor/flowbite/flowbite.min.css"
+            rel="stylesheet" />
+        <link
+            href="{{ getAssets('dashboard', 'css', '/dashboard.css') }}"
+            rel="stylesheet" />
 
-        <link href="{{ getAssets('dashboard', 'img', '/favicon.png') }}" rel="shortcut icon" />
+        <link
+            href="{{ getAssets('dashboard', 'img', '/favicon.png') }}"
+            rel="shortcut icon" />
         {% block appHead %}{% endblock %}
 
         <title>{{ config.build.name }}</title>
@@ -27,7 +39,6 @@
         #}
 
         <script src="/public/vendor/flowbite/flowbite.min.js"></script>
-        <script src="{{ getAssets('dashboard', 'js', '/dashboard.js') }}?{{ date()|date('U') }}"></script>
 
         {% if config['build']['debug'] == '0' %}
         <script type="importmap">
@@ -52,6 +63,12 @@
                 }
             }
         </script>
-        {% endif %} {% block appScript %}{% endblock %}
+        {% endif %}
+        <script
+            type="module"
+            src="{{
+                getAssets('dashboard', 'js', '/dashboard.js')
+            }}?{{ date()|date('U') }}"></script>
+        {% block appScript %}{% endblock %}
     </body>
 </html>

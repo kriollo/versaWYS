@@ -1,5 +1,5 @@
 'use strict';
-
+import { html } from '@/vendor/code-tag/code-tag-esm.js';
 // @ts-ignore
 import { computed, ref, watch } from 'vue';
 
@@ -46,13 +46,20 @@ export const modal = {
             });
         },
     },
-    template: `
-        <div ref="modal" :id="idModal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full backdrop-blur drop-shadow-versaWYS">
+    template: html`
+        <div
+            ref="modal"
+            :id="idModal"
+            tabindex="-1"
+            aria-hidden="true"
+            class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full backdrop-blur drop-shadow-versaWYS">
             <div class="relative p-4 w-full max-h-full" :class="size">
                 <!-- Modal content -->
-                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <div
+                    class="relative bg-white rounded-lg shadow dark:bg-gray-700">
                     <!-- Modal header -->
-                    <div class="p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                    <div
+                        class="p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                         <slot name="modalTitle"></slot>
                     </div>
                     <!-- Modal body -->
@@ -60,7 +67,8 @@ export const modal = {
                         <slot name="modalBody"></slot>
                     </div>
                     <!-- Modal footer -->
-                    <div class="flex justify-between gap-2 items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                    <div
+                        class="flex justify-between gap-2 items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
                         <slot name="modalFooter"></slot>
                     </div>
                 </div>

@@ -8,7 +8,6 @@ declare(strict_types=1);
 namespace versaWYS\kernel;
 
 use versaWYS\kernel\Response;
-use versaWYS\kernel\helpers\Functions;
 
 /**
  * The Router class handles routing and middleware functionality for the application.
@@ -165,12 +164,7 @@ class Router
             $method = strtolower($request->getMethod());
 
             // Si es un archivo no se ejecuta el router
-            if (preg_match('/\.(js|css|jpg|jpeg|png|gif|svg)$/', $url)) {
-                return;
-            }
-
-            // Si es un blob no se ejecuta el router
-            if (strpos($url, 'blob:') === 0) {
+            if (preg_match('/\.(js|css|jpg|jpeg|png|gif|svg)$/', $url) || strpos($url, 'blob:') === 0 || strpos($url, 'data:') === 0) {
                 return;
             }
 
@@ -213,7 +207,7 @@ class Router
                 if ($config['build']['debug']) {
                     echo Response::jsonError([
                         'success' => 0,
-                        'message' => "Ruta no encontrada:{$request->getMethod()}::{$request->getUrl()}",
+                        'message' => "Ruta no encontrada -> {$request->getMethod()}::{$request->getUrl()}",
                     ], 404);
                 } else {
                     Response::redirect($template404);
@@ -222,7 +216,7 @@ class Router
                 if ($config['build']['debug']) {
                     echo Response::jsonError([
                         'success' => 0,
-                        'message' => "Ruta no encontrada: {$request->getMethod()}::{$request->getUrl()}",
+                        'message' => "Ruta no encontrada -> {$request->getMethod()}::{$request->getUrl()}",
                     ], 404);
                 } else {
                     echo Response::jsonError([
@@ -231,10 +225,10 @@ class Router
                     ], 404);
                 }
             }
-        } catch (\Throwable $th) {
-            self::__catch($th);
         } catch (\Exception $e) {
             self::__catch($e);
+        } catch (\Throwable $th) {
+            self::__catch($th);
         }
     }
 }
