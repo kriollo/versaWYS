@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace versaWYS\kernel;
 
 use app\models as models;
+use RedBeanPHP\Cursor;
+use Twig\Environment;
 use versaWYS\kernel\helpers\Functions;
 
 //TODO: implementar politica de contraseñas (tiempo de expiración)
@@ -17,28 +19,28 @@ class Globalcontrollers
      * @var array $user
      * This variable stores user information.
      */
-    protected $user = [
+    protected array $user = [
         'name' => 'Guest',
         'email' => 'guest@localhost',
     ];
 
-    protected $menu_user = [];
+    protected array|int|null|Cursor $menu_user = [];
 
 
     /**
      * @var int $id
      * This variable stores user id.
      */
-    protected $id_user = 0;
+    protected int $id_user = 0;
 
     /**
      * Obtiene el objeto del template
      *
-     * @var \Twig\Environment
+     * @var Environment
      */
-    protected $template;
+    protected Environment $template;
 
-    public function __construct($twig, $session)
+    public function __construct(Environment $twig, $session)
     {
 
         global $request;
@@ -46,7 +48,7 @@ class Globalcontrollers
         $this->template = $twig;
         if ($session->get('id_user') !== null) {
             $this->user = (new models\Users())->find($session->get('id_user'));
-            $this->id_user = $session->get('id_user');
+            $this->id_user = (int)$session->get('id_user');
 
             if ($this->user['role'] == 'admin') {
                 $this->menu_user = (new models\Dashboard())->getMenuAdmin();
