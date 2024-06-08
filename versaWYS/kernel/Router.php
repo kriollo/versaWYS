@@ -7,7 +7,9 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel;
 
-use versaWYS\kernel\Response;
+use Exception;
+use Throwable;
+
 
 /**
  * The Router class handles routing and middleware functionality for the application.
@@ -28,7 +30,7 @@ class Router
      * @param string $url The URL to be normalized.
      * @return string The normalized URL path.
      */
-    public static function normalize_url(string $url)
+    public static function normalize_url(string $url): string
     {
         $url = trim($url, '/');
         $url = parse_url($url, PHP_URL_PATH);
@@ -42,7 +44,7 @@ class Router
      * @param mixed $callback The callback function or method to be executed.
      * @return Router The Router instance.
      */
-    public static function get($route, $callback)
+    public static function get(string $route, mixed $callback): Router
     {
         self::$getRoutes[$route] = $callback;
         $instance = new static;
@@ -57,7 +59,7 @@ class Router
      * @param mixed $callback The callback function or method to be executed.
      * @return Router The Router instance.
      */
-    public static function post($route, $callback)
+    public static function post(string $route, mixed $callback): Router
     {
         self::$postRoutes[$route] = $callback;
         $instance = new static;
@@ -72,7 +74,7 @@ class Router
      * @param mixed $callback The callback function or method to be executed.
      * @return Router The Router instance.
      */
-    public static function put($route, $callback)
+    public static function put(string $route, mixed $callback): Router
     {
         self::$putRoutes[$route] = $callback;
         $instance = new static;
@@ -87,7 +89,7 @@ class Router
      * @param mixed $callback The callback function or method to be executed.
      * @return Router The Router instance.
      */
-    public static function patch($route, $callback)
+    public static function patch(string $route, mixed $callback): Router
     {
         self::$patchRoutes[$route] = $callback;
         $instance = new static;
@@ -102,7 +104,7 @@ class Router
      * @param mixed $callback The callback function or method to be executed.
      * @return Router The Router instance.
      */
-    public static function delete($route, $callback)
+    public static function delete(string $route, mixed $callback): Router
     {
         self::$deleteRoutes[$route] = $callback;
         $instance = new static;
@@ -116,7 +118,7 @@ class Router
      * @param array $middlewares The array of middleware classes and methods.
      * @return Router The Router instance.
      */
-    public function middleware(array $middlewares)
+    public function middleware(array $middlewares): static
     {
         foreach ($middlewares as $middleware) {
             self::$middlewares[$this->lastRoute][] = $middleware;
@@ -127,10 +129,10 @@ class Router
     /**
      * Handles the catching and handling of exceptions in the Router class.
      *
-     * @param \Exception $e The exception to be caught and handled.
+     * @param Exception $e The exception to be caught and handled.
      * @return void
      */
-    private function __catch($e)
+    private function catch(Exception $e): void
     {
         global $config;
         header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
@@ -138,7 +140,7 @@ class Router
         if ($config['build']['debug']) {
             echo Response::jsonError([
                 'success' => 0,
-                'message' => $config['build']['debug'] ? $e->getMessage() : 'Internal Server Error',
+                'message' => $e->getMessage(),
                 'code' => $e->getCode(),
                 'line' => $e->getLine(),
                 'file' => $e->getFile(),
@@ -156,21 +158,21 @@ class Router
      *
      * @return mixed The result of executing the route callback.
      */
-    public function resolve()
+    public function resolve(): mixed
     {
-        global $twig, $request, $config;
+        global $request, $config;
         try {
             $url = self::normalize_url($request->getUrl());
             $method = strtolower($request->getMethod());
 
             // Si es un archivo no se ejecuta el router
-            if (preg_match('/\.(js|css|jpg|jpeg|png|gif|svg)$/', $url) || strpos($url, 'blob:') === 0 || strpos($url, 'data:') === 0) {
-                return;
+            if (preg_match('/\.(js|css|jpg|jpeg|png|gif|svg)$/', $url) || str_starts_with($url, 'blob:') || str_starts_with($url, 'data:')) {
+                return null;
             }
 
             foreach (self::${$method . 'Routes'} as $route => $callback) {
                 $originalRoute = $route;
-                if (strpos($route, '{') !== false) {
+                if (str_contains($route, '{')) {
                     $route = preg_replace('#{[a-zA-Z0-9]+}#', '([a-zA-Z0-9]+)', $route);
                 }
 
@@ -197,7 +199,7 @@ class Router
 
 
                     echo $response;
-                    return;
+                    return true;
                 }
             }
 
@@ -225,10 +227,11 @@ class Router
                     ], 404);
                 }
             }
-        } catch (\Exception $e) {
-            self::__catch($e);
-        } catch (\Throwable $th) {
-            self::__catch($th);
+        } catch (Exception $e) {
+            self::catch($e);
+        } catch (Throwable $th) {
+            self::catch($th);
         }
+        return false;
     }
 }
