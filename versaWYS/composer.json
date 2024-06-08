@@ -1,17 +1,17 @@
 {
     "require": {
-        "php": "^7.4|^8.0",
-        "twig/twig": "^3.0",
-        "gabordemooij/redbean": "^5.7",
-        "firebase/php-jwt": "^6.9",
-        "symfony/mailer": "^6.4",
-        "twig/cssinliner-extra": "^3.8",
-        "twig/extra-bundle": "^3.8"
+        "twig/twig": "^v3.10.3",
+        "gabordemooij/redbean": "^v5.7.4",
+        "firebase/php-jwt": "^v6.10.1",
+        "symfony/mailer": "^v7.1.1",
+        "twig/cssinliner-extra": "^v3.10.0",
+        "twig/extra-bundle": "^v3.10.0",
+        "ext-intl": "*"
     },
     "autoload": {
         "psr-4": {
-            "versaWYS\\kernel\\": "versaWYS/kernel/",
-            "app\\": "app/"
+            "versaWYS\\kernel\\": "../versaWYS/kernel/",
+            "app\\": "../app/"
         }
     }
 }
