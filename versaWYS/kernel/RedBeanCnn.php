@@ -9,11 +9,11 @@ use RedBeanPHP\R;
 class RedBeanCnn
 {
 
-    protected $db;
-    protected $host;
-    protected $user;
-    protected $pass;
-    protected $db_name;
+
+    protected mixed $host;
+    protected mixed $user;
+    protected mixed $pass;
+    protected mixed $dbName;
 
     public function __construct()
     {
@@ -24,28 +24,22 @@ class RedBeanCnn
         $this->host =    $db_config['DB_HOST'];
         $this->user =    $db_config['DB_USER'];
         $this->pass =    $db_config['DB_PASS'];
-        $this->db_name = $db_config['DB_NAME'];
+        $this->dbName = $db_config['DB_NAME'];
 
         $this->setup();
     }
 
 
-    public function setup()
+    public function setup(): void
     {
         if (R::$currentDB == null) {
             R::setup(
-                "mysql:host={$this->host};
-                dbname={$this->db_name}",
+                "mysql:host=$this->host;
+                dbname=$this->dbName",
                 $this->user,
                 $this->pass
             );
-            R::freeze(true);
+            R::freeze();
         }
     }
-
-    public function closedb()
-    {
-        $this->db->close();
-    }
 }
-
