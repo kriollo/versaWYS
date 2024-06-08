@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel;
 
+use Exception;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mime\Email;
@@ -20,7 +22,7 @@ enum ContentType: string
 
 class MailSender
 {
-    private $mailer;
+    private Mailer $mailer;
 
     public function __construct()
     {
@@ -33,14 +35,18 @@ class MailSender
         $secure = $config['mail']['secure']; // false, tls, ssl
 
         $verify = '';
-        if ($secure !== false)
-            $verify .= "&crypto={$secure}&verify_peer=false&verify_peer_name=false&allow_self_signed=true";
+        if ($secure !== false) {
+            $verify .= "&crypto=$secure&verify_peer=false&verify_peer_name=false&allow_self_signed=true";
+        }
 
-        $transport = Transport::fromDsn("{$trasport}://{$user}:{$pass}@{$host}:{$port}?{$verify}");
+        $transport = Transport::fromDsn("$trasport://$user:$pass@$host:$port?$verify");
         $this->mailer = new Mailer($transport);
     }
 
-    public function send(array $to, string $subject, string $body, ContentType $type, array $context = [], array $imagesEmbed = [], array $attachments = [])
+    /**
+     * @throws Exception
+     */
+    public function send(array $to, string $subject, string $body, ContentType $type, array $context = [], array $imagesEmbed = [], array $attachments = []): bool
     {
         global $config, $twig;
 
@@ -61,12 +67,12 @@ class MailSender
         try {
             $this->mailer->send($email);
             return true;
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        } catch (Exception | TransportExceptionInterface $e) {
+            throw new Exception($e->getMessage());
         }
     }
 
-    private static function attachFile(Email $email, array $attachments)
+    private static function attachFile(Email $email, array $attachments): Email
     {
         foreach ($attachments as $attachment) {
             $email->addPart(new DataPart(new File($attachment)));
@@ -74,7 +80,7 @@ class MailSender
         return $email;
     }
 
-    private static function embedImage(Email $email, array $imagesEmbed)
+    private static function embedImage(Email $email, array $imagesEmbed): Email
     {
         foreach ($imagesEmbed as $image) {
             $email->addPart((new DataPart(new File($image['path']), $image['id'], $image['mime']))->asInline());
