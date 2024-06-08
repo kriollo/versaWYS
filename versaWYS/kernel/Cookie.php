@@ -43,7 +43,7 @@ class Cookie
     /**
      * Clears all cookies.
      */
-    public static function clear()
+    public static function clear(): void
     {
         foreach ($_COOKIE as $key => $value) {
             self::delete($key);
