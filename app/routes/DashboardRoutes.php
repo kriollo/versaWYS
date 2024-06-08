@@ -10,12 +10,13 @@ declare(strict_types=1);
 
 namespace app\Routes;
 
+use app\controllers\DashBoardController;
 use versaWYS\kernel\Router;
 use app\middleware\AuthMiddleware;
 
 
 // Rutas de ingreso a la raiz del sitio
-Router::get('/', [\app\controllers\DashBoardController::class, 'index']);
+Router::get('/', [DashBoardController::class, 'index']);
 
 /**
  * Define the route for the admin dashboard.
@@ -23,7 +24,7 @@ Router::get('/', [\app\controllers\DashBoardController::class, 'index']);
  */
 Router::get(
     '/admin',
-    [\app\controllers\DashBoardController::class, 'dashboard']
+    [DashBoardController::class, 'dashboard']
 )->middleware([
     [AuthMiddleware::class, 'checkSession']
 ]);
@@ -34,7 +35,7 @@ Router::get(
  */
 Router::get(
     '/admin/login',
-    [\app\controllers\DashBoardController::class, 'login']
+    [DashBoardController::class, 'login']
 )->middleware([
     [AuthMiddleware::class, 'redirectIfSession']
 ]);
@@ -45,7 +46,7 @@ Router::get(
  */
 Router::post(
     '/admin/login/autentication',
-    [\app\controllers\DashBoardController::class, 'autentication']
+    [DashBoardController::class, 'autentication']
 )->middleware([
     [AuthMiddleware::class, 'validateCSRFToken'],
     [AuthMiddleware::class, 'validateParamsLogin'],
@@ -58,7 +59,7 @@ Router::post(
  */
 Router::get(
     '/admin/logout',
-    [\app\controllers\DashBoardController::class, 'logout']
+    [DashBoardController::class, 'logout']
 )->middleware([
     [AuthMiddleware::class, 'checkSession']
 ]);
@@ -69,7 +70,7 @@ Router::get(
  */
 Router::get(
     '/admin/dashboard',
-    [\app\controllers\DashBoardController::class, 'dashboard']
+    [DashBoardController::class, 'dashboard']
 )->middleware([
     [AuthMiddleware::class, 'checkSession']
 ]);
@@ -80,7 +81,7 @@ Router::get(
  */
 Router::get(
     '/admin/lost-password',
-    [\app\controllers\DashBoardController::class, 'lostPassword']
+    [DashBoardController::class, 'lostPassword']
 )->middleware([
     [AuthMiddleware::class, 'redirectIfSession']
 ]);
@@ -91,7 +92,7 @@ Router::get(
  */
 Router::patch(
     '/admin/lost-password/send',
-    [\app\controllers\DashBoardController::class, 'sendLostPassword']
+    [DashBoardController::class, 'sendLostPassword']
 )->middleware([
     [AuthMiddleware::class, 'validateCSRFToken'],
     [AuthMiddleware::class, 'checkMail']
@@ -102,7 +103,7 @@ Router::patch(
  */
 Router::get(
     '/admin/reset-password',
-    [\app\controllers\DashBoardController::class, 'resetPassword']
+    [DashBoardController::class, 'resetPassword']
 );
 
 /**
@@ -111,7 +112,7 @@ Router::get(
  */
 Router::post(
     '/admin/login/apply-reset-password',
-    [\app\controllers\DashBoardController::class, 'applyChangePassword']
+    [DashBoardController::class, 'applyChangePassword']
 )->middleware([
     [AuthMiddleware::class, 'validateCSRFToken'],
     [AuthMiddleware::class, 'validateParamsApplyResetPassword']

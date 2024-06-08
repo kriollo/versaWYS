@@ -4,26 +4,27 @@ declare(strict_types=1);
 
 namespace app\Routes;
 
+use app\controllers\UsersController;
 use versaWYS\kernel\Router;
 use app\middleware\AuthMiddleware;
 use app\middleware\UsersMiddleware;
 
 // Rutas de Navegador
 Router::get('/admin/usuarios',
-    [\app\controllers\UsersController::class, 'index']
+    [UsersController::class, 'index']
 )->middleware([
             [AuthMiddleware::class, 'checkSession'],
             [AuthMiddleware::class, 'onlyAdmin']
         ]);
 Router::get('/admin/usuarios/addUser',
-    [\app\controllers\UsersController::class, 'addUserTemplate']
+    [UsersController::class, 'addUserTemplate']
 )->middleware([
             [AuthMiddleware::class, 'checkSession'],
             [AuthMiddleware::class, 'onlyAdmin']
         ]);
 
 Router::get('/admin/usuarios/editUser/{id}',
-    [\app\controllers\UsersController::class, 'editUserTemplate']
+    [UsersController::class, 'editUserTemplate']
 )->middleware([
             [AuthMiddleware::class, 'checkSession'],
             [AuthMiddleware::class, 'onlyAdmin']
@@ -31,13 +32,13 @@ Router::get('/admin/usuarios/editUser/{id}',
 
 //Rutas de API
 Router::get('/admin/users/getUsersPaginated',
-    [\app\controllers\UsersController::class, 'getUsersPaginated']
+    [UsersController::class, 'getUsersPaginated']
 )->middleware([
             [AuthMiddleware::class, 'checkSession']
         ]);
 
 Router::post('/admin/users/addUser',
-    [\app\controllers\UsersController::class, 'registerUser']
+    [UsersController::class, 'registerUser']
 )->middleware([
             [AuthMiddleware::class, 'validateCSRFToken'],
             [AuthMiddleware::class, 'checkSession'],
@@ -45,7 +46,7 @@ Router::post('/admin/users/addUser',
         ]);
 
 Router::put('/admin/users/editUser',
-    [\app\controllers\UsersController::class, 'editUser']
+    [UsersController::class, 'editUser']
 )->middleware([
             [AuthMiddleware::class, 'validateCSRFToken'],
             [AuthMiddleware::class, 'checkSession'],
@@ -53,13 +54,13 @@ Router::put('/admin/users/editUser',
         ]);
 
 Router::delete('/admin/users/deleteUser',
-    [\app\controllers\UsersController::class, 'deleteUser']
+    [UsersController::class, 'deleteUser']
 )->middleware([
             [AuthMiddleware::class, 'checkSession']
         ]);
 
 Router::patch('/admin/users/changePassword',
-    [\app\controllers\UsersController::class, 'changePassword']
+    [UsersController::class, 'changePassword']
 )->middleware([
             [AuthMiddleware::class, 'validateCSRFToken'],
             [AuthMiddleware::class, 'checkSession'],
