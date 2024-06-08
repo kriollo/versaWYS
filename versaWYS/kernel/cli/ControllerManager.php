@@ -12,10 +12,10 @@ class ControllerManager
         $controllerName = ucfirst($controllerName) . 'Controller';
 
         echo "Creando controlador $controllerName...\n";
-        $controllersFile = self::$path . "{$controllerName}.php";
+        $controllersFile = self::$path . "$controllerName.php";
 
         if (file_exists($controllersFile)) {
-            echo "El Controllador {$controllersFile} ya existe.\nDesea sobreescribirlo? (y/n): ";
+            echo "El Controllador $controllersFile ya existe.\nDesea sobreescribirlo? (y/n): ";
             $handle = fopen("php://stdin", "r");
             $line = fgets($handle);
             if (trim($line) != 'y' && trim($line) != 'Y') {
@@ -46,21 +46,21 @@ class ControllerManager
         $template = str_replace('$controllerName', $controllerName, $template);
 
         file_put_contents($controllersFile, $template);
-        echo "Migración {$controllersFile} creada.\n";
+        echo "Migración $controllersFile creada.\n";
     }
     public static function deleteController(string $controllerName): void
     {
         $controllerName = ucfirst($controllerName) . 'Controller';
 
         echo "Eliminando controlador $controllerName...\n";
-        $controllersFile = self::$path . "{$controllerName}.php";
+        $controllersFile = self::$path . "$controllerName.php";
 
         if (!file_exists($controllersFile)) {
-            echo "El Controllador {$controllersFile} no existe.\n";
+            echo "El Controllador $controllersFile no existe.\n";
             exit;
         }
 
         unlink($controllersFile);
-        echo "Migración {$controllersFile} eliminada.\n";
+        echo "Migración $controllersFile eliminada.\n";
     }
 }

@@ -11,7 +11,7 @@ class VersaModuleManager
 
     public static function createModule(string $moduleName): void
     {
-        $assets = self::$assets . ucfirst($moduleName);
+        //$assets = self::$assets . ucfirst($moduleName);
         echo "Creando modulo $moduleName...\n";
 
         self::createTemplate($moduleName);
@@ -32,7 +32,7 @@ class VersaModuleManager
         }
 
         if (file_exists($templateTWIG)) {
-            echo "El template {$templateTWIG} ya existe.\nDesea sobreescribirlo? (y/n): ";
+            echo "El template $templateTWIG ya existe.\nDesea sobreescribirlo? (y/n): ";
             $handle = fopen("php://stdin", "r");
             $line = fgets($handle);
             if (trim($line) != 'y' && trim($line) != 'Y') {
@@ -55,7 +55,7 @@ class VersaModuleManager
         $template = str_replace('$moduleNameUC', $moduleNameUC, $template);
         $template = str_replace('$moduleName', $moduleName, $template);
         file_put_contents($templateTWIG, $template);
-        echo "Template Creado {$templateTWIG} creada.\n";
+        echo "Template Creado $templateTWIG creada.\n";
 
         return true;
     }
@@ -73,7 +73,7 @@ class VersaModuleManager
         }
 
         if (file_exists($templateJS)) {
-            echo "El assets {$templateJS} ya existe.\nDesea sobreescribirlo? (y/n): ";
+            echo "El assets $templateJS ya existe.\nDesea sobreescribirlo? (y/n): ";
             $handle = fopen("php://stdin", "r");
             $line = fgets($handle);
             if (trim($line) != 'y' && trim($line) != 'Y') {
@@ -204,8 +204,6 @@ class VersaModuleManager
         $template = str_replace('$moduleNameUC', $moduleNameUC, $template);
         $template = str_replace('$moduleName', $moduleName, $template);
         file_put_contents($templateJS, $template);
-        echo "Assets Creado {$templateJS} creada.\n";
-
-        return;
+        echo "Assets Creado $templateJS creada.\n";
     }
 }

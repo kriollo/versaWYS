@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel\helpers;
 
+use DateTime;
+use Exception;
+use IntlDateFormatter;
+use Random\RandomException;
+
 class Functions
 {
-    public static function dump($data)
+    public static function dump($data): void
     {
         echo "<style>
                 .xdebug-var-dump {
@@ -75,7 +80,7 @@ class Functions
      * @param array $params => $rules | $params = ['email' => 'required|email', 'password' => 'required|min:8']
      * @return array $errors
      */
-    public static function validateParams(array $params, array $rules)
+    public static function validateParams(array $params, array $rules): array
     {
 
         try {
@@ -84,12 +89,12 @@ class Functions
             foreach ($rules as $field => $rule) {
                 $rules = explode('|', $rule);
 
-                foreach ($rules as $rule) {
-                    $rule = explode(':', $rule);
+                foreach ($rules as $rul) {
+                    $rul = explode(':', $rul);
 
-                    switch ($rule[0]) {
+                    switch ($rul[0]) {
                         case 'required':
-                            if (!isset($params[$field]) || empty($params[$field])) {
+                            if (empty($params[$field])) {
                                 $errors[$field] = 'El campo ' . $field . ' es requerido';
                             }
                             break;
@@ -99,13 +104,13 @@ class Functions
                             }
                             break;
                         case 'min':
-                            if (strlen($params[$field]) < $rule[1]) {
-                                $errors[$field] = 'El campo ' . $field . ' debe tener minimo ' . $rule[1] . ' caracteres';
+                            if (strlen($params[$field]) < $rul[1]) {
+                                $errors[$field] = 'El campo ' . $field . ' debe tener minimo ' . $rul[1] . ' caracteres';
                             }
                             break;
                         case 'max':
-                            if (strlen($params[$field]) > $rule[1]) {
-                                $errors[$field] = 'El campo ' . $field . ' debe tener maximo ' . $rule[1] . ' caracteres';
+                            if (strlen($params[$field]) > $rul[1]) {
+                                $errors[$field] = 'El campo ' . $field . ' debe tener maximo ' . $rul[1] . ' caracteres';
                             }
                             break;
                         case 'numeric':
@@ -139,14 +144,14 @@ class Functions
                             } else {
                                 $params[$field] = (int) $params[$field];
 
-                                if (str_contains($rule[1], '-')) {
-                                    $valid = explode('-', $rule[1]);
+                                if (str_contains($rul[1], '-')) {
+                                    $valid = explode('-', $rul[1]);
 
                                     if ($params[$field] < $valid[0] || $params[$field] > $valid[1]) {
                                         $errors[$field] = 'El campo ' . $field . ' debe ser numerico entre ' . $valid[0] . ' y ' . $valid[1];
                                     }
-                                } elseif (str_contains($rule[1], ',')) {
-                                    $valid = explode(',', $rule[1]);
+                                } elseif (str_contains($rul[1], ',')) {
+                                    $valid = explode(',', $rul[1]);
 
                                     if (!in_array($params[$field], $valid)) {
                                         $errors[$field] = 'El campo ' . $field . ' debe ser numerico y debe ser uno de los siguientes valores ' . implode(',', $valid);
@@ -159,7 +164,7 @@ class Functions
             }
 
             return $errors;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return ['error' => $e->getMessage()];
         }
     }
@@ -189,6 +194,7 @@ class Functions
      * Generates a CSRF token.
      *
      * @return string The generated CSRF token.
+     * @throws RandomException
      */
     public static function generateCSRFToken(): string
     {
@@ -198,7 +204,8 @@ class Functions
     /**
      * Validates the CSRF token.
      *
-     * @param string $token The CSRF token to validate.
+     * @param string $tokenSession
+     * @param string $tokenFormUser
      * @return bool Returns true if the token is valid, false otherwise.
      */
     public static function validateCSRFToken(string $tokenSession, string $tokenFormUser): bool
@@ -221,11 +228,12 @@ class Functions
      *
      * @param string $fecha La fecha a formatear.
      * @return string La fecha formateada en formato completo en español.
+     * @throws Exception
      */
-    public static function formaFechaFullES($fecha): string
+    public static function formaFechaFullES(string $fecha): string
     {
-        $fecha = new \DateTime($fecha);
-        $formatter = new \IntlDateFormatter('es_ES', \IntlDateFormatter::FULL, \IntlDateFormatter::NONE);
+        $fecha = new DateTime($fecha);
+        $formatter = new IntlDateFormatter('es_ES', IntlDateFormatter::FULL, IntlDateFormatter::NONE);
         return $formatter->format($fecha);
     }
 
@@ -235,13 +243,11 @@ class Functions
      * @param string $assetsPath The path to the asset file.
      * @return string The URL of the asset file.
      */
-    public static function assets_url($assetsPath)
+    public static function assets_url(string $assetsPath): string
     {
         global $request;
 
-        $url = $request->getBaseUrl() . '/' . $assetsPath;
-
-        return $url;
+        return $request->getBaseUrl() . '/' . $assetsPath;
     }
 
     /**
@@ -250,7 +256,7 @@ class Functions
      * @param string $string La cadena en la que se reemplazarán los espacios.
      * @return string La cadena con los espacios reemplazados por guiones bajos.
      */
-    public static function replace_spaces_with_underscore($string)
+    public static function replace_spaces_with_underscore(string $string): string
     {
         return str_replace(' ', '_', $string);
     }
@@ -270,7 +276,6 @@ class Functions
     /**
      * Generates a hidden input field with the specified CSRF token.
      *
-     * @param string $token The CSRF token to be set.
      * @return string The generated HTML code for the hidden input field format raw for twig.
      */
     public static function csrf_field(): string
@@ -280,19 +285,23 @@ class Functions
         return '<input type="hidden" name="_csrf_token" id="csrf_token" value="' . $token . '">';
     }
 
-    public static function getAssets(string $module, string $type, string $pathFile, bool $addURL = true)
+    /**
+     * @throws Exception
+     */
+    public static function getAssets(string $module, string $type, string $pathFile, bool $addURL = true): string
     {
         global $config, $request;
 
-        if (!isset($config['assets'][$module][$type])) throw new \Exception("No existe el tipo de archivo $type en el modulo $module");
+        if (!isset($config['assets'][$module][$type])) {
+            throw new Exception("No existe el tipo de archivo $type en el modulo $module");
+        }
 
         // verificar si tienen el slash al inicio
-        $file = substr($pathFile, 0, 1) == '/' ? substr($pathFile, 1) : $pathFile;
+        $file = str_starts_with($pathFile, '/') ? substr($pathFile, 1) : $pathFile;
 
         $pathSource = 'dist';
 
-        $asset = ($addURL ? $request->getBaseUrl() . "/" : '') . $config['assets'][$module][$type][$pathSource] . "/" . $file;
-        return $asset;
+        return ($addURL ? $request->getBaseUrl() . "/" : '') . $config['assets'][$module][$type][$pathSource] . "/" . $file;
     }
 
 

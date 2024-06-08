@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel\cli;
 
-use versaWYS\kernel\cli\MigrationManager;
-
-
 class CommandLineInterface
 {
-    private $args;
+    private mixed $args;
 
-    public function __construct($args)
+    public function __construct(mixed $args)
     {
         $this->args = $args;
     }
 
-    public function run()
+    public function run(): void
     {
         array_shift($this->args); // Elimina el nombre del script
 
@@ -97,9 +94,7 @@ class CommandLineInterface
             VersaModuleManager::createModule($params[1]);
         };
 
-        match ($params[0]) {
-            default => $make($params),
-        };
+        $make($params);
     }
 
     private function handleAtajos($params): void
@@ -122,28 +117,13 @@ class CommandLineInterface
             $this->handleMiddleware($params);
         };
 
-        match ($params[0]) {
-            default => $make($params),
-        };
+        $make($params);
     }
 
     private function handleModel($params): void
     {
 
-        if (!isset($params[0])) {
-            $this->printHelp();
-            exit;
-        }
-
-        if (!in_array($params[0], ['make'])) {
-            $this->printHelp();
-            exit;
-        }
-
-        if ($params[0] === 'make' && !isset($params[1])) {
-            $this->printHelp();
-            exit;
-        }
+        $params = $this->getParams($params);
 
         match ($params[0]) {
             'make' => ModelManager::createModel($params[1]),
@@ -154,20 +134,7 @@ class CommandLineInterface
 
     private function handleMiddleware($params): void
     {
-        if (!isset($params[0])) {
-            $this->printHelp();
-            exit;
-        }
-
-        if (!in_array($params[0], ['make'])) {
-            $this->printHelp();
-            exit;
-        }
-
-        if ($params[0] === 'make' && !isset($params[1])) {
-            $this->printHelp();
-            exit;
-        }
+        $params = $this->getParams($params);
 
         match ($params[0]) {
             'make' => MiddlewareManager::createMiddleware($params[1]),
@@ -203,20 +170,7 @@ class CommandLineInterface
 
     private function handleController($params): void
     {
-        if (!isset($params[0])) {
-            $this->printHelp();
-            exit;
-        }
-
-        if (!in_array($params[0], ['make'])) {
-            $this->printHelp();
-            exit;
-        }
-
-        if ($params[0] === 'make' && !isset($params[1])) {
-            $this->printHelp();
-            exit;
-        }
+        $params = $this->getParams($params);
 
         match ($params[0]) {
             'make' => ControllerManager::createController($params[1]),
@@ -251,7 +205,7 @@ class CommandLineInterface
         };
     }
 
-    private function printHelp()
+    private function printHelp(): void
     {
 
         // TODO: Agregar comando a RCMD como por ejemplo: php versaCLI RCMD:nombre --crud Crea las rutas necesarias para un crud, tambien los metodos del controlador y las vistas
@@ -291,5 +245,28 @@ class CommandLineInterface
         echo "\n";
         echo "\n";
         // Lista otros comandos aquí
+    }
+
+    /**
+     * @param $params
+     * @return mixed
+     */
+    private function getParams($params): mixed
+    {
+        if (!isset($params[0])) {
+            $this->printHelp();
+            exit;
+        }
+
+        if ($params[0] != 'make') {
+            $this->printHelp();
+            exit;
+        }
+
+        if ($params[0] === 'make' && !isset($params[1])) {
+            $this->printHelp();
+            exit;
+        }
+        return $params;
     }
 }

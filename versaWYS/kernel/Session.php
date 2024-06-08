@@ -7,13 +7,14 @@
  * It provides methods for managing session data, generating and decoding JWT tokens,
  * and handling login attempts.
  */
+
 declare(strict_types=1);
 
 namespace versaWYS\kernel;
 
-use versaWYS\kernel\helpers\Functions;
-use Firebase\JWT\JWK;
+use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use versaWYS\kernel\helpers\Functions;
 
 /**
  * Class Session
@@ -30,7 +31,7 @@ class Session
      *
      * @param int $lifetime The lifetime of the session cookie in seconds (default: 3600)
      */
-    public function __construct($lifetime = 3600)
+    public function __construct(int $lifetime = 3600)
     {
         // Set the session cookie lifetime
         ini_set('session.cookie_lifetime', $lifetime);
@@ -88,7 +89,7 @@ class Session
      * @param string $key The key of the session variable
      * @param mixed $value The value of the session variable
      */
-    public function set(string $key, $value): void
+    public function set(string $key, mixed $value): void
     {
         $_SESSION[$key] = $value;
     }
@@ -99,7 +100,7 @@ class Session
      * @param string $key The key of the session variable
      * @return bool True if the session variable exists, false otherwise
      */
-    public function has($key): bool
+    public function has(string $key): bool
     {
         return isset($_SESSION[$key]);
     }
@@ -108,10 +109,10 @@ class Session
      * Gets the value of a session variable.
      *
      * @param string $key The key of the session variable
-     * @param mixed $default The default value to return if the session variable does not exist (default: null)
+     * @param mixed|null $default The default value to return if the session variable does not exist (default: null)
      * @return mixed The value of the session variable or the default value
      */
-    public function get(string $key, $default = null)
+    public function get(string $key, mixed $default = null): mixed
     {
         return $_SESSION[$key] ?? $default;
     }
@@ -141,7 +142,7 @@ class Session
     /**
      * Clears all session variables.
      */
-    public function clear()
+    public function clear(): void
     {
         session_unset();
     }
@@ -155,13 +156,14 @@ class Session
     public function getAttempts(string $email): array
     {
         $attempts = $this->get('login_user_attempts');
-        if (null === $attempts)
+        if (null === $attempts) {
             return [];
-        else {
-            if (array_key_exists($email, $attempts))
+        } else {
+            if (array_key_exists($email, $attempts)) {
                 return $attempts[$email];
-            else
+            } else {
                 return [];
+            }
         }
     }
 
@@ -182,10 +184,11 @@ class Session
      */
     public function setAttempts(): array
     {
-        if (null !== $this->get('login_user_attempts'))
+        if (null !== $this->get('login_user_attempts')) {
             return $this->get('login_user_attempts');
-        else
+        } else {
             return [];
+        }
     }
 
     /**
@@ -237,8 +240,9 @@ class Session
         global $config;
         if ($attempts[$email]['attempts'] >= $config['login_attempt']['max']) {
 
-            if (null === $attempts[$email]['time'])
+            if (null === $attempts[$email]['time']) {
                 $attempts[$email]['time'] = time() + $config['login_attempt']['time'];
+            }
 
             $this->set('login_user_attempts', $attempts);
 
@@ -271,9 +275,7 @@ class Session
             'id_user' => $user['id']
         ];
 
-        $jwt = \Firebase\JWT\JWT::encode($payload, $config['session']['key'], 'HS256');
-
-        return $jwt;
+        return JWT::encode($payload, $config['session']['key'], 'HS256');
     }
 
     /**
@@ -286,7 +288,7 @@ class Session
     {
         global $config;
 
-        $decoded = \Firebase\JWT\JWT::decode($jwt, new Key($config['session']['key'], 'HS256'));
+        $decoded = JWT::decode($jwt, new Key($config['session']['key'], 'HS256'));
 
         return (array) $decoded;
     }
@@ -341,14 +343,6 @@ class Session
                 }
             }
         }
-
-        // if (!$this->checkExistSession() || !$this->has('id_user')) {
-        //     echo ('no existe');
-        //     $this->regenerate();
-        //     self::set('id_user', $decoded['id_user']);
-
-        //     return true;
-        // }
 
         return false;
     }

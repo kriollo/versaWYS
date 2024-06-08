@@ -13,10 +13,10 @@ class ModelManager
         $modelName = ucfirst($modelName);
 
         echo "Creando modelo $modelName...\n";
-        $modelFile = self::$path . "{$modelName}.php";
+        $modelFile = self::$path . "$modelName.php";
 
         if (file_exists($modelFile)) {
-            echo "El modelo {$modelFile} ya existe.\nDesea sobreescribirlo? (y/n): ";
+            echo "El modelo $modelFile ya existe.\nDesea sobreescribirlo? (y/n): ";
             $handle = fopen("php://stdin", "r");
             $line = fgets($handle);
             if (trim($line) != 'y' && trim($line) != 'Y') {
@@ -66,21 +66,21 @@ class ModelManager
         $template = str_replace('$modelName', $modelName, $template);
         $template = str_replace('$originalModelName', $originalModelName, $template);
         file_put_contents($modelFile, $template);
-        echo "Modelo {$modelFile} creado.\n";
+        echo "Modelo $modelFile creado.\n";
     }
     public static function deleteModel(string $modelName): void
     {
         $modelName = ucfirst($modelName);
 
         echo "Eliminando modelo $modelName...\n";
-        $modelFile = self::$path . "{$modelName}.php";
+        $modelFile = self::$path . "$modelName.php";
 
         if (!file_exists($modelFile)) {
-            echo "El modelo {$modelFile} no existe.\n";
+            echo "El modelo $modelFile no existe.\n";
             exit;
         }
 
         unlink($modelFile);
-        echo "Modelo {$modelFile} eliminado.\n";
+        echo "Modelo $modelFile eliminado.\n";
     }
 }

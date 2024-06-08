@@ -12,10 +12,10 @@ class MiddlewareManager
         $middlewareName = ucfirst($middlewareName) . 'Middleware';
 
         echo "Creando middleware $middlewareName...\n";
-        $middlewareFile = self::$path . "{$middlewareName}.php";
+        $middlewareFile = self::$path . "$middlewareName.php";
 
         if (file_exists($middlewareFile)) {
-            echo "El Middleware {$middlewareFile} ya existe.\nDesea sobreescribirlo? (y/n): ";
+            echo "El Middleware $middlewareFile ya existe.\nDesea sobreescribirlo? (y/n): ";
             $handle = fopen("php://stdin", "r");
             $line = fgets($handle);
             if (trim($line) != 'y' && trim($line) != 'Y') {
@@ -38,21 +38,21 @@ class MiddlewareManager
 
         $template = str_replace('$middlewareName', $middlewareName, $template);
         file_put_contents($middlewareFile, $template);
-        echo "Ruta {$middlewareFile} creada.\n";
+        echo "Ruta $middlewareFile creada.\n";
     }
     public static function deleteMiddleware(string $middlewareName): void
     {
         $middlewareName = ucfirst($middlewareName) . 'Middleware';
 
         echo "Eliminando middleware $middlewareName...\n";
-        $middlewareFile = self::$path . "{$middlewareName}.php";
+        $middlewareFile = self::$path . "$middlewareName.php";
 
         if (!file_exists($middlewareFile)) {
-            echo "El Middleware {$middlewareFile} no existe.\n";
+            echo "El Middleware $middlewareFile no existe.\n";
             exit;
         }
 
         unlink($middlewareFile);
-        echo "Ruta {$middlewareFile} eliminada.\n";
+        echo "Ruta $middlewareFile eliminada.\n";
     }
 }

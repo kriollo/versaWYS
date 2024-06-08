@@ -15,8 +15,7 @@ class ConfigManager
     public static function getConfig(): array
     {
         $config = file_get_contents(self::$pathConfig);
-        $config = json_decode($config, true);
-        return $config;
+        return json_decode($config, true);
     }
 
     public static function saveConfig(array $config): void
@@ -25,7 +24,7 @@ class ConfigManager
         file_put_contents(self::$pathConfig, $config);
     }
 
-    public static function setDebug($params)
+    public static function setDebug($params): void
     {
         if (!isset($params)) {
             echo "Error: Debe especificar un valor para debug\n";
@@ -38,11 +37,11 @@ class ConfigManager
         }
 
         $config = self::getConfig();
-        $config['build']['debug'] = $params === 'true' ? true : false;
+        $config['build']['debug'] = $params === 'true';
         self::saveConfig($config);
     }
 
-    public static function setTemplateCache($params)
+    public static function setTemplateCache($params): void
     {
         if (!isset($params)) {
             echo "Error: Debe especificar un valor para templateCache\n";
@@ -55,21 +54,22 @@ class ConfigManager
         }
 
         $config = self::getConfig();
-        $config['twig']['cache'] = $params === 'true' ? true : false;
+        $config['twig']['cache'] = $params === 'true';
         self::saveConfig($config);
     }
 
-    public static function clearCache()
+    public static function clearCache(): void
     {
         $config = self::getConfig();
 
         $pathCahe = $config['twig']['compiled_dir'];
 
-        helpers\FilesFunction::DestroyAllDir($pathCahe);
+        helpers\FilesFunction::destroyAllDir($pathCahe);
 
 
-        if (!is_dir($pathCahe))
+        if (!is_dir($pathCahe)) {
             mkdir($pathCahe, 0777, true);
+        }
 
         echo "Cache eliminado\n";
     }

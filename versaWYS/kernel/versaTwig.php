@@ -4,16 +4,21 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel;
 
+use RuntimeException;
 use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use Twig\Extension\DebugExtension;
 use Twig\Extra\CssInliner\CssInlinerExtension;
+use Twig\Loader\FilesystemLoader;
+use Twig\TemplateWrapper;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
-class versaTwig
+class versaTwig extends Environment
 {
-    private $twigEnvironment;
+    private Environment $twigEnvironment;
 
     public function __construct($config)
     {
@@ -30,8 +35,9 @@ class versaTwig
             }
 
             # Revisar la lecutra para twig
+            $__TWIG_READABLE_AND_WRITABLE = !is_readable($__TWIG_CACHE_PATH) || !is_writable($__TWIG_CACHE_PATH);
             if ($__TWIG_READABLE_AND_WRITABLE) {
-                throw new \RuntimeException('Debe conceder permisos de escritura y lectura a la ruta ' . $__TWIG_CACHE_PATH . ' ó crearla si no existe.');
+                throw new RuntimeException('Debe conceder permisos de escritura y lectura a la ruta ' . $__TWIG_CACHE_PATH . ' ó crearla si no existe.');
             }
         }
 
@@ -42,9 +48,9 @@ class versaTwig
      * Initializes the Twig environment with the given configuration.
      *
      * @param array $config The configuration settings for Twig.
-     * @return \Twig\Environment The initialized Twig environment.
+     * @return Environment The initialized Twig environment.
      */
-    public function init($config)
+    public function init(array $config): Environment
     {
         $loader = new FilesystemLoader($config['twig']['templates_dir']);
         $twigInit = new Environment($loader, [
@@ -73,7 +79,7 @@ class versaTwig
      * @param mixed $value The value of the global variable.
      * @return void
      */
-    public function addGlobal($name, $value)
+    public function addGlobal(string $name, $value): void
     {
         $this->twigEnvironment->addGlobal($name, $value);
     }
@@ -84,7 +90,7 @@ class versaTwig
      * @param mixed $extension The extension to be added.
      * @return void
      */
-    public function addExtension($extension)
+    public function addExtension($extension): void
     {
         $this->twigEnvironment->addExtension($extension);
     }
@@ -92,30 +98,33 @@ class versaTwig
     /**
      * Adds a filter to the Twig environment.
      *
-     * @param string $name The name of the filter.
-     * @param callable $function The function to be used as the filter.
+     * @param TwigFilter $filter The filter to be added.
      * @return void
      */
-    public function addFilter($name, $function)
+    public function addFilter(TwigFilter $filter): void
     {
-        $this->twigEnvironment->addFilter(new TwigFilter($name, $function));
+        $this->twigEnvironment->addFilter($filter);
     }
 
     /**
      * Renders a Twig template with the given context and returns the result as a string.
      *
-     * @param string $template The path to the Twig template file.
+     * @param string|TemplateWrapper $name The path to the Twig template file.
      * @param array $context The variables to be passed to the template.
      * @return string The rendered template as a string.
      */
-    public function render($template, $context = []): string
+    public function render($name, array $context = []): string
     {
-        if(!str_ends_with($template, '.twig')){
-            $template .= '.twig';
+        if (!str_ends_with($name, '.twig')) {
+            $name .= '.twig';
         }
-        $result = $this->twigEnvironment->render($template, $context);
-        $result = $result . self::debug();
-        return $result;
+        try {
+            $result = $this->twigEnvironment->render($name, $context);
+            return $result . self::debug();
+        } catch (LoaderError | RuntimeError | SyntaxError $e) {
+            $this->catch($e);
+            return '';
+        }
     }
 
     /**
@@ -216,10 +225,10 @@ class versaTwig
     /**
      * Sets the Twig filters for the given Twig environment.
      *
-     * @param \Twig\Environment $twig The Twig environment to set the filters for.
+     * @param Environment $twig The Twig environment to set the filters for.
      * @return void
      */
-    private function setFilterTwig($twig)
+    private function setFilterTwig(Environment $twig): void
     {
         $rutaCarpeta = __DIR__ . '/Helpers';
 
@@ -247,7 +256,7 @@ class versaTwig
         }
     }
 
-    private function setFunctionTwig($twig)
+    private function setFunctionTwig($twig): void
     {
         $rutaCarpeta = __DIR__ . '/Helpers';
 
@@ -272,6 +281,25 @@ class versaTwig
                 }
             }
             closedir($handle);
+        }
+    }
+
+    private function catch($e): void
+    {
+        global $config;
+        if ($config['build']['debug']) {
+            echo Response::jsonError([
+                'success' => 0,
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ], 500);
+        } else {
+            echo Response::jsonError([
+                'success' => 0,
+                'message' => 'Internal Server Error',
+            ], 500);
         }
     }
 }

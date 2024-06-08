@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../vendor/autoload.php';
-require 'versaWYS/kernel/autoload.php';
+require_once 'versaWYS/kernel/autoload.php';
 
 use versaWYS\kernel\Cookie;
 use versaWYS\kernel\Request;

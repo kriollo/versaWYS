@@ -9,15 +9,15 @@ class RouteManager
     private static string $path = 'app/Routes/';
     public static function createRoute(string $routeNameModule): void
     {
-        $ControllerName = ucfirst($routeNameModule) . 'Controller';
+        $controllerName = ucfirst($routeNameModule) . 'Controller';
         $routeName = ucfirst($routeNameModule) . 'Routes';
         $middlewareName = ucfirst($routeNameModule) . 'Middleware';
 
         echo "Creando ruta $routeName...\n";
-        $routesFile = self::$path . "{$routeName}.php";
+        $routesFile = self::$path . "$routeName.php";
 
         if (file_exists($routesFile)) {
-            echo "La ruta {$routesFile} ya existe.\nDesea sobreescribirlo? (y/n): ";
+            echo "La ruta $routesFile ya existe.\nDesea sobreescribirlo? (y/n): ";
             $handle = fopen("php://stdin", "r");
             $line = fgets($handle);
             if (trim($line) != 'y' && trim($line) != 'Y') {
@@ -38,32 +38,32 @@ class RouteManager
                         use app\middleware\$middlewareName;
 
                         Router::get('/$routeName',
-                            [\app\controllers\$ControllerName::class,'index']
+                            [\app\controllers\$controllerName::class,'index']
                         );
 
                         EOT;
 
         $template = str_replace('$routeName', $routeName, $template);
-        $template = str_replace('$ControllerName', $ControllerName, $template);
+        $template = str_replace('$controllerName', $controllerName, $template);
         $template = str_replace('$middlewareName', $middlewareName, $template);
 
         file_put_contents($routesFile, $template);
-        echo "Ruta {$routesFile} creada.\n";
+        echo "Ruta $routesFile creada.\n";
     }
     public static function deleteRoute(string $routeName): void
     {
         $routeName = ucfirst($routeName) . 'Routes';
 
         echo "Eliminando ruta $routeName...\n";
-        $routesFile = self::$path . "{$routeName}.php";
+        $routesFile = self::$path . "$routeName.php";
 
         if (!file_exists($routesFile)) {
-            echo "La ruta {$routesFile} no existe.\n";
+            echo "La ruta $routesFile no existe.\n";
             exit;
         }
 
         unlink($routesFile);
-        echo "Ruta {$routesFile} eliminada.\n";
+        echo "Ruta $routesFile eliminada.\n";
     }
 
     public static function listRoutes(): void
@@ -77,7 +77,7 @@ class RouteManager
         echo "Rutas:\n";
         $n = 1;
         foreach ($routes as $route) {
-            echo "{$n} - $route\n";
+            echo "$n - $route\n";
             $n++;
         }
         echo "\n";
@@ -99,16 +99,16 @@ class RouteManager
         self::listarRutasFromRoute($route);
     }
 
-    public static function listarRutasFromRoute($routeFile)
+    public static function listarRutasFromRoute($routeFile): void
     {
         $routeFile = self::$path . $routeFile;
         if (!file_exists($routeFile)) {
-            echo "La ruta {$routeFile} no existe.\n";
+            echo "La ruta $routeFile no existe.\n";
             exit;
         }
         $routeContent = file_get_contents($routeFile);
 
-        $pattern = '/Router::(\w+)\(\s*[\'"]([^\'"]+)[\'"](?:[^;]*\[\s*([^\]]+),\s*([^\]]+)\])?(?:[^;]*\[\s*([^\]]+),\s*([^\]]+)\])?\s*\)/s';
+        $pattern = '/Router::(\w+)\(\s*[\'"]([^\'"]+)[\'"](?:[^;]*\[\s*([^]]+),\s*([^]]+)])?(?:[^;]*\[\s*([^]]+),\s*([^]]+)])?\s*\)/s';
         preg_match_all($pattern, $routeContent, $matches, PREG_SET_ORDER);
 
 
@@ -125,11 +125,10 @@ class RouteManager
 
 
         foreach ($matches as $match) {
-            //print_r($match);
             $method = $match[1];
             $path = $match[2];
-            $controller = isset($match[3]) ? $match[3] : '';
-            $actionController = isset($match[4]) ? $match[4] : '';
+            $controller = $match[3] ?? '';
+            $actionController = $match[4] ?? '';
 
             echo str_pad($method, 10) . '|';
             echo str_pad($path, 40) . "|";
