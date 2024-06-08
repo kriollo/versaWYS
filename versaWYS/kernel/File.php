@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel;
 
+use Exception;
 use SplFileInfo;
 use versaWYS\kernel\helpers\Functions;
 
 class File extends SplFileInfo
 {
-    protected $file;
+    protected array $file;
 
     protected $splFile = null;
 
@@ -17,6 +18,7 @@ class File extends SplFileInfo
      * Constructor for the File class.
      *
      * @param array $file The path to the file.
+     * @throws Exception
      */
     public function __construct(array $file)
     {
@@ -25,7 +27,7 @@ class File extends SplFileInfo
         $valid = $result['valid'];
         $message = $result['message'];
         if (!$valid) {
-            throw new \Exception($message);
+            throw new Exception($message);
         }
 
         $this->file = $file;
@@ -126,7 +128,7 @@ class File extends SplFileInfo
 
     private function getFrom(): string
     {
-        return isset($this->file['from']) ? $this->file['from'] : 'other';
+        return $this->file['from'] ?? 'other';
     }
 
     /**
@@ -154,18 +156,18 @@ class File extends SplFileInfo
      */
     private function sanitizeFileName(string $filename): string
     {
-        return preg_replace('/[^a-zA-Z0-9\-\_\.]/', '', $filename);
+        return preg_replace('/[^a-zA-Z0-9\-_.]/', '', $filename);
     }
 
-    
 
     /**
      * Moves the uploaded file to the specified path.
      *
      * @param string $path The destination path where the file should be moved to.
      * @return bool Returns true if the file was moved successfully, false otherwise.
+     * @throws Exception
      */
-    public function moveTo($path): bool
+    public function moveTo(string $path): bool
     {
         $destination = rtrim($path, '/') . '/' . $this->sanitizeFileName($this->file['name']);
 
@@ -174,23 +176,22 @@ class File extends SplFileInfo
             mkdir($path, 0777, true);
         }
 
-        if(!is_writable($path)) {
-            throw new \Exception("El directorio no tiene permisos de escritura.");
+        if (!is_writable($path)) {
+            throw new Exception("El directorio no tiene permisos de escritura.");
         }
 
-        if($this->getFrom() == 'formData') {
+        if ($this->getFrom() == 'formData') {
             $filetmp = file_get_contents($this->getTmpName());
             if (!file_put_contents($destination, $filetmp)) {
-                throw new \Exception("No se pudo mover el archivo a la ruta especificada.");
+                throw new Exception("No se pudo mover el archivo a la ruta especificada.");
             }
         } else {
             if (!move_uploaded_file($this->getTmpName(), $destination)) {
-                throw new \Exception("No se pudo mover el archivo a la ruta especificada.");
+                throw new Exception("No se pudo mover el archivo a la ruta especificada.");
             }
         }
 
 
         return true;
     }
-
 }
