@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace app\Models;
 
 use RedBeanPHP\R;
+use RedBeanPHP\SimpleModel;
 use versaWYS\kernel\RedBeanCnn;
 
-class Perfil extends \RedBeanPHP\SimpleModel
+class Perfil extends SimpleModel
 {
-    protected static $table = 'versaperfil';
+    protected static string $table = 'versaperfil';
 
     /**
      * Get all perfil.
@@ -18,7 +19,7 @@ class Perfil extends \RedBeanPHP\SimpleModel
      *
      * @return array An array of user records.
      */
-    public function all()
+    public function all(): array
     {
         return R::getAll('SELECT * FROM versaperfil');
     }

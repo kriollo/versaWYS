@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace app\Models;
 
 use RedBeanPHP\R;
+use RedBeanPHP\SimpleModel;
 use versaWYS\kernel\RedBeanCnn;
 
-class Dashboard extends \RedBeanPHP\SimpleModel
+class Dashboard extends SimpleModel
 {
 
-    public function getMenuAdmin()
+    public function getMenuAdmin(): \RedBeanPHP\Cursor|array|int|null
     {
         return R::getAll("SELECT vm.seccion,
         vm.id AS id_menu, vm.nombre AS menu, vm.descripcion AS desc_menu, vm.icono AS ico_menu, vm.url AS url_menu,vm.submenu AS smenu,

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace app\Models;
 
-use versaWYS\kernel\helpers\Functions;
 use RedBeanPHP\R;
+use RedBeanPHP\RedException\SQL;
+use RedBeanPHP\SimpleModel;
+use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\RedBeanCnn;
 
 /**
@@ -14,7 +16,7 @@ use versaWYS\kernel\RedBeanCnn;
  * This class represents the Users model in the application.
  * It provides methods to interact with the users table in the database.
  */
-class Users extends \RedBeanPHP\SimpleModel
+class Users extends SimpleModel
 {
     /**
      * Users constructor.
@@ -44,7 +46,7 @@ class Users extends \RedBeanPHP\SimpleModel
      *
      * @return array An array of user records.
      */
-    public function pagination(string $filter = '')
+    public function pagination(string $filter = ''): array
     {
         $filter = $filter ? "WHERE $filter" : '';
         $result = R::getAll("SELECT SQL_CALC_FOUND_ROWS * FROM versausers $filter");
@@ -60,9 +62,9 @@ class Users extends \RedBeanPHP\SimpleModel
      * @param string $field The field to search in. Defaults to 'id'.
      * @return array The user data if found, an empty array otherwise.
      */
-    public function find($id, $field = 'id')
+    public function find(int|string $id, string $field = 'id'): array
     {
-        $result = R::findOne('versausers', "{$field} = ?", [$id]);
+        $result = R::findOne('versausers', "$field = ?", [$id]);
         return $result ? $result->export() : [];
     }
 
@@ -74,10 +76,9 @@ class Users extends \RedBeanPHP\SimpleModel
      * @param string $email The email of the user to find.
      * @return array The user record if found, an empty array otherwise.
      */
-    public function findUserByEmail($email)
+    public function findUserByEmail(string $email): array
     {
-        $result = $this->find($email, 'email');
-        return $result;
+        return $this->find($email, 'email');
     }
 
     /**
@@ -88,8 +89,9 @@ class Users extends \RedBeanPHP\SimpleModel
      * @param string $email The email of the user.
      * @param string $token The reset password token.
      * @return void
+     * @throws SQL
      */
-    public function saveTokenResetPass($email, $token)
+    public function saveTokenResetPass(string $email, string $token): void
     {
         $user = R::findOne('versausers', 'email = ?', [$email]);
         $user->restore_token = $token;
@@ -104,10 +106,9 @@ class Users extends \RedBeanPHP\SimpleModel
      * @param string $token The reset password token.
      * @return array The user record if found, an empty array otherwise.
      */
-    public function findUserByToken($token)
+    public function findUserByToken(string $token): array
     {
-        $result = $this->find($token, 'restore_token');
-        return $result;
+        return $this->find($token, 'restore_token');
     }
 
     /**
@@ -119,8 +120,9 @@ class Users extends \RedBeanPHP\SimpleModel
      * @param string $email The email of the user.
      * @param string $password The new password.
      * @return void
+     * @throws SQL
      */
-    public function updatePassword($email, $password)
+    public function updatePassword(string $email, string $password): void
     {
         $user = R::findOne('versausers', 'email = ?', [$email]);
         $user->password = $password;
@@ -128,7 +130,10 @@ class Users extends \RedBeanPHP\SimpleModel
         R::store($user);
     }
 
-    public function create($params)
+    /**
+     * @throws SQL
+     */
+    public function create($params): int|string
     {
         $user = R::dispense('versausers');
         $user->tokenid = Functions::generateCSRFToken();
@@ -142,7 +147,10 @@ class Users extends \RedBeanPHP\SimpleModel
         return R::store($user);
     }
 
-    public function update($params)
+    /**
+     * @throws SQL
+     */
+    public function update($params): int|string
     {
         $user = R::findOne('versausers', 'tokenid = ?', [$params['tokenid']]);
         $user->name = $params['name'];
@@ -152,14 +160,20 @@ class Users extends \RedBeanPHP\SimpleModel
         return R::store($user);
     }
 
-    public function delete($id)
+    /**
+     * @throws SQL
+     */
+    public function delete($id): int|string
     {
         $user = R::findOne('versausers', 'tokenid = ?', [$id]);
         $user->status = $user->status === '1' ? '0' : '1';
         return R::store($user);
     }
 
-    public function updatePassworByTokenId($params)
+    /**
+     * @throws SQL
+     */
+    public function updatePassworByTokenId($params): int|string
     {
         $user = R::findOne('versausers', 'tokenid = ?', [$params['tokenid']]);
         $user->password = $params['new_password'];
