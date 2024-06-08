@@ -6,20 +6,22 @@ namespace versaWYS\kernel;
 
 
 
+use Exception;
+
 class Request
 {
-    protected $contentType;
-    protected $Method;
-    protected $url;
-    protected $params;
-    protected $files;
-    protected $ip;
-    protected $accept;
+    protected mixed $contentType;
+    protected string $method;
+    protected mixed $url;
+    protected array $params;
+    protected array $files;
+    protected mixed $ip;
+    protected mixed $accept;
 
     public function __construct()
     {
-        $this->contentType = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : null;
-        $this->Method = strtoupper($_SERVER['REQUEST_METHOD']) ?? 'GET';
+        $this->contentType = $_SERVER['CONTENT_TYPE'] ?? null;
+        $this->method = strtoupper($_SERVER['REQUEST_METHOD']) ?? 'GET';
         $this->url = $_SERVER['REQUEST_URI'] ?? '/';
         $this->params = $_REQUEST;
         $this->files = $_FILES;
@@ -29,11 +31,11 @@ class Request
         $this->prepareParams();
 
         if (isset($this->params['_method'])) {
-            $this->Method = strtoupper($this->params['_method']);
+            $this->method = strtoupper($this->params['_method']);
         }
     }
 
-    protected function prepareParams()
+    protected function prepareParams(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $this->params = filter_var_array($_GET ?? [], FILTER_SANITIZE_SPECIAL_CHARS);
@@ -51,14 +53,14 @@ class Request
         }
     }
 
-    protected function processNonPostParams()
+    protected function processNonPostParams(): void
     {
         $params = file_get_contents('php://input');
 
         if (strtolower($this->contentType) === 'application/json') {
             $this->params = json_decode($params, true);
         } else {
-            if (strpos($this->contentType, 'multipart/form-data') !== false) {
+            if (str_contains($this->contentType, 'multipart/form-data')) {
                 $this->params = $this->procesaFormData($params);
             } else {
                 parse_str($params, $this->params);
@@ -72,20 +74,20 @@ class Request
         $this->params = filter_var_array($this->params, FILTER_SANITIZE_SPECIAL_CHARS);
     }
 
-    protected function processJsonValue($key)
+    protected function processJsonValue($key): void
     {
         $value = $this->params[$key];
-        if (is_string($value) && is_array(json_decode($value, true)) && (json_last_error() == JSON_ERROR_NONE) && strpos($value, '{') !== false) {
+        if (is_string($value) && is_array(json_decode($value, true)) && (json_last_error() == JSON_ERROR_NONE) && str_contains($value, '{')) {
             $this->params[$key] = json_decode(html_entity_decode($value, ENT_QUOTES, 'UTF-8'), true);
         }
     }
 
-    protected function prepareFiles()
+    protected function prepareFiles(): void
     {
         $this->files = filter_var_array($_FILES, FILTER_SANITIZE_SPECIAL_CHARS);
     }
 
-    public function procesaFormData($params)
+    public function procesaFormData($params): array
     {
         $boundary = "--" . explode("boundary=", $_SERVER["CONTENT_TYPE"])[1];
         $parts = explode($boundary, $params);
@@ -93,7 +95,7 @@ class Request
         $files = [];
 
         foreach ($parts as $part) {
-            if (!empty($part) && strpos($part, 'name=') !== false) {
+            if (!empty($part) && str_contains($part, 'name=')) {
                 preg_match('/name="(.*?)"/', $part, $matches);
                 $fieldName = $matches[1];
 
@@ -116,7 +118,7 @@ class Request
         return $data;
     }
 
-    private function extractFilesFormData($part)
+    private function extractFilesFormData($part): array
     {
 
         $fileName = explode('filename=', $part)[1];
@@ -147,7 +149,7 @@ class Request
      * @param string $fieldName El nombre del campo de entrada.
      * @return mixed El valor del campo de entrada o null si no está presente.
      */
-    public function get($fieldName)
+    public function get(string $fieldName): mixed
     {
         return $this->params[$fieldName] ?? null;
     }
@@ -157,12 +159,14 @@ class Request
      *
      * @param string $fileName The name of the file to retrieve.
      * @return File|null The file object if it exists, or null if it doesn't.
+     * @throws Exception
      */
-    public function file($fileName)
+    public function file(string $fileName): ?File
     {
         if (isset($this->files[$fileName])) {
             return new File($this->files[$fileName]);
         }
+        return null;
     }
 
     /**
@@ -179,39 +183,43 @@ class Request
      * Obtiene todos los archivos adjuntos de la solicitud.
      *
      * @return array Un array de objetos File que representan los archivos adjuntos.
+     * @throws Exception
      */
-    public function getAllFiles(): array
+    public function getAllFiles($fileName): array
     {
-
-        // recorrer los archivos y crear un objeto File
         $files = [];
-        foreach ($this->files as $key => $file) {
+
+        $fileCount = count($this->files[$fileName]['name']);
+
+        for ($i = 0; $i < $fileCount; $i++) {
+            $file = [];
+            foreach ($this->files[$fileName] as $key => $value) {
+                $file[$key] =  $this->files[$fileName][$key][$i];
+            }
+
             $files[] = new File($file);
         }
         return $files;
     }
 
-    public function getContentType()
+    public function getContentType(): mixed
     {
         return $this->contentType;
     }
-    public function getMethod()
+    public function getMethod(): string
     {
-        return strtoupper($this->Method);
+        return strtoupper($this->method);
     }
     public function getUrl()
     {
         return $this->url;
     }
-    public function getParams()
-    {
-        return $this->params;
-    }
-    public function getFiles()
+
+    public function getFiles(): array
     {
         return $this->files;
     }
-    public function getIp()
+    public function getIp(): string
     {
         return $this->ip;
     }
@@ -225,12 +233,11 @@ class Request
      *
      * @return string The base URL of the current request.
      */
-    public function getBaseUrl()
+    public function getBaseUrl(): string
     {
-        $protocol = isset($_SERVER['HTTPS']) === true  && !empty($_SERVER['HTTPS']) && ('on' == $_SERVER['HTTPS']) ? 'https://' : 'http://';
+        $protocol =  !empty($_SERVER['HTTPS']) && ('on' == $_SERVER['HTTPS']) ? 'https://' : 'http://';
         $host = $_SERVER['HTTP_HOST'];
-        $url = $protocol . $host;
-        return $url;
+        return $protocol . $host;
     }
 
     /**
@@ -239,7 +246,7 @@ class Request
      * @param string $headerName El nombre de la cabecera.
      * @return string|null El valor de la cabecera o null si no se encuentra.
      */
-    public function getHeader($headerName)
+    public function getHeader(string $headerName): ?string
     {
         $headers = getallheaders();
         return $headers[$headerName] ?? null;
@@ -250,17 +257,17 @@ class Request
      *
      * @return boolean
      */
-    public function isApiCall()
+    public function isApiCall(): bool
     {
         if ($this->getHeader('Content-Type') === null) {
             return false;
         }
         if (
-            strpos($this->getHeader('Content-Type'), 'application/json') === 0 ||
-            strpos($this->getHeader('Content-Type'), 'multipart/form-data') === 0 ||
-            strpos($this->getHeader('Content-Type'), 'application/x-www-form-urlencoded') === 0 ||
-            strpos($this->getHeader('Content-Type'), 'text/plain') === 0 ||
-            strpos($this->getAccept(), 'text/css') === 0
+            str_starts_with($this->getHeader('Content-Type'), 'application/json') ||
+            str_starts_with($this->getHeader('Content-Type'), 'multipart/form-data') ||
+            str_starts_with($this->getHeader('Content-Type'), 'application/x-www-form-urlencoded') ||
+            str_starts_with($this->getHeader('Content-Type'), 'text/plain') ||
+            str_starts_with($this->getAccept(), 'text/css')
         ) {
             return true;
         }
