@@ -14,7 +14,7 @@ class E404Controller
      *
      * @return string The rendered HTML of the 404 error page.
      */
-    public function e404()
+    public function e404(): string
     {
         global $twig;
         return $twig->render('versaWYS/404');

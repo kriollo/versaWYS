@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace app\controllers;
 
-use versaWYS\kernel\Globalcontrollers;
-use versaWYS\kernel\ContentType;
-use versaWYS\kernel\helpers\Functions;
-use versaWYS\kernel\Response;
-use versaWYS\kernel\MailSender;
-
 use app\Models as Models;
+use InvalidArgumentException;
+use Throwable;
+use versaWYS\kernel\ContentType;
+use versaWYS\kernel\Globalcontrollers;
+use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\MailSender;
+use versaWYS\kernel\Response;
 
 class DashBoardController extends Globalcontrollers
 {
@@ -21,7 +22,7 @@ class DashBoardController extends Globalcontrollers
         parent::__construct($twig, $session);
     }
 
-    public function index()
+    public function index(): void
     {
         Response::redirect('/admin');
     }
@@ -31,7 +32,7 @@ class DashBoardController extends Globalcontrollers
      *
      * @return string The rendered login view.
      */
-    public function login()
+    public function login(): string
     {
         return $this->template->render('dashboard/login/login');
     }
@@ -51,14 +52,14 @@ class DashBoardController extends Globalcontrollers
 
             $params = $request->getAllParams();
 
-            $user = (new \app\models\Users())->findUserByEmail($params['email']);
+            $user = (new Models\Users())->findUserByEmail($params['email']);
 
             if (
                 $user === [] ||
                 !Functions::verifyHash($params['password'], $user['password']) ||
                 $user['status'] === 0
             ) {
-                throw new \Exception('Los datos enviados no son correctos', 401);
+                throw new InvalidArgumentException('Los datos enviados no son correctos', 401);
             }
 
             if (isset($params['remember']) && $params['remember'] === 'on') {
@@ -79,7 +80,7 @@ class DashBoardController extends Globalcontrollers
                 'message' => 'Autenticación correcta',
                 'redirect' => '/admin/dashboard',
             ], 200);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Response::json([
                 'success' => 0,
                 'message' => $th->getMessage(),
@@ -149,7 +150,7 @@ class DashBoardController extends Globalcontrollers
             $user = (new models\Users())->findUserByEmail($params['email']);
 
             if ($user === []) {
-                throw new \Exception('Los datos enviados no son correctos', 401);
+                throw new InvalidArgumentException('Los datos enviados no son correctos', 401);
             }
 
             $token = Functions::generateCSRFToken();
@@ -165,7 +166,7 @@ class DashBoardController extends Globalcontrollers
                     [
                         'url_logo' => $request->getBaseUrl() . '/admin',
                         'content' => 'Para recuperar su contraseña, haga clic en el siguiente enlace:',
-                        'btnhref' => "{$request->getBaseUrl()}/admin/reset-password?token={$token}",
+                        'btnhref' => "{$request->getBaseUrl()}/admin/reset-password?token=$token",
                         'copyright' => '&copy; ' . date('Y') . ' <a href="' . $request->getBaseUrl() . '">' . $config['build']['name'] . '</a> - Todos los derechos reservados.',
                         'title' => "Recuperar contraseña - {$request->getBaseUrl()}",
                         'btnname' => 'Recuperar contraseña'
@@ -178,12 +179,12 @@ class DashBoardController extends Globalcontrollers
                 Response::json([
                     'success' => 1,
                     'message' => 'Se ha enviado un correo electrónico a su cuenta de correo electrónico para restablecer su contraseña.'
-                ], 200);
+                ]);
                 exit;
             }
 
-            throw new \Exception('No se pudo enviar el correo electrónico', 500);
-        } catch (\Throwable $th) {
+            throw new InvalidArgumentException('No se pudo enviar el correo electrónico', 500);
+        } catch (Throwable $th) {
             Response::json([
                 'success' => 0,
                 'message' => $th->getMessage(),
@@ -199,7 +200,7 @@ class DashBoardController extends Globalcontrollers
      *
      * @return string The rendered view for resetting the lost password.
      */
-    public function resetPassword()
+    public function resetPassword(): string
     {
         global $request;
 
@@ -227,7 +228,7 @@ class DashBoardController extends Globalcontrollers
      *
      * @return void
      */
-    public function applyChangePassword()
+    public function applyChangePassword(): void
     {
         global $request;
 
@@ -238,7 +239,7 @@ class DashBoardController extends Globalcontrollers
             $user = (new models\Users())->findUserByToken($params['tokenReset']);
 
             if ($user === []) {
-                throw new \Exception('Los datos enviados no son correctos', 401);
+                throw new InvalidArgumentException('Los datos enviados no son correctos', 401);
             }
 
             $password = Functions::hash($params['new_password']);
@@ -248,8 +249,8 @@ class DashBoardController extends Globalcontrollers
             Response::json([
                 'success' => 1,
                 'message' => 'Se ha cambiado la contraseña correctamente, se redirigirá al inicio de sesión...'
-            ], 200);
-        } catch (\Throwable $th) {
+            ]);
+        } catch (Throwable $th) {
             Response::json([
                 'success' => 0,
                 'message' => $th->getMessage(),

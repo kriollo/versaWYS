@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace app\controllers;
 
-use versaWYS\kernel\Globalcontrollers;
 use app\Models as Models;
+use RedBeanPHP\RedException\SQL;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use versaWYS\kernel\Globalcontrollers;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Response;
 
@@ -16,19 +20,30 @@ class UsersController extends Globalcontrollers
         global $twig, $session;
         parent::__construct($twig, $session);
     }
-    public function index()
+
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function index(): string
     {
         return $this->template->render('dashboard/usuarios/dashUsers', [
             'menu_op' => ['id_menu' => 0]
         ]);
     }
 
-    public function addUserTemplate()
+    /**
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws LoaderError
+     */
+    public function addUserTemplate(): string
     {
         return $this->template->render('dashboard/usuarios/addUser');
     }
 
-    public function getUsersPaginated()
+    public function getUsersPaginated(): void
     {
         global $request;
 
@@ -36,10 +51,12 @@ class UsersController extends Globalcontrollers
         $per_page = (int) ($request->get('per_page') ?? 15);
         $fitro = (string) ($request->get('filter') ?? '');
 
-        if ($page == "" && !is_numeric($page))
+        if ($page == "" && !is_numeric($page)) {
             $page = 1;
-        if ($per_page == "" && !is_numeric($per_page))
+        }
+        if ($per_page == "" && !is_numeric($per_page)) {
             $per_page = 15;
+        }
 
         if ($page > 1) {
             $page = (int) ($page - 1) * $per_page;
@@ -49,8 +66,9 @@ class UsersController extends Globalcontrollers
         $limit = "LIMIT $page , $per_page";
 
         $filter = "1 = 1";
-        if ($fitro != "")
+        if ($fitro != "") {
             $filter = "name LIKE '%$fitro%' OR email LIKE '%$fitro%' OR role LIKE '%$fitro%' ";
+        }
 
         $filter = "$filter ORDER BY id asc ";
 
@@ -86,7 +104,7 @@ class UsersController extends Globalcontrollers
         ], 200);
     }
 
-    public function registerUser()
+    public function registerUser(): void
     {
         global $request;
 
@@ -105,7 +123,7 @@ class UsersController extends Globalcontrollers
         }
 
         $params['password'] = Functions::hash($params['password']);
-        $params['role'] = isset($params['role']) ? 'admin' : 'user';
+        $params['role'] = isset($params['rol']) && $params['rol'] === 'on' ? 'admin' : 'user';
         $params['status'] = isset($params['status']) ? 0 : 1;
 
         $result = (new models\Users)->create($params);
@@ -123,7 +141,7 @@ class UsersController extends Globalcontrollers
         }
     }
 
-    public function editUserTemplate($slug = null)
+    public function editUserTemplate($slug = null): string
     {
         $user = (new models\Users)->find($slug, 'tokenid');
         return $this->template->render('dashboard/usuarios/editUser', [
@@ -131,7 +149,7 @@ class UsersController extends Globalcontrollers
         ]);
     }
 
-    public function editUser()
+    public function editUser(): void
     {
         global $request;
 
@@ -150,7 +168,7 @@ class UsersController extends Globalcontrollers
         }
 
         $params['password'] = Functions::hash($params['password']);
-        $params['role'] = isset($params['role']) ? 'admin' : 'user';
+        $params['role'] =  isset($params['rol']) && $params['rol'] === 'on' ? 'admin' : 'user';
         $params['status'] = isset($params['status']) ? 0 : 1;
 
         $result = (new models\Users)->update($params);
@@ -168,7 +186,7 @@ class UsersController extends Globalcontrollers
         }
     }
 
-    public function deleteUser()
+    public function deleteUser(): void
     {
         global $request;
 
@@ -188,7 +206,10 @@ class UsersController extends Globalcontrollers
         }
     }
 
-    public function changePassword()
+    /**
+     * @throws SQL
+     */
+    public function changePassword(): void
     {
         global $request;
 
@@ -202,7 +223,7 @@ class UsersController extends Globalcontrollers
             Response::json([
                 'success' => 1,
                 'message' => 'Contraseña actualizada correctamente'
-            ], 200);
+            ]);
         } else {
             Response::json([
                 'success' => 0,
