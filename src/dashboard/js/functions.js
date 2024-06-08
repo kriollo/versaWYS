@@ -11,6 +11,19 @@ document.adoptedStyleSheets = [
     SwalStyles.default,
 ];
 
+const errorMap = new Map([
+    [400, 'El Servidor no pudo procesar la solicitud'],
+    [401, 'No está autorizado para acceder a este recurso'],
+    [403, 'No tiene permisos para realizar esta acción'],
+    [404, 'Recurso no encontrado'],
+    [500, 'Error interno del servidor'],
+    [503, 'Servicio no disponible'],
+    [422, 'No se pudo procesar la solicitud'],
+    [429, 'Demasiadas solicitudes, intente de nuevo más tarde'],
+    [504, 'El tiempo de espera para el servicio ha sido excedido'],
+    [302, 'La solicitud fue redirigida'],
+]);
+
 /**
  * Verifica si existe una cookie llamada 'debug'.
  * @returns {boolean} True si la cookie existe, de lo contrario False.
@@ -23,20 +36,15 @@ export const existeCookieBuild = () => {
 };
 
 const validateResponeStatus = status => {
-    const errorMap = new Map([
-        [400, 'El Servidor no pudo procesar la solicitud'],
-        [401, 'No está autorizado para acceder a este recurso'],
-        [403, 'No tiene permisos para realizar esta acción'],
-        [404, 'Recurso no encontrado'],
-        [500, 'Error interno del servidor'],
-        [503, 'Servicio no disponible'],
-        [422, 'No se pudo procesar la solicitud'],
-        [429, 'Demasiadas solicitudes, intente de nuevo más tarde'],
-        [504, 'El tiempo de espera para el servicio ha sido excedido'],
-    ]);
-
     let result = true;
+
     if (errorMap.has(status)) {
+        Swal.fire({
+            title: 'Error!',
+            text: errorMap.get(status),
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+        });
         result = false;
     }
 
@@ -69,27 +77,30 @@ export const versaFetch = async params => {
 
     try {
         const response = await fetch(url, init);
-        const json = response.headers
-            .get('Content-Type')
-            ?.includes('application/json');
+        const contentType = response.headers.get('Content-Type');
+        const isJson = contentType?.includes('application/json');
+        const body = isJson ? await response.json() : await response.text();
+
         if (!validateResponeStatus(response.status)) {
-            if (
-                response.headers
-                    .get('Content-Type')
-                    ?.includes('application/json')
-            ) {
-                const message = await response.json();
-                return message;
+            if (isJson) {
+                throw new Error(JSON.stringify(body));
             } else if (
-                response.headers.get('Content-Type')?.includes('text/html')
+                contentType?.includes('text/html') ||
+                contentType === null
             ) {
-                const message = await response.text();
+                const message = errorMap.get(response.status);
                 throw new Error(message);
             }
         }
-        return json ? await response.json() : await response.text();
+
+        return body;
     } catch (e) {
-        return { success: 0, message: e.message };
+        //devolver json para que se pueda utilizar con wait res.json()
+
+        return JSON.stringify({
+            success: 0,
+            message: e.message,
+        });
     }
 };
 
