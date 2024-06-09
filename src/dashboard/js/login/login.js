@@ -1,6 +1,6 @@
 'strict mode';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
-import { $, versaAlert, versaFetch } from '../functions.js';
+import { $, versaAlert, versaFetch } from '@/dashboard/js/functions.js';
 
 // Login Form
 const login = $('#login');
