@@ -5,3 +5,4 @@
 /public/dashboard/**/*.js
 /public/dashboard/**/*.css
 /versaCompileJS/node_modules/*
+.idea
