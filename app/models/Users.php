@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace app\Models;
+namespace app\models;
 
+use Random\RandomException;
 use RedBeanPHP\R;
 use RedBeanPHP\RedException\SQL;
 use RedBeanPHP\SimpleModel;
@@ -131,7 +132,7 @@ class Users extends SimpleModel
     }
 
     /**
-     * @throws SQL
+     * @throws SQL|RandomException
      */
     public function create($params): int|string
     {

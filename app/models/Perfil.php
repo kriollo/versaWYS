@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace app\Models;
+namespace app\models;
 
 use RedBeanPHP\R;
 use RedBeanPHP\SimpleModel;

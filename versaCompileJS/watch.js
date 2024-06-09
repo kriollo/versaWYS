@@ -12,6 +12,13 @@ const PATH_DIST = '../public';
 
 let pathAlias = {};
 
+// obtener parametro de entrada
+let isAll = false;
+if (process.argv.length > 1) {
+    const args = process.argv.slice(2);
+    isAll = args.includes('--all');
+}
+
 const getPathAlias = async () => {
     const pathFile = '../jsconfig.json';
 
@@ -24,13 +31,13 @@ const getPathAlias = async () => {
     return pathAlias;
 };
 
-const mapRuta = ruta => path.join(PATH_DIST, path.relative(PATH_SOURCE, ruta));
+const mapRuta = async ruta => path.join(PATH_DIST, path.relative(PATH_SOURCE, ruta));
 
 const init = async () => {
     try {
         const watchDir = `${PATH_SOURCE}/**/*.js`;
 
-        watch([watchDir])
+        await watch([watchDir])
             .on('add', path => compile(path))
             .on('change', path => compile(path))
             .on('unlink', path => deleteFile(path));
@@ -41,22 +48,22 @@ const init = async () => {
         // Ejecutar la compilación al inicio
         //await compileAll(watchDir);
     } catch (error) {
-        error(chalk.red('Error al iniciar:'), error);
+        error(chalk.red('Error al iniciar:'), error, error.fileName, error.lineNumber, error.stack);
     }
 };
 
-const compile = path => {
+const compile = async path => {
     const pathParts = path.split('\\');
     const fileName = pathParts.pop();
     const ruta = pathParts.join('/') + '/';
     const extension = fileName.split('.').pop();
 
-    let outputPath = mapRuta(ruta) + '\\' + fileName;
+    let outputPath = (await mapRuta(ruta)) + '\\' + fileName;
 
     outputPath = outputPath.replace('\\', '/');
 
     if (outputPath) {
-        compileJS(path, outputPath);
+        await compileJS(path, outputPath);
     } else {
         log(chalk.yellow(`Tipo no reconocido: ${extension}`));
     }
@@ -67,10 +74,10 @@ const compileJS = async (source, destination) => {
         let data = await fs.readFile(source, 'utf-8');
         if (!data) return;
 
-        data = removeVarHTML(data);
-        data = removehtmlOfTemplateString(data);
-        data = removeCodeTagImport(data);
-        data = replaceAlias(data);
+        data = await removehtmlOfTemplateString(data);
+        data = await removeCodeTagImport(data);
+        data = await replaceAlias(data);
+        data = await addImportEndJs(data);
 
         // optener la hora actual
         const hora = new Date().getHours();
@@ -78,29 +85,32 @@ const compileJS = async (source, destination) => {
         const segundos = new Date().getSeconds();
 
         const filename = path.basename(source);
-        log(
-            chalk.blue(
-                `${hora}:${minutos}:${segundos} - Compilando ${filename}`
-            )
-        );
+        log(chalk.blue(`${hora}:${minutos}:${segundos} - Compilando ${filename}`));
 
         const startTime = Date.now();
 
-        const checkDataModule =
-            data.includes('export default') || data.includes('import');
+        const checkDataModule = data.includes('export default') || data.includes('import');
 
         const result = await minify(
             { [filename]: data },
-            { compress: true, ecma: 2016, module: checkDataModule }
+            {
+                compress: true,
+                ecma: 2016,
+                module: checkDataModule,
+                toplevel: true,
+                parse: {
+                    bare_returns: true,
+                    html5_comments: false,
+                    shebang: false,
+                },
+            }
         );
         const endTime = Date.now();
 
         log(chalk.green(`Escribiendo ${destination}`));
 
         if (result.code.length === 0) {
-            error(
-                chalk.yellow('Warning al compilar JS: El archivo está vacío')
-            );
+            error(chalk.yellow('Warning al compilar JS: El archivo está vacío'));
             // eliminar si existe el archivo de destino
             await fs.unlink(destination);
         } else {
@@ -118,6 +128,8 @@ const compileJS = async (source, destination) => {
 const compileAll = async watchDir => {
     try {
         const files = await glob(watchDir);
+        pathAlias = await getPathAlias();
+
         for (const file of files) {
             compile(file);
         }
@@ -127,7 +139,7 @@ const compileAll = async watchDir => {
 };
 
 const deleteFile = async ruta => {
-    const newPath = mapRuta(ruta.replace('\\', '/'));
+    const newPath = (await mapRuta(ruta.replace('\\', '/'))).toString();
     try {
         log(chalk.yellow(`Eliminando ${newPath}`));
 
@@ -146,11 +158,7 @@ const deleteFile = async ruta => {
 
         log(chalk.gray(`Eliminación exitosa: ${newPath}`));
     } catch (errora) {
-        error(
-            chalk.red(
-                `Error al eliminar el archivo/directorio ${newPath}: ${errora}`
-            )
-        );
+        error(chalk.red(`Error al eliminar el archivo/directorio ${newPath}: ${errora}`));
     }
 };
 
@@ -160,13 +168,13 @@ const deleteFile = async ruta => {
  * @param {string} data - The template string to remove the "html" tag from.
  * @returns {string} - The modified template string without the "html" tag.
  */
-const removehtmlOfTemplateString = data => {
+const removehtmlOfTemplateString = async data => {
     const htmlRegExp = /html\s*`/g;
     data = data.replace(htmlRegExp, '`');
     return data;
 };
 
-const removeVarHTML = data => {
+const removeVarHTML = async data => {
     /// var Vue;
     // var Vuex;
     // var Swal;
@@ -187,7 +195,7 @@ const removeVarHTML = data => {
     return data;
 };
 
-const replaceAlias = data => {
+const replaceAlias = async data => {
     for (const key in pathAlias) {
         const value = pathAlias[key][0];
         const alias = "from '" + key.replace('/*', '');
@@ -210,7 +218,7 @@ const replaceAlias = data => {
     return data;
 };
 
-const removeCodeTagImport = data => {
+const removeCodeTagImport = async data => {
     // remove import if exist code-tag
 
     const codeTagRegExp = /import\s+{.*}\s+from\s+['"].*code-tag.*['"];/g;
@@ -218,4 +226,29 @@ const removeCodeTagImport = data => {
     return data;
 };
 
-init();
+const addImportEndJs = async data => {
+    // add .js if not exist, except for 'vue', 'pinia'
+    const importRegExp = /import\s+.*\s+from\s+['"].*['"];/g;
+    const importList = data.match(importRegExp);
+
+    if (importList) {
+        for (const item of importList) {
+            const importRegExp2 = /import\s+.*\s+from\s+['"](.*)['"];/;
+            const result = item.match(importRegExp2);
+            if (result) {
+                const ruta = result[1];
+                if (!ruta.endsWith('.js')) {
+                    if (ruta === 'vue' || ruta === 'pinia') continue;
+                    const newRuta = ruta + '.js';
+                    const newImport = item.replace(ruta, newRuta);
+                    data = data.replace(item, newImport);
+                }
+            }
+        }
+    }
+    return data;
+};
+
+if (isAll) {
+    compileAll(`${PATH_SOURCE}/**/*.js`);
+} else init();
