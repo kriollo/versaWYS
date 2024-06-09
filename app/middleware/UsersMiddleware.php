@@ -9,7 +9,7 @@ use versaWYS\kernel\helpers\Functions;
 class UsersMiddleware
 {
 
-    public function validateRegisterParams()
+    public function validateRegisterParams(): true|array
     {
         global $request;
 
@@ -28,8 +28,9 @@ class UsersMiddleware
                 'code' => 401
             ];
         }
+        return true;
     }
-    public function validateEditParams()
+    public function validateEditParams(): true|array
     {
         global $request;
 
@@ -50,8 +51,9 @@ class UsersMiddleware
                 'code' => 401
             ];
         }
+        return true;
     }
-    public function validateChangePasswordParams()
+    public function validateChangePasswordParams(): true|array
     {
         global $request;
 
@@ -69,5 +71,6 @@ class UsersMiddleware
                 'code' => 401
             ];
         }
+        return true;
     }
 }

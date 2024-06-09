@@ -6,4 +6,6 @@ namespace app\middleware;
 
 use versaWYS\kernel\helpers\Functions;
 
-class PerfilMiddleware {}
+class PerfilMiddleware
+{
+}

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
-use versaWYS\kernel\Response;
+use app\models\Users;
 use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\Response;
 
 /**
  * Class AuthMiddleware
@@ -19,15 +20,16 @@ class AuthMiddleware
      *
      * @return void
      */
-    public function checkSession()
+    public function checkSession(): void
     {
         global $session, $request, $config;
 
 
         if ($request->isApiCall()) {
 
-            if (!$config['api']['auth'])
+            if (!$config['api']['auth']) {
                 return;
+            }
 
             if ($request->getHeader('Authorization') === null) {
 
@@ -50,7 +52,7 @@ class AuthMiddleware
      *
      * @return array|null Returns an array with error details if the CSRF token is invalid or missing, or null if the token is valid.
      */
-    public function validateCSRFToken()
+    public function validateCSRFToken(): true|array
     {
         global $session, $request;
 
@@ -77,14 +79,16 @@ class AuthMiddleware
                 'code' => 403
             ];
         }
+        return true;
     }
+
 
     /**
      * Validates the parameters for the login request.
      *
-     * @return array|null Returns an array with error details if the parameters are invalid, or null if the parameters are valid.
+     * @return true|array Returns an array with error details if the parameters are invalid, or null if the parameters are valid.
      */
-    public function validateParamsLogin()
+    public function validateParamsLogin(): true|array
     {
         global $request;
 
@@ -103,6 +107,7 @@ class AuthMiddleware
                 'code' => 401
             ];
         }
+        return true;
     }
 
     /**
@@ -110,7 +115,7 @@ class AuthMiddleware
      *
      * @return void
      */
-    public function redirectIfSession()
+    public function redirectIfSession(): void
     {
         global $session;
 
@@ -123,7 +128,7 @@ class AuthMiddleware
     /**
      * Checks if the user session is valid and redirects to the login page if not.
      */
-    public function protectedRoute()
+    public function protectedRoute(): void
     {
         global $session;
 
@@ -138,7 +143,7 @@ class AuthMiddleware
      *
      * @return array|null An array with the error message and code if the maximum number of attempts has been exceeded, or null if the validation passes.
      */
-    public function validateAttemps()
+    public function validateAttemps(): true|array
     {
         global $session, $request;
 
@@ -161,11 +166,12 @@ class AuthMiddleware
                 'errors' => [
                     'error' => "Vuelva a intentarlo en un momento...",
                     'attemps' => "intentos: {$attemps['attempts']}",
-                    'time' => "tiempo de espera {$diferenciaEnMinutos}"
+                    'time' => "tiempo de espera $diferenciaEnMinutos"
                 ],
                 'code' => 401
             ];
         }
+        return true;
     }
 
     /**
@@ -173,7 +179,7 @@ class AuthMiddleware
      *
      * @return array|null Returns an array with error details if the email parameter is missing or invalid, or null if the email parameter is present and valid.
      */
-    public function checkMail()
+    public function checkMail(): true|array
     {
         global $request;
 
@@ -191,6 +197,7 @@ class AuthMiddleware
                 'code' => 401
             ];
         }
+        return true;
     }
 
     /**
@@ -198,7 +205,7 @@ class AuthMiddleware
      *
      * @return array|null Returns an array with error details if the parameters are invalid, or null if the parameters are valid.
      */
-    public function validateParamsApplyResetPassword()
+    public function validateParamsApplyResetPassword(): true|array
     {
         global $request;
 
@@ -230,13 +237,14 @@ class AuthMiddleware
                 'code' => 401
             ];
         }
+        return true;
     }
 
-    public function onlyAdmin()
+    public function onlyAdmin(): void
     {
         global $session;
         $iduser = $session->get('id_user');
-        $user = (new \app\models\Users())->find($iduser);
+        $user = (new Users())->find($iduser);
 
         if ($user['role'] !== 'admin') {
             Response::redirect('/admin/dashboard');
