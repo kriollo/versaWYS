@@ -1,9 +1,9 @@
 'use strict';
+import { existeCookieBuild } from '@/dashboard/js/functions.js';
 // @ts-ignore
 import { createPinia } from 'pinia';
 // @ts-ignore
 import { createApp } from 'vue';
-import { existeCookieBuild } from './functions.js';
 
 export const app = createApp({});
 export const pinia = createPinia();
