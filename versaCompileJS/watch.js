@@ -238,7 +238,16 @@ const addImportEndJs = async data => {
             if (result) {
                 const ruta = result[1];
                 if (!ruta.endsWith('.js')) {
-                    if (ruta === 'vue' || ruta === 'pinia') continue;
+                    if (
+                        ruta === 'vue' ||
+                        ruta === 'pinia' ||
+                        ruta.endsWith('.mjs') ||
+                        ruta === 'vuex' ||
+                        ruta.startsWith('https://') ||
+                        ruta.startsWith('http://') ||
+                        ruta === 'sweetalert2'
+                    )
+                        continue;
                     const newRuta = ruta + '.js';
                     const newImport = item.replace(ruta, newRuta);
                     data = data.replace(item, newImport);
