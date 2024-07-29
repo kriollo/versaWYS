@@ -260,7 +260,7 @@ app.component('modalUpdatePass', {
                 imgHiddenPass.classList.remove('hidden');
             }
         },
-        sendResetPass() {
+        async sendResetPass() {
             const formChangePass = document.getElementById('formChangePass');
             if (!(formChangePass instanceof HTMLFormElement)) return false;
             const formData = new FormData(formChangePass);
@@ -279,7 +279,6 @@ app.component('modalUpdatePass', {
                 return;
             }
 
-            // @ts-ignore
             const objectData = Object.fromEntries(formData.entries());
             const params = {
                 url: '/admin/users/changePassword',
@@ -289,28 +288,27 @@ app.component('modalUpdatePass', {
                 },
                 data: JSON.stringify(objectData),
             };
-            versaFetch(params).then(response => {
-                console.log(response);
-
-                if (response.success === 1) {
-                    versaAlert({
-                        message: response.message,
-                        type: 'success',
-                        callback: () => this.accion({ accion: 'closeModal' }),
-                    });
-                } else {
-                    let errors = '';
+            const response = await versaFetch(params);
+            if (response.success === 1) {
+                versaAlert({
+                    message: response.message,
+                    type: 'success',
+                    callback: () => this.accion({ accion: 'closeModal' }),
+                });
+            } else {
+                let errors = '';
+                if (response?.errors) {
                     for (const key in response.errors) {
                         errors += `<li>${response.errors[key]}</li>`;
                     }
-
-                    versaAlert({
-                        html: `${response.message}<ul>${errors}</ul>`,
-                        title: 'Error',
-                        type: 'error',
-                    });
                 }
-            });
+
+                versaAlert({
+                    html: `${response.message}<ul>${errors}</ul>`,
+                    title: 'Error',
+                    type: 'error',
+                });
+            }
         },
     },
     template: html`
