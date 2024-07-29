@@ -141,7 +141,7 @@ app.component('tableUsers', {
             this.showModal = true;
             this.tokenIdSelected = tokenid;
         },
-        changeStatus(/** @type {Object} */ item) {
+        async changeStatus(/** @type {Object} */ item) {
             const swalParams =
                 item.status === '1'
                     ? {
@@ -161,37 +161,35 @@ app.component('tableUsers', {
                           cancelButtonText: 'Cancelar',
                       };
 
-            Swal.fire(swalParams).then(result => {
-                if (result.isConfirmed) {
-                    const params = {
-                        url: '/admin/users/deleteUser',
-                        method: 'DELETE',
-                        headers: {
-                            'content-type': 'application/json',
+            const result = await Swal.fire(swalParams);
+            if (result.isConfirmed) {
+                const params = {
+                    url: '/admin/users/deleteUser',
+                    method: 'DELETE',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    data: JSON.stringify({
+                        tokenid: item.tokenid,
+                    }),
+                };
+                const response = await versaFetch(params);
+                if (response.success === 1) {
+                    versaAlert({
+                        message: response.message,
+                        type: 'success',
+                        callback: () => {
+                            this.refreshTable = !this.refreshTable;
                         },
-                        data: JSON.stringify({
-                            tokenid: item.tokenid,
-                        }),
-                    };
-                    versaFetch(params).then(response => {
-                        if (response.success === 1) {
-                            versaAlert({
-                                message: response.message,
-                                type: 'success',
-                                callback: () => {
-                                    this.refreshTable = !this.refreshTable;
-                                },
-                            });
-                        } else {
-                            versaAlert({
-                                message: response.message,
-                                title: 'Error',
-                                type: 'error',
-                            });
-                        }
+                    });
+                } else {
+                    versaAlert({
+                        message: response.message,
+                        title: 'Error',
+                        type: 'error',
                     });
                 }
-            });
+            }
         },
     },
     template: html`
