@@ -6,10 +6,7 @@ const SwalStyles = await import(
     '@/vendor/sweetalert2/sweetalert2.dark.min.css',
     { with: { type: 'css' } }
 );
-document.adoptedStyleSheets = [
-    ...document.adoptedStyleSheets,
-    SwalStyles.default,
-];
+document.adoptedStyleSheets = [...document.adoptedStyleSheets, SwalStyles.default];
 
 const errorMap = new Map([
     [400, 'El Servidor no pudo procesar la solicitud'],
@@ -29,13 +26,11 @@ const errorMap = new Map([
  * @returns {boolean} True si la cookie existe, de lo contrario False.
  */
 export const existeCookieBuild = () => {
-    const cookie = document.cookie
-        .split(';')
-        .find(cookie => cookie.trim().startsWith('debug'));
+    const cookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('debug'));
     return cookie !== undefined;
 };
 
-const validateResponeStatus = status => {
+const validateResponeStatus = async status => {
     let result = true;
 
     if (errorMap.has(status)) {
@@ -45,7 +40,7 @@ const validateResponeStatus = status => {
             icon: 'error',
             confirmButtonText: 'Aceptar',
         });
-        result = false;
+        //result = false;
     }
 
     return result;
@@ -71,7 +66,18 @@ export const versaFetch = async params => {
         credentials: credentials,
     };
 
-    if (data) {
+    if (
+        typeof data === 'object' &&
+        !(data instanceof FormData) &&
+        (headers === null || headers === undefined)
+    ) {
+        // traspasar data a formdata
+        const formData = new FormData();
+        for (const key in data) {
+            formData.append(key, data[key]);
+        }
+        init.body = formData;
+    } else if (data) {
         init.body = data;
     }
 
@@ -81,17 +87,13 @@ export const versaFetch = async params => {
         const isJson = contentType?.includes('application/json');
         const body = isJson ? await response.json() : await response.text();
 
-        if (!validateResponeStatus(response.status)) {
-            if (isJson) {
-                throw new Error(JSON.stringify(body));
-            } else if (
-                contentType?.includes('text/html') ||
-                contentType === null
-            ) {
-                const message = errorMap.get(response.status);
-                throw new Error(message);
-            }
-        }
+        //await validateResponeStatus(response.status);
+        // if (isJson) {
+        //     throw new Error(JSON.stringify(body));
+        // } else if (contentType?.includes('text/html') || contentType === null) {
+        //     const message = errorMap.get(response.status);
+        //     throw new Error(message);
+        // }
 
         return body;
     } catch (e) {
