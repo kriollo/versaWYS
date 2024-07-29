@@ -1,11 +1,11 @@
 'strict mode';
-import { html } from '@/vendor/code-tag/code-tag-esm.js';
 import { $, versaAlert, versaFetch } from '@/dashboard/js/functions.js';
+import { html } from '@/vendor/code-tag/code-tag-esm.js';
 
 // Login Form
 const login = $('#login');
 if (login != null) {
-    login.addEventListener('click', event => {
+    login.addEventListener('click', async event => {
         event.preventDefault();
 
         const formulario = $('#formulario');
@@ -18,17 +18,17 @@ if (login != null) {
             data: datos,
         };
 
-        versaFetch(params).then(data => {
-            if (data.success == 0) {
-                const alerta = $('#alert');
+        const data = await versaFetch(params);
+        if (data.success == 0) {
+            const alerta = $('#alert');
 
-                let errores = `<ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">`;
-                for (const key in data.errors) {
-                    errores += `<li>${data.errors[key]}</li>`;
-                }
-                errores += `</ul>`;
+            let errores = `<ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">`;
+            for (const key in data.errors) {
+                errores += `<li>${data.errors[key]}</li>`;
+            }
+            errores += `</ul>`;
 
-                alerta.innerHTML = `
+            alerta.innerHTML = `
                     <div id="alert-4" class="flex items-center p-4 mb-4 text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300" role="alert">
                         <svg class="flex-shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
@@ -48,15 +48,14 @@ if (login != null) {
                         </button>
                     </div>
                 `;
-                return false;
-            }
-            versaAlert({
-                message: data.message,
-                type: 'success',
-                callback: () => {
-                    window.location.href = '/admin/dashboard';
-                },
-            });
+            return false;
+        }
+        versaAlert({
+            message: data.message,
+            type: 'success',
+            callback: () => {
+                window.location.href = '/admin/dashboard';
+            },
         });
     });
 }
@@ -87,7 +86,7 @@ if (showPass != null) {
 // Lost Password
 const btnlostPass = $('#btnLostPass');
 if (btnlostPass != null) {
-    btnlostPass.addEventListener('click', event => {
+    btnlostPass.addEventListener('click', async event => {
         event.preventDefault();
         const alerta = $('#alert');
         const formLostPass = $('#formLostPass');
@@ -128,65 +127,18 @@ if (btnlostPass != null) {
             },
             data: JSON.stringify(objectData),
         };
-        versaFetch(params).then(data => {
-            if (data.success == 0) {
-                let errores = `<ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">`;
-                for (const key in data.errors) {
-                    errores += `<li>${data.errors[key]}</li>`;
-                }
-                errores += `</ul>`;
-
-                alerta.innerHTML = html`
-                    <div
-                        id="alert-4"
-                        class="flex items-center p-4 mb-4 text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
-                        role="alert">
-                        <svg
-                            class="flex-shrink-0 w-4 h-4"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 20 20">
-                            <path
-                                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-                        </svg>
-                        <span class="sr-only">Info</span>
-                        <div class="ms-3 text-sm font-medium">
-                            ${data.message}
-                            <div>${errores}</div>
-                        </div>
-                        <button
-                            type="button"
-                            class="ms-auto -mx-1.5 -my-1.5 bg-yellow-50 text-yellow-500 rounded-lg focus:ring-2 focus:ring-yellow-400 p-1.5 hover:bg-yellow-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-yellow-300 dark:hover:bg-gray-700"
-                            data-dismiss-target="#alert-4"
-                            aria-label="Close">
-                            <span class="sr-only">Close</span>
-                            <svg
-                                class="w-3 h-3"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 14 14">
-                                <path
-                                    stroke="currentColor"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                            </svg>
-                        </button>
-                    </div>
-                `;
-
-                btnlostPass.disabled = false;
-                btnlostPass.innerHTML = 'Solicitar Reset';
-                return false;
+        const data = await versaFetch(params);
+        if (data.success == 0) {
+            let errores = `<ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">`;
+            for (const key in data.errors) {
+                errores += `<li>${data.errors[key]}</li>`;
             }
+            errores += `</ul>`;
 
             alerta.innerHTML = html`
                 <div
                     id="alert-4"
-                    class="flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-300"
+                    class="flex items-center p-4 mb-4 text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
                     role="alert">
                     <svg
                         class="flex-shrink-0 w-4 h-4"
@@ -195,15 +147,16 @@ if (btnlostPass != null) {
                         fill="currentColor"
                         viewBox="0 0 20 20">
                         <path
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
-                            d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM9 6a1 1 0 0 1 2 0v5a1 1 0 1 1-2 0V6Zm1 11a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
+                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
                     </svg>
                     <span class="sr-only">Info</span>
-                    <div class="ms-3 text-sm font-medium">${data.message}</div>
+                    <div class="ms-3 text-sm font-medium">
+                        ${data.message}
+                        <div>${errores}</div>
+                    </div>
                     <button
                         type="button"
-                        class="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-green-300 dark:hover:bg-gray-700"
+                        class="ms-auto -mx-1.5 -my-1.5 bg-yellow-50 text-yellow-500 rounded-lg focus:ring-2 focus:ring-yellow-400 p-1.5 hover:bg-yellow-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-yellow-300 dark:hover:bg-gray-700"
                         data-dismiss-target="#alert-4"
                         aria-label="Close">
                         <span class="sr-only">Close</span>
@@ -226,14 +179,59 @@ if (btnlostPass != null) {
 
             btnlostPass.disabled = false;
             btnlostPass.innerHTML = 'Solicitar Reset';
-        });
+            return false;
+        }
+
+        alerta.innerHTML = html`
+            <div
+                id="alert-4"
+                class="flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-300"
+                role="alert">
+                <svg
+                    class="flex-shrink-0 w-4 h-4"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 20 20">
+                    <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM9 6a1 1 0 0 1 2 0v5a1 1 0 1 1-2 0V6Zm1 11a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
+                </svg>
+                <span class="sr-only">Info</span>
+                <div class="ms-3 text-sm font-medium">${data.message}</div>
+                <button
+                    type="button"
+                    class="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-green-300 dark:hover:bg-gray-700"
+                    data-dismiss-target="#alert-4"
+                    aria-label="Close">
+                    <span class="sr-only">Close</span>
+                    <svg
+                        class="w-3 h-3"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 14 14">
+                        <path
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                </button>
+            </div>
+        `;
+
+        btnlostPass.disabled = false;
+        btnlostPass.innerHTML = 'Solicitar Reset';
     });
 }
 
 // Reset Password
 const btnResetPass = $('#btnResetPass');
 if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
-    btnResetPass.addEventListener('click', event => {
+    btnResetPass.addEventListener('click', async event => {
         event.preventDefault();
 
         const FormResetPass = $('#FormResetPass');
@@ -250,18 +248,78 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
 
         if (!(btnResetPass instanceof HTMLButtonElement)) return;
         btnResetPass.disabled = true;
-        versaFetch(params).then(data => {
-            if (data.success == 0) {
-                let errores = `<ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">`;
-                for (const key in data.errors) {
-                    errores += `<li>${data.errors[key]}</li>`;
-                }
-                errores += `</ul>`;
+        const data = await versaFetch(params);
+        if (data.success == 0) {
+            let errores = `<ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">`;
+            for (const key in data.errors) {
+                errores += `<li>${data.errors[key]}</li>`;
+            }
+            errores += `</ul>`;
+
+            alerta.innerHTML = html`
+                <div
+                    id="alert-4"
+                    class="flex items-center p-4 mb-4 text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+                    role="alert">
+                    <svg
+                        class="flex-shrink-0 w-4 h-4"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="currentColor"
+                        viewBox="0 0 20 20">
+                        <path
+                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                    </svg>
+                    <span class="sr-only">Info</span>
+                    <div class="ms-3 text-sm font-medium">
+                        ${data.message}
+                        <div>${errores}</div>
+                    </div>
+                    <button
+                        type="button"
+                        class="ms-auto -mx-1.5 -my-1.5 bg-yellow-50 text-yellow-500 rounded-lg focus:ring-2 focus:ring-yellow-400 p-1.5 hover:bg-yellow-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-yellow-300 dark:hover:bg-gray-700"
+                        data-dismiss-target="#alert-4"
+                        aria-label="Close">
+                        <span class="sr-only">Close</span>
+                        <svg
+                            class="w-3 h-3"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 14 14">
+                            <path
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                        </svg>
+                    </button>
+                </div>
+            `;
+            btnResetPass.disabled = false;
+            return false;
+        }
+
+        const divProgress = $('#divProgress');
+        const progress = $('#progress');
+
+        if (!(divProgress instanceof HTMLElement) || !(progress instanceof HTMLElement)) {
+            btnResetPass.disabled = false;
+            return;
+        }
+
+        divProgress.classList.remove('hidden');
+        let width = 0;
+        const id = setInterval(frame, 10);
+        function frame() {
+            if (width >= 100) {
+                clearInterval(id);
 
                 alerta.innerHTML = html`
                     <div
                         id="alert-4"
-                        class="flex items-center p-4 mb-4 text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+                        class="flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-300"
                         role="alert">
                         <svg
                             class="flex-shrink-0 w-4 h-4"
@@ -270,16 +328,15 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
                             fill="currentColor"
                             viewBox="0 0 20 20">
                             <path
-                                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                                fill-rule="evenodd"
+                                clip-rule="evenodd"
+                                d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM9 6a1 1 0 0 1 2 0v5a1 1 0 1 1-2 0V6Zm1 11a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
                         </svg>
                         <span class="sr-only">Info</span>
-                        <div class="ms-3 text-sm font-medium">
-                            ${data.message}
-                            <div>${errores}</div>
-                        </div>
+                        <div class="ms-3 text-sm font-medium">${data.message}</div>
                         <button
                             type="button"
-                            class="ms-auto -mx-1.5 -my-1.5 bg-yellow-50 text-yellow-500 rounded-lg focus:ring-2 focus:ring-yellow-400 p-1.5 hover:bg-yellow-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-yellow-300 dark:hover:bg-gray-700"
+                            class="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-green-300 dark:hover:bg-gray-700"
                             data-dismiss-target="#alert-4"
                             aria-label="Close">
                             <span class="sr-only">Close</span>
@@ -299,79 +356,15 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
                         </button>
                     </div>
                 `;
-                btnResetPass.disabled = false;
-                return false;
+
+                setTimeout(() => {
+                    window.location.href = '/admin/login';
+                }, 1000);
+            } else {
+                width++;
+                progress.style.width = width + '%';
             }
-
-            const divProgress = $('#divProgress');
-            const progress = $('#progress');
-
-            if (
-                divProgress instanceof HTMLElement ||
-                progress instanceof HTMLElement
-            ) {
-                return;
-            }
-
-            divProgress.classList.remove('hidden');
-            let width = 0;
-            const id = setInterval(frame, 10);
-            function frame() {
-                if (width >= 100) {
-                    clearInterval(id);
-
-                    alerta.innerHTML = html`
-                        <div
-                            id="alert-4"
-                            class="flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-300"
-                            role="alert">
-                            <svg
-                                class="flex-shrink-0 w-4 h-4"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="currentColor"
-                                viewBox="0 0 20 20">
-                                <path
-                                    fill-rule="evenodd"
-                                    clip-rule="evenodd"
-                                    d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM9 6a1 1 0 0 1 2 0v5a1 1 0 1 1-2 0V6Zm1 11a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
-                            </svg>
-                            <span class="sr-only">Info</span>
-                            <div class="ms-3 text-sm font-medium">
-                                ${data.message}
-                            </div>
-                            <button
-                                type="button"
-                                class="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-green-300 dark:hover:bg-gray-700"
-                                data-dismiss-target="#alert-4"
-                                aria-label="Close">
-                                <span class="sr-only">Close</span>
-                                <svg
-                                    class="w-3 h-3"
-                                    aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 14 14">
-                                    <path
-                                        stroke="currentColor"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                                </svg>
-                            </button>
-                        </div>
-                    `;
-
-                    setTimeout(() => {
-                        window.location.href = '/admin/login';
-                    }, 1000);
-                } else {
-                    width++;
-                    progress.style.width = width + '%';
-                }
-            }
-        });
+        }
     });
 }
 
