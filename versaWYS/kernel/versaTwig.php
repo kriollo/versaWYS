@@ -231,7 +231,7 @@ class versaTwig extends Environment
     {
         global $config;
         if ($config['build']['debug']) {
-            echo Response::jsonError([
+            Response::jsonError([
                 'success' => 0,
                 'message' => $e->getMessage(),
                 'code' => $e->getCode(),
@@ -239,7 +239,7 @@ class versaTwig extends Environment
                 'file' => $e->getFile(),
             ], 500);
         } else {
-            echo Response::jsonError([
+            Response::jsonError([
                 'success' => 0,
                 'message' => 'Internal Server Error',
             ], 500);
