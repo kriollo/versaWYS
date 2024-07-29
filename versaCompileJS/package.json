@@ -3,25 +3,33 @@
   "version": "1.0.0",
   "description": "versaWYS-PHP es un framework PHP versátil, simple, ligero, rápido y fácil de usar, diseñado para desarrolladores que buscan eficiencia y flexibilidad en sus proyectos web. Ofrece un enfoque moderno para la gestión de rutas, tanto para aplicaciones web tradicionales como para APIs REST, integrando poderosas herramientas como RedBean para ORM y Twig para la gestión de plantillas.",
   "scripts": {
-    "watch": "node --run watch.js",
+    "watch": "node watch.js",
     "dev": "node --watch watch.js",
-    "dashboard": "tailwindcss -i ../src/dashboard/css/dashboard.css -o ../public/dashboard/css/dashboard.css --watch --minify"
+    "dashboard": "tailwindcss -i ../src/dashboard/css/dashboard.css -o ../public/dashboard/css/dashboard.css --watch --minify",
+    "web": "tailwindcss -i ../src/web/css/web.css -o ../public/web/css/web.css --watch --minify"
   },
   "keywords": [],
   "author": "Jorge Jara H.(jjara@wys.cl)",
   "license": "MIT",
   "dependencies": {
     "chalk": "4.1.0",
-    "glob": "^10.3.12",
+    "glob": "^10.4.1",
     "glob-promise": "^6.0.5",
     "gulp": "5.0.0",
-    "terser": "5.30.3"
+    "terser": "5.31.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0",
-    "tailwindcss": "3.4.3"
-  },
-  "eslintConfig": {
-    "extends": "./node_modules/standard/eslintrc.json"
+    "@types/bootstrap": "^5.2.10",
+    "@types/datatables.net": "^1.12.0",
+    "@types/jquery": "^3.5.30",
+    "@types/node": "^20.14.2",
+    "datatables.net": "^2.0.8",
+    "datatables.net-buttons": "^3.0.2",
+    "datatables.net-dt": "^2.0.8",
+    "datatables.net-responsive": "^3.0.2",
+    "jquery": "^3.7.1",
+    "prettier": "3.3.1",
+    "standard": "^17.1.0",
+    "tailwindcss": "3.4.4"
   }
 }
