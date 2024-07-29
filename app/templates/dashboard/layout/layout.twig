@@ -1,47 +1,41 @@
 <!DOCTYPE html>
 <html lang="es" class="dark">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        {#
-        <link
-            href="/public/vendor/sweetalert2/sweetalert2.dark.min.css"
-            rel="stylesheet" />
-        #}
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <link
-            href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css"
-            rel="stylesheet" />
+    {#
+    <link href="/public/vendor/sweetalert2/sweetalert2.dark.min.css" rel="stylesheet" />
+    #}
 
-        <link
-            href="/public/vendor/flowbite/flowbite.min.css"
-            rel="stylesheet" />
-        <link
-            href="{{ getAssets('dashboard', 'css', '/dashboard.css') }}"
-            rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
 
-        <link
-            href="{{ getAssets('dashboard', 'img', '/favicon.png') }}"
-            rel="shortcut icon" />
-        {% block appHead %}{% endblock %}
+    <link href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css" rel="stylesheet" />
 
-        <title>{{ config.build.name }}</title>
-        {% block appHeader %}{% endblock %}
-    </head>
+    <link href="/public/vendor/flowbite/flowbite.min.css" rel="stylesheet" />
+    <link href="{{ getAssets('dashboard', 'css', '/dashboard.css') }}" rel="stylesheet" />
 
-    <body class="bg-gray-50 dark:bg-gray-800">
-        {% block appBody %}{% endblock %} {% block appFooter %}{% endblock %}
+    <link href="{{ getAssets('dashboard', 'img', '/favicon.png') }}" rel="shortcut icon" />
+    {% block appHead %}{% endblock %}
 
-        <!-- SweetAlert2 -->
-        {# //
-        <script src="/public/vendor/sweetalert2/sweetalert2.all.min.js"></script>
-        #}
+    <title>{{ config.build.name }}</title>
+    {% block appHeader %}{% endblock %}
+</head>
 
-        <script src="/public/vendor/flowbite/flowbite.min.js"></script>
+<body class="bg-gray-50 dark:bg-gray-800">
+    {% block appBody %}{% endblock %} {% block appFooter %}{% endblock %}
 
-        {% if config['build']['debug'] == '0' %}
-        <script type="importmap">
+    <!-- SweetAlert2 -->
+    {# //
+    <script src="/public/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+    #}
+
+    {# // <script src="/public/vendor/flowbite/flowbite.min.js"></script> #}
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+
+    {% if config['build']['debug'] == '0' %}
+    <script type="importmap">
             {
                 "imports": {
                     "vue": "{{ assets_url('public/vendor/vue/vue.esm-browser.prod.js') }}",
@@ -51,8 +45,8 @@
                 }
             }
         </script>
-        {% else %} {# modo debug #}
-        <script type="importmap">
+    {% else %} {# modo debug #}
+    <script type="importmap">
             {
                 "imports": {
                     "vue": "{{ assets_url('public/vendor/vue/vue.esm-browser.js') }}",
@@ -63,12 +57,11 @@
                 }
             }
         </script>
-        {% endif %}
-        <script
-            type="module"
-            src="{{
+    {% endif %}
+    <script type="module" src="{{
                 getAssets('dashboard', 'js', '/dashboard.js')
             }}?{{ date()|date('U') }}"></script>
-        {% block appScript %}{% endblock %}
-    </body>
+    {% block appScript %}{% endblock %}
+</body>
+
 </html>
