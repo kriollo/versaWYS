@@ -103,7 +103,7 @@ app.component('Usersppal', {
                 </ol>
             </nav>
         </div>
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg mx-4">
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg mx-4 pb-20">
             <hr class="h-px mt-8 mb-4 bg-gray-200 border-0 dark:bg-gray-700" />
             <tableUsers></tableUsers>
         </div>
