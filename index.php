@@ -3,7 +3,7 @@
 
 use versaWYS\kernel\Router;
 
-require 'versaWYS/kernel/config/config.php';
+require_once 'versaWYS/kernel/config/config.php';
 
 
 // inicio de la aplicacion
