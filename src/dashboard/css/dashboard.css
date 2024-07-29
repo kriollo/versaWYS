@@ -4,6 +4,38 @@
 
 /* feed styles */
 
+@view-transition {
+    navigation: auto;
+}
+::view-transition-old(root) {
+    animation-name: fadeOut;
+    animation-duration: 0.5s;
+}
+::view-transition-new(root) {
+    animation-name: fadeIn;
+    animation-duration: 0.5s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
 body {
     position: relative;
     min-height: 100vh;
@@ -15,7 +47,9 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: rgb(31 41 55 / var(--tw-bg-opacity)); /* Color del thumb (barra deslizadora) */
+    background-color: rgb(
+        31 41 55 / var(--tw-bg-opacity)
+    ); /* Color del thumb (barra deslizadora) */
     border-radius: 6px; /* Bordes redondeados */
 }
 
