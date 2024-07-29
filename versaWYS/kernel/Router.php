@@ -132,13 +132,13 @@ class Router
      * @param Exception $e The exception to be caught and handled.
      * @return void
      */
-    private function catch(Exception $e): void
+    private function catch($e): void
     {
         global $config;
         header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
 
         if ($config['build']['debug']) {
-            echo Response::jsonError([
+            Response::jsonError([
                 'success' => 0,
                 'message' => $e->getMessage(),
                 'code' => $e->getCode(),
@@ -146,7 +146,7 @@ class Router
                 'file' => $e->getFile(),
             ], 500);
         } else {
-            echo Response::jsonError([
+            Response::jsonError([
                 'success' => 0,
                 'message' => 'Internal Server Error',
             ], 500);
@@ -207,7 +207,7 @@ class Router
             if (!$request->isApiCall()) {
                 $template404 = "/e404";
                 if ($config['build']['debug']) {
-                    echo Response::jsonError([
+                    Response::jsonError([
                         'success' => 0,
                         'message' => "Ruta no encontrada -> {$request->getMethod()}::{$request->getUrl()}",
                     ], 404);
@@ -216,12 +216,12 @@ class Router
                 }
             } else {
                 if ($config['build']['debug']) {
-                    echo Response::jsonError([
+                    Response::jsonError([
                         'success' => 0,
                         'message' => "Ruta no encontrada -> {$request->getMethod()}::{$request->getUrl()}",
                     ], 404);
                 } else {
-                    echo Response::jsonError([
+                    Response::jsonError([
                         'success' => 0,
                         'message' => "Ruta no encontrada",
                     ], 404);
