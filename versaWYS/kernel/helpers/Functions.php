@@ -247,6 +247,10 @@ class Functions
     {
         global $request;
 
+        if (str_starts_with($assetsPath, '/')) {
+            $assetsPath = substr($assetsPath, 1);
+        }
+
         return $request->getBaseUrl() . '/' . $assetsPath;
     }
 
@@ -270,7 +274,7 @@ class Functions
     public static function method_field(string $method): string
     {
         $method = strtoupper(trim($method));
-        return '<input type="hidden" name="_method" value="' . $method . '">';
+        return "<input type=\"hidden\" name=\"_method\" value=\"$method\">";
     }
 
     /**
@@ -282,7 +286,7 @@ class Functions
     {
         global $session;
         $token = $session->get('csrf_token');
-        return '<input type="hidden" name="_csrf_token" id="csrf_token" value="' . $token . '">';
+        return "<input type=\"hidden\" name=\"_csrf_token\" id=\"csrf_token\" value=\"$token\">";
     }
 
     /**
