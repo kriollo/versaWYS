@@ -54,7 +54,7 @@ if (login != null) {
             message: data.message,
             type: 'success',
             callback: () => {
-                window.location.href = '/admin/dashboard';
+                window.location.href = data.redirect;
             },
         });
     });
