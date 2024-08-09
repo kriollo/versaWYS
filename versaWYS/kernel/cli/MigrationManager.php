@@ -32,6 +32,7 @@ class MigrationManager
 
     public static function runUP(): void
     {
+        $className = '';
         try {
             self::inicializate();
 
