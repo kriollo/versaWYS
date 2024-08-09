@@ -1,8 +1,7 @@
 'use strict';
 
-import { $ } from '@/dashboard/js/functions';
+import { $, versaAlert, versaFetch } from '@/dashboard/js/functions';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
-import { versaAlert, versaFetch } from '../functions.js';
 
 const btnAddUser = $('#btnAddUser');
 if (btnAddUser !== null) {
