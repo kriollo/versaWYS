@@ -1,14 +1,17 @@
 'use strict';
 
+import { default as customTable } from '@/dashboard/js/components/customTable.js';
+import { default as modal } from '@/dashboard/js/components/modal.js';
+import { log, versaAlert, versaFetch } from '@/dashboard/js/functions.js';
+import { app } from '@/dashboard/js/vue-instancia.js';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
 // @ts-ignore
 import Swal from 'sweetalert2';
 // @ts-ignore
 import { computed, ref } from 'vue';
-import { customTable } from '../components/customTable.js';
-import { modal } from '../components/modal.js';
-import { log, versaAlert, versaFetch } from '../functions.js';
-import { app } from '../vue-instancia.js';
+
+const ct = customTable;
+const m = modal;
 
 app.component('Usersppal', {
     setup() {},
@@ -463,8 +466,5 @@ app.component('modalUpdatePass', {
         </modal>
     `,
 });
-
-app.component('modal', modal);
-app.component('customTable', customTable);
 
 app.mount('.content-wrapper');
