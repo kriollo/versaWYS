@@ -1,10 +1,11 @@
 'use strict';
+import { $, versaFetch } from '@/dashboard/js/functions.js';
+import { app } from '@/dashboard/js/vue-instancia.js';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
 // @ts-ignore
 import { computed, reactive, ref, watch, watchEffect } from 'vue';
-import { $, versaFetch } from '../functions.js';
 
-export const customTable = {
+const customTable = {
     emits: ['accion', 'update:totalRegisters'],
     name: 'customTable',
     props: {
@@ -62,16 +63,10 @@ export const customTable = {
         });
 
         const getRefreshData = () => {
-            const page =
-                new URLSearchParams(url.value).get('page') ?? resumeData.page;
-            const per_page =
-                new URLSearchParams(url.value).get('per_page') ??
-                resumeData.per_page;
-            const filter =
-                new URLSearchParams(url.value).get('filter') ??
-                resumeData.filter;
-            const order =
-                new URLSearchParams(url.value).get('order') ?? resumeData.order;
+            const page = new URLSearchParams(url.value).get('page') ?? resumeData.page;
+            const per_page = new URLSearchParams(url.value).get('per_page') ?? resumeData.per_page;
+            const filter = new URLSearchParams(url.value).get('filter') ?? resumeData.filter;
+            const order = new URLSearchParams(url.value).get('order') ?? resumeData.order;
 
             versaFetch({
                 url: `${url.value}?page=${page}&per_page=${per_page}&filter=${filter}&order=${order}&externalFilters=${externalFilters.value}`,
@@ -190,10 +185,7 @@ export const customTable = {
 
             if (from < 1) {
                 if (total_pages < limit * 2) {
-                    const arr = Array.from(
-                        { length: total_pages },
-                        (_, i) => i + 1
-                    );
+                    const arr = Array.from({ length: total_pages }, (_, i) => i + 1);
                     return arr;
                 }
                 const arr = Array.from({ length: limit * 2 }, (_, i) => i + 1);
@@ -202,16 +194,10 @@ export const customTable = {
 
             if (to > total_pages) {
                 if (total_pages < limit * 2) {
-                    const arr = Array.from(
-                        { length: total_pages },
-                        (_, i) => i + 1
-                    );
+                    const arr = Array.from({ length: total_pages }, (_, i) => i + 1);
                     return arr;
                 }
-                const arr = Array.from(
-                    { length: limit * 2 },
-                    (_, i) => total_pages - i
-                );
+                const arr = Array.from({ length: limit * 2 }, (_, i) => total_pages - i);
                 return arr.reverse();
             }
 
@@ -294,9 +280,7 @@ export const customTable = {
                     placeholder="Ingrese y presione 'Enter' para buscar" />
             </div>
         </div>
-
-        <table
-            class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
             <caption
                 v-html="tablaTitle"
                 class="py-2 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"></caption>
@@ -434,4 +418,13 @@ export const customTable = {
             </ul>
         </nav>
     `,
+};
+
+app.component('customTable', customTable);
+
+export default {
+    name: 'customTable',
+    components: {
+        customTable,
+    },
 };
