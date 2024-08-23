@@ -1,16 +1,16 @@
-const fs = require('fs').promises;
-const { minify } = require('terser');
-const { watch } = require('gulp');
-const { glob } = require('glob');
-const path = require('path');
-const chalk = require('chalk');
+import chalk from 'chalk';
+import { promises as fs } from 'fs';
+import { glob } from 'glob';
+import { watch } from 'gulp';
+import path from 'path';
+import { minify } from 'terser';
 const log = console.log.bind(console);
 const error = console.error.bind(console);
 
-const PATH_SOURCE = '../src';
-const PATH_DIST = '../public';
+const PATH_SOURCE = './src';
+const PATH_DIST = './public';
 
-let pathAlias = {};
+let pathAlias = null;
 
 // obtener parametro de entrada
 let isAll = false;
@@ -20,7 +20,7 @@ if (process.argv.length > 1) {
 }
 
 const getPathAlias = async () => {
-    const pathFile = '../jsconfig.json';
+    const pathFile = './tsconfig.json';
 
     const data = await fs.readFile(pathFile, 'utf-8');
     if (!data) return;
@@ -33,110 +33,6 @@ const getPathAlias = async () => {
 
 const mapRuta = async ruta => path.join(PATH_DIST, path.relative(PATH_SOURCE, ruta));
 
-const init = async () => {
-    try {
-        const watchDir = `${PATH_SOURCE}/**/*.js`;
-
-        await watch([watchDir])
-            .on('add', path => compile(path))
-            .on('change', path => compile(path))
-            .on('unlink', path => deleteFile(path));
-        log(chalk.green(`Watching ${watchDir}`));
-
-        pathAlias = await getPathAlias();
-
-        // Ejecutar la compilación al inicio
-        //await compileAll(watchDir);
-    } catch (error) {
-        error(chalk.red('Error al iniciar:'), error, error.fileName, error.lineNumber, error.stack);
-    }
-};
-
-const compile = async path => {
-    const pathParts = path.split('\\');
-    const fileName = pathParts.pop();
-    const ruta = pathParts.join('/') + '/';
-    const extension = fileName.split('.').pop();
-
-    let outputPath = (await mapRuta(ruta)) + '\\' + fileName;
-
-    outputPath = outputPath.replace('\\', '/');
-
-    if (outputPath) {
-        await compileJS(path, outputPath);
-    } else {
-        log(chalk.yellow(`Tipo no reconocido: ${extension}`));
-    }
-};
-
-const compileJS = async (source, destination) => {
-    try {
-        let data = await fs.readFile(source, 'utf-8');
-        if (!data) return;
-
-        data = await removehtmlOfTemplateString(data);
-        data = await removeCodeTagImport(data);
-        data = await replaceAlias(data);
-        data = await addImportEndJs(data);
-
-        // optener la hora actual
-        const hora = new Date().getHours();
-        const minutos = new Date().getMinutes();
-        const segundos = new Date().getSeconds();
-
-        const filename = path.basename(source);
-        log(chalk.blue(`${hora}:${minutos}:${segundos} - Compilando ${filename}`));
-
-        const startTime = Date.now();
-
-        const checkDataModule = data.includes('export default') || data.includes('import');
-
-        const result = await minify(
-            { [filename]: data },
-            {
-                compress: true,
-                ecma: 2016,
-                module: checkDataModule,
-                toplevel: true,
-                parse: {
-                    bare_returns: true,
-                    html5_comments: false,
-                    shebang: false,
-                },
-            }
-        );
-        const endTime = Date.now();
-
-        log(chalk.green(`Escribiendo ${destination}`));
-
-        if (result.code.length === 0) {
-            error(chalk.yellow('Warning al compilar JS: El archivo está vacío'));
-            // eliminar si existe el archivo de destino
-            await fs.unlink(destination);
-        } else {
-            const destinationDir = path.dirname(destination);
-            await fs.mkdir(destinationDir, { recursive: true });
-            await fs.writeFile(destination, result.code, 'utf-8');
-            const elapsedTime = endTime - startTime;
-            log(chalk.gray(`Compilación exitosa (${elapsedTime} ms)`));
-        }
-    } catch (errora) {
-        error(chalk.red(`Error durante la compilación JS: ${errora}`));
-    }
-};
-
-const compileAll = async watchDir => {
-    try {
-        const files = await glob(watchDir);
-        pathAlias = await getPathAlias();
-
-        for (const file of files) {
-            compile(file);
-        }
-    } catch (errora) {
-        error(chalk.red('Error durante la compilación inicial:'), errora);
-    }
-};
 
 const deleteFile = async ruta => {
     const newPath = (await mapRuta(ruta.replace('\\', '/'))).toString();
@@ -198,14 +94,14 @@ const removeVarHTML = async data => {
 const replaceAlias = async data => {
     for (const key in pathAlias) {
         const value = pathAlias[key][0];
-        const alias = "from '" + key.replace('/*', '');
+        const alias = `from '${key.replace('/*', '')}`;
         const ruta = value.replace('/*', '');
 
         const aliasRegExp = new RegExp(alias, 'g');
-        data = data.replace(aliasRegExp, " from '" + ruta);
+        data = data.replace(aliasRegExp, ` from '${ruta}`);
 
         const newAliasRegExp = new RegExp('@/', 'g');
-        data = data.replace(newAliasRegExp, ruta + '/');
+        data = data.replace(newAliasRegExp, `${ruta}/`);
 
         //reemplazar esto: from '. por eso from '/
         const aliasRegExp2 = new RegExp("from './", 'g');
@@ -248,7 +144,7 @@ const addImportEndJs = async data => {
                         ruta === 'sweetalert2'
                     )
                         continue;
-                    const newRuta = ruta + '.js';
+                    const newRuta = `${ruta}.js`;
                     const newImport = item.replace(ruta, newRuta);
                     data = data.replace(item, newImport);
                 }
@@ -256,6 +152,110 @@ const addImportEndJs = async data => {
         }
     }
     return data;
+};
+
+const compileJS = async (source, destination) => {
+    try {
+        let data = await fs.readFile(source, 'utf-8');
+        if (!data) return;
+
+        data = await removehtmlOfTemplateString(data);
+        data = await removeCodeTagImport(data);
+        data = await replaceAlias(data);
+        data = await addImportEndJs(data);
+
+        // optener la hora actual
+        const hora = new Date().getHours();
+        const minutos = new Date().getMinutes();
+        const segundos = new Date().getSeconds();
+
+        const filename = path.basename(source);
+        log(chalk.blue(`${hora}:${minutos}:${segundos} - Compilando ${filename}`));
+
+        const startTime = Date.now();
+
+        const checkDataModule = data.includes('export default') || data.includes('import');
+
+        const result = await minify(
+            { [filename]: data },
+            {
+                compress: true,
+                ecma: 2016,
+                module: checkDataModule,
+                toplevel: true,
+                parse: {
+                    bare_returns: true,
+                    html5_comments: false,
+                    shebang: false,
+                },
+            }
+        );
+        const endTime = Date.now();
+
+        log(chalk.green(`Escribiendo ${destination}`));
+
+        if (result.code.length === 0) {
+            error(chalk.yellow('Warning al compilar JS: El archivo está vacío'));
+            // eliminar si existe el archivo de destino
+            await fs.unlink(destination);
+        } else {
+            const destinationDir = path.dirname(destination);
+            await fs.mkdir(destinationDir, { recursive: true });
+            await fs.writeFile(destination, result.code, 'utf-8');
+            const elapsedTime = endTime - startTime;
+            log(chalk.gray(`Compilación exitosa (${elapsedTime} ms)`));
+        }
+    } catch (errora) {
+        error(chalk.red(`Error durante la compilación JS: ${errora}`));
+    }
+};
+const compile = async path => {
+    const pathParts = path.split('\\');
+    const fileName = pathParts.pop();
+    const ruta = `${pathParts.join('/')}/`;
+    const extension = fileName.split('.').pop();
+
+    let outputPath = `${await mapRuta(ruta)}\\${fileName}`;
+
+    outputPath = outputPath.replace('\\', '/');
+
+    if (outputPath) {
+        await compileJS(path, outputPath);
+    } else {
+        log(chalk.yellow(`Tipo no reconocido: ${extension}`));
+    }
+};
+
+const compileAll = async watchDir => {
+    try {
+        const files = await glob(watchDir);
+        pathAlias = await getPathAlias();
+
+        for (const file of files) {
+            compile(file);
+        }
+    } catch (errora) {
+        error(chalk.red('Error durante la compilación inicial:'), errora);
+    }
+};
+
+const init = async () => {
+    try {
+        const watchDir = `${PATH_SOURCE}/**/*.js`;
+
+        await watch([watchDir])
+            .on('add', path => compile(path))
+            .on('change', path => compile(path))
+            .on('unlink', path => deleteFile(path));
+        log(chalk.green(`Watching ${watchDir}`));
+
+        pathAlias = await getPathAlias();
+
+        // Ejecutar la compilación al inicio
+        //await compileAll(watchDir);
+    } catch (error) {
+        error(chalk.red('Error al iniciar:'), error, error.fileName, error.lineNumber, error.stack);
+    }
 };
 
 if (isAll) {

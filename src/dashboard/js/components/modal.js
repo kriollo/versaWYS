@@ -1,4 +1,3 @@
-'use strict';
 import { app } from '@/dashboard/js/vue-instancia';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
 // @ts-ignore

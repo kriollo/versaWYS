@@ -6,3 +6,4 @@
 /public/dashboard/**/*.css
 /versaCompileJS/node_modules/*
 .idea
+node_modules

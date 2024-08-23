@@ -1,4 +1,3 @@
-'use strict';
 import { $ } from '@/dashboard/js/functions';
 
 const $themeToggleDarkIcon = $('#theme-toggle-dark-icon');
@@ -20,7 +19,7 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
 
     const $themeToggleBtn = $('#theme-toggle');
     if ($themeToggleBtn) {
-        let event = new Event('dark-mode');
+        const event = new Event('dark-mode');
         $themeToggleBtn.addEventListener('click', function () {
             // toggle icons
             $themeToggleDarkIcon.classList.toggle('hidden');

@@ -362,7 +362,7 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
                 }, 1000);
             } else {
                 width++;
-                progress.style.width = width + '%';
+                progress.style.width = `${width}%`;
             }
         }
     });

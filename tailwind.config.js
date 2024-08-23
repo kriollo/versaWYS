@@ -1,11 +1,13 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
+    mode: 'jit',
     content: [
-        '../app/**/*.php',
-        '../app/templates/**/*.twig',
-        '../app/templates/**/*.php',
-        '../src/**/*.js',
-        '../src/vendor/flowbite/*.js',
+        './app/**/*.php',
+        './app/templates/**/*.twig',
+        './app/templates/**/*.php',
+        './src/**/*.js',
+        './src/**/*.css',
+        './src/vendor/flowbite/*.js',
     ],
     safelist: [
         'w-64',
@@ -107,4 +109,5 @@ module.exports = {
             },
         },
     },
+    plugins: ['prettier-plugin-tailwindcss'],
 };

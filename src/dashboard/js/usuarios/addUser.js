@@ -1,11 +1,9 @@
-'use strict';
-
 import { $, versaAlert, versaFetch } from '@/dashboard/js/functions';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
 
 const btnAddUser = $('#btnAddUser');
 if (btnAddUser !== null) {
-    btnAddUser.addEventListener('click', async function (e) {
+    btnAddUser.addEventListener('click', async () => {
         const formNewUser = $('#formNewUser');
         if (!(formNewUser instanceof HTMLFormElement)) return false;
         const formData = new FormData(formNewUser);

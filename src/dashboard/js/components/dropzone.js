@@ -1,12 +1,7 @@
-'use strict';
-
 // @ts-ignore
 import { computed, ref } from 'vue';
 
-import {
-    useFileZise,
-    useValidFile,
-} from '@/dashboard/js/composables/useValidFile.js';
+import { useFileZise, useValidFile } from '@/dashboard/js/composables/useValidFile.js';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
 /**
  * Componente de Vue.js para mostrar errores de archivos.
@@ -83,9 +78,7 @@ export const fileErrorModal = {
             key="filesErrorModal">
             <template v-slot:modalTitle>Archivos con Errores</template>
             <template v-slot:modalBody>
-                <filesError
-                    :FilesErrors="FilesErrors"
-                    key="fileErrorDropZone" />
+                <filesError :FilesErrors="FilesErrors" key="fileErrorDropZone" />
             </template>
             <template v-slot:modalFooter>
                 <button
@@ -193,9 +186,7 @@ export const dropZone = {
                 };
             }
 
-            const indexFile = self.files.findIndex(
-                item => item.name === file.name
-            );
+            const indexFile = self.files.findIndex(item => item.name === file.name);
             if (indexFile >= 0) {
                 return {
                     error: true,
@@ -214,10 +205,7 @@ export const dropZone = {
             this.ArrayFilesErrors = [];
             if (filesInput.length <= 0) return;
 
-            if (
-                this.multiple === true &&
-                filesInput.length > this.nfilesMultiple
-            ) {
+            if (this.multiple === true && filesInput.length > this.nfilesMultiple) {
                 this.ArrayFilesErrors.push({
                     error: true,
                     name: 'Multiples Archivos',
@@ -227,7 +215,7 @@ export const dropZone = {
                 return;
             }
 
-            for (let file of filesInput) {
+            for (const file of filesInput) {
                 const result = self.validaFiles(file);
                 if (!result.error)
                     files.push({
@@ -243,8 +231,7 @@ export const dropZone = {
                     accion: 'addFiles',
                     files: this.multiple ? files : files[0],
                 });
-            if (this.ArrayFilesErrors.length > 0)
-                this.showModalFilesError = true;
+            if (this.ArrayFilesErrors.length > 0) this.showModalFilesError = true;
         },
         accion(/** @type {Object} */ accion) {
             const actions = {
@@ -278,9 +265,7 @@ export const dropZone = {
                 <div class="text-center">
                     <h4 class="text-center">{{ mensaje }}</h4>
                 </div>
-                <p class="font-bold text-xs text-center">
-                    Tipos Validos: .png .jpg .svg
-                </p>
+                <p class="font-bold text-xs text-center">Tipos Validos: .png .jpg .svg</p>
                 <p class="font-bold text-xs text-center">Tamaño Maximo: 10MB</p>
 
                 <input

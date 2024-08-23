@@ -1,8 +1,7 @@
-'use strict';
 import { $, versaFetch } from '@/dashboard/js/functions.js';
 import { app } from '@/dashboard/js/vue-instancia.js';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
-// @ts-ignore
+
 import { computed, reactive, ref, watch, watchEffect } from 'vue';
 
 const customTable = {

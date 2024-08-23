@@ -1,7 +1,3 @@
-'use strict';
-
-import { default as customTable } from '@/dashboard/js/components/customTable.js';
-import { default as modal } from '@/dashboard/js/components/modal.js';
 import { log, versaAlert, versaFetch } from '@/dashboard/js/functions.js';
 import { app } from '@/dashboard/js/vue-instancia.js';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
@@ -10,8 +6,12 @@ import Swal from 'sweetalert2';
 // @ts-ignore
 import { computed, ref } from 'vue';
 
+import customTable from '@/dashboard/js/components/customTable.js';
+import modal from '@/dashboard/js/components/modal.js';
+/* eslint-disable */
 const ct = customTable;
 const m = modal;
+/* eslint-enable */
 
 app.component('Usersppal', {
     setup() {},

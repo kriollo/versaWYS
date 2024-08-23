@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "noUncheckedIndexedAccess": true,
+    "moduleDetection": "auto",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "checkJs": true,
@@ -19,23 +21,16 @@
     "moduleResolution": "node",
     "outDir": "./public/",
     "paths": {
-      "@/*": [
-        "./public/*"
-      ]
+      "@/*": ["./public/*"]
     },
+    "typeRoots": ["/node_modules/", "./src/jscontrollers"],
     "resolveJsonModule": true,
     "rootDir": ".",
     "sourceMap": true,
     "target": "es2022"
   },
-  "exclude": [
-    "./public/vendor/**/*"
-  ],
-  "include": [
-    "./src/**/*",
-    "public/vendor",
-    "public/web/js/main.js"
-  ],
+  "exclude": ["./public/vendor/**/*"],
+  "include": ["./src/**/*", "public/vendor", "public/web/js/main.js"],
   "typeAcquisition": {
     "enable": true,
     "include": [
