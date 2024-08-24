@@ -22,6 +22,7 @@ class m20231128_CreateTableUsers
                 `updated_at` datetime NOT NULL,
                 `role` varchar(255) NOT NULL,
                 `status` tinyint(1) NOT NULL,
+                `avatar` varchar(255) DEFAULT NULL,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `email` (`email`),
                 UNIQUE KEY `tokenid` (`tokenid`)
