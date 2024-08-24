@@ -1,0 +1,38 @@
+{
+    "compilerOptions": {
+        "noUncheckedIndexedAccess": true,
+        "moduleDetection": "auto",
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true,
+        "checkJs": true,
+        "esModuleInterop": true,
+        "lib": [
+            "es2020",
+            "es2015",
+            "es2019",
+            "dom",
+            "scripthost",
+            "dom.iterable",
+            "ES5",
+            "ES6",
+            "esnext"
+        ],
+        "module": "esnext",
+        "moduleResolution": "node",
+        "outDir": "./public/",
+        "paths": {
+            "@/*": ["./public/*"]
+        },
+        "typeRoots": ["/node_modules/", "./src/jscontrollers"],
+        "resolveJsonModule": true,
+        "rootDir": ".",
+        "sourceMap": true,
+        "target": "es2022"
+    },
+    "exclude": ["./public/vendor/**/*"],
+    "include": ["./src/**/*", "public/vendor", "public/web/js/main.js"],
+    "typeAcquisition": {
+        "enable": true,
+        "include": ["vue", "pinia", "code-tag", "sweetalert2", "SweetAlertIcon"]
+    }
+}
