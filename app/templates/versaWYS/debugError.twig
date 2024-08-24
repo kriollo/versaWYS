@@ -1,7 +1,10 @@
 {% extends 'dashboard/layout/layout.twig' %}
 {% block appBody %}
-	<div class="text-white m-10">
-		<h1 class="text-red-500">VersaWYS - Debug Error</h1>
-		<h4>{{ dump(data) }}</h4>
+	<div class="flex justify-center items-center dark:bg-gray-900 h-lvh gap-4">
+		<img src="{{ getAssets('dashboard', 'img', 'debugError.webp') }}" class="w-[20%]">
+		<div class="dark:text-white">
+			<h1 class="text-red-500 mb-4">VersaWYS - Debug Error</h1>
+			<h4>{{ dump(data) }}</h4>
+		</div>
 	</div>
 {% endblock %}
