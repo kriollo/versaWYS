@@ -31,8 +31,8 @@ const getPathAlias = async () => {
     return pathAlias;
 };
 
-const mapRuta = async ruta => path.join(PATH_DIST, path.relative(PATH_SOURCE, ruta));
-
+const mapRuta = async ruta =>
+    path.join(PATH_DIST, path.relative(PATH_SOURCE, ruta));
 
 const deleteFile = async ruta => {
     const newPath = (await mapRuta(ruta.replace('\\', '/'))).toString();
@@ -54,7 +54,11 @@ const deleteFile = async ruta => {
 
         log(chalk.gray(`Eliminación exitosa: ${newPath}`));
     } catch (errora) {
-        error(chalk.red(`Error al eliminar el archivo/directorio ${newPath}: ${errora}`));
+        error(
+            chalk.red(
+                `Error al eliminar el archivo/directorio ${newPath}: ${errora}`
+            )
+        );
     }
 };
 
@@ -170,17 +174,22 @@ const compileJS = async (source, destination) => {
         const segundos = new Date().getSeconds();
 
         const filename = path.basename(source);
-        log(chalk.blue(`${hora}:${minutos}:${segundos} - Compilando ${filename}`));
+        log(
+            chalk.blue(
+                `${hora}:${minutos}:${segundos} - Compilando ${filename}`
+            )
+        );
 
         const startTime = Date.now();
 
-        const checkDataModule = data.includes('export default') || data.includes('import');
+        const checkDataModule =
+            data.includes('export default') || data.includes('import');
 
         const result = await minify(
             { [filename]: data },
             {
                 compress: true,
-                ecma: 2016,
+                ecma: 2022,
                 module: checkDataModule,
                 toplevel: true,
                 parse: {
@@ -195,7 +204,9 @@ const compileJS = async (source, destination) => {
         log(chalk.green(`Escribiendo ${destination}`));
 
         if (result.code.length === 0) {
-            error(chalk.yellow('Warning al compilar JS: El archivo está vacío'));
+            error(
+                chalk.yellow('Warning al compilar JS: El archivo está vacío')
+            );
             // eliminar si existe el archivo de destino
             await fs.unlink(destination);
         } else {
@@ -254,7 +265,13 @@ const init = async () => {
         // Ejecutar la compilación al inicio
         //await compileAll(watchDir);
     } catch (error) {
-        error(chalk.red('Error al iniciar:'), error, error.fileName, error.lineNumber, error.stack);
+        error(
+            chalk.red('Error al iniciar:'),
+            error,
+            error.fileName,
+            error.lineNumber,
+            error.stack
+        );
     }
 };
 
