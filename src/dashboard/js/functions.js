@@ -1,15 +1,16 @@
-// @ts-ignore
 import Swal from 'sweetalert2';
-// @ts-ignore
-const SwalStyles = await import(
-    // @ts-ignore
-    '@/vendor/sweetalert2/sweetalert2.dark.min.css',
-    { with: { type: 'css' } }
-);
-document.adoptedStyleSheets = [
-    ...document.adoptedStyleSheets,
-    SwalStyles.default,
-];
+const loadSwallCss = async () => {
+    const SwalStyles = await import(
+        // @ts-ignore
+        '@/vendor/sweetalert2/sweetalert2.dark.min.css',
+        { with: { type: 'css' } }
+    );
+    document.adoptedStyleSheets = [
+        ...document.adoptedStyleSheets,
+        SwalStyles.default,
+    ];
+};
+loadSwallCss();
 
 const errorMap = new Map([
     // [400, 'El Servidor no pudo procesar la solicitud'],
