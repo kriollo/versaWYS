@@ -6,7 +6,10 @@ const SwalStyles = await import(
     '@/vendor/sweetalert2/sweetalert2.dark.min.css',
     { with: { type: 'css' } }
 );
-document.adoptedStyleSheets = [...document.adoptedStyleSheets, SwalStyles.default];
+document.adoptedStyleSheets = [
+    ...document.adoptedStyleSheets,
+    SwalStyles.default,
+];
 
 const errorMap = new Map([
     // [400, 'El Servidor no pudo procesar la solicitud'],
@@ -26,7 +29,9 @@ const errorMap = new Map([
  * @returns {boolean} True si la cookie existe, de lo contrario False.
  */
 export const existeCookieBuild = () => {
-    const cookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('debug'));
+    const cookie = document.cookie
+        .split(';')
+        .find(cookie => cookie.trim().startsWith('debug'));
     return cookie !== undefined;
 };
 
@@ -88,9 +93,14 @@ export const versaFetch = async params => {
         if (errorMap.has(response.status)) {
             if (isJson) {
                 throw new Error(JSON.stringify(body));
-            } else if (contentType?.includes('text/html') || contentType === null) {
+            } else if (
+                contentType?.includes('text/html') ||
+                contentType === null
+            ) {
                 const message = errorMap.get(response.status);
-                throw new Error(JSON.stringify({ success: 0, message: message }));
+                throw new Error(
+                    JSON.stringify({ success: 0, message: message })
+                );
             }
         }
 
