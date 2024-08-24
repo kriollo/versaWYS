@@ -174,7 +174,6 @@ app.component('tableUsers', {
 
             const result = await Swal.fire({
                 ...swalParams,
-                icon: 'warning',
             });
             if (result.isConfirmed) {
                 const params = {
