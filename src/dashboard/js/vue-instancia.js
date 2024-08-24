@@ -1,5 +1,4 @@
 import { existeCookieBuild } from '@/dashboard/js/functions.js';
-// @ts-ignore
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
