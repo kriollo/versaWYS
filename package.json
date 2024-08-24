@@ -12,7 +12,6 @@
     "author": "Jorge Jara H.(jjara@wys.cl)",
     "license": "MIT",
     "dependencies": {
-        "@types/sweetalert": "^2.0.4",
         "chalk": "5.3.0",
         "glob": "^11.0.0",
         "glob-promise": "^6.0.7",
