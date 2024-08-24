@@ -10,7 +10,8 @@
 		<link href="{{ assets_url('/public/vendor/flowbite/flowbite.min.css') }}" rel="stylesheet"/>
 		<link href="{{ getAssets('dashboard', 'css', '/dashboard.css') }}" rel="stylesheet"/>
 
-		<link href="{{ getAssets('dashboard', 'img', '/favicon.png') }}" rel="shortcut icon"/> {% block appHead %}{% endblock %}
+		<link href="{{ getAssets('dashboard', 'img', '/favicon.png') }}" rel="shortcut icon"/> {% block appHead %}{%
+	endblock %}
 
 		<title>{{ config.build.name }}</title>
 		{% block appHeader %}{% endblock %}
@@ -27,7 +28,7 @@
 					"imports": {
 						"vue": "{{ assets_url('node_modules/vue/dist/vue.esm-browser.prod.js') }}",
 						"vue-demi": "{{ assets_url('public/vendor/vue/vue-demi-v3.mjs') }}",
-						"pinia": "{{ assets_url('public/vendor/vue/pinia@2.1.7.esm-browser.prod.js') }}",
+						"pinia": "{{ assets_url('node_modules/pinia/dist/pinia.esm-browser.js') }}",
 						"sweetalert2": "{{ assets_url('public/vendor/sweetalert2/sweetalert2.mjs') }}"
 					}
 				}
@@ -35,16 +36,16 @@
 		{% else %}
 			{# modo debug #}
 			{# public/vendor/vue/vue.esm-browser.js #}
-			<script type="importmap">
-				{
-					"imports": {
-						"vue": "{{ assets_url('node_modules/vue/dist/vue.esm-browser.js') }}",
-						"vue-demi": "{{ assets_url('public/vendor/vue/vue-demi-v3.mjs') }}",
-						"pinia": "{{ assets_url('node_modules/pinia/dist/pinia.esm-browser.js') }}",
-						"@vue/devtools-api": "https://cdn.jsdelivr.net/npm/@vue/devtools-api/lib/esm/index.js",
-						"sweetalert2": "{{ assets_url('public/vendor/sweetalert2/sweetalert2.mjs') }}"
+				<script type="importmap">
+					{
+						"imports": {
+							"vue": "{{ assets_url('node_modules/vue/dist/vue.esm-browser.js') }}",
+							"vue-demi": "{{ assets_url('public/vendor/vue/vue-demi-v3.mjs') }}",
+							"pinia": "{{ assets_url('node_modules/pinia/dist/pinia.esm-browser.js') }}",
+							"@vue/devtools-api": "{{ assets_url('node_modules/@vue/devtools-api/lib/esm/index.js') }}",
+							"sweetalert2": "{{ assets_url('public/vendor/sweetalert2/sweetalert2.mjs') }}"
+						}
 					}
-				}
 			</script>
 		{% endif %}
 		<script type="module" src="{{ getAssets('dashboard', 'js', '/dashboard.js') }}?{{ date()|date('U') }}"></script>
