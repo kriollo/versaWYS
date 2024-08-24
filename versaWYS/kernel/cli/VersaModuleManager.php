@@ -86,7 +86,6 @@ class VersaModuleManager
 
         $template = <<<'EOT'
                     'use strict';
-                    // @ts-ignore
                     const { ref, computed, reactive, watch } = Vue;
                     import { versaAlert, versaFetch } from '../functions.js';
                     import { app } from '../vue-instancia.js';
