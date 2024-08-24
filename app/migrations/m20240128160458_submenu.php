@@ -11,7 +11,6 @@ class m20240128160458_submenu
     public static function up()
     {
         try {
-
             R::exec("CREATE TABLE IF NOT EXISTS `versasubmenu` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
                 `id_menu` INT(11) NOT NULL,
@@ -41,8 +40,7 @@ class m20240128160458_submenu
     public static function down()
     {
         try {
-
-            R::exec("DROP TABLE IF EXISTS `versamenu`;");
+            R::exec('DROP TABLE IF EXISTS `versamenu`;');
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
         } catch (\Exception $e) {

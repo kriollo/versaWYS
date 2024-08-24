@@ -46,6 +46,6 @@ class m20231128_CreateTableUsers
 
     public static function down(): void
     {
-        R::exec("DROP TABLE `versausers`;");
+        R::exec('DROP TABLE `versausers`;');
     }
 }

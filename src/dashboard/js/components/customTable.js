@@ -62,10 +62,16 @@ const customTable = {
         });
 
         const getRefreshData = () => {
-            const page = new URLSearchParams(url.value).get('page') ?? resumeData.page;
-            const per_page = new URLSearchParams(url.value).get('per_page') ?? resumeData.per_page;
-            const filter = new URLSearchParams(url.value).get('filter') ?? resumeData.filter;
-            const order = new URLSearchParams(url.value).get('order') ?? resumeData.order;
+            const page =
+                new URLSearchParams(url.value).get('page') ?? resumeData.page;
+            const per_page =
+                new URLSearchParams(url.value).get('per_page') ??
+                resumeData.per_page;
+            const filter =
+                new URLSearchParams(url.value).get('filter') ??
+                resumeData.filter;
+            const order =
+                new URLSearchParams(url.value).get('order') ?? resumeData.order;
 
             versaFetch({
                 url: `${url.value}?page=${page}&per_page=${per_page}&filter=${filter}&order=${order}&externalFilters=${externalFilters.value}`,
@@ -105,7 +111,7 @@ const customTable = {
         );
 
         watchEffect(() => {
-            $emit('update:totalRegisters', data.total ?? 0);
+            $emit('update:totalRegisters', resumeData?.total ?? 0);
         });
 
         return {
@@ -184,7 +190,10 @@ const customTable = {
 
             if (from < 1) {
                 if (total_pages < limit * 2) {
-                    const arr = Array.from({ length: total_pages }, (_, i) => i + 1);
+                    const arr = Array.from(
+                        { length: total_pages },
+                        (_, i) => i + 1
+                    );
                     return arr;
                 }
                 const arr = Array.from({ length: limit * 2 }, (_, i) => i + 1);
@@ -193,10 +202,16 @@ const customTable = {
 
             if (to > total_pages) {
                 if (total_pages < limit * 2) {
-                    const arr = Array.from({ length: total_pages }, (_, i) => i + 1);
+                    const arr = Array.from(
+                        { length: total_pages },
+                        (_, i) => i + 1
+                    );
                     return arr;
                 }
-                const arr = Array.from({ length: limit * 2 }, (_, i) => total_pages - i);
+                const arr = Array.from(
+                    { length: limit * 2 },
+                    (_, i) => total_pages - i
+                );
                 return arr.reverse();
             }
 

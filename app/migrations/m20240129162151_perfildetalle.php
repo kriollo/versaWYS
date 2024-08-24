@@ -11,7 +11,6 @@ class m20240129162151_perfildetalle
     public static function up()
     {
         try {
-
             R::exec("CREATE TABLE IF NOT EXISTS `versaperfildetalle` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
                 `perfil_id` INT(11) NOT NULL,

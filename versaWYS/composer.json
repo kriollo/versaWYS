@@ -13,5 +13,8 @@
             "versaWYS\\kernel\\": "../versaWYS/kernel/",
             "app\\": "../app/"
         }
+    },
+    "require-dev": {
+        "friendsoftwig/twigcs": "^6.4"
     }
 }

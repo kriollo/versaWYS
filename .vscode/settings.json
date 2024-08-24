@@ -1,7 +1,7 @@
 {
-    "launch": {
-        
-        "configurations": [],
-        "compounds": []
+    "twigcs.enable": true,
+    "twigcs.executablePath": "./versaWYS/.vendor/bin/twigcs",
+    "[twig]": {
+        "editor.defaultFormatter": "mblode.twig-language-2"
     }
 }

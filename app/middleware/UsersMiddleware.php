@@ -8,7 +8,6 @@ use versaWYS\kernel\helpers\Functions;
 
 class UsersMiddleware
 {
-
     public function validateRegisterParams(): true|array
     {
         global $request;
@@ -25,7 +24,7 @@ class UsersMiddleware
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401
+                'code' => 401,
             ];
         }
         return true;
@@ -35,7 +34,6 @@ class UsersMiddleware
         global $request;
 
         $params = $request->getAllParams();
-
 
         $result = Functions::validateParams($params, [
             'tokenid' => 'required',
@@ -48,7 +46,7 @@ class UsersMiddleware
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401
+                'code' => 401,
             ];
         }
         return true;
@@ -68,7 +66,7 @@ class UsersMiddleware
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401
+                'code' => 401,
             ];
         }
         return true;

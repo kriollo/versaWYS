@@ -15,7 +15,6 @@ use versaWYS\kernel\Response;
 
 class DashBoardController extends Globalcontrollers
 {
-
     public function __construct()
     {
         global $twig, $session;
@@ -49,7 +48,6 @@ class DashBoardController extends Globalcontrollers
         global $request, $session;
 
         try {
-
             $params = $request->getAllParams();
 
             $user = (new Models\Users())->findUserByEmail($params['email']);
@@ -75,19 +73,25 @@ class DashBoardController extends Globalcontrollers
 
             $session->set('id_user', $user['id']);
 
-            Response::json([
-                'success' => 1,
-                'message' => 'Autenticación correcta',
-                'redirect' => '/admin/dashboard',
-            ], 200);
+            Response::json(
+                [
+                    'success' => 1,
+                    'message' => 'Autenticación correcta',
+                    'redirect' => '/admin/dashboard',
+                ],
+                200
+            );
         } catch (Throwable $th) {
-            Response::json([
-                'success' => 0,
-                'message' => $th->getMessage(),
-                'errors' => [
-                    'error' => 'Vuelva a intentarlo nuevamente...'
-                ]
-            ], $th->getCode());
+            Response::json(
+                [
+                    'success' => 0,
+                    'message' => $th->getMessage(),
+                    'errors' => [
+                        'error' => 'Vuelva a intentarlo nuevamente...',
+                    ],
+                ],
+                $th->getCode()
+            );
         }
     }
 
@@ -99,7 +103,6 @@ class DashBoardController extends Globalcontrollers
     public function logout()
     {
         global $session, $cookie;
-
 
         foreach ($session->getAll() as $key => $value) {
             $session->delete($key);
@@ -144,7 +147,6 @@ class DashBoardController extends Globalcontrollers
         global $request, $config;
 
         try {
-
             $params = $request->getAllParams();
 
             $user = (new models\Users())->findUserByEmail($params['email']);
@@ -159,7 +161,7 @@ class DashBoardController extends Globalcontrollers
             $mail = new MailSender();
             if (
                 $mail->send(
-                    ["email" => $user['email'], "name" => $user['name']],
+                    ['email' => $user['email'], 'name' => $user['name']],
                     'Recuperar contraseña',
                     'mail/layout',
                     ContentType::TWIG,
@@ -167,31 +169,46 @@ class DashBoardController extends Globalcontrollers
                         'url_logo' => $request->getBaseUrl() . '/admin',
                         'content' => 'Para recuperar su contraseña, haga clic en el siguiente enlace:',
                         'btnhref' => "{$request->getBaseUrl()}/admin/reset-password?token=$token",
-                        'copyright' => '&copy; ' . date('Y') . ' <a href="' . $request->getBaseUrl() . '">' . $config['build']['name'] . '</a> - Todos los derechos reservados.',
+                        'copyright' =>
+                            '&copy; ' .
+                            date('Y') .
+                            ' <a href="' .
+                            $request->getBaseUrl() .
+                            '">' .
+                            $config['build']['name'] .
+                            '</a> - Todos los derechos reservados.',
                         'title' => "Recuperar contraseña - {$request->getBaseUrl()}",
-                        'btnname' => 'Recuperar contraseña'
+                        'btnname' => 'Recuperar contraseña',
                     ],
                     [
-                        ['path' => Functions::getAssets("dashboard", "img", "/favicon.png", false), 'id' => 'logo', 'mime' => 'image/png']
+                        [
+                            'path' => Functions::getAssets('dashboard', 'img', '/favicon.png', false),
+                            'id' => 'logo',
+                            'mime' => 'image/png',
+                        ],
                     ]
                 )
             ) {
                 Response::json([
                     'success' => 1,
-                    'message' => 'Se ha enviado un correo electrónico a su cuenta de correo electrónico para restablecer su contraseña.'
+                    'message' =>
+                        'Se ha enviado un correo electrónico a su cuenta de correo electrónico para restablecer su contraseña.',
                 ]);
-                exit;
+                exit();
             }
 
             throw new InvalidArgumentException('No se pudo enviar el correo electrónico', 500);
         } catch (Throwable $th) {
-            Response::json([
-                'success' => 0,
-                'message' => $th->getMessage(),
-                'errors' => [
-                    'error' => 'Vuelva a intentarlo nuevamente...'
-                ]
-            ], $th->getCode());
+            Response::json(
+                [
+                    'success' => 0,
+                    'message' => $th->getMessage(),
+                    'errors' => [
+                        'error' => 'Vuelva a intentarlo nuevamente...',
+                    ],
+                ],
+                $th->getCode()
+            );
         }
     }
 
@@ -213,7 +230,7 @@ class DashBoardController extends Globalcontrollers
         }
 
         return $this->template->render('dashboard/login/ResetLostPassword', [
-            'token_reset' => $token
+            'token_reset' => $token,
         ]);
     }
 
@@ -233,7 +250,6 @@ class DashBoardController extends Globalcontrollers
         global $request;
 
         try {
-
             $params = $request->getAllParams();
 
             $user = (new models\Users())->findUserByToken($params['tokenReset']);
@@ -248,16 +264,19 @@ class DashBoardController extends Globalcontrollers
 
             Response::json([
                 'success' => 1,
-                'message' => 'Se ha cambiado la contraseña correctamente, se redirigirá al inicio de sesión...'
+                'message' => 'Se ha cambiado la contraseña correctamente, se redirigirá al inicio de sesión...',
             ]);
         } catch (Throwable $th) {
-            Response::json([
-                'success' => 0,
-                'message' => $th->getMessage(),
-                'errors' => [
-                    'error' => 'Vuelva a intentarlo nuevamente...'
-                ]
-            ], $th->getCode());
+            Response::json(
+                [
+                    'success' => 0,
+                    'message' => $th->getMessage(),
+                    'errors' => [
+                        'error' => 'Vuelva a intentarlo nuevamente...',
+                    ],
+                ],
+                $th->getCode()
+            );
         }
     }
 }

@@ -11,7 +11,6 @@ class m20231201200924_altertableuserrestorepass
     public static function up()
     {
         try {
-
             R::exec("ALTER TABLE `versausers`
             ADD COLUMN `restore_token` VARCHAR(255) NULL AFTER `status`;");
 
@@ -24,7 +23,6 @@ class m20231201200924_altertableuserrestorepass
     public static function down()
     {
         try {
-
             R::exec("ALTER TABLE `users`
             DROP COLUMN `restore_token`;");
 

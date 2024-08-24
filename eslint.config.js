@@ -1,27 +1,16 @@
 import pluginJs from '@eslint/js';
 import html from '@html-eslint/eslint-plugin';
-// Import htmlParser from '@html-eslint/parser';
+// import htmlParser from '@html-eslint/parser';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import eslintImport from 'eslint-plugin-import';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
 import pluginVue from 'eslint-plugin-vue';
 
+import versaConfig from './versaWYS/kernel/config/config.json' with { type: 'json' };
+
 import globals from 'globals';
 
-const globalsLocal = {
-    Vue: 'readonly',
-    Swal: 'readonly',
-    Vuex: 'readonly',
-    $: 'readonly',
-    mode_build: 'readonly',
-    owner_user: 'readonly',
-    campusSessions: 'readonly',
-    IVA: 'readonly',
-    userMenu: 'readonly',
-    op: 'readonly',
-    console: 'readonly',
-    require: 'readonly',
-};
+const globalsLocal = {};
 export default [
     pluginJs.configs.recommended,
     {
@@ -48,9 +37,7 @@ export default [
             // Parser: htmlParser,
             sourceType: 'module',
             parserOptions: {
-                ecmaFeatures: {
-                    jsx: true,
-                },
+                sourceType: 'module',
             },
         },
         rules: {
@@ -70,7 +57,7 @@ export default [
             '@html-eslint/no-multiple-empty-lines': 'error',
             '@html-eslint/quotes': 'error',
             'prefer-template': 'warn',
-            'no-console': 'warn',
+            'no-console': versaConfig.build.debug ? 'off' : 'warn',
             eqeqeq: 'off',
             semi: 'warn',
             'prefer-const': 'error',

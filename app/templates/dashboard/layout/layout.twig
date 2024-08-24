@@ -1,55 +1,52 @@
 <!DOCTYPE html>
 <html lang="es" class="dark">
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<head>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-    <link href="{{ assets_url('/public/vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet" />
+		<link href="{{ assets_url('/public/vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet"/>
 
-    <link href="{{ assets_url('/public/vendor/flowbite/flowbite.min.css') }}" rel="stylesheet" />
-    <link href="{{ getAssets('dashboard', 'css', '/dashboard.css') }}" rel="stylesheet" />
+		<link href="{{ assets_url('/public/vendor/flowbite/flowbite.min.css') }}" rel="stylesheet"/>
+		<link href="{{ getAssets('dashboard', 'css', '/dashboard.css') }}" rel="stylesheet"/>
 
-    <link href="{{ getAssets('dashboard', 'img', '/favicon.png') }}" rel="shortcut icon" />
-    {% block appHead %}{% endblock %}
+		<link href="{{ getAssets('dashboard', 'img', '/favicon.png') }}" rel="shortcut icon"/> {% block appHead %}{% endblock %}
 
-    <title>{{ config.build.name }}</title>
-    {% block appHeader %}{% endblock %}
-</head>
+		<title>{{ config.build.name }}</title>
+		{% block appHeader %}{% endblock %}
+	</head>
 
-<body class="bg-gray-50 dark:bg-gray-800">
-    {% block appBody %}{% endblock %} {% block appFooter %}{% endblock %}
+	<body class="bg-gray-50 dark:bg-gray-800"> {% block appBody %}{% endblock %}{% block appFooter %}{% endblock %}
 
-    <script src="{{ assets_url('/public/vendor/flowbite/flowbite.min.js') }}"></script>
+		<script src="{{ assets_url('/public/vendor/flowbite/flowbite.min.js') }}"></script>
 
-    {% if config['build']['debug'] == '0' %}
-    <script type="importmap">
-            {
-                "imports": {
-                    "vue": "{{ assets_url('public/vendor/vue/vue.esm-browser.prod.js') }}",
-                    "vue-demi": "{{ assets_url('public/vendor/vue/vue-demi-v3.mjs') }}",
-                    "pinia": "{{ assets_url('public/vendor/vue/pinia@2.1.7.esm-browser.prod.js') }}",
-                    "sweetalert2": "{{ assets_url('public/vendor/sweetalert2/sweetalert2.mjs') }}"
-                }
-            }
-        </script>
-    {% else %} {# modo debug #}
-    <script type="importmap">
-            {
-                "imports": {
-                    "vue": "{{ assets_url('public/vendor/vue/vue.esm-browser.js') }}",
-                    "vue-demi": "{{ assets_url('public/vendor/vue/vue-demi-v3.mjs') }}",
-                    "pinia": "{{ assets_url('public/vendor/vue/pinia@2.1.7.esm-browser.js') }}",
-                    "@vue/devtools-api": "https://cdn.jsdelivr.net/npm/@vue/devtools-api/lib/esm/index.js",
-                    "sweetalert2": "{{ assets_url('public/vendor/sweetalert2/sweetalert2.mjs') }}"
-                }
-            }
-        </script>
-    {% endif %}
-    <script type="module" src="{{
-                getAssets('dashboard', 'js', '/dashboard.js')
-            }}?{{ date()|date('U') }}"></script>
-    {% block appScript %}{% endblock %}
-</body>
+		{% if config['build']['debug'] == '0' %}
+			<script type="importmap">
+				{
+								                "imports": {
+								                    "vue": "{{ assets_url('public/vendor/vue/vue.esm-browser.prod.js') }}",
+								                    "vue-demi": "{{ assets_url('public/vendor/vue/vue-demi-v3.mjs') }}",
+								                    "pinia": "{{ assets_url('public/vendor/vue/pinia@2.1.7.esm-browser.prod.js') }}",
+								                    "sweetalert2": "{{ assets_url('public/vendor/sweetalert2/sweetalert2.mjs') }}"
+								                }
+								            }
+			</script>
+		{% else %}
+			{# modo debug #}
+			<script type="importmap">
+				{
+								                "imports": {
+								                    "vue": "{{ assets_url('public/vendor/vue/vue.esm-browser.js') }}",
+								                    "vue-demi": "{{ assets_url('public/vendor/vue/vue-demi-v3.mjs') }}",
+								                    "pinia": "{{ assets_url('public/vendor/vue/pinia@2.1.7.esm-browser.js') }}",
+								                    "@vue/devtools-api": "https://cdn.jsdelivr.net/npm/@vue/devtools-api/lib/esm/index.js",
+								                    "sweetalert2": "{{ assets_url('public/vendor/sweetalert2/sweetalert2.mjs') }}"
+								                }
+								            }
+			</script>
+		{% endif %}
+		<script type="module" src="{{ getAssets('dashboard', 'js', '/dashboard.js') }}?{{ date()|date('U') }}"></script>
+		{% block appScript %}{% endblock %}
+	</body>
 
 </html>

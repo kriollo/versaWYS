@@ -1,13 +1,12 @@
 import { log, versaAlert, versaFetch } from '@/dashboard/js/functions.js';
 import { app } from '@/dashboard/js/vue-instancia.js';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
-// @ts-ignore
 import Swal from 'sweetalert2';
-// @ts-ignore
 import { computed, ref } from 'vue';
 
 import customTable from '@/dashboard/js/components/customTable.js';
 import modal from '@/dashboard/js/components/modal.js';
+
 /* eslint-disable */
 const ct = customTable;
 const m = modal;
@@ -16,7 +15,8 @@ const m = modal;
 app.component('Usersppal', {
     setup() {},
     template: html`
-        <div class="mx-4 my-4 lg:flex lg:justify-between max-sm:flex-col max-sm:flex-wrap">
+        <div
+            class="mx-4 my-4 lg:flex lg:justify-between max-sm:flex-col max-sm:flex-wrap">
             <div class="flex gap-2">
                 <svg
                     class="w-6 h-6 text-gray-800 dark:text-white"
@@ -27,11 +27,15 @@ app.component('Usersppal', {
                     <path
                         d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z" />
                 </svg>
-                <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Usuarios</h1>
+                <h1
+                    class="text-2xl font-semibold text-gray-900 dark:text-white">
+                    Usuarios
+                </h1>
             </div>
 
             <nav class="flex" aria-label="Breadcrumb">
-                <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+                <ol
+                    class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
                     <li class="inline-flex items-center">
                         <a
                             href="/admin/dashboard"
@@ -98,7 +102,9 @@ app.component('Usersppal', {
                                         <path
                                             d="M6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Zm11-3h-2V5a1 1 0 0 0-2 0v2h-2a1 1 0 1 0 0 2h2v2a1 1 0 0 0 2 0V9h2a1 1 0 1 0 0-2Z" />
                                     </svg>
-                                    <span class="max-lg:hidden ms-2">Agregar Nuevo usuario</span>
+                                    <span class="max-lg:hidden ms-2">
+                                        Agregar Nuevo usuario
+                                    </span>
                                 </a>
                             </span>
                         </div>
@@ -106,7 +112,8 @@ app.component('Usersppal', {
                 </ol>
             </nav>
         </div>
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg mx-4 pb-20">
+        <div
+            class="relative overflow-x-auto shadow-md sm:rounded-lg mx-4 pb-20">
             <hr class="h-px mt-8 mb-4 bg-gray-200 border-0 dark:bg-gray-700" />
             <tableUsers></tableUsers>
         </div>
@@ -132,7 +139,8 @@ app.component('tableUsers', {
                 changeStatus: () => this.changeStatus(accion.item),
                 closeModal: () => (this.showModal = false),
             };
-            const action = actions[accion.accion] || (() => log('Accion no encontrada'));
+            const action =
+                actions[accion.accion] || (() => log('Accion no encontrada'));
             if (typeof action === 'function') {
                 action();
             }
@@ -157,14 +165,17 @@ app.component('tableUsers', {
                       }
                     : {
                           title: '¿Estas seguro?',
-                          text: 'El usuario sera activado',
+                          text: 'El usuario será activado',
                           icon: 'warning',
                           showCancelButton: true,
-                          confirmButtonText: 'Si, activar',
+                          confirmButtonText: 'Sí, activar',
                           cancelButtonText: 'Cancelar',
                       };
 
-            const result = await Swal.fire(swalParams);
+            const result = await Swal.fire({
+                ...swalParams,
+                icon: 'warning',
+            });
             if (result.isConfirmed) {
                 const params = {
                     url: '/admin/users/deleteUser',
@@ -266,7 +277,9 @@ app.component('modalUpdatePass', {
             if (!(formChangePass instanceof HTMLFormElement)) return false;
             const formData = new FormData(formChangePass);
             const newPass = document.getElementById('new_password');
-            const confirmNewPass = document.getElementById('comfirm_new_password');
+            const confirmNewPass = document.getElementById(
+                'comfirm_new_password'
+            );
 
             if (!(newPass instanceof HTMLInputElement)) return;
             if (!(confirmNewPass instanceof HTMLInputElement)) return;
@@ -313,10 +326,14 @@ app.component('modalUpdatePass', {
         },
     },
     template: html`
-        <modal :idModal="origen+'_resetPass'" :showModal="showModalLocal" @accion="accion">
+        <modal
+            :idModal="origen+'_resetPass'"
+            :showModal="showModalLocal"
+            @accion="accion">
             <template v-slot:modalTitle>
                 <div class="flex justify-between">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                    <h3
+                        class="text-lg font-medium text-gray-900 dark:text-white">
                         Actualizar Contraseña
                     </h3>
 
@@ -344,7 +361,10 @@ app.component('modalUpdatePass', {
             </template>
             <template v-slot:modalBody>
                 <form class="space-y-4" id="formChangePass">
-                    <input type="hidden" name="csrf_token" :value="csrf_token" />
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        :value="csrf_token" />
                     <input type="hidden" name="tokenid" :value="tokenId" />
                     <div class="relative">
                         <label
@@ -382,7 +402,8 @@ app.component('modalUpdatePass', {
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     stroke-width="2">
-                                    <path d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                                    <path
+                                        d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
                                     <path
                                         d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z" />
                                 </g>
@@ -433,7 +454,8 @@ app.component('modalUpdatePass', {
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     stroke-width="2">
-                                    <path d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                                    <path
+                                        d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
                                     <path
                                         d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z" />
                                 </g>

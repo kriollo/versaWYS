@@ -1,5 +1,4 @@
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
-// @ts-ignore
 import { computed, ref } from 'vue';
 export const inputSaveCancel = {
     props: {
@@ -40,7 +39,9 @@ export const inputSaveCancel = {
         };
     },
     methods: {
-        accion(/** @type {{accion: String; id: Number; newData: String;}} */ accion) {
+        accion(
+            /** @type {{accion: String; id: Number; newData: String;}} */ accion
+        ) {
             const actions = {
                 updateData: () => {
                     this.$emit('accion', accion);

@@ -7,7 +7,4 @@ namespace app\Routes;
 use app\controllers\E404Controller;
 use versaWYS\kernel\Router;
 
-
-Router::get('/e404',
-    [E404Controller::class, 'e404']
-);
+Router::get('/e404', [E404Controller::class, 'e404']);

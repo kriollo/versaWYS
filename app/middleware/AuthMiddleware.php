@@ -24,25 +24,25 @@ class AuthMiddleware
     {
         global $session, $request, $config;
 
-
         if ($request->isApiCall()) {
-
             if (!$config['api']['auth']) {
                 return;
             }
 
             if ($request->getHeader('Authorization') === null) {
-
-                Response::json([
-                    'success' => 0,
-                    'message' => 'No se ha enviado el token de autenticación'
-                ], 401);
-                exit;
+                Response::json(
+                    [
+                        'success' => 0,
+                        'message' => 'No se ha enviado el token de autenticación',
+                    ],
+                    401
+                );
+                exit();
             }
         } else {
             if (!$session->checkUserSession()) {
                 Response::redirect('/admin/login');
-                exit;
+                exit();
             }
         }
     }
@@ -56,16 +56,20 @@ class AuthMiddleware
     {
         global $session, $request;
 
-        $token = $request->get('_csrf_token') ? $request->get('_csrf_token') : ($request->get('csrf_token') ? $request->get('csrf_token') : null);
+        $token = $request->get('_csrf_token')
+            ? $request->get('_csrf_token')
+            : ($request->get('csrf_token')
+                ? $request->get('csrf_token')
+                : null);
 
         if ($token === null) {
             return [
                 'success' => 0,
                 'message' => 'los datos enviados no son correctos',
                 'errors' => [
-                    'error' => 'Algo no salió bien, Refresque y vuelva a intentarlo nuevamente...'
+                    'error' => 'Algo no salió bien, Refresque y vuelva a intentarlo nuevamente...',
                 ],
-                'code' => 403
+                'code' => 403,
             ];
         }
 
@@ -74,14 +78,13 @@ class AuthMiddleware
                 'success' => 0,
                 'message' => 'los datos enviados no son correctos',
                 'errors' => [
-                    'error' => 'Algo no salió bien, Refresque y vuelva a intentarlo nuevamente...'
+                    'error' => 'Algo no salió bien, Refresque y vuelva a intentarlo nuevamente...',
                 ],
-                'code' => 403
+                'code' => 403,
             ];
         }
         return true;
     }
-
 
     /**
      * Validates the parameters for the login request.
@@ -96,7 +99,7 @@ class AuthMiddleware
 
         $result = Functions::validateParams($params, [
             'email' => 'required|email',
-            'password' => 'required|min:8'
+            'password' => 'required|min:8',
         ]);
 
         if (count($result) > 0) {
@@ -104,7 +107,7 @@ class AuthMiddleware
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401
+                'code' => 401,
             ];
         }
         return true;
@@ -121,7 +124,7 @@ class AuthMiddleware
 
         if ($session->checkUserSession()) {
             Response::redirect('/admin/dashboard');
-            exit;
+            exit();
         }
     }
 
@@ -134,7 +137,7 @@ class AuthMiddleware
 
         if (!$session->checkUserSession()) {
             Response::redirect('/admin/login');
-            exit;
+            exit();
         }
     }
 
@@ -152,23 +155,22 @@ class AuthMiddleware
         $attemps = $session->setAttemptsSession($attemps, $request->get('email'));
 
         if (!$session->maximumAttempts($attemps, $request->get('email'))) {
-
             $attemps = $session->getAttempts($request->get('email'));
 
             $timestampFuturo = $attemps['time'];
             $tiempoActual = time();
             $diferenciaEnSegundos = $timestampFuturo - $tiempoActual;
-            $diferenciaEnMinutos = gmdate("H:i:s", $diferenciaEnSegundos);
+            $diferenciaEnMinutos = gmdate('H:i:s', $diferenciaEnSegundos);
 
             return [
                 'success' => 0,
                 'message' => 'Ha superado el número máximo de intentos',
                 'errors' => [
-                    'error' => "Vuelva a intentarlo en un momento...",
+                    'error' => 'Vuelva a intentarlo en un momento...',
                     'attemps' => "intentos: {$attemps['attempts']}",
-                    'time' => "tiempo de espera $diferenciaEnMinutos"
+                    'time' => "tiempo de espera $diferenciaEnMinutos",
                 ],
-                'code' => 401
+                'code' => 401,
             ];
         }
         return true;
@@ -186,7 +188,7 @@ class AuthMiddleware
         $params = $request->getAllParams();
 
         $result = Functions::validateParams($params, [
-            'email' => 'required|email'
+            'email' => 'required|email',
         ]);
 
         if (count($result) > 0) {
@@ -194,7 +196,7 @@ class AuthMiddleware
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401
+                'code' => 401,
             ];
         }
         return true;
@@ -215,7 +217,7 @@ class AuthMiddleware
             'new_password' => 'required|min:8',
             'comfirm_new_password' => 'required|min:8',
             'tokenReset' => 'required',
-            'email' => 'required|email'
+            'email' => 'required|email',
         ]);
 
         if (count($result) > 0) {
@@ -223,7 +225,7 @@ class AuthMiddleware
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401
+                'code' => 401,
             ];
         }
 
@@ -232,9 +234,9 @@ class AuthMiddleware
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => [
-                    'error' => 'Las contraseñas no coinciden'
+                    'error' => 'Las contraseñas no coinciden',
                 ],
-                'code' => 401
+                'code' => 401,
             ];
         }
         return true;
@@ -248,7 +250,7 @@ class AuthMiddleware
 
         if ($user['role'] !== 'admin') {
             Response::redirect('/admin/dashboard');
-            exit;
+            exit();
         }
     }
 }

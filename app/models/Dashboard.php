@@ -11,7 +11,6 @@ use versaWYS\kernel\RedBeanCnn;
 
 class Dashboard extends SimpleModel
 {
-
     public function getMenuAdmin(): Cursor|array|int|null
     {
         return R::getAll("SELECT vm.seccion,

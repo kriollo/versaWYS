@@ -55,7 +55,6 @@ class Users extends SimpleModel
         return ['total' => $total, 'data' => $result];
     }
 
-
     /**
      * Find a user by ID or a specific field.
      *

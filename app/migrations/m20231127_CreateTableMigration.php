@@ -8,9 +8,9 @@ use RedBeanPHP\R;
 
 class m20231127_CreateTableMigration
 {
-    public static function up(): Array
+    public static function up(): array
     {
-        try{
+        try {
             R::exec("CREATE TABLE `versamigrations` (
                 `id` int(11) NOT NULL AUTO_INCREMENT,
                 `name` varchar(255) NOT NULL,
@@ -19,7 +19,6 @@ class m20231127_CreateTableMigration
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
-
         } catch (\Exception $e) {
             return ['message' => $e->getMessage(), 'success' => false];
         }
@@ -27,6 +26,6 @@ class m20231127_CreateTableMigration
 
     public static function down(): void
     {
-        R::exec("DROP TABLE `versamigrations`;");
+        R::exec('DROP TABLE `versamigrations`;');
     }
 }
