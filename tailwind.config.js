@@ -8,6 +8,7 @@ export default {
         './src/**/*.js',
         './src/**/*.css',
         './src/vendor/flowbite/*.js',
+        './versaWYS/kernel/**/*.php',
     ],
     safelist: [
         'w-64',
