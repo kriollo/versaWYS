@@ -63,6 +63,9 @@
             "img": {
                 "dist": "public\/dashboard\/img"
             },
+            "avatars": {
+                "dist": "public\/dashboard\/img\/avatars"
+            },
             "store": {
                 "dist": "public\/dashboard\/store"
             }
