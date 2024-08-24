@@ -10,7 +10,6 @@ if (btnAddUser !== null) {
 
         const existsId = formData.get('tokenid') !== null;
 
-        // @ts-ignore
         const objectData = Object.fromEntries(formData.entries());
 
         const paramsFetch = {
