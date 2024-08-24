@@ -13,7 +13,6 @@ const m = modal;
 /* eslint-enable */
 
 app.component('Usersppal', {
-    setup() {},
     template: html`
         <div
             class="mx-4 my-4 lg:flex lg:justify-between max-sm:flex-col max-sm:flex-wrap">
