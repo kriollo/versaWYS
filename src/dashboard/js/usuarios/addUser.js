@@ -1,10 +1,11 @@
-import { $, versaAlert, versaFetch } from '@/dashboard/js/functions';
+import { versaAlert, versaFetch } from '@/dashboard/js/functions';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
+import { $dom } from '@/dashboard/js/composables/dom.js';
 
-const btnAddUser = $('#btnAddUser');
+const btnAddUser = $dom('#btnAddUser');
 if (btnAddUser !== null) {
     btnAddUser.addEventListener('click', async () => {
-        const formNewUser = $('#formNewUser');
+        const formNewUser = $dom('#formNewUser');
         if (!(formNewUser instanceof HTMLFormElement)) return false;
         const formData = new FormData(formNewUser);
 
@@ -21,7 +22,7 @@ if (btnAddUser !== null) {
             data: JSON.stringify(objectData),
         };
 
-        const alerta = $('#alert');
+        const alerta = $dom('#alert');
         if (!(alerta instanceof HTMLDivElement)) return false;
         alerta.innerHTML = '';
 
@@ -86,10 +87,10 @@ if (btnAddUser !== null) {
         });
     });
     // Show Password
-    const showPass = $('#togglePassword');
-    const imgShowPass = $('#imgShowPass');
-    const imgHiddenPass = $('#imgHiddenPass');
-    const password = $('#password');
+    const showPass = $dom('#togglePassword');
+    const imgShowPass = $dom('#imgShowPass');
+    const imgHiddenPass = $dom('#imgHiddenPass');
+    const password = $dom('#password');
 
     if (showPass != null) {
         showPass.addEventListener('click', event => {

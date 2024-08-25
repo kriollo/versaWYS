@@ -1,7 +1,7 @@
-import { $ } from '@/dashboard/js/functions';
+import { $dom } from '@/dashboard/js/composables/dom';
 
-const $themeToggleDarkIcon = $('#theme-toggle-dark-icon');
-const $themeToggleLightIcon = $('#theme-toggle-light-icon');
+const $themeToggleDarkIcon = $dom('#theme-toggle-dark-icon');
+const $themeToggleLightIcon = $dom('#theme-toggle-light-icon');
 
 if ($themeToggleDarkIcon && $themeToggleLightIcon) {
     // Change the icons inside the button based on previous settings
@@ -17,7 +17,7 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
         document.documentElement.classList.remove('dark');
     }
 
-    const $themeToggleBtn = $('#theme-toggle');
+    const $themeToggleBtn = $dom('#theme-toggle');
     if ($themeToggleBtn) {
         const event = new Event('dark-mode');
         $themeToggleBtn.addEventListener('click', function () {
@@ -48,7 +48,7 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
         });
     }
 
-    const $sidebar = $('#sidebar');
+    const $sidebar = $dom('#sidebar');
     if ($sidebar) {
         const toggleSidebarMobile = (
             sidebar,
@@ -62,11 +62,13 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
             toggleSidebarMobileClose.classList.toggle('hidden');
         };
 
-        const $toggleSidebarMobileEl = $('#toggleSidebarMobile');
-        const $sidebarBackdrop = $('#sidebarBackdrop');
-        const $toggleSidebarMobileHamburger = $('#toggleSidebarMobileHamburger');
-        const $toggleSidebarMobileClose = $('#toggleSidebarMobileClose');
-        const $toggleSidebarMobileSearch = $('#toggleSidebarMobileSearch');
+        const $toggleSidebarMobileEl = $dom('#toggleSidebarMobile');
+        const $sidebarBackdrop = $dom('#sidebarBackdrop');
+        const $toggleSidebarMobileHamburger = $dom(
+            '#toggleSidebarMobileHamburger'
+        );
+        const $toggleSidebarMobileClose = $dom('#toggleSidebarMobileClose');
+        const $toggleSidebarMobileSearch = $dom('#toggleSidebarMobileSearch');
 
         if ($toggleSidebarMobileSearch) {
             $toggleSidebarMobileSearch.addEventListener('click', () => {

@@ -1,7 +1,7 @@
-import { $, versaFetch } from '@/dashboard/js/functions.js';
+import { versaFetch } from '@/dashboard/js/functions.js';
 import { app } from '@/dashboard/js/vue-instancia.js';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
-
+import { $dom } from '@/dashboard/js/composables/dom.js';
 import { computed, reactive, ref, watch, watchEffect } from 'vue';
 
 const customTable = {
@@ -148,7 +148,7 @@ const customTable = {
 
             this.getRefreshData();
 
-            const dropdownAction = $('#dropdownAction');
+            const dropdownAction = $dom('#dropdownAction');
             if (!(dropdownAction instanceof HTMLElement)) return;
             dropdownAction.classList.remove('show');
             dropdownAction.classList.add('hidden');

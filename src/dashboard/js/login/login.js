@@ -1,14 +1,14 @@
-'strict mode';
-import { $, versaAlert, versaFetch } from '@/dashboard/js/functions.js';
+import { $dom } from '@/dashboard/js/composables/dom.js';
+import { versaAlert, versaFetch } from '@/dashboard/js/functions.js';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
 
 // Login Form
-const login = $('#login');
+const login = $dom('#login');
 if (login != null) {
     login.addEventListener('click', async event => {
         event.preventDefault();
 
-        const formulario = $('#formulario');
+        const formulario = $dom('#formulario');
         if (!(formulario instanceof HTMLFormElement)) return;
         const datos = new FormData(formulario);
 
@@ -20,7 +20,7 @@ if (login != null) {
 
         const data = await versaFetch(params);
         if (data.success == 0) {
-            const alerta = $('#alert');
+            const alerta = $dom('#alert');
 
             const errores = html`
                 <ul
@@ -89,10 +89,10 @@ if (login != null) {
 }
 
 // Show Password
-const showPass = $('#togglePassword');
-const imgShowPass = $('#imgShowPass');
-const imgHiddenPass = $('#imgHiddenPass');
-const password = $('#password');
+const showPass = $dom('#togglePassword');
+const imgShowPass = $dom('#imgShowPass');
+const imgHiddenPass = $dom('#imgHiddenPass');
+const password = $dom('#password');
 
 if (showPass != null) {
     showPass.addEventListener('click', event => {
@@ -112,12 +112,12 @@ if (showPass != null) {
 }
 
 // Lost Password
-const btnlostPass = $('#btnLostPass');
+const btnlostPass = $dom('#btnLostPass');
 if (btnlostPass != null) {
     btnlostPass.addEventListener('click', async event => {
         event.preventDefault();
-        const alerta = $('#alert');
-        const formLostPass = $('#formLostPass');
+        const alerta = $dom('#alert');
+        const formLostPass = $dom('#formLostPass');
 
         if (!(formLostPass instanceof HTMLFormElement)) return;
         const datos = new FormData(formLostPass);
@@ -263,15 +263,15 @@ if (btnlostPass != null) {
 }
 
 // Reset Password
-const btnResetPass = $('#btnResetPass');
+const btnResetPass = $dom('#btnResetPass');
 if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
     btnResetPass.addEventListener('click', async event => {
         event.preventDefault();
 
-        const FormResetPass = $('#FormResetPass');
+        const FormResetPass = $dom('#FormResetPass');
         if (!(FormResetPass instanceof HTMLFormElement)) return;
         const datos = new FormData(FormResetPass);
-        const alerta = $('#alert');
+        const alerta = $dom('#alert');
         alerta.innerHTML = '';
 
         const params = {
@@ -342,8 +342,8 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
             return false;
         }
 
-        const divProgress = $('#divProgress');
-        const progress = $('#progress');
+        const divProgress = $dom('#divProgress');
+        const progress = $dom('#progress');
 
         if (
             !(divProgress instanceof HTMLElement) ||
@@ -415,10 +415,10 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
 }
 
 // Show New Password
-const togglePasswordNew = $('#togglePasswordNew');
-const imgShowPassNew = $('#imgShowPassNew');
-const imgHiddenPassNew = $('#imgHiddenPassNew');
-const new_password = $('#new_password');
+const togglePasswordNew = $dom('#togglePasswordNew');
+const imgShowPassNew = $dom('#imgShowPassNew');
+const imgHiddenPassNew = $dom('#imgHiddenPassNew');
+const new_password = $dom('#new_password');
 
 if (togglePasswordNew != null) {
     togglePasswordNew.addEventListener('click', event => {
@@ -437,10 +437,10 @@ if (togglePasswordNew != null) {
     });
 }
 
-const togglePasswordConfirmNew = $('#togglePasswordConfirmNew');
-const imgShowPassConfirmNew = $('#imgShowPassConfirmNew');
-const imgHiddenPassConfirmNew = $('#imgHiddenPassConfirmNew');
-const comfirm_new_password = $('#comfirm_new_password');
+const togglePasswordConfirmNew = $dom('#togglePasswordConfirmNew');
+const imgShowPassConfirmNew = $dom('#imgShowPassConfirmNew');
+const imgHiddenPassConfirmNew = $dom('#imgHiddenPassConfirmNew');
+const comfirm_new_password = $dom('#comfirm_new_password');
 
 if (togglePasswordConfirmNew != null) {
     togglePasswordConfirmNew.addEventListener('click', event => {
