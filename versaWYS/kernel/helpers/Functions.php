@@ -298,11 +298,11 @@ class Functions
      *
      * @return string The generated HTML code for the hidden input field format raw for twig.
      */
-    public static function csrf_field(): string
+    public static function csrf_field(string $id = 'csrf_token'): string
     {
         global $session;
         $token = $session->get('csrf_token');
-        return "<input type=\"hidden\" name=\"_csrf_token\" id=\"csrf_token\" value=\"$token\">";
+        return "<input type=\"hidden\" name=\"_csrf_token\" id=\"$id\" value=\"$token\">";
     }
 
     /**
