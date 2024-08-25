@@ -51,7 +51,7 @@
 			</div>
 			<div class="flex justify-between space-x-2">
 				<form method="POST" class="flex flex-col space-y-4" id="formUpdateAvatar" action="/admin/usuarios/updateAvatar">
-					{{ csrf_field() | raw }}
+					{{ csrf_field('csrf_token_avatar') | raw }}
 					<input type="hidden" name="id" value="{{ owner_user.id }}">
 
 					<input type="file" class="hidden" id="fileAvatar" name="fileAvatar" accept="image/*"/>
@@ -67,7 +67,8 @@
 
 			<div id="dropdownSearch" class="z-10 hidden bg-white rounded-lg shadow w-60 dark:bg-gray-700 p-3">
 				<form method="POST" class="flex flex-col space-y-4" id="formResetPassword" action="/admin/login/resetPassByUser">
-					{{ csrf_field() | raw }}
+					{{ csrf_field('csrf_token_password') | raw }}
+
 					<input type="hidden" name="id" value="{{ owner_user.id }}">
 					<div class="flex flex-col space-y-2">
 						<label for="password" class="text-sm font-medium text-gray-900 dark:text-white">Nueva Contraseña</label>
