@@ -71,7 +71,7 @@ class Functions
         </script>
         ";
         var_dump($data);
-        echo "</pre>";
+        echo '</pre>';
     }
 
     /**
@@ -82,7 +82,6 @@ class Functions
      */
     public static function validateParams(array $params, array $rules): array
     {
-
         try {
             $errors = [];
 
@@ -92,73 +91,90 @@ class Functions
                 foreach ($rules as $rul) {
                     $rul = explode(':', $rul);
 
-                    switch ($rul[0]) {
-                        case 'required':
-                            if (empty($params[$field])) {
-                                $errors[$field] = 'El campo ' . $field . ' es requerido';
-                            }
-                            break;
-                        case 'email':
-                            if (!filter_var($params[$field], FILTER_VALIDATE_EMAIL)) {
-                                $errors[$field] = 'El campo ' . $field . ' no es un email valido';
-                            }
-                            break;
-                        case 'min':
-                            if (strlen($params[$field]) < $rul[1]) {
-                                $errors[$field] = 'El campo ' . $field . ' debe tener minimo ' . $rul[1] . ' caracteres';
-                            }
-                            break;
-                        case 'max':
-                            if (strlen($params[$field]) > $rul[1]) {
-                                $errors[$field] = 'El campo ' . $field . ' debe tener maximo ' . $rul[1] . ' caracteres';
-                            }
-                            break;
-                        case 'numeric':
-                            if (!is_numeric($params[$field])) {
-                                $errors[$field] = 'El campo ' . $field . ' debe ser numerico';
-                            }
-                            break;
-                        case 'alpha':
-                            if (!ctype_alpha($params[$field])) {
-                                $errors[$field] = 'El campo ' . $field . ' debe ser alfabetico';
-                            }
-                            break;
-                        case 'alpha_numeric':
-                            if (!ctype_alnum($params[$field])) {
-                                $errors[$field] = 'El campo ' . $field . ' debe ser alfanumerico';
-                            }
-                            break;
-                        case 'alpha_numeric_space':
-                            if (!ctype_alnum(str_replace(' ', '', $params[$field]))) {
-                                $errors[$field] = 'El campo ' . $field . ' debe ser alfanumerico con espacios';
-                            }
-                            break;
-                        case 'alpha_space':
-                            if (!ctype_alpha(str_replace(' ', '', $params[$field]))) {
-                                $errors[$field] = 'El campo ' . $field . ' debe ser alfabetico con espacios';
-                            }
-                            break;
-                        case 'int':
-                            if (!is_numeric($params[$field])) {
-                                $errors[$field] = 'El campo ' . $field . ' debe ser numerico';
-                            } else {
-                                $params[$field] = (int) $params[$field];
+                    // check if the field exists
+                    if (!isset($params[$field])) {
+                        $errors[$field] = "El campo $field no existe";
+                    } else {
+                        switch ($rul[0]) {
+                            case 'required':
+                                if (empty($params[$field])) {
+                                    $errors[$field] = 'El campo ' . $field . ' es requerido';
+                                }
+                                break;
+                            case 'email':
+                                if (!filter_var($params[$field], FILTER_VALIDATE_EMAIL)) {
+                                    $errors[$field] = 'El campo ' . $field . ' no es un email valido';
+                                }
+                                break;
+                            case 'min':
+                                if (strlen($params[$field]) < $rul[1]) {
+                                    $errors[$field] =
+                                        'El campo ' . $field . ' debe tener minimo ' . $rul[1] . ' caracteres';
+                                }
+                                break;
+                            case 'max':
+                                if (strlen($params[$field]) > $rul[1]) {
+                                    $errors[$field] =
+                                        'El campo ' . $field . ' debe tener maximo ' . $rul[1] . ' caracteres';
+                                }
+                                break;
+                            case 'numeric':
+                                if (!is_numeric($params[$field])) {
+                                    $errors[$field] = 'El campo ' . $field . ' debe ser numerico';
+                                }
+                                break;
+                            case 'alpha':
+                                if (!ctype_alpha($params[$field])) {
+                                    $errors[$field] = 'El campo ' . $field . ' debe ser alfabetico';
+                                }
+                                break;
+                            case 'alpha_numeric':
+                                if (!ctype_alnum($params[$field])) {
+                                    $errors[$field] = 'El campo ' . $field . ' debe ser alfanumerico';
+                                }
+                                break;
+                            case 'alpha_numeric_space':
+                                if (!ctype_alnum(str_replace(' ', '', $params[$field]))) {
+                                    $errors[$field] = 'El campo ' . $field . ' debe ser alfanumerico con espacios';
+                                }
+                                break;
+                            case 'alpha_space':
+                                if (!ctype_alpha(str_replace(' ', '', $params[$field]))) {
+                                    $errors[$field] = 'El campo ' . $field . ' debe ser alfabetico con espacios';
+                                }
+                                break;
+                            case 'int':
+                                if (!is_numeric($params[$field])) {
+                                    $errors[$field] = 'El campo ' . $field . ' debe ser numerico';
+                                } else {
+                                    $params[$field] = (int) $params[$field];
 
-                                if (str_contains($rul[1], '-')) {
-                                    $valid = explode('-', $rul[1]);
+                                    if (str_contains($rul[1], '-')) {
+                                        $valid = explode('-', $rul[1]);
 
-                                    if ($params[$field] < $valid[0] || $params[$field] > $valid[1]) {
-                                        $errors[$field] = 'El campo ' . $field . ' debe ser numerico entre ' . $valid[0] . ' y ' . $valid[1];
-                                    }
-                                } elseif (str_contains($rul[1], ',')) {
-                                    $valid = explode(',', $rul[1]);
+                                        if ($params[$field] < $valid[0] || $params[$field] > $valid[1]) {
+                                            $errors[$field] =
+                                                'El campo ' .
+                                                $field .
+                                                ' debe ser numerico entre ' .
+                                                $valid[0] .
+                                                ' y ' .
+                                                $valid[1];
+                                        }
+                                    } elseif (str_contains($rul[1], ',')) {
+                                        $valid = explode(',', $rul[1]);
 
-                                    if (!in_array($params[$field], $valid)) {
-                                        $errors[$field] = 'El campo ' . $field . ' debe ser numerico y debe ser uno de los siguientes valores ' . implode(',', $valid);
+                                        if (!in_array($params[$field], $valid)) {
+                                            $errors[$field] =
+                                                'El campo ' .
+                                                $field .
+                                                ' debe ser numerico y debe ser uno de los siguientes valores ' .
+                                                implode(',', $valid);
+                                        }
                                     }
                                 }
-                            }
-                            break;
+                                break;
+                        }
                     }
                 }
             }
@@ -305,10 +321,11 @@ class Functions
 
         $pathSource = 'dist';
 
-        return ($addURL ? $request->getBaseUrl() . "/" : '') . $config['assets'][$module][$type][$pathSource] . "/" . $file;
+        return ($addURL ? $request->getBaseUrl() . '/' : '') .
+            $config['assets'][$module][$type][$pathSource] .
+            '/' .
+            $file;
     }
-
-
 
     /**
      * Returns an array of Twig filters.
