@@ -294,4 +294,63 @@ class UsersController extends Globalcontrollers
             );
         }
     }
+
+    public function resetPassByIdUser(): void
+    {
+        global $request;
+
+        $params = $request->getAllParams();
+
+        $params['password'] = Functions::hash($params['password']);
+
+        $result = (new models\Users())->updatePassworById($params);
+
+        if ($result) {
+            Response::json([
+                'success' => 1,
+                'message' => 'Contraseña actualizada correctamente',
+            ]);
+        } else {
+            Response::json(
+                [
+                    'success' => 0,
+                    'message' => 'No se pudo actualizar la contraseña',
+                ],
+                500
+            );
+        }
+    }
+
+    public function updateAvatarById(): void
+    {
+        global $request, $config;
+
+        $params = $request->getAllParams();
+        $fileAvatar = $request->file('fileAvatar');
+        $params['avatar'] = $params['id'] . '.' . $fileAvatar->getExtension();
+
+        $pathAvatar =
+            $config['assets']['dashboard']['avatars']['dist'] . '/' . $params['id'] . '.' . $fileAvatar->getExtension();
+        if (file_exists($pathAvatar)) {
+            unlink($pathAvatar);
+        }
+        $fileAvatar->moveToNewName($pathAvatar);
+        $result = (new models\Users())->updateAvatar($params);
+
+        if ($result) {
+            Response::json([
+                'success' => 1,
+                'message' => 'Avatar actualizado correctamente',
+                'path' => $pathAvatar,
+            ]);
+        } else {
+            Response::json(
+                [
+                    'success' => 0,
+                    'message' => 'No se pudo actualizar el avatar',
+                ],
+                500
+            );
+        }
+    }
 }

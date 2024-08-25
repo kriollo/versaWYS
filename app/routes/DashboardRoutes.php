@@ -11,7 +11,9 @@ declare(strict_types=1);
 namespace app\Routes;
 
 use app\controllers\DashBoardController;
+use app\controllers\UsersController;
 use app\middleware\AuthMiddleware;
+use app\middleware\UsersMiddleware;
 use versaWYS\kernel\Router;
 
 // Rutas de ingreso a la raiz del sitio
@@ -86,4 +88,18 @@ Router::get('/admin/reset-password', [DashBoardController::class, 'resetPassword
 Router::post('/admin/login/apply-reset-password', [DashBoardController::class, 'applyChangePassword'])->middleware([
     [AuthMiddleware::class, 'validateCSRFToken'],
     [AuthMiddleware::class, 'validateParamsApplyResetPassword'],
+]);
+
+Router::post('/admin/login/resetPassByUser', [UsersController::class, 'resetPassByIdUser'])->middleware([
+    [AuthMiddleware::class, 'validateCSRFToken'],
+    [UsersMiddleware::class, 'validateParamsResetPassByUser'],
+]);
+
+Router::post('/admin/usuarios/updateAvatar', [UsersController::class, 'updateAvatarById'])->middleware([
+    [AuthMiddleware::class, 'validateCSRFToken'],
+    [UsersMiddleware::class, 'validateParamsUpdateAvatar'],
+]);
+
+Router::get('/admin/perfiluser', [DashBoardController::class, 'perfiluser'])->middleware([
+    [AuthMiddleware::class, 'checkSession'],
 ]);

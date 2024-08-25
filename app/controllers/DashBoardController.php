@@ -279,4 +279,11 @@ class DashBoardController extends Globalcontrollers
             );
         }
     }
+
+    public function perfilUser()
+    {
+        return $this->template->render('dashboard/usuarios/perfilUser',[
+            'owner_user'=> $this->user
+        ]);
+    }
 }

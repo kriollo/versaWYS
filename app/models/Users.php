@@ -180,4 +180,20 @@ class Users extends SimpleModel
         $user->updated_at = date('Y-m-d H:i:s');
         return R::store($user);
     }
+
+    public function updatePassworById($params): int|string
+    {
+        $user = R::findOne('versausers', 'id = ?', [$params['id']]);
+        $user->password = $params['password'];
+        $user->updated_at = date('Y-m-d H:i:s');
+        return R::store($user);
+    }
+
+    public function updateAvatar($params): int|string
+    {
+        $user = R::findOne('versausers', 'id = ?', [$params['id']]);
+        $user->avatar = $params['avatar'];
+        $user->updated_at = date('Y-m-d H:i:s');
+        return R::store($user);
+    }
 }
