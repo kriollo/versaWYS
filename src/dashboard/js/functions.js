@@ -192,25 +192,3 @@ export const versaAlert = Params => {
 };
 
 export const log = console.log.bind(console);
-
-/**
- * Selects the first element that matches the specified selector within the given context.
- *
- * @param {string} selector - The CSS selector to match the element.
- * @param {Document|Element} [context=document] - The context within which to search for the element.
- * @returns {Element|null} - The first matching element, or null if no element is found.
- */
-export const $ = (selector, context = document) => {
-    return context.querySelector(selector);
-};
-
-/**
- * Returns a list of elements that match the given selector within the specified context.
- *
- * @param {string} selector - The CSS selector to match elements against.
- * @param {Document|Element} [context=document] - The context within which to search for elements. Defaults to the document.
- * @returns {NodeList} - A list of elements that match the selector.
- */
-export const $$ = (selector, context = document) => {
-    return context.querySelectorAll(selector);
-};
