@@ -55,12 +55,12 @@ class File extends SplFileInfo
         if ($file['error'] == UPLOAD_ERR_OK) {
             return [
                 'valid' => true,
-                'message' => 'no error'
+                'message' => 'no error',
             ];
         } else {
             return [
                 'valid' => false,
-                'message' => $erros[$file['error']]
+                'message' => $erros[$file['error']],
             ];
         }
     }
@@ -103,7 +103,7 @@ class File extends SplFileInfo
     public function getSizeForHumans(): string
     {
         $tamanoEsperado = $this->getSize();
-        $unidades = array('B', 'KB', 'MB', 'GB', 'TB');
+        $unidades = ['B', 'KB', 'MB', 'GB', 'TB'];
         for ($i = 0; $tamanoEsperado > 1024; $i++) {
             $tamanoEsperado /= 1024;
         }
@@ -144,7 +144,7 @@ class File extends SplFileInfo
             'size' => $this->getSize(),
             'type' => $this->getType(),
             'tmp_name' => $this->getTmpName(),
-            'from' => $this->getFrom()
+            'from' => $this->getFrom(),
         ];
     }
 
@@ -159,39 +159,58 @@ class File extends SplFileInfo
         return preg_replace('/[^a-zA-Z0-9\-_.]/', '', $filename);
     }
 
-
     /**
-     * Moves the uploaded file to the specified path.
+     * Moves the uploaded file to the specified path mantaining the original name.
      *
      * @param string $path The destination path where the file should be moved to.
      * @return bool Returns true if the file was moved successfully, false otherwise.
      * @throws Exception
      */
-    public function moveTo(string $path): bool
+    public function moveToOriginalName(string $path): bool
     {
         $destination = rtrim($path, '/') . '/' . $this->sanitizeFileName($this->file['name']);
-
-
         if (!file_exists($path)) {
             mkdir($path, 0777, true);
         }
 
         if (!is_writable($path)) {
-            throw new Exception("El directorio no tiene permisos de escritura.");
+            throw new Exception('El directorio no tiene permisos de escritura.');
         }
 
         if ($this->getFrom() == 'formData') {
             $filetmp = file_get_contents($this->getTmpName());
             if (!file_put_contents($destination, $filetmp)) {
-                throw new Exception("No se pudo mover el archivo a la ruta especificada.");
+                throw new Exception('No se pudo mover el archivo a la ruta especificada.');
             }
         } else {
             if (!move_uploaded_file($this->getTmpName(), $destination)) {
-                throw new Exception("No se pudo mover el archivo a la ruta especificada.");
+                throw new Exception('No se pudo mover el archivo a la ruta especificada.');
             }
         }
 
+        return true;
+    }
+    public function moveToNewName(string $finalPath): bool
+    {
+        $path = $this->sanitizeFileName($finalPath);
+        if (!file_exists(dirname($path))) {
+            mkdir($finalPath, 0777, true);
+        }
 
+        if (!is_writable(dirname($path))) {
+            throw new Exception('El directorio no tiene permisos de escritura.');
+        }
+
+        if ($this->getFrom() == 'formData') {
+            $filetmp = file_get_contents($this->getTmpName());
+            if (!file_put_contents($finalPath, $filetmp)) {
+                throw new Exception('No se pudo mover el archivo a la ruta especificada.');
+            }
+        } else {
+            if (!move_uploaded_file($this->getTmpName(), $finalPath)) {
+                throw new Exception('No se pudo mover el archivo a la ruta especificada.');
+            }
+        }
         return true;
     }
 }
