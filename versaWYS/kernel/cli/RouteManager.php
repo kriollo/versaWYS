@@ -39,6 +39,8 @@ use app\middleware\$middlewareName;
 
 Router::get('/admin/$routeName',
     [\app\controllers\$controllerName::class,'index']
+)->(
+    [AuthMiddleware::class, 'checkSession'],
 );
 
 EOT;
