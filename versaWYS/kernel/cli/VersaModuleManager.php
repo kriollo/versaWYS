@@ -85,10 +85,9 @@ class VersaModuleManager
         }
 
         $template = <<<'EOT'
-                    'use strict';
-                    const { ref, computed, reactive, watch } = Vue;
-                    import { versaAlert, versaFetch } from '../functions.js';
-                    import { app } from '../vue-instancia.js';
+                    import { ref, computed, reactive, watch } from 'vue';
+                    import { versaAlert, versaFetch } from '@/dashboard/js/functions.js';
+                    import { app } from '@/dashboard/js/vue-instancia.js';
                     app.component('$moduleNameapp', {
                         setup() {
                             return {};
