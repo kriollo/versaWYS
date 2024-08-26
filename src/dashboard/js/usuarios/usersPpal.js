@@ -310,15 +310,29 @@ app.component('modalUpdatePass', {
             } else {
                 let errors = '';
                 if (response?.errors) {
-                    for (const key in response.errors) {
-                        errors += `<li>${response.errors[key]}</li>`;
-                    }
+                    errors = html`
+                        <ul
+                            class="w-full text-left space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
+                            ${Object.keys(response.errors)
+                                .map(
+                                    key => html`
+                                        <li>${response.errors[key]}</li>
+                                    `
+                                )
+                                .join('')}
+                        </ul>
+                    `;
                 }
 
                 versaAlert({
-                    html: `${response.message}<ul>${errors}</ul>`,
+                    message: response.message,
+                    html: `${response.message}<br>${errors}`,
                     title: 'Error',
                     type: 'error',
+                    customClass: {
+                        popup: 'swal-wide',
+                        // htmlContainer: 'swal-target',
+                    },
                 });
             }
         },
