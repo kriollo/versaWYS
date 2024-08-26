@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel;
 
-
-
 use Exception;
 
 class Request
@@ -40,7 +38,7 @@ class Request
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $this->params = filter_var_array($_GET ?? [], FILTER_SANITIZE_SPECIAL_CHARS);
         } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if ($this->contentType != "" && strtolower($this->contentType) === 'application/json') {
+            if ($this->contentType != '' && strtolower($this->contentType) === 'application/json') {
                 $this->params = json_decode(file_get_contents('php://input'), true);
             } else {
                 $this->params = $_POST;
@@ -77,7 +75,12 @@ class Request
     protected function processJsonValue($key): void
     {
         $value = $this->params[$key];
-        if (is_string($value) && is_array(json_decode($value, true)) && (json_last_error() == JSON_ERROR_NONE) && str_contains($value, '{')) {
+        if (
+            is_string($value) &&
+            is_array(json_decode($value, true)) &&
+            json_last_error() == JSON_ERROR_NONE &&
+            str_contains($value, '{')
+        ) {
             $this->params[$key] = json_decode(html_entity_decode($value, ENT_QUOTES, 'UTF-8'), true);
         }
     }
@@ -89,7 +92,7 @@ class Request
 
     public function procesaFormData($params): array
     {
-        $boundary = "--" . explode("boundary=", $_SERVER["CONTENT_TYPE"])[1];
+        $boundary = '--' . explode('boundary=', $_SERVER['CONTENT_TYPE'])[1];
         $parts = explode($boundary, $params);
         $data = [];
         $files = [];
@@ -120,7 +123,6 @@ class Request
 
     private function extractFilesFormData($part): array
     {
-
         $fileName = explode('filename=', $part)[1];
         $fileName = explode("\r\n", $fileName)[0];
         $fileName = str_replace('"', '', $fileName);
@@ -138,10 +140,9 @@ class Request
             'tmp_name' => $fileTmpName,
             'error' => 0, // Puedes ajustar según necesidad
             'size' => strlen($fileTmpContent), // Puedes ajustar según necesidad
-            'from' => 'formData'
+            'from' => 'formData',
         ];
     }
-
 
     /**
      * Obtiene el valor de un campo de entrada de la solicitud.
@@ -194,7 +195,7 @@ class Request
         for ($i = 0; $i < $fileCount; $i++) {
             $file = [];
             foreach ($this->files[$fileName] as $key => $value) {
-                $file[$key] =  $this->files[$fileName][$key][$i];
+                $file[$key] = $this->files[$fileName][$key][$i];
             }
 
             $files[] = new File($file);
@@ -235,7 +236,7 @@ class Request
      */
     public function getBaseUrl(): string
     {
-        $protocol =  !empty($_SERVER['HTTPS']) && ('on' == $_SERVER['HTTPS']) ? 'https://' : 'http://';
+        $protocol = !empty($_SERVER['HTTPS']) && 'on' == $_SERVER['HTTPS'] ? 'https://' : 'http://';
         $host = $_SERVER['HTTP_HOST'];
         return $protocol . $host;
     }

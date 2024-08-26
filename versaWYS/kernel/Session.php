@@ -217,7 +217,7 @@ class Session
         if (!array_key_exists($email, $attempts)) {
             $attempts[$email] = [
                 'attempts' => 1,
-                'time' => null
+                'time' => null,
             ];
         } else {
             $attempts[$email]['attempts']++;
@@ -239,7 +239,6 @@ class Session
     {
         global $config;
         if ($attempts[$email]['attempts'] >= $config['login_attempt']['max']) {
-
             if (null === $attempts[$email]['time']) {
                 $attempts[$email]['time'] = time() + $config['login_attempt']['time'];
             }
@@ -266,13 +265,16 @@ class Session
     {
         global $config;
 
-        $lifetime = ($remember === 'off' ? $config['session']['user_cookie']['lifetime'] : $config['session']['user_cookie']['lifetime_remember']);
+        $lifetime =
+            $remember === 'off'
+                ? $config['session']['user_cookie']['lifetime']
+                : $config['session']['user_cookie']['lifetime_remember'];
 
         $payload = [
             'iat' => time(),
             'nbf' => time(),
             'exp' => time() + $lifetime,
-            'id_user' => $user['id']
+            'id_user' => $user['id'],
         ];
 
         return JWT::encode($payload, $config['session']['key'], 'HS256');
@@ -305,7 +307,11 @@ class Session
 
         $jwt = $this->generateJWT($user, $remember);
 
-        $lifetime = time() + ($remember === 'off' ? $config['session']['user_cookie']['lifetime'] : $config['session']['user_cookie']['lifetime_remember']);
+        $lifetime =
+            time() +
+            ($remember === 'off'
+                ? $config['session']['user_cookie']['lifetime']
+                : $config['session']['user_cookie']['lifetime_remember']);
         if ($config['session']['user_cookie']['enable']) {
             $cookie->set(
                 'tknHash',
@@ -328,12 +334,10 @@ class Session
         global $config, $cookie;
 
         if ($config['session']['user_cookie']['enable']) {
-
             if ($cookie->has('tknHash')) {
                 $jwt = $cookie->get('tknHash');
                 $decoded = $this->decodeJWT($jwt);
                 if ($decoded['exp'] > time()) {
-
                     if (!$this->checkExistSession() || !$this->has('id_user')) {
                         $this->regenerate();
                         self::set('id_user', $decoded['id_user']);

@@ -16,25 +16,25 @@ class MiddlewareManager
 
         if (file_exists($middlewareFile)) {
             echo "El Middleware $middlewareFile ya existe.\nDesea sobreescribirlo? (y/n): ";
-            $handle = fopen("php://stdin", "r");
+            $handle = fopen('php://stdin', 'r');
             $line = fgets($handle);
             if (trim($line) != 'y' && trim($line) != 'Y') {
                 echo "Saliendo...\n";
-                exit;
+                exit();
             }
             unlink($middlewareFile);
         }
         $template = <<<'EOT'
-                        <?php
+<?php
 
-                        declare(strict_types=1);
+declare(strict_types=1);
 
-                        namespace app\middleware;
+namespace app\middleware;
 
-                        use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\helpers\Functions;
 
-                        class $middlewareName {}
-                        EOT;
+class $middlewareName {}
+EOT;
 
         $template = str_replace('$middlewareName', $middlewareName, $template);
         file_put_contents($middlewareFile, $template);
@@ -49,7 +49,7 @@ class MiddlewareManager
 
         if (!file_exists($middlewareFile)) {
             echo "El Middleware $middlewareFile no existe.\n";
-            exit;
+            exit();
         }
 
         unlink($middlewareFile);

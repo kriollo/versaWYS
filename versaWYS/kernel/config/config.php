@@ -30,7 +30,6 @@ $twig = new versaTwig($config);
 $twig->addGlobal('session', $session);
 $twig->addGlobal('config', $config);
 
-
 ini_set('display_errors', $config['build']['debug'] ? '1' : '0');
 ini_set('display_startup_errors', $config['build']['debug'] ? '1' : '0');
 error_reporting(E_ALL);

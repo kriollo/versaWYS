@@ -13,8 +13,6 @@ use versaWYS\kernel\helpers\Functions;
 
 class Globalcontrollers
 {
-
-
     /**
      * @var array $user
      * This variable stores user information.
@@ -25,7 +23,6 @@ class Globalcontrollers
     ];
 
     protected array|int|null|Cursor $menu_user = [];
-
 
     /**
      * @var int $id
@@ -42,13 +39,12 @@ class Globalcontrollers
 
     public function __construct(Environment $twig, $session)
     {
-
         global $request;
 
         $this->template = $twig;
         if ($session->get('id_user') !== null) {
             $this->user = (new models\Users())->find($session->get('id_user'));
-            $this->id_user = (int)$session->get('id_user');
+            $this->id_user = (int) $session->get('id_user');
 
             if ($this->user['role'] == 'admin') {
                 $this->menu_user = (new models\Dashboard())->getMenuAdmin();

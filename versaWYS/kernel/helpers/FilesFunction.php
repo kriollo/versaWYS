@@ -9,8 +9,8 @@ class FilesFunction
     public static function destroyAllDir($dirPath): void
     {
         if (!is_dir($dirPath)) {
-            echo "Error: No existe el directorio: " . $dirPath . "\n";
-            exit;
+            echo 'Error: No existe el directorio: ' . $dirPath . "\n";
+            exit();
         }
 
         if (!str_ends_with($dirPath, '/')) {

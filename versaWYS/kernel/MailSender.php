@@ -6,10 +6,10 @@ namespace versaWYS\kernel;
 
 use Exception;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
-use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Mailer;
-use Symfony\Component\Mime\Email;
+use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\File;
 
@@ -46,8 +46,15 @@ class MailSender
     /**
      * @throws Exception
      */
-    public function send(array $to, string $subject, string $body, ContentType $type, array $context = [], array $imagesEmbed = [], array $attachments = []): bool
-    {
+    public function send(
+        array $to,
+        string $subject,
+        string $body,
+        ContentType $type,
+        array $context = [],
+        array $imagesEmbed = [],
+        array $attachments = []
+    ): bool {
         global $config, $twig;
 
         $email = (new EMail())

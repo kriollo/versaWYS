@@ -16,32 +16,37 @@ class ControllerManager
 
         if (file_exists($controllersFile)) {
             echo "El Controllador $controllersFile ya existe.\nDesea sobreescribirlo? (y/n): ";
-            $handle = fopen("php://stdin", "r");
+            $handle = fopen('php://stdin', 'r');
             $line = fgets($handle);
             if (trim($line) != 'y' && trim($line) != 'Y') {
                 echo "Saliendo...\n";
-                exit;
+                exit();
             }
             unlink($controllersFile);
         }
         $template = <<<'EOT'
-                        <?php
+<?php
 
-                        declare(strict_types=1);
+declare(strict_types=1);
 
-                        namespace app\controllers;
+namespace app\controllers;
 
-                        use app\Models as Models;
-                        use versaWYS\kernel\Response;
+use app\Models as Models;
+use versaWYS\kernel\Response;
 
-                        class $controllerName {
-                            public static function index()
-                            {
-                                global $twig;
-                                return $twig->render('$controllerName/index');
-                            }
-                        }
-                        EOT;
+class $controllerName extends Globalcontrollers {
+    public function __construct()
+    {
+        global $twig, $session;
+        parent::__construct($twig, $session);
+    }
+
+    public function index()
+    {
+        return $this->template->render('dashboard/$controllerName/index');
+    }
+}
+EOT;
 
         $template = str_replace('$controllerName', $controllerName, $template);
 
@@ -57,7 +62,7 @@ class ControllerManager
 
         if (!file_exists($controllersFile)) {
             echo "El Controllador $controllersFile no existe.\n";
-            exit;
+            exit();
         }
 
         unlink($controllersFile);

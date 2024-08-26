@@ -11,7 +11,6 @@ use versaWYS\kernel\RedBeanCnn;
 
 class MigrationManager
 {
-
     private static string $path = 'app/migrations/';
     private static string $pathClass = '\\app\\migrations\\';
 
@@ -54,7 +53,7 @@ class MigrationManager
                 if (!$result['success']) {
                     echo "Error: {$result['message']}\n";
                     self::close();
-                    exit;
+                    exit();
                 }
 
                 $manager = R::dispense('versamigrations');
@@ -68,11 +67,11 @@ class MigrationManager
                 echo "Migraciones ejecutadas con éxito.\n";
             }
             self::close();
-            exit;
+            exit();
         } catch (Exception $e) {
             echo "Error al ejecutar la migración $className: {$e->getMessage()}\n";
             self::close();
-            exit;
+            exit();
         }
     }
 
@@ -81,94 +80,91 @@ class MigrationManager
      */
     public static function runDown($fileDown): void
     {
-
         self::inicializate();
 
         if (!file_exists(self::$path . "$fileDown.php")) {
             echo "No existe la migración $fileDown.php\n";
             self::close();
-            exit;
+            exit();
         }
 
         $className = basename($fileDown, '.php');
         $fullClassName = self::$pathClass . $className;
 
-
         echo "Verificando migración $className...";
         if (!self::checkIfExecuted($className)) {
             echo "No ejecutada.\n";
             self::close();
-            exit;
+            exit();
         }
 
-        echo "Ejecutando...";
+        echo 'Ejecutando...';
         $result = $fullClassName::down();
         echo "{$result['message']}\n";
 
         if (!$result['success']) {
             echo "Error: {$result['message']}\n";
             self::close();
-            exit;
+            exit();
         }
         try {
             R::exec("DELETE FROM versamigrations WHERE name = '$className'");
 
             echo "Migración ejecutada con éxito.\n";
             self::close();
-            exit;
+            exit();
         } catch (Exception $e) {
             echo "Error al ejecutar la migración $className: {$e->getMessage()}\n";
             self::close();
-            exit;
+            exit();
         }
     }
 
     public static function createMigration($name): void
     {
-
         $date = date('YmdHis');
         $migrationName = "m{$date}_$name";
         $migrationFile = self::$path . "$migrationName.php";
 
         if (file_exists($migrationFile)) {
             echo "La migración $migrationFile ya existe.\nDesea sobreescribirlo? (y/n): ";
-            $handle = fopen("php://stdin", "r");
+            $handle = fopen('php://stdin', 'r');
             $line = fgets($handle);
             if (trim($line) != 'y' && trim($line) != 'Y') {
                 echo "Saliendo...\n";
-                exit;
+                exit();
             }
             unlink($migrationFile);
         }
         $template = <<<'EOT'
-                        <?php
+<?php
 
-                        declare(strict_types=1);
+declare(strict_types=1);
 
-                        namespace app\migrations;
+namespace app\migrations;
 
-                        use RedBeanPHP\R;
+use RedBeanPHP\R;
 
-                        class $migrationName {
-                            public static function up() {
-                                try {
-                                    // Agrega tu lógica de migración aquí
-                                    return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
-                                } catch (\Exception $e) {
-                                    return ['message' => $e->getMessage(), 'success' => false];
-                                }
-                            }
+class $migrationName {
+    public static function up() {
+        try {
+            // Agrega tu lógica de migración aquí
+            return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
+        } catch (\Exception $e) {
+            return ['message' => $e->getMessage(), 'success' => false];
+        }
+    }
 
-                            public static function down() {
-                                try {
-                                    // Agrega tu lógica para revertir la migración aquí
-                                    return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
-                                } catch (\Exception $e) {
-                                    return ['message' => $e->getMessage(), 'success' => false];
-                                }
-                            }
-                        }
-                        EOT;
+    public static function down() {
+        try {
+            // Agrega tu lógica para revertir la migración aquí
+            return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
+        } catch (\Exception $e) {
+            return ['message' => $e->getMessage(), 'success' => false];
+        }
+    }
+}
+EOT;
 
         $template = str_replace('$migrationName', $migrationName, $template);
 

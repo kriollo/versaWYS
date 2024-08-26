@@ -15,13 +15,12 @@ class Response
      */
     public static function json(array $data, int $code = 200): bool
     {
-
         if (error_get_last() !== null) {
             $data = [
                 'success' => 0,
                 'message' => 'Error en la petición',
                 'errors' => error_get_last(),
-                'code' => 500
+                'code' => 500,
             ];
             $code = 500;
             self::jsonError($data, $code);
@@ -33,7 +32,6 @@ class Response
         http_response_code($code);
         return true;
     }
-
 
     public static function jsonError(array $data, int $code = 200): bool
     {

@@ -19,7 +19,6 @@ class CommandLineInterface
 
         $command = $this->args[0] ?? 'help';
 
-
         $modulo = explode(':', $command)[0];
         $params = explode(':', $command);
         $params = array_slice($params, 1);
@@ -28,7 +27,7 @@ class CommandLineInterface
         echo "\n";
         echo "Comando: $command\n";
         echo "Modulo: $modulo\n";
-        echo "Parametros: " . implode(', ', $params) . "\n";
+        echo 'Parametros: ' . implode(', ', $params) . "\n";
 
         match ($modulo) {
             'serve' => exec('php -S localhost:8000'),
@@ -48,22 +47,22 @@ class CommandLineInterface
     {
         if (!isset($params[0])) {
             $this->printHelp();
-            exit;
+            exit();
         }
 
         if (!in_array($params[0], ['debug', 'templateCache', 'ClearCache'])) {
             $this->printHelp();
-            exit;
+            exit();
         }
 
         if ($params[0] === 'debug' && !isset($params[1])) {
             $this->printHelp();
-            exit;
+            exit();
         }
 
         if ($params[0] === 'templateCache' && !isset($params[1])) {
             $this->printHelp();
-            exit;
+            exit();
         }
 
         match ($params[0]) {
@@ -78,7 +77,7 @@ class CommandLineInterface
     {
         if (!isset($params[0])) {
             $this->printHelp();
-            exit;
+            exit();
         }
 
         $params = [
@@ -99,10 +98,9 @@ class CommandLineInterface
 
     private function handleAtajos($params): void
     {
-
         if (!isset($params[0])) {
             $this->printHelp();
-            exit;
+            exit();
         }
 
         $params = [
@@ -122,7 +120,6 @@ class CommandLineInterface
 
     private function handleModel($params): void
     {
-
         $params = $this->getParams($params);
 
         match ($params[0]) {
@@ -144,20 +141,19 @@ class CommandLineInterface
     }
     private function handleRoute($params): void
     {
-
         if (!isset($params[0])) {
             $this->printHelp();
-            exit;
+            exit();
         }
 
         if (!in_array($params[0], ['make', 'delete', 'list'])) {
             $this->printHelp();
-            exit;
+            exit();
         }
 
         if ($params[0] === 'make' && !isset($params[1])) {
             $this->printHelp();
-            exit;
+            exit();
         }
 
         match ($params[0]) {
@@ -181,20 +177,19 @@ class CommandLineInterface
 
     private function handleMigrate($params): void
     {
-
         if (!isset($params[0])) {
             $this->printHelp();
-            exit;
+            exit();
         }
 
         if (!in_array($params[0], ['up', 'down', 'new'])) {
             $this->printHelp();
-            exit;
+            exit();
         }
 
         if ($params[0] === 'new' && !isset($params[1])) {
             $this->printHelp();
-            exit;
+            exit();
         }
 
         match ($params[0]) {
@@ -207,7 +202,6 @@ class CommandLineInterface
 
     private function printHelp(): void
     {
-
         // TODO: Agregar comando a RCMD como por ejemplo: php versaCLI RCMD:nombre --crud Crea las rutas necesarias para un crud, tambien los metodos del controlador y las vistas
         echo "\n";
         echo "\n";
@@ -255,17 +249,17 @@ class CommandLineInterface
     {
         if (!isset($params[0])) {
             $this->printHelp();
-            exit;
+            exit();
         }
 
         if ($params[0] != 'make') {
             $this->printHelp();
-            exit;
+            exit();
         }
 
         if ($params[0] === 'make' && !isset($params[1])) {
             $this->printHelp();
-            exit;
+            exit();
         }
         return $params;
     }

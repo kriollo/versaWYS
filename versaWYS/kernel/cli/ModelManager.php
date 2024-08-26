@@ -17,51 +17,51 @@ class ModelManager
 
         if (file_exists($modelFile)) {
             echo "El modelo $modelFile ya existe.\nDesea sobreescribirlo? (y/n): ";
-            $handle = fopen("php://stdin", "r");
+            $handle = fopen('php://stdin', 'r');
             $line = fgets($handle);
             if (trim($line) != 'y' && trim($line) != 'Y') {
                 echo "Saliendo...\n";
-                exit;
+                exit();
             }
             unlink($modelFile);
         }
         $template = <<<'EOT'
-                        <?php
+<?php
 
-                        declare(strict_types=1);
+declare(strict_types=1);
 
-                        namespace app\Models;
+namespace app\Models;
 
-                        use RedBeanPHP\R;
-                        use versaWYS\kernel\RedBeanCnn;
+use RedBeanPHP\R;
+use versaWYS\kernel\RedBeanCnn;
 
-                        class $modelName extends \RedBeanPHP\SimpleModel
-                        {
-                            protected static $table = '$originalModelName';
+class $modelName extends \RedBeanPHP\SimpleModel
+{
+    protected static $table = '$originalModelName';
 
-                            /**
-                             * Get all $originalModelName.
-                             *
-                             * Retrieves all the $originalModelName from the database.
-                             *
-                             * @return array An array of user records.
-                             */
-                            public function all()
-                            {
-                                return R::getAll('SELECT * FROM $originalModelName');
-                            }
+    /**
+     * Get all $originalModelName.
+     *
+     * Retrieves all the $originalModelName from the database.
+     *
+     * @return array An array of user records.
+     */
+    public function all()
+    {
+        return R::getAll('SELECT * FROM $originalModelName');
+    }
 
-                            public function __construct()
-                            {
-                                (new RedBeanCnn())->setup();
-                            }
+    public function __construct()
+    {
+        (new RedBeanCnn())->setup();
+    }
 
-                            public function __destruct()
-                            {
-                                R::close();
-                            }
-                        }
-                        EOT;
+    public function __destruct()
+    {
+        R::close();
+    }
+}
+EOT;
 
         $template = str_replace('$modelName', $modelName, $template);
         $template = str_replace('$originalModelName', $originalModelName, $template);
@@ -77,7 +77,7 @@ class ModelManager
 
         if (!file_exists($modelFile)) {
             echo "El modelo $modelFile no existe.\n";
-            exit;
+            exit();
         }
 
         unlink($modelFile);

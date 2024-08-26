@@ -18,30 +18,30 @@ class RouteManager
 
         if (file_exists($routesFile)) {
             echo "La ruta $routesFile ya existe.\nDesea sobreescribirlo? (y/n): ";
-            $handle = fopen("php://stdin", "r");
+            $handle = fopen('php://stdin', 'r');
             $line = fgets($handle);
             if (trim($line) != 'y' && trim($line) != 'Y') {
                 echo "Saliendo...\n";
-                exit;
+                exit();
             }
             unlink($routesFile);
         }
         $template = <<<'EOT'
-                        <?php
+<?php
 
-                        declare(strict_types=1);
+declare(strict_types=1);
 
-                        namespace app\Routes;
+namespace app\Routes;
 
-                        use versaWYS\kernel\Router;
-                        use app\middleware\AuthMiddleware;
-                        use app\middleware\$middlewareName;
+use versaWYS\kernel\Router;
+use app\middleware\AuthMiddleware;
+use app\middleware\$middlewareName;
 
-                        Router::get('/admin/$routeName',
-                            [\app\controllers\$controllerName::class,'index']
-                        );
+Router::get('/admin/$routeName',
+    [\app\controllers\$controllerName::class,'index']
+);
 
-                        EOT;
+EOT;
 
         $template = str_replace('$routeName', $routeName, $template);
         $template = str_replace('$controllerName', $controllerName, $template);
@@ -59,7 +59,7 @@ class RouteManager
 
         if (!file_exists($routesFile)) {
             echo "La ruta $routesFile no existe.\n";
-            exit;
+            exit();
         }
 
         unlink($routesFile);
@@ -81,18 +81,18 @@ class RouteManager
             $n++;
         }
         echo "\n";
-        echo "Seleccione una ruta: ";
-        $handle = fopen("php://stdin", "r");
+        echo 'Seleccione una ruta: ';
+        $handle = fopen('php://stdin', 'r');
         $line = fgets($handle);
         $line = trim($line);
         if (!is_numeric($line)) {
             echo "Saliendo...\n";
-            exit;
+            exit();
         }
         $line = (int) $line;
         if ($line < 1 || $line > count($routes)) {
             echo "Saliendo...\n";
-            exit;
+            exit();
         }
 
         $route = $routes[$line - 1];
@@ -104,25 +104,24 @@ class RouteManager
         $routeFile = self::$path . $routeFile;
         if (!file_exists($routeFile)) {
             echo "La ruta $routeFile no existe.\n";
-            exit;
+            exit();
         }
         $routeContent = file_get_contents($routeFile);
 
-        $pattern = '/Router::(\w+)\(\s*[\'"]([^\'"]+)[\'"](?:[^;]*\[\s*([^]]+),\s*([^]]+)])?(?:[^;]*\[\s*([^]]+),\s*([^]]+)])?\s*\)/s';
+        $pattern =
+            '/Router::(\w+)\(\s*[\'"]([^\'"]+)[\'"](?:[^;]*\[\s*([^]]+),\s*([^]]+)])?(?:[^;]*\[\s*([^]]+),\s*([^]]+)])?\s*\)/s';
         preg_match_all($pattern, $routeContent, $matches, PREG_SET_ORDER);
-
 
         // Encabezados
         echo str_pad('Method', 10) . '|';
-        echo str_pad('URI', 40) . "|";
-        echo str_pad('Controller', 50) . "|";
+        echo str_pad('URI', 40) . '|';
+        echo str_pad('Controller', 50) . '|';
         echo str_pad('Action', 20) . "|\n";
         // Línea separadora
         echo str_repeat('-', 10) . '|';
-        echo str_repeat('-', 40) . "|";
-        echo str_repeat('-', 50) . "|";
+        echo str_repeat('-', 40) . '|';
+        echo str_repeat('-', 50) . '|';
         echo str_repeat('-', 20) . "|\n";
-
 
         foreach ($matches as $match) {
             $method = $match[1];
@@ -131,8 +130,8 @@ class RouteManager
             $actionController = $match[4] ?? '';
 
             echo str_pad($method, 10) . '|';
-            echo str_pad($path, 40) . "|";
-            echo str_pad($controller, 50) . "|";
+            echo str_pad($path, 40) . '|';
+            echo str_pad($controller, 50) . '|';
             echo str_pad($actionController, 20) . "|\n";
         }
     }

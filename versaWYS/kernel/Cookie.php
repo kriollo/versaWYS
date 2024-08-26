@@ -6,8 +6,14 @@ namespace versaWYS\kernel;
 
 class Cookie
 {
-    public static function set(string $key, $value, int $time = 3600, string $domain = '', bool $secure = false, bool $httpOnly = true): void
-    {
+    public static function set(
+        string $key,
+        $value,
+        int $time = 3600,
+        string $domain = '',
+        bool $secure = false,
+        bool $httpOnly = true
+    ): void {
         setcookie($key, $value, $time, '/', $domain, $secure, $httpOnly);
     }
 

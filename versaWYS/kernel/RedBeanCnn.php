@@ -8,8 +8,6 @@ use RedBeanPHP\R;
 
 class RedBeanCnn
 {
-
-
     protected mixed $host;
     protected mixed $user;
     protected mixed $pass;
@@ -21,14 +19,13 @@ class RedBeanCnn
 
         $db_config = $config['DB'];
 
-        $this->host =    $db_config['DB_HOST'];
-        $this->user =    $db_config['DB_USER'];
-        $this->pass =    $db_config['DB_PASS'];
+        $this->host = $db_config['DB_HOST'];
+        $this->user = $db_config['DB_USER'];
+        $this->pass = $db_config['DB_PASS'];
         $this->dbName = $db_config['DB_NAME'];
 
         $this->setup();
     }
-
 
     public function setup(): void
     {

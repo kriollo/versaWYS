@@ -1,6 +1,5 @@
 <?php
 
-
 //TODO: crear nombre para las rutas y acceder desde la vista
 
 declare(strict_types=1);
@@ -9,7 +8,6 @@ namespace versaWYS\kernel;
 
 use Exception;
 use Throwable;
-
 
 /**
  * The Router class handles routing and middleware functionality for the application.
@@ -47,7 +45,7 @@ class Router
     public static function get(string $route, mixed $callback): Router
     {
         self::$getRoutes[$route] = $callback;
-        $instance = new static;
+        $instance = new static();
         $instance->lastRoute = $route;
         return $instance;
     }
@@ -62,7 +60,7 @@ class Router
     public static function post(string $route, mixed $callback): Router
     {
         self::$postRoutes[$route] = $callback;
-        $instance = new static;
+        $instance = new static();
         $instance->lastRoute = $route;
         return $instance;
     }
@@ -77,7 +75,7 @@ class Router
     public static function put(string $route, mixed $callback): Router
     {
         self::$putRoutes[$route] = $callback;
-        $instance = new static;
+        $instance = new static();
         $instance->lastRoute = $route;
         return $instance;
     }
@@ -92,7 +90,7 @@ class Router
     public static function patch(string $route, mixed $callback): Router
     {
         self::$patchRoutes[$route] = $callback;
-        $instance = new static;
+        $instance = new static();
         $instance->lastRoute = $route;
         return $instance;
     }
@@ -107,7 +105,7 @@ class Router
     public static function delete(string $route, mixed $callback): Router
     {
         self::$deleteRoutes[$route] = $callback;
-        $instance = new static;
+        $instance = new static();
         $instance->lastRoute = $route;
         return $instance;
     }
@@ -138,18 +136,24 @@ class Router
         header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
 
         if ($config['build']['debug']) {
-            Response::jsonError([
-                'success' => 0,
-                'message' => $e->getMessage(),
-                'code' => $e->getCode(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile(),
-            ], 500);
+            Response::jsonError(
+                [
+                    'success' => 0,
+                    'message' => $e->getMessage(),
+                    'code' => $e->getCode(),
+                    'line' => $e->getLine(),
+                    'file' => $e->getFile(),
+                ],
+                500
+            );
         } else {
-            Response::jsonError([
-                'success' => 0,
-                'message' => 'Internal Server Error',
-            ], 500);
+            Response::jsonError(
+                [
+                    'success' => 0,
+                    'message' => 'Internal Server Error',
+                ],
+                500
+            );
         }
     }
 
@@ -166,7 +170,11 @@ class Router
             $method = strtolower($request->getMethod());
 
             // Si es un archivo no se ejecuta el router
-            if (preg_match('/\.(js|css|jpg|jpeg|png|gif|svg)$/', $url) || str_starts_with($url, 'blob:') || str_starts_with($url, 'data:')) {
+            if (
+                preg_match('/\.(js|css|jpg|jpeg|png|gif|svg)$/', $url) ||
+                str_starts_with($url, 'blob:') ||
+                str_starts_with($url, 'data:')
+            ) {
                 return null;
             }
 
@@ -182,7 +190,7 @@ class Router
                     if (isset(self::$middlewares[$originalRoute])) {
                         foreach (self::$middlewares[$originalRoute] as $middleware) {
                             [$middlewareClass, $method] = $middleware;
-                            $response = (new $middlewareClass)->$method();
+                            $response = (new $middlewareClass())->$method();
 
                             if (is_array($response) || is_object($response)) {
                                 return Response::json($response, $response['code'] ?? 200);
@@ -191,12 +199,11 @@ class Router
                     }
 
                     [$controllerClass, $method] = $callback;
-                    $response = (new $controllerClass)->$method(...$slug);
+                    $response = (new $controllerClass())->$method(...$slug);
 
                     if (is_array($response) || is_object($response)) {
                         return Response::json($response);
                     }
-
 
                     echo $response;
                     return true;
@@ -205,26 +212,35 @@ class Router
 
             // Manejo de ruta no encontrada
             if (!$request->isApiCall()) {
-                $template404 = "/e404";
+                $template404 = '/e404';
                 if ($config['build']['debug']) {
-                    Response::jsonError([
-                        'success' => 0,
-                        'message' => "Ruta no encontrada -> {$request->getMethod()}::{$request->getUrl()}",
-                    ], 404);
+                    Response::jsonError(
+                        [
+                            'success' => 0,
+                            'message' => "Ruta no encontrada -> {$request->getMethod()}::{$request->getUrl()}",
+                        ],
+                        404
+                    );
                 } else {
                     Response::redirect($template404);
                 }
             } else {
                 if ($config['build']['debug']) {
-                    Response::jsonError([
-                        'success' => 0,
-                        'message' => "Ruta no encontrada -> {$request->getMethod()}::{$request->getUrl()}",
-                    ], 404);
+                    Response::jsonError(
+                        [
+                            'success' => 0,
+                            'message' => "Ruta no encontrada -> {$request->getMethod()}::{$request->getUrl()}",
+                        ],
+                        404
+                    );
                 } else {
-                    Response::jsonError([
-                        'success' => 0,
-                        'message' => "Ruta no encontrada",
-                    ], 404);
+                    Response::jsonError(
+                        [
+                            'success' => 0,
+                            'message' => 'Ruta no encontrada',
+                        ],
+                        404
+                    );
                 }
             }
         } catch (Exception $e) {

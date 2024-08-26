@@ -26,7 +26,6 @@ class versaTwig extends Environment
         $__TWIG_CACHE_PATH = $config['twig']['compiled_dir'];
         $__TWIG_READABLE_AND_WRITABLE = !is_readable($__TWIG_CACHE_PATH) || !is_writable($__TWIG_CACHE_PATH);
         if ($__TWIG_READABLE_AND_WRITABLE) {
-
             # Intentar solucionarlo
             if (!is_dir($__TWIG_CACHE_PATH)) {
                 mkdir($__TWIG_CACHE_PATH, 0644, true);
@@ -37,7 +36,11 @@ class versaTwig extends Environment
             # Revisar la lecutra para twig
             $__TWIG_READABLE_AND_WRITABLE = !is_readable($__TWIG_CACHE_PATH) || !is_writable($__TWIG_CACHE_PATH);
             if ($__TWIG_READABLE_AND_WRITABLE) {
-                throw new RuntimeException('Debe conceder permisos de escritura y lectura a la ruta ' . $__TWIG_CACHE_PATH . ' ó crearla si no existe.');
+                throw new RuntimeException(
+                    'Debe conceder permisos de escritura y lectura a la ruta ' .
+                        $__TWIG_CACHE_PATH .
+                        ' ó crearla si no existe.'
+                );
             }
         }
 
@@ -58,7 +61,9 @@ class versaTwig extends Environment
             'debug' => $config['build']['debug'],
             'charset' => $config['build']['charset'],
             'auto_escape' => $config['twig']['auto_escape'],
-            'strict_variables' => !$config['build']['debug'] ? $config['build']['debug'] : $config['twig']['strict_variables'],
+            'strict_variables' => !$config['build']['debug']
+                ? $config['build']['debug']
+                : $config['twig']['strict_variables'],
         ]);
 
         if ($config['build']['debug']) {
@@ -146,8 +151,6 @@ class versaTwig extends Environment
         return "<div class='flex justify-between w-full bottom-0 left-0 bg-red-900 text-white fixed z-50 p-2 animate-Debugfade' id='debug'><div>Modo Debug: Activado</div><div class='flex gap-1'><img class='w-6 h-6' src='/public/dashboard/img/favicon.webp'></img>VersaWYS Framework </div><div id='tiempoCarga'></div></div><script>const antes=new Date('$dataNow').getTime(); function tdc(){ return (new Date().getTime() - antes) / 1e3 + 's';} window.onload=function (){ document.getElementById('tiempoCarga').innerHTML='CARGA: ' + tdc();}; </script>";
     }
 
-
-
     /**
      * Sets the Twig filters for the given Twig environment.
      *
@@ -160,7 +163,7 @@ class versaTwig extends Environment
 
         if ($handle = opendir($rutaCarpeta)) {
             while (false !== ($entry = readdir($handle))) {
-                if ($entry != "." && $entry != "..") {
+                if ($entry != '.' && $entry != '..') {
                     $rutaArchivo = $rutaCarpeta . '/' . $entry;
                     if (is_file($rutaArchivo) && pathinfo($rutaArchivo, PATHINFO_EXTENSION) == 'php') {
                         $nombreClase = pathinfo($rutaArchivo, PATHINFO_FILENAME);
@@ -188,7 +191,7 @@ class versaTwig extends Environment
 
         if ($handle = opendir($rutaCarpeta)) {
             while (false !== ($entry = readdir($handle))) {
-                if ($entry != "." && $entry != "..") {
+                if ($entry != '.' && $entry != '..') {
                     $rutaArchivo = $rutaCarpeta . '/' . $entry;
                     if (is_file($rutaArchivo) && pathinfo($rutaArchivo, PATHINFO_EXTENSION) == 'php') {
                         $nombreClase = pathinfo($rutaArchivo, PATHINFO_FILENAME);
@@ -214,18 +217,24 @@ class versaTwig extends Environment
     {
         global $config;
         if ($config['build']['debug']) {
-            Response::jsonError([
-                'success' => 0,
-                'message' => $e->getMessage(),
-                'code' => $e->getCode(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile(),
-            ], 500);
+            Response::jsonError(
+                [
+                    'success' => 0,
+                    'message' => $e->getMessage(),
+                    'code' => $e->getCode(),
+                    'line' => $e->getLine(),
+                    'file' => $e->getFile(),
+                ],
+                500
+            );
         } else {
-            Response::jsonError([
-                'success' => 0,
-                'message' => 'Internal Server Error',
-            ], 500);
+            Response::jsonError(
+                [
+                    'success' => 0,
+                    'message' => 'Internal Server Error',
+                ],
+                500
+            );
         }
     }
 }

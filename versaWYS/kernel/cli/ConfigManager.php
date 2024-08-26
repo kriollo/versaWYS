@@ -2,14 +2,12 @@
 
 declare(strict_types=1);
 
-
 namespace versaWYS\kernel\cli;
 
 use versaWYS\kernel\Helpers as helpers;
 
 class ConfigManager
 {
-
     protected static string $pathConfig = 'versaWYS/kernel/config/config.json';
 
     public static function getConfig(): array
@@ -28,12 +26,12 @@ class ConfigManager
     {
         if (!isset($params)) {
             echo "Error: Debe especificar un valor para debug\n";
-            exit;
+            exit();
         }
 
         if (!in_array($params, [true, false])) {
             echo "Error: El valor de debug debe ser true o false\n";
-            exit;
+            exit();
         }
 
         $config = self::getConfig();
@@ -45,12 +43,12 @@ class ConfigManager
     {
         if (!isset($params)) {
             echo "Error: Debe especificar un valor para templateCache\n";
-            exit;
+            exit();
         }
 
         if (!in_array($params, ['true', 'false'])) {
             echo "Error: El valor de templateCache debe ser true o false\n";
-            exit;
+            exit();
         }
 
         $config = self::getConfig();
@@ -65,7 +63,6 @@ class ConfigManager
         $pathCahe = $config['twig']['compiled_dir'];
 
         helpers\FilesFunction::destroyAllDir($pathCahe);
-
 
         if (!is_dir($pathCahe)) {
             mkdir($pathCahe, 0777, true);
