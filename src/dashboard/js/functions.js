@@ -161,6 +161,7 @@ export const getTime = () => {
  * @param {string} [Params.type='success'] - The type of the alert icon.
  * @param {boolean} [Params.AutoClose=true] - Determines if the alert should automatically close after a certain time.
  * @param {function} [Params.callback] - The callback function to be executed when the alert is closed.
+ * @param {Object} [Params.customClass={}] - The custom classes to apply to the alert.
  */
 export const versaAlert = Params => {
     const {
@@ -170,6 +171,7 @@ export const versaAlert = Params => {
         type = 'success',
         AutoClose = true,
         callback,
+        customClass = {},
     } = Params;
 
     Swal.fire({
@@ -182,6 +184,7 @@ export const versaAlert = Params => {
         allowEscapeKey: true,
         allowEnterKey: true,
         timer: AutoClose ? 3000 : null,
+        customClass: customClass,
     }).then(result => {
         if (result) {
             if (callback) {
