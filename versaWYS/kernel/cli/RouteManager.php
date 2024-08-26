@@ -37,7 +37,7 @@ class RouteManager
                         use app\middleware\AuthMiddleware;
                         use app\middleware\$middlewareName;
 
-                        Router::get('/$routeName',
+                        Router::get('/admin/$routeName',
                             [\app\controllers\$controllerName::class,'index']
                         );
 
