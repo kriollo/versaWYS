@@ -7,10 +7,12 @@
 @view-transition {
     navigation: auto;
 }
+
 ::view-transition-old(root) {
     animation-name: fadeOut;
     animation-duration: 0.5s;
 }
+
 ::view-transition-new(root) {
     animation-name: fadeIn;
     animation-duration: 0.5s;
@@ -47,14 +49,15 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: rgb(
-        31 41 55 / var(--tw-bg-opacity)
-    ); /* Color del thumb (barra deslizadora) */
-    border-radius: 6px; /* Bordes redondeados */
+    background-color: rgb(31 41 55 / var(--tw-bg-opacity));
+    /* Color del thumb (barra deslizadora) */
+    border-radius: 6px;
+    /* Bordes redondeados */
 }
 
 ::-webkit-scrollbar-track {
-    background-color: #f1f1f19f; /* Color del track (barra de fondo) */
+    background-color: #f1f1f19f;
+    /* Color del track (barra de fondo) */
 }
 
 /* Otros navegadores (Firefox) */
@@ -72,6 +75,7 @@ html {
         height: calc(100vh - 4rem);
     }
 }
+
 .DragDropArea {
     border: 5px dashed #ddd;
     height: 100%;
@@ -83,18 +87,31 @@ html {
     flex-direction: column;
     background-color: #9cafa736;
 }
+
 .DragDropArea.active {
     background-color: #b8d4fe;
     color: black;
     border: 2px dashed #618ac9;
 }
+
 .DragDropArea h2 {
     font-size: 30px;
     font-weight: 500;
     color: #000;
 }
+
 .DragDropArea span {
     font-size: 25px;
     font-weight: 500;
     color: #000;
+}
+
+.swal-wide {
+    width: 850px !important;
+}
+
+.swal-target {
+    width: 100% !important;
+    margin: 0 auto;
+    margin-top: 10px;
 }
