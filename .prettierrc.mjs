@@ -15,7 +15,7 @@ const config = {
     semi: true,
     singleQuote: true,
     tabWidth: 4,
-    trailingComma: 'es5',
+    trailingComma: 'all',
     useTabs: false,
     vueIndentScriptAndStyle: true,
     plugins: ['@prettier/plugin-php'],
