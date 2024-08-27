@@ -47,35 +47,25 @@ class UsersController extends Globalcontrollers
     {
         global $request;
 
-        $page = (int) ($request->get('page') ?? 1);
-        $per_page = (int) ($request->get('per_page') ?? 15);
-        $fitro = (string) ($request->get('filter') ?? '');
+        $params = Functions::getParamsPaginate($request, ['name', 'email', 'role', 'status']);
+        $filter = $params['filter'] ? "$params[filter]" : '';
+        $order = $params['order'] ? "ORDER BY $params[order]" : 'ORDER BY id DESC';
+        $result = (new Models\Pagination())->pagination(
+            'versausers',
+            ['id', 'name', 'email', 'role', 'status', 'tokenid'],
+            $filter,
+            $order,
+            $params['limit']
+        );
+        $count = (int) $result['total'];
 
-        if ($page == '' && !is_numeric($page)) {
-            $page = 1;
+        $total_pages = ceil($count / $params['per_page']);
+        if ($total_pages === 1 || $total_pages === 0) {
+            $total_pages = 1;
+            if ($params['page'] >= 1) {
+                $params['page'] = 0;
+            }
         }
-        if ($per_page == '' && !is_numeric($per_page)) {
-            $per_page = 15;
-        }
-
-        if ($page > 1) {
-            $page = (int) ($page - 1) * $per_page;
-        } else {
-            $page = 0;
-        }
-        $limit = "LIMIT $page , $per_page";
-
-        $filter = '1 = 1';
-        if ($fitro != '') {
-            $filter = "name LIKE '%$fitro%' OR email LIKE '%$fitro%' OR role LIKE '%$fitro%' ";
-        }
-
-        $filter = "$filter ORDER BY id asc ";
-
-        $users = (new Models\Users())->pagination($filter . $limit);
-        $count = (int) $users['total'];
-
-        $total_pages = ceil($count / $per_page);
 
         $columns = [
             ['field' => 'id', 'title' => 'ID'],
@@ -127,14 +117,16 @@ class UsersController extends Globalcontrollers
         Response::json(
             [
                 'success' => 1,
-                'data' => $users['data'],
+                'data' => $result['data'],
                 'columns' => $columns,
-                'filter' => $fitro,
-                'total' => $count,
-                'from' => $page + 1,
-                'to' => $page + count($users['data']),
-                'page' => $page,
-                'total_pages' => (int) $total_pages,
+                'meta' => [
+                    'filter' => $params['filtro'],
+                    'total' => $count,
+                    'from' => $params['page'] + 1,
+                    'to' => $params['page'] + count($result['data']),
+                    'page' => $params['page'],
+                    'total_pages' => (int) $total_pages,
+                ],
             ],
             200
         );
