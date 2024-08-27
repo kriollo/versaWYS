@@ -270,7 +270,7 @@ const customTable = {
     },
     template: html`
         <div
-            class="flex items-center justify-end flex-column flex-wrap md:flex-row space-y-4 md:space-y-0 gap-2 px-2">
+            class="flex items-center justify-end flex-column flex-wrap md:flex-row gap-2 px-2 py-2">
             <slot name="buttons"></slot>
         </div>
         <div
