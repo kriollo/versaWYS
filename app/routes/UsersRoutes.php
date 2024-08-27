@@ -27,6 +27,7 @@ Router::get('/admin/usuarios/editUser/{id}', [UsersController::class, 'editUserT
 //Rutas de API
 Router::get('/admin/users/getUsersPaginated', [UsersController::class, 'getUsersPaginated'])->middleware([
     [AuthMiddleware::class, 'checkSession'],
+    [AuthMiddleware::class, 'onlyAdmin'],
 ]);
 
 Router::post('/admin/users/addUser', [UsersController::class, 'registerUser'])->middleware([
