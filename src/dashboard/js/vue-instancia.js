@@ -1,9 +1,7 @@
 import { existeCookieBuild } from '@/dashboard/js/functions.js';
-import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
 export const app = createApp({});
-export const pinia = createPinia();
 
 if (existeCookieBuild()) {
     app.config.warnHandler = function (msg, vm, trace) {
@@ -18,5 +16,3 @@ if (existeCookieBuild()) {
 }
 app.config.performance = true;
 app.config.compilerOptions.whitespace = 'condense';
-
-app.use(pinia);
