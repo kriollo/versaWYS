@@ -123,11 +123,15 @@ app.component('tableUsers', {
         const showModal = ref(false);
         const tokenIdSelected = ref('');
         const refreshTable = ref(false);
+        const externalFilters = ref('');
+        const buttonSelected = ref('Todos');
 
         return {
             showModal,
             tokenIdSelected,
             refreshTable,
+            externalFilters,
+            buttonSelected,
         };
     },
     methods: {
@@ -203,18 +207,47 @@ app.component('tableUsers', {
                 }
             }
         },
+        setFilterExterno(/** @type {String} */ filter) {
+            this.externalFilters = filter;
+            this.refreshTable = !this.refreshTable;
+        },
     },
     template: html`
         <customTable
             urlData="/admin/users/getUsersPaginated"
             tablaTitle="Listado de Usuarios"
             @accion="accion"
-            :refreshData="refreshTable" />
-        <modalUpdatePass
-            origen="usersPpal"
-            :showModal="showModal"
-            @accion="showModal = false"
-            :tokenId="tokenIdSelected" />
+            :externalFilters="externalFilters"
+            :refreshData="refreshTable">
+            <template v-slot:buttons>
+                <button
+                    type="button"
+                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300  rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    @click="buttonSelected = 'Todos'; setFilterExterno('')"
+                    :class="buttonSelected === 'Todos' ? 'ring-4 ring-blue-800 font-bold text-current underline underline-offset-8':'font-medium ' ">
+                    Todos
+                </button>
+                <button
+                    type="button"
+                    class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300  rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                    @click="buttonSelected = 'Activos'; setFilterExterno('status = 1')"
+                    :class="buttonSelected === 'Activos' ? 'ring-4 ring-green-800 font-bold text-current  underline underline-offset-8':'font-medium ' ">
+                    Activos
+                </button>
+                <button
+                    type="button"
+                    class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                    @click="buttonSelected = 'Inactivos'; setFilterExterno('status = 0')"
+                    :class="buttonSelected === 'Inactivos' ? 'ring-4 ring-red-800 font-bold text-current  underline underline-offset-8':'font-medium ' ">
+                    Inactivos
+                </button>
+            </template>
+            <modalUpdatePass
+                origen="usersPpal"
+                :showModal="showModal"
+                @accion="showModal = false"
+                :tokenId="tokenIdSelected" />
+        </customTable>
     `,
 });
 app.component('modalUpdatePass', {
@@ -253,7 +286,7 @@ app.component('modalUpdatePass', {
         tooglePassword(
             /** @type {String} */ idInput,
             /** @type {String} */ idImgShow,
-            /** @type {String} */ idImgHidden
+            /** @type {String} */ idImgHidden,
         ) {
             const togglePassword = document.getElementById(idInput);
             const imgShowPass = document.getElementById(idImgShow);
@@ -276,7 +309,7 @@ app.component('modalUpdatePass', {
             const formData = new FormData(formChangePass);
             const newPass = document.getElementById('new_password');
             const confirmNewPass = document.getElementById(
-                'comfirm_new_password'
+                'comfirm_new_password',
             );
 
             if (!(newPass instanceof HTMLInputElement)) return;
@@ -317,7 +350,7 @@ app.component('modalUpdatePass', {
                                 .map(
                                     key => html`
                                         <li>${response.errors[key]}</li>
-                                    `
+                                    `,
                                 )
                                 .join('')}
                         </ul>
