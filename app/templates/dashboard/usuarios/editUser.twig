@@ -2,11 +2,11 @@
 {% block appDashboard %}
 
 	<div class="mx-4 my-4 flex justify-between items-center">
-		<div class="flex gap-2">
-			<svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 20 18">
-				<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 8h6m-3 3V5m-6-.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0ZM5 11h3a4 4 0 0 1 4 4v2H1v-2a4 4 0 0 1 4-4Z"/>
+		<div class="flex gap-2 items-center">
+			<svg class="w-[32px] h-[32px] text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
+				<path fill-rule="evenodd" d="M9 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4H7Zm8-1a1 1 0 0 1 1-1h1v-1a1 1 0 1 1 2 0v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0v-1h-1a1 1 0 0 1-1-1Z" clip-rule="evenodd"/>
 			</svg>
-			<h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Modificar Usuario</h1>
+			<h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Editar Usuario</h1>
 		</div>
 
 		<nav class="flex" aria-label="Breadcrumb">
@@ -76,8 +76,8 @@
 				<div class="flex items-start">
 					<div class="flex items-center h-5">
 						<input id="rol" aria-describedby="rol" name="rol" type="checkbox" class="w-4 h-4 border-gray-300
-														                    rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600
-														                    dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" required {{ user['role'] == 'admin' ? 'checked' : '' }}/>
+																																																																																				                    rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600
+																																																																																				                    dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" required {{ user['role'] == 'admin' ? 'checked' : '' }}/>
 					</div>
 					<div class="ml-3 text-sm">
 						<label for="rol" class="font-medium text-gray-900 dark:text-white">
