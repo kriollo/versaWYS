@@ -48,7 +48,7 @@ class UsersController extends Globalcontrollers
         global $request;
 
         $params = Functions::getParamsPaginate($request, ['name', 'email', 'role', 'status']);
-        $filter = $params['filter'] ? "$params[filter]" : '';
+        $filter = $params['filter'] ? $params['filter'] : '';
         $order = $params['order'] ? "ORDER BY $params[order]" : 'ORDER BY id DESC';
         $result = (new Models\Pagination())->pagination(
             'versausers',
