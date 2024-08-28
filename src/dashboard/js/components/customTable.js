@@ -458,9 +458,14 @@ const customTable = {
                             <!--status-->
                             <div v-if="col.type == 'status'">
                                 <span
-                                    class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none rounded-full" :class="row[col.field] == '1' || row[col.field] == 'activo' ? 'text-green-100 bg-green-600':'text-red-100 bg-red-600'">
-                                    {{ row[col.field] == '1' || row[col.field] == 'activo' ? 'Activo':'Inactivo' }}
+                                    class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none rounded-full" :class="row[col.field] === '1' || row[col.field] === 'activo' ? 'text-green-100 bg-green-600':'text-red-100 bg-red-600'">
+                                    {{ row[col.field] === '1' || row[col.field] === 'activo' ? 'Activo':'Inactivo' }}
                                 </span>
+                            </div>
+                            <!--svg-->
+                            <div v-else-if="col.type == 'svg'" class="flex justify-center">
+                                <svg class="w-[20px] h-[20px] text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" v-html="row[col.field]">
+                                </svg>
                             </div>
                             <!--actions-->
                             <div
