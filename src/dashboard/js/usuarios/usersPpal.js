@@ -251,12 +251,12 @@ app.component('tableUsers', {
                     Inactivos
                 </button>
             </template>
-            <modalUpdatePass
-                origen="usersPpal"
-                :showModal="showModal"
-                @accion="showModal = false"
-                :tokenId="tokenIdSelected" />
         </customTable>
+        <modalUpdatePass
+            origen="usersPpal"
+            :showModal="showModal"
+            @accion="showModal = false"
+            :tokenId="tokenIdSelected" />
     `,
 });
 app.component('modalUpdatePass', {
