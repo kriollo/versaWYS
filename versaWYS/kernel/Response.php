@@ -13,7 +13,7 @@ class Response
      * @param int $code The HTTP response code (default: 200).
      * @return mixed
      */
-    public static function json(array $data, int $code = 200): bool
+    public static function json(array $data, int $code = 200): bool|string
     {
         if (error_get_last() !== null) {
             $data = [
@@ -28,8 +28,8 @@ class Response
             //die();
         }
         header('Content-Type: application/json');
-        echo json_encode($data);
         http_response_code($code);
+        echo json_encode($data);
         return true;
     }
 
