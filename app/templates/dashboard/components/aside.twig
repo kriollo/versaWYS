@@ -8,8 +8,6 @@
 							<svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
 								<path fill-rule="evenodd" d="M11.293 3.293a1 1 0 0 1 1.414 0l6 6 2 2a1 1 0 0 1-1.414 1.414L19 12.414V19a2 2 0 0 1-2 2h-3a1 1 0 0 1-1-1v-3h-2v3a1 1 0 0 1-1 1H7a2 2 0 0 1-2-2v-6.586l-.293.293a1 1 0 0 1-1.414-1.414l2-2 6-6Z" clip-rule="evenodd"/>
 							</svg>
-
-
 							<span class="ml-3" sidebar-toggle-item="">Home</span>
 						</a>
 					</li>
@@ -33,20 +31,23 @@
 
 
 					<li class="{{ url_actual == m.url_menu or url_actual == m.url_submenu ? 'bg-gray-700 text-dark':''}}">
-
 						{% if m.smenu == 0 %}
-							<a href="{{ m.url_menu }}" title="{{ m.desc_menu }}" class="{{ 'flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700' }}">
-
-								<i class="text-gray-500 dark:text-gray-400 text-2xl {{" "~ m.ico_menu }}" sidebar-toggle-item></i>
+							<a href="{{ m.url_menu }}" title="{{ m.desc_menu }}" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700">
+								<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
+									{{ m.ico_menu | raw }}
+								</svg>
 								<span class="ml-3" sidebar-toggle-item>
-									{{ m.menu|raw|convert_encoding('UTF-8', 'ISO-8859-1')|upper }}
+									{{ m.menu|raw|convert_encoding('UTF-8', 'ISO-8859-1')|capitalize }}
 								</span>
 							</a>
 						{% else %}
 							<button type="button" title="{{ m.desc_menu }}" class="{{ 'flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700' }}" aria-controls="dropdown-{{ m.id_menu }}" data-collapse-toggle="dropdown-{{ m.id_menu }}">
-								<i class="flex-shrink-0 text-gray-500 dark:text-gray-400 text-2xl {{" "~ m.ico_menu }}" aria-hidden="true"></i>
-								<span class="flex-1 ml-3 text-left whitespace-nowrap" sidebar-toggle-item>
-									{{ m.menu|raw|convert_encoding('UTF-8', 'ISO-8859-1')|upper }}
+								<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
+									{{ m.ico_menu | raw }}
+								</svg>
+
+								<span class="ml-3" sidebar-toggle-item>
+									{{ m.menu|raw|convert_encoding('UTF-8', 'ISO-8859-1')|capitalize }}
 								</span>
 								<i class="bi bi-caret-right-fill text-xs" sidebar-toggle-item></i>
 							</button>
