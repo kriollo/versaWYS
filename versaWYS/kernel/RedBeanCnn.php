@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel;
 
+use PDO;
 use RedBeanPHP\R;
 
 class RedBeanCnn
@@ -30,12 +31,9 @@ class RedBeanCnn
     public function setup(): void
     {
         if (R::$currentDB == null) {
-            R::setup(
-                "mysql:host=$this->host;
-                dbname=$this->dbName",
-                $this->user,
-                $this->pass
-            );
+            R::setup('mysql:host=' . $this->host . ';dbname=' . $this->dbName, $this->user, $this->pass, false, false, [
+                PDO::MYSQL_ATTR_LOCAL_INFILE => true,
+            ]);
             R::freeze();
         }
     }
