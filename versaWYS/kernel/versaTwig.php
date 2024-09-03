@@ -28,9 +28,9 @@ class versaTwig extends Environment
         if ($__TWIG_READABLE_AND_WRITABLE) {
             # Intentar solucionarlo
             if (!is_dir($__TWIG_CACHE_PATH)) {
-                mkdir($__TWIG_CACHE_PATH, 0644, true);
+                mkdir($__TWIG_CACHE_PATH, 2774, true);
             } else {
-                chmod($__TWIG_CACHE_PATH, 0644);
+                chmod($__TWIG_CACHE_PATH, 2774);
             }
 
             # Revisar la lecutra para twig
@@ -159,7 +159,7 @@ class versaTwig extends Environment
      */
     private function setFilterTwig(Environment $twig): void
     {
-        $rutaCarpeta = __DIR__ . '/Helpers';
+        $rutaCarpeta = __DIR__ . '/helpers';
 
         if ($handle = opendir($rutaCarpeta)) {
             while (false !== ($entry = readdir($handle))) {
@@ -187,7 +187,7 @@ class versaTwig extends Environment
 
     private function setFunctionTwig($twig): void
     {
-        $rutaCarpeta = __DIR__ . '/Helpers';
+        $rutaCarpeta = __DIR__ . '/helpers';
 
         if ($handle = opendir($rutaCarpeta)) {
             while (false !== ($entry = readdir($handle))) {

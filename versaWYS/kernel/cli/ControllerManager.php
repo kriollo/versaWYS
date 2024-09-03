@@ -31,10 +31,11 @@ declare(strict_types=1);
 
 namespace app\controllers;
 
-use app\Models as Models;
+use app\models as Models;
+use versaWYS\kernel\GlobalControllers;
 use versaWYS\kernel\Response;
 
-class $controllerName extends Globalcontrollers {
+class $controllerName extends GlobalControllers {
     public function __construct()
     {
         global $twig, $session;

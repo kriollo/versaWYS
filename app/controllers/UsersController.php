@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace app\controllers;
 
-use app\Models as Models;
+use app\models as Models;
 use RedBeanPHP\RedException\SQL;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use versaWYS\kernel\Globalcontrollers;
+use versaWYS\kernel\GlobalControllers;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Response;
 
-class UsersController extends Globalcontrollers
+class UsersController extends GlobalControllers
 {
     public function __construct()
     {

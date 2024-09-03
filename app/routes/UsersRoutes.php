@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace app\Routes;
+namespace app\routes;
 
 use app\controllers\UsersController;
 use app\middleware\AuthMiddleware;

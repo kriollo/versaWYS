@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace app\controllers;
 
-use app\Models as Models;
+use app\models as Models;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use versaWYS\kernel\Globalcontrollers;
+use versaWYS\kernel\GlobalControllers;
 use versaWYS\kernel\Response;
 
-class PerfilController extends Globalcontrollers
+class PerfilController extends GlobalControllers
 {
     public function __construct()
     {

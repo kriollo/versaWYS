@@ -30,7 +30,7 @@ class ModelManager
 
 declare(strict_types=1);
 
-namespace app\Models;
+namespace app\models;
 
 use RedBeanPHP\R;
 use versaWYS\kernel\RedBeanCnn;

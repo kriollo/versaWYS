@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace app\controllers;
 
-use app\Models as Models;
+use app\models as Models;
 use versaWYS\kernel\Response;
 
 class E404Controller

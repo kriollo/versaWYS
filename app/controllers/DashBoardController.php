@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace app\controllers;
 
-use app\Models as Models;
+use app\models as Models;
 use InvalidArgumentException;
 use Throwable;
 use versaWYS\kernel\ContentType;
-use versaWYS\kernel\Globalcontrollers;
+use versaWYS\kernel\GlobalControllers;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\MailSender;
 use versaWYS\kernel\Response;
 
-class DashBoardController extends Globalcontrollers
+class DashBoardController extends GlobalControllers
 {
     public function __construct()
     {
@@ -282,8 +282,8 @@ class DashBoardController extends Globalcontrollers
 
     public function perfilUser()
     {
-        return $this->template->render('dashboard/usuarios/perfilUser',[
-            'owner_user'=> $this->user
+        return $this->template->render('dashboard/usuarios/perfilUser', [
+            'owner_user' => $this->user,
         ]);
     }
 }
