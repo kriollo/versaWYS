@@ -42,39 +42,43 @@ versaWYS-PHP ofrece las siguientes características de seguridad:
 
 ## Requisitos
 
--   PHP 8 o superior
+-   PHP 8.2 o superior
 -   Composer
 -   MySQL 5.7 o superior
 -   Apache 2.4 o superior
 -   Modulo Apache mod_rewrite
--   node 18 o superior
+-   node 18 o superior con pnpm (`npm install -g pnpm`)
 
 ## Inicio Rápido
 
 Para comenzar con `versaWYS-PHP`, sigue estos pasos:
 
-1. Clona el repositorio: `git clone https://github.com/kriollo/versaWYS.git`
-2. Instala las dependencias: `cd versaWYS && composer install`
-3. Configura tu base de datos y actualiza `config.json` con tus credenciales.
-4. Ejecuta `php versaCLI migrate:up` para configurar tu base de datos.
-5. Inicia el servidor de desarrollo: `php versaCLI serve`
+1. Abre una terminal en la carpeta donde guardarás el proyecto
+2. Clona el repositorio: `git clone https://github.com/kriollo/versaWYS.git .` o descargar el zip `https://github.com/kriollo/versaWYS/archive/refs/heads/main.zip`
+3. Instala las dependencias: `cd versaWYS && composer install`
+4. Configura tu base de datos, abre el Editor de Codigo y actualiza `versaWYS/kernel/config/config.json` con tus credenciales.
+5. En la terminal ejecuta `php versaCLI migrate:up` para iniciar tu base de datos.
+6. Instala las dependencias para la compiliación de los archivos js y css (`pnpm install`)
+   6.1 ejecuta: `node --run versaCompileJS` para generar archivos JS compilados
+   6.2 ejecuta: `node --run versaCompileCSS` para generar archivo CSS del proyecto
+7. Inicia el servidor de desarrollo: `php versaCLI serve`
+   7.1 Credencial por defecto es: usuario: admin@wys.cl - Pass: admin2023
 
 Ahora puedes acceder a tu nueva aplicación `versaWYS-PHP` en `http://localhost:8000`.
 
-## Minificación y ofuscación de archivos CSS y JS
+## Minificación y ofuscación de archivos CSS y JS en tiempo de desarrollo
 
--   Abre una terminal y sigue estos pasos: (necesitas tener instalado node y pnpm `npm i pnpm`)
+-   Abre una terminal y sigue estos pasos: (necesitas tener instalado node y pnpm `npm install -g pnpm`)
 
-    -   `cd versaCompileJS`
     -   `pnpm install`
 
 -   Para compiliar los archivos css:
 
-    -   `npx tailwindcss -i ../src/dashboard/css/dashboard.css -o ../public/dashboard/css/dashboard.css --watch  --minify`
+    -   `node --run dashboard`
 
 -   Para compiliar los archivos js
 
-    -   `pnpm run watch`
+    -   `node --run watch`
 
 ## Archivo de Configuración `versaWYS\kernel\config\config.json`
 
