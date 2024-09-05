@@ -8,17 +8,17 @@
     },
     "twig": {
         "cache": false,
-        "compiled_dir": "app\/templates\/.cache",
-        "templates_dir": "app\/templates",
+        "compiled_dir": "./app/templates/.cache",
+        "templates_dir": "./app/templates",
         "strict_variables": true,
         "auto_escape": true,
-        "default_template_404": "versaWYS\/404"
+        "default_template_404": "versaWYS/404"
     },
     "build": {
         "debug": true,
         "name": "WYS Soluciones Inform\u00e1ticas",
         "version": "1.0.0",
-        "timezone": "America\/Santiago",
+        "timezone": "America/Santiago",
         "charset": "utf-8"
     },
     "session": {
@@ -53,21 +53,21 @@
     "assets": {
         "dashboard": {
             "js": {
-                "src": "src\/dashboard\/js",
-                "dist": "public\/dashboard\/js"
+                "src": "src/dashboard/js",
+                "dist": "public/dashboard/js"
             },
             "css": {
-                "src": "src\/dashboard\/css",
-                "dist": "public\/dashboard\/css"
+                "src": "src/dashboard/css",
+                "dist": "public/dashboard/css"
             },
             "img": {
-                "dist": "public\/dashboard\/img"
+                "dist": "public/dashboard/img"
             },
             "avatars": {
-                "dist": "public\/dashboard\/img\/avatars"
+                "dist": "public/dashboard/img/avatars"
             },
             "store": {
-                "dist": "public\/dashboard\/store"
+                "dist": "public/dashboard/store"
             }
         }
     }
