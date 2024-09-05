@@ -17,7 +17,7 @@
     "build": {
         "debug": true,
         "name": "WYS Soluciones Inform\u00e1ticas",
-        "version": "1.0.0",
+        "version": "1.5.1",
         "timezone": "America/Santiago",
         "charset": "utf-8"
     },
@@ -25,7 +25,7 @@
         "key": "WYS",
         "lifetime": 3600,
         "user_cookie": {
-            "domain": "versawys",
+            "domain": "localhost",
             "enable": true,
             "key_encript": "X8f3p@9Vde0WvKauzI8C2",
             "lifetime": 3600,
