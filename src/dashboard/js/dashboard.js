@@ -1,4 +1,4 @@
-import { $dom } from '@/dashboard/js/composables/dom';
+import { $dom, $domAll } from '@/dashboard/js/composables/dom';
 
 const $themeToggleDarkIcon = $dom('#theme-toggle-dark-icon');
 const $themeToggleLightIcon = $dom('#theme-toggle-light-icon');
@@ -54,7 +54,7 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
             sidebar,
             sidebarBackdrop,
             toggleSidebarMobileHamburger,
-            toggleSidebarMobileClose
+            toggleSidebarMobileClose,
         ) => {
             sidebar.classList.toggle('hidden');
             sidebarBackdrop.classList.toggle('hidden');
@@ -65,7 +65,7 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
         const $toggleSidebarMobileEl = $dom('#toggleSidebarMobile');
         const $sidebarBackdrop = $dom('#sidebarBackdrop');
         const $toggleSidebarMobileHamburger = $dom(
-            '#toggleSidebarMobileHamburger'
+            '#toggleSidebarMobileHamburger',
         );
         const $toggleSidebarMobileClose = $dom('#toggleSidebarMobileClose');
         const $toggleSidebarMobileSearch = $dom('#toggleSidebarMobileSearch');
@@ -76,7 +76,7 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
                     $sidebar,
                     $sidebarBackdrop,
                     $toggleSidebarMobileHamburger,
-                    $toggleSidebarMobileClose
+                    $toggleSidebarMobileClose,
                 );
             });
         }
@@ -87,7 +87,7 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
                     $sidebar,
                     $sidebarBackdrop,
                     $toggleSidebarMobileHamburger,
-                    $toggleSidebarMobileClose
+                    $toggleSidebarMobileClose,
                 );
             });
         }
@@ -98,9 +98,31 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
                     $sidebar,
                     $sidebarBackdrop,
                     $toggleSidebarMobileHamburger,
-                    $toggleSidebarMobileClose
+                    $toggleSidebarMobileClose,
                 );
             });
         }
     }
+}
+
+const $sidebar = $dom('#sidebar');
+if ($sidebar) {
+    const $sidebarItems = $dom('.sidebar-item', $sidebar);
+    const $sidebarItemsButton = $domAll('.sidebar-item-button', $sidebarItems);
+    $sidebarItemsButton.forEach(button => {
+        button.addEventListener('click', e => {
+            e.preventDefault();
+            const $target = e.currentTarget;
+            const $caret = $dom('[sidebar-toggle-item]', $target);
+            if ($caret) {
+                if ($caret.classList.contains('bi-caret-right-fill')) {
+                    $caret.classList.remove('bi-caret-right-fill');
+                    $caret.classList.add('bi-caret-down-fill');
+                } else {
+                    $caret.classList.remove('bi-caret-down-fill');
+                    $caret.classList.add('bi-caret-right-fill');
+                }
+            }
+        });
+    });
 }
