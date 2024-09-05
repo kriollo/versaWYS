@@ -3,9 +3,9 @@
         "noUncheckedIndexedAccess": true,
         "moduleDetection": "auto",
         "allowJs": true,
-        "allowSyntheticDefaultImports": true,
         "checkJs": true,
-        "esModuleInterop": true,
+        "module": "esnext",
+        "target": "ES6",
         "lib": [
             "es2020",
             "es2015",
@@ -17,20 +17,18 @@
             "ES6",
             "esnext"
         ],
-        "module": "esnext",
-        "moduleResolution": "node",
         "outDir": "./public/",
+        "rootDir": ".",
         "paths": {
             "@/*": ["./public/*"]
         },
-        "typeRoots": ["/node_modules/", "./src/jscontrollers"],
-        "resolveJsonModule": true,
-        "rootDir": ".",
-        "sourceMap": true,
-        "target": "es2022"
+        "typeRoots": ["/node_modules/", "./src/dashboards/**/*"],
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "moduleResolution": "node"
     },
-    "exclude": ["./public/vendor/**/*"],
-    "include": ["./src/**/*", "public/vendor", "public/web/js/main.js"],
+    "exclude": ["./public/**/*"],
+    "include": ["./src/**/*"],
     "typeAcquisition": {
         "enable": true,
         "include": ["vue", "pinia", "code-tag", "sweetalert2", "SweetAlertIcon"]
