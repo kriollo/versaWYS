@@ -18,7 +18,7 @@
         "gulp": "5.0.0",
         "terser": "5.31.6",
         "pinia": "^2.2.2",
-        "vue": "3.5.0",
+        "vue": "3.4.38",
         "@vue/devtools-api": "^6.6.3"
     },
     "devDependencies": {
