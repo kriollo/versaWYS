@@ -23,9 +23,12 @@ class m20231128_CreateTableUsers
                 `role` varchar(255) NOT NULL,
                 `status` tinyint(1) NOT NULL,
                 `avatar` varchar(255) DEFAULT NULL,
+                `id_perfil` int(11) DEFAULT NULL,
+                `pagina_inicio` varchar(255) DEFAULT 'admin/dashboard',
                 PRIMARY KEY (`id`),
-                UNIQUE KEY `email` (`email`),
-                UNIQUE KEY `tokenid` (`tokenid`)
+                UNIQUE KEY `email` (`email`)  USING BTREE,
+                UNIQUE KEY `tokenid` (`tokenid`)  USING BTREE,
+                INDEX `id_perfil` (`id_perfil`) USING BTREE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
             $users = R::dispense('versausers');
@@ -36,6 +39,8 @@ class m20231128_CreateTableUsers
             $users->created_at = date('Y-m-d H:i:s');
             $users->updated_at = date('Y-m-d H:i:s');
             $users->role = 'admin';
+            $users->perfil = 0;
+            $users->pagina_inicio = 'admin/usuarios';
             $users->status = 1;
             R::store($users);
 
