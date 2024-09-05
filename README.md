@@ -59,10 +59,10 @@ Para comenzar con `versaWYS-PHP`, sigue estos pasos:
 4. Configura tu base de datos, abre el Editor de Codigo y actualiza `versaWYS/kernel/config/config.json` con tus credenciales.
 5. En la terminal ejecuta `php versaCLI migrate:up` para iniciar tu base de datos.
 6. Instala las dependencias para la compiliación de los archivos js y css (`pnpm install`)
-   6.1 ejecuta: `node --run versaCompileJS` para generar archivos JS compilados
-   6.2 ejecuta: `node --run versaCompileCSS` para generar archivo CSS del proyecto
+    - ejecuta: `node --run versaCompileJS` para generar archivos JS compilados
+    - ejecuta: `node --run versaCompileCSS` para generar archivo CSS del proyecto
 7. Inicia el servidor de desarrollo: `php versaCLI serve`
-   7.1 Credencial por defecto es: usuario: admin@wys.cl - Pass: admin2023
+    - Credencial por defecto es: usuario: admin@wys.cl - Pass: admin2023
 
 Ahora puedes acceder a tu nueva aplicación `versaWYS-PHP` en `http://localhost:8000`.
 
