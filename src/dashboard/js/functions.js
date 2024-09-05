@@ -100,7 +100,7 @@ export const versaFetch = async params => {
             ) {
                 const message = errorMap.get(response.status);
                 throw new Error(
-                    JSON.stringify({ success: 0, message: message })
+                    JSON.stringify({ success: 0, message: message }),
                 );
             }
         }
