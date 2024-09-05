@@ -62,7 +62,9 @@ Para comenzar con `versaWYS-PHP`, sigue estos pasos:
     - ejecuta: `node --run versaCompileJS` para generar archivos JS compilados
     - ejecuta: `node --run versaCompileCSS` para generar archivo CSS del proyecto
 7. Inicia el servidor de desarrollo: `php versaCLI serve`
-    - Credencial por defecto es: usuario: admin@wys.cl - Pass: admin2023
+    - Credencial por defecto:
+        - usuario : admin@wys.cl
+        - Password: admin2023
 
 Ahora puedes acceder a tu nueva aplicación `versaWYS-PHP` en `http://localhost:8000`.
 
@@ -92,8 +94,8 @@ Ahora puedes acceder a tu nueva aplicación `versaWYS-PHP` en `http://localhost:
         },
         "twig": {
             "cache": false,
-            "compiled_dir": "app\/templates\/.cache",
-            "templates_dir": "app\/templates",
+            "compiled_dir": "./app\/templates\/.cache",
+            "templates_dir": "./app\/templates",
             "strict_variables": true,
             "auto_escape": true,
             "default_template_404": "versaWYS\/404"
@@ -109,7 +111,7 @@ Ahora puedes acceder a tu nueva aplicación `versaWYS-PHP` en `http://localhost:
             "key": "WYS",
             "lifetime": 3600,
             "user_cookie": {
-                "domain": "versawys",
+                "domain": "localhost",
                 "enable": true,
                 "key_encript": "X8f3p@9Vde0WvKauzI8C2",
                 "lifetime": 3600,
