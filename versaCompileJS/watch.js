@@ -56,8 +56,8 @@ const deleteFile = async ruta => {
     } catch (errora) {
         error(
             chalk.red(
-                `Error al eliminar el archivo/directorio ${newPath}: ${errora}`
-            )
+                `Error al eliminar el archivo/directorio ${newPath}: ${errora}`,
+            ),
         );
     }
 };
@@ -176,8 +176,8 @@ const compileJS = async (source, destination) => {
         const filename = path.basename(source);
         log(
             chalk.blue(
-                `${hora}:${minutos}:${segundos} - Compilando ${filename}`
-            )
+                `${hora}:${minutos}:${segundos} - Compilando ${filename}`,
+            ),
         );
 
         const startTime = Date.now();
@@ -197,7 +197,7 @@ const compileJS = async (source, destination) => {
                     html5_comments: false,
                     shebang: false,
                 },
-            }
+            },
         );
         const endTime = Date.now();
 
@@ -205,7 +205,7 @@ const compileJS = async (source, destination) => {
 
         if (result.code.length === 0) {
             error(
-                chalk.yellow('Warning al compilar JS: El archivo está vacío')
+                chalk.yellow('Warning al compilar JS: El archivo está vacío'),
             );
             // eliminar si existe el archivo de destino
             await fs.unlink(destination);
@@ -270,7 +270,7 @@ const init = async () => {
             error,
             error.fileName,
             error.lineNumber,
-            error.stack
+            error.stack,
         );
     }
 };
