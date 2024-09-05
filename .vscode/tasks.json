@@ -1,32 +1,41 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "npm: tailwindcss - versaCompileJS",
-      "type": "npm",
-      "script": "dashboard",
-      "path": "versaCompileJS",
-      "detail": "compiler tailwindcss",
-      "problemMatcher": ["$go"]
-    },
-    {
-      "label": "npm: watch - versaCompileJS",
-      "type": "npm",
-      "script": "watch",
-      "path": "versaCompileJS",
-      "detail": "node watch.js"
-    },
-    {
-      "label": "Ejecutar compiladores versaCompile",
-      "dependsOn": [
-        "npm: tailwindcss - versaCompileJS",
-        "npm: watch - versaCompileJS"
-      ],
-      "dependsOrder": "parallel",
-      "runOptions": {
-        "runOn": "folderOpen"
-      },
-      "problemMatcher": []
-    }
-  ]
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "npm: tailwindcss - versaCompileJS",
+            "type": "npm",
+            "script": "dashboard",
+            "path": "versaCompileJS",
+            "detail": "compiler tailwindcss",
+            "problemMatcher": ["$go"]
+        },
+        {
+            "label": "npm: watch - versaCompileJS",
+            "type": "npm",
+            "script": "watch",
+            "path": "versaCompileJS",
+            "detail": "node watch.js"
+        },
+        {
+            "label": "php: php versaCLI serve",
+            "command": "php",
+            "args": ["versaCLI", "serve"],
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
+        },
+        {
+            "label": "Ejecutar compiladores versaCompile",
+            "dependsOn": [
+                "npm: tailwindcss - versaCompileJS",
+                "npm: watch - versaCompileJS",
+                "php: php versaCLI serve"
+            ],
+            "dependsOrder": "parallel",
+            "runOptions": {
+                "runOn": "folderOpen"
+            },
+            "problemMatcher": []
+        }
+    ]
 }
