@@ -283,24 +283,24 @@ const customTable = {
                 <span class="text-gray-500 pe-1">Mostrar</span>
                 <button
                     id="dropdownActionButton"
-                    data-dropdown-toggle="dropdownAction"
-                    data-dropdown-delay="0"
-                    data-dropdown-trigger="click"
+                    type="button"
                     class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
-                    type="button">
+                    data-dropdown-delay="0"
+                    data-dropdown-toggle="dropdownAction"
+                    data-dropdown-trigger="click">
                     {{ data.meta.per_page }}
                     <svg
                         class="w-2.5 h-2.5 ms-2.5"
                         aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
                         fill="none"
-                        viewBox="0 0 10 6">
+                        viewBox="0 0 10 6"
+                        xmlns="http://www.w3.org/2000/svg">
                         <path
+                            d="m1 1 4 4 4-4"
                             stroke="currentColor"
                             stroke-linecap="round"
                             stroke-linejoin="round"
-                            stroke-width="2"
-                            d="m1 1 4 4 4-4" />
+                            stroke-width="2" />
                     </svg>
                 </button>
                 <!-- Dropdown menu -->
@@ -312,8 +312,8 @@ const customTable = {
                         aria-labelledby="dropdownActionButton">
                         <li v-for="item in showPerPages">
                             <a
-                                @click="setPerPage(item)"
-                                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                @click="setPerPage(item)">
                                 {{ item }}
                             </a>
                         </li>
@@ -324,26 +324,26 @@ const customTable = {
             <!-- dropdown exportar excel-->
             <div class="flex items-center justify-center dropdown">
                 <button
-                    :disabled="loading"
                     id="dropdownButton"
-                    data-dropdown-toggle="dropdown"
-                    data-dropdown-delay="0"
-                    data-dropdown-trigger="click"
+                    type="button"
                     class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
-                    type="button">
+                    :disabled="loading"
+                    data-dropdown-delay="0"
+                    data-dropdown-toggle="dropdown"
+                    data-dropdown-trigger="click">
                     Excel
                     <svg
                         class="w-2.5 h-2.5 ms-2.5"
                         aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
                         fill="none"
-                        viewBox="0 0 10 6">
+                        viewBox="0 0 10 6"
+                        xmlns="http://www.w3.org/2000/svg">
                         <path
+                            d="m1 1 4 4 4-4"
                             stroke="currentColor"
                             stroke-linecap="round"
                             stroke-linejoin="round"
-                            stroke-width="2"
-                            d="m1 1 4 4 4-4" />
+                            stroke-width="2" />
                     </svg>
                 </button>
                 <!-- Dropdown menu -->
@@ -353,44 +353,44 @@ const customTable = {
                     <ul
                         class="py-1 text-sm text-gray-700 dark:text-gray-200"
                         aria-labelledby="dropdownButton">
-                        <li @click="exportExcelPage" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer hover:rounded-lg">
+                        <li class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer hover:rounded-lg" @click="exportExcelPage">
                             Exportar Pagina
                         </li>
-                        <li @click="exportExcelAll" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer hover:rounded-lg">
+                        <li class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer hover:rounded-lg" @click="exportExcelAll">
                             Exportar Todo
                         </li>
                     </ul>
                 </div>
-                <loader v-if="loading" key="loadingExcel"></loader>
+                <loader key="loadingExcel" v-if="loading"></loader>
             </div>
 
             <!-- input buscar -->
             <div class="relative">
                 <div
-                    title="Click para buscar"
+                    class="absolute inset-y-0 rtl:inset-r-0 end-0 flex items-center pe-3 cursor-pointer"
                     @click="setFilter"
-                    class="absolute inset-y-0 rtl:inset-r-0 end-0 flex items-center pe-3 cursor-pointer">
+                    title="Click para buscar">
                     <svg
                         class="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                         aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
                         fill="none"
-                        viewBox="0 0 20 20">
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg">
                         <path
+                            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
                             stroke="currentColor"
                             stroke-linecap="round"
                             stroke-linejoin="round"
-                            stroke-width="2"
-                            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                            stroke-width="2" />
                     </svg>
                 </div>
                 <input
                     type="text"
+                    class="block p-2 ps-6 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     :id="idTable+'_table-search-users'"
                     @keyup.enter="setFilter"
-                    v-model="data.meta.filter"
-                    class="block p-2 ps-6 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Ingrese y presione 'Enter' para buscar" />
+                    placeholder="Ingrese y presione 'Enter' para buscar"
+                    v-model="data.meta.filter" />
             </div>
         </div>
         <div class="px-2">
@@ -402,7 +402,7 @@ const customTable = {
                             {{ tablaTitle }}
                         </div>
                         <div>
-                            <loader v-if="loadingData" key="loadingData"></loader>
+                            <loader key="loadingData" v-if="loadingData"></loader>
                         </div>
                     </div>
                 </caption>
@@ -410,8 +410,8 @@ const customTable = {
                     class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                         <th
-                            scope="colspan"
                             :colspan="col.col"
+                            scope="colspan"
                             v-for="col in data.colspan">
                             <div class="flex justify-center">{{ col.title }}</div>
                         </th>
@@ -421,8 +421,8 @@ const customTable = {
                     class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                         <th
-                            scope="col"
                             class="px-4 py-2"
+                            scope="col"
                             v-for="col in data.columns">
                             {{ col.title }}
                             <button
@@ -432,13 +432,13 @@ const customTable = {
                                 <svg
                                     class="w-6 h-6"
                                     aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg"
                                     fill="none"
-                                    viewBox="0 0 24 24">
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
                                     <path
-                                        :stroke="data.meta.order[0] === col.field ? 'currentColor':'currentColor'"
-                                        :fill="data.meta.order[0] === col.field ? 'currentColor':'currentColor'"
                                         :d="data.meta.order[0] === col.field && data.meta.order[1] === 'asc' ? 'M12 14l-4-4-4 4M12 10v8':'M12 10l4 4 4-4M12 14v-8'"
+                                        :fill="data.meta.order[0] === col.field ? 'currentColor':'currentColor'"
+                                        :stroke="data.meta.order[0] === col.field ? 'currentColor':'currentColor'"
                                         stroke-width="1"
                                         />
                                 </svg>
@@ -447,17 +447,19 @@ const customTable = {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-if="data.data.length === 0" class="text-center">
-                        <td :colspan="data.columns.length"><span class="text-xl" v-html="msg"></span></td>
+                    <tr class="text-center" v-if="data.data.length === 0">
+                        <td :colspan="data.columns.length">
+<span class="text-xl" v-html="msg"></span>
+</td>
                     </tr>
                     <tr
-                        v-for="row in data.data"
+                        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                         :key="row.id"
-                        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        v-for="row in data.data">
                         <td
-                            v-for="col in data.columns"
+                            class="px-4 py-4"
                             :key="col.field"
-                            class="px-4 py-4">
+                            v-for="col in data.columns">
                             <!--status-->
                             <div v-if="col.type == 'status'">
                                 <span
@@ -466,21 +468,21 @@ const customTable = {
                                 </span>
                             </div>
                             <!--svg-->
-                            <div v-else-if="col.type == 'svg'" class="flex justify-center">
-                                <svg class="w-[20px] h-[20px] text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" v-html="removeScapeLocal(row[col.field])">
+                            <div class="flex justify-center" v-else-if="col.type == 'svg'">
+                                <svg class="w-[20px] h-[20px] text-gray-800 dark:text-white" aria-hidden="true" fill="currentColor" height="24" v-html="removeScapeLocal(row[col.field])" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
                                 </svg>
                             </div>
                             <!--actions-->
                             <div
-                                v-else-if="col.type == 'actions'"
-                                class="flex justify-center gap-2">
+                                class="flex justify-center gap-2"
+                                v-else-if="col.type == 'actions'">
                                 <div v-for="action in col.buttons">
                                     <button
-                                        v-if="action.condition_value == row[action.condition]"
-                                        :key="action.id"
                                         :class="action.class"
+                                        :key="action.id"
+                                        :title="action.title"
                                         @click="accion({item: row, accion: action.action})"
-                                        :title="action.title">
+                                        v-if="action.condition_value == row[action.condition]">
                                         <i :class="action.icon"></i>
                                     </button>
                                 </div>
@@ -511,9 +513,9 @@ const customTable = {
             <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
                 <li>
                     <a
-                        @click="changePage('anterior')"
                         class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                        :class="1 == data.meta.page ? 'cursor-not-allowed':'cursor-pointer'">
+                        :class="1 == data.meta.page ? 'cursor-not-allowed':'cursor-pointer'"
+                        @click="changePage('anterior')">
                         Anterior
                     </a>
                 </li>
@@ -534,16 +536,16 @@ const customTable = {
 
                 <li v-for="page in getLimitPages">
                     <a
-                        v-if="data.meta.page == page"
+                        class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white cursor-pointer"
                         @click="changePage(page)"
                         aria-current="page"
-                        class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white cursor-pointer">
+                        v-if="data.meta.page == page">
                         {{ page }}
                     </a>
                     <a
-                        v-else
+                        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white cursor-pointer"
                         @click="changePage(page)"
-                        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white cursor-pointer">
+                        v-else>
                         {{ page }}
                     </a>
                 </li>
@@ -563,9 +565,9 @@ const customTable = {
 
                 <li>
                     <a
-                        @click="changePage('siguiente')"
                         class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                        :class="data.meta.total_pages <= data.meta.page || data.meta.total_pages == undefined ? 'cursor-not-allowed':'cursor-pointer'">
+                        :class="data.meta.total_pages <= data.meta.page || data.meta.total_pages == undefined ? 'cursor-not-allowed':'cursor-pointer'"
+                        @click="changePage('siguiente')">
                         Siguiente
                     </a>
                 </li>

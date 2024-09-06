@@ -29,7 +29,7 @@ if (login != null) {
                         .map(
                             key => html`
                                 <li>${data.errors[key]}</li>
-                            `
+                            `,
                         )
                         .join('')}
                 </ul>
@@ -37,15 +37,15 @@ if (login != null) {
 
             alerta.innerHTML = html`
                 <div
-                    id="alert-4"
+                    id="alert-1"
                     class="flex items-center p-4 mb-4 text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
                     role="alert">
                     <svg
                         class="flex-shrink-0 w-4 h-4"
                         aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
                         fill="currentColor"
-                        viewBox="0 0 20 20">
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
                     </svg>
@@ -57,21 +57,21 @@ if (login != null) {
                     <button
                         type="button"
                         class="ms-auto -mx-1.5 -my-1.5 bg-yellow-50 text-yellow-500 rounded-lg focus:ring-2 focus:ring-yellow-400 p-1.5 hover:bg-yellow-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-yellow-300 dark:hover:bg-gray-700"
-                        data-dismiss-target="#alert-4"
-                        aria-label="Close">
+                        aria-label="Close"
+                        data-dismiss-target="#alert-1">
                         <span class="sr-only">Close</span>
                         <svg
                             class="w-3 h-3"
                             aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
                             fill="none"
-                            viewBox="0 0 14 14">
+                            viewBox="0 0 14 14"
+                            xmlns="http://www.w3.org/2000/svg">
                             <path
+                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                 stroke="currentColor"
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
-                                stroke-width="2"
-                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                stroke-width="2" />
                         </svg>
                     </button>
                 </div>
@@ -125,12 +125,12 @@ if (btnlostPass != null) {
         if (!(btnlostPass instanceof HTMLButtonElement)) return;
         btnlostPass.disabled = true;
         btnlostPass.innerHTML = html`
-            <div role="status" class="flex items-center">
+            <div class="flex items-center" role="status">
                 <svg
-                    aria-hidden="true"
                     class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
-                    viewbox="0 0 100 101"
+                    aria-hidden="true"
                     fill="none"
+                    viewbox="0 0 100 101"
                     xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
@@ -163,7 +163,7 @@ if (btnlostPass != null) {
                         .map(
                             key => html`
                                 <li>${data.errors[key]}</li>
-                            `
+                            `,
                         )
                         .join('')}
                 </ul>
@@ -171,15 +171,15 @@ if (btnlostPass != null) {
 
             alerta.innerHTML = html`
                 <div
-                    id="alert-4"
+                    id="alert-5"
                     class="flex items-center p-4 mb-4 text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
                     role="alert">
                     <svg
                         class="flex-shrink-0 w-4 h-4"
                         aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
                         fill="currentColor"
-                        viewBox="0 0 20 20">
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
                     </svg>
@@ -191,21 +191,21 @@ if (btnlostPass != null) {
                     <button
                         type="button"
                         class="ms-auto -mx-1.5 -my-1.5 bg-yellow-50 text-yellow-500 rounded-lg focus:ring-2 focus:ring-yellow-400 p-1.5 hover:bg-yellow-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-yellow-300 dark:hover:bg-gray-700"
-                        data-dismiss-target="#alert-4"
-                        aria-label="Close">
+                        aria-label="Close"
+                        data-dismiss-target="#alert-5">
                         <span class="sr-only">Close</span>
                         <svg
                             class="w-3 h-3"
                             aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
                             fill="none"
-                            viewBox="0 0 14 14">
+                            viewBox="0 0 14 14"
+                            xmlns="http://www.w3.org/2000/svg">
                             <path
+                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                 stroke="currentColor"
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
-                                stroke-width="2"
-                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                stroke-width="2" />
                         </svg>
                     </button>
                 </div>
@@ -218,40 +218,40 @@ if (btnlostPass != null) {
 
         alerta.innerHTML = html`
             <div
-                id="alert-4"
+                id="alert-2"
                 class="flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-300"
                 role="alert">
                 <svg
                     class="flex-shrink-0 w-4 h-4"
                     aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
-                    viewBox="0 0 20 20">
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg">
                     <path
-                        fill-rule="evenodd"
                         clip-rule="evenodd"
-                        d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM9 6a1 1 0 0 1 2 0v5a1 1 0 1 1-2 0V6Zm1 11a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
+                        d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM9 6a1 1 0 0 1 2 0v5a1 1 0 1 1-2 0V6Zm1 11a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"
+                        fill-rule="evenodd" />
                 </svg>
                 <span class="sr-only">Info</span>
                 <div class="ms-3 text-sm font-medium">${data.message}</div>
                 <button
                     type="button"
                     class="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-green-300 dark:hover:bg-gray-700"
-                    data-dismiss-target="#alert-4"
-                    aria-label="Close">
+                    aria-label="Close"
+                    data-dismiss-target="#alert-2">
                     <span class="sr-only">Close</span>
                     <svg
                         class="w-3 h-3"
                         aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
                         fill="none"
-                        viewBox="0 0 14 14">
+                        viewBox="0 0 14 14"
+                        xmlns="http://www.w3.org/2000/svg">
                         <path
+                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                             stroke="currentColor"
                             stroke-linecap="round"
                             stroke-linejoin="round"
-                            stroke-width="2"
-                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                            stroke-width="2" />
                     </svg>
                 </button>
             </div>
@@ -291,7 +291,7 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
                         .map(
                             key => html`
                                 <li>${data.errors[key]}</li>
-                            `
+                            `,
                         )
                         .join('')}
                 </ul>
@@ -299,15 +299,15 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
 
             alerta.innerHTML = html`
                 <div
-                    id="alert-4"
+                    id="alert-3"
                     class="flex items-center p-4 mb-4 text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
                     role="alert">
                     <svg
                         class="flex-shrink-0 w-4 h-4"
                         aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
                         fill="currentColor"
-                        viewBox="0 0 20 20">
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
                     </svg>
@@ -319,21 +319,21 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
                     <button
                         type="button"
                         class="ms-auto -mx-1.5 -my-1.5 bg-yellow-50 text-yellow-500 rounded-lg focus:ring-2 focus:ring-yellow-400 p-1.5 hover:bg-yellow-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-yellow-300 dark:hover:bg-gray-700"
-                        data-dismiss-target="#alert-4"
-                        aria-label="Close">
+                        aria-label="Close"
+                        data-dismiss-target="#alert-3">
                         <span class="sr-only">Close</span>
                         <svg
                             class="w-3 h-3"
                             aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
                             fill="none"
-                            viewBox="0 0 14 14">
+                            viewBox="0 0 14 14"
+                            xmlns="http://www.w3.org/2000/svg">
                             <path
+                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                 stroke="currentColor"
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
-                                stroke-width="2"
-                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                stroke-width="2" />
                         </svg>
                     </button>
                 </div>
@@ -368,13 +368,13 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
                         <svg
                             class="flex-shrink-0 w-4 h-4"
                             aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
                             fill="currentColor"
-                            viewBox="0 0 20 20">
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg">
                             <path
-                                fill-rule="evenodd"
                                 clip-rule="evenodd"
-                                d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM9 6a1 1 0 0 1 2 0v5a1 1 0 1 1-2 0V6Zm1 11a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z" />
+                                d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM9 6a1 1 0 0 1 2 0v5a1 1 0 1 1-2 0V6Zm1 11a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"
+                                fill-rule="evenodd" />
                         </svg>
                         <span class="sr-only">Info</span>
                         <div class="ms-3 text-sm font-medium">
@@ -383,21 +383,21 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
                         <button
                             type="button"
                             class="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-green-300 dark:hover:bg-gray-700"
-                            data-dismiss-target="#alert-4"
-                            aria-label="Close">
+                            aria-label="Close"
+                            data-dismiss-target="#alert-4">
                             <span class="sr-only">Close</span>
                             <svg
                                 class="w-3 h-3"
                                 aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
-                                viewBox="0 0 14 14">
+                                viewBox="0 0 14 14"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <path
+                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                     stroke="currentColor"
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                    stroke-width="2" />
                             </svg>
                         </button>
                     </div>

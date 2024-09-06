@@ -73,9 +73,9 @@ export const fileErrorModal = {
     },
     template: html`
         <modal
-            idModal="filesErrorModal"
             :showModal="ShowModalFilesError"
             @accion="accion"
+            idModal="filesErrorModal"
             key="filesErrorModal">
             <template v-slot:modalTitle>Archivos con Errores</template>
             <template v-slot:modalBody>
@@ -85,9 +85,9 @@ export const fileErrorModal = {
             </template>
             <template v-slot:modalFooter>
                 <button
-                    @click="accion({accion: 'closeModalFilesError'})"
                     type="button"
-                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    @click="accion({accion: 'closeModalFilesError'})">
                     Cancelar
                 </button>
             </template>
@@ -262,14 +262,14 @@ export const dropZone = {
     template: html`
         <div class="w-full h-full dark:text-white">
             <a
-                @click="btn_SelectFile"
                 class="DragDropArea"
-                ref="DragDropArea"
+                style="cursor:pointer;"
                 :class="classActive?'active':''"
+                @click="btn_SelectFile"
+                @dragleave="dragleave"
                 @dragover="drag"
                 @drop="drop"
-                @dragleave="dragleave"
-                style="cursor:pointer;"
+                ref="DragDropArea"
                 title="Puedes dar click o arrastrar los archivos">
                 <div class="text-center">
                     <h4 class="text-center">{{ mensaje }}</h4>
@@ -280,18 +280,18 @@ export const dropZone = {
                 <p class="font-bold text-xs text-center">Tamaño Maximo: 10MB</p>
 
                 <input
-                    type="file"
                     id="file"
-                    ref="fileInput"
-                    name="file"
+                    type="file"
                     class="form-control"
+                    :multiple="multiple"
                     @change="DesdeInputChange"
                     hidden
-                    :multiple="multiple" />
+                    name="file"
+                    ref="fileInput" />
             </a>
             <fileErrorModal
-                :ShowModalFilesError="showModalFilesError"
                 :FilesErrors="ArrayFilesErrors"
+                :ShowModalFilesError="showModalFilesError"
                 @accion="accion"
                 key="fileErrorModal" />
         </div>
