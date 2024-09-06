@@ -76,6 +76,19 @@ class Functions
     }
 
     /**
+     * Cleans a string by removing leading and trailing whitespace and converting special characters to HTML entities.
+     *
+     * @param string $string The string to be cleaned.
+     * @return string The cleaned string.
+     */
+    public static function cleanString(string $string): string
+    {
+        $string = trim($string);
+        $string = htmlspecialchars($string);
+        return $string;
+    }
+
+    /**
      * Valida los parametros de la peticion
      *
      * @param array $params => $rules | $params = ['email' => 'required|email', 'password' => 'required|min:8']
@@ -395,6 +408,17 @@ class Functions
     }
 
     /**
+     * Removes escape characters from a string.
+     *
+     * @param string $e The string to remove escape characters from.
+     * @return string The string without escape characters.
+     */
+    public static function removeScape(string $e): string
+    {
+        return stripslashes($e);
+    }
+
+    /**
      * Returns an array of Twig filters.
      *
      * @return array The array of Twig filters.
@@ -404,6 +428,7 @@ class Functions
         return [
             ['formaFechaFullES', 'versaWYS\kernel\helpers\Functions::formaFechaFullES'],
             ['replace_spaces_with_underscore', 'versaWYS\kernel\helpers\Functions::replace_spaces_with_underscore'],
+            ['removeScape', 'versaWYS\kernel\helpers\Functions::removeScape'],
         ];
     }
 
