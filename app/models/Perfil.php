@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace app\models;
 
 use RedBeanPHP\R;
-use RedBeanPHP\SimpleModel;
 use versaWYS\kernel\RedBeanCnn;
 
-class Perfil extends SimpleModel
+class Perfil extends RedBeanCnn
 {
     protected static string $table = 'versaperfil';
 
@@ -26,11 +25,11 @@ class Perfil extends SimpleModel
 
     public function __construct()
     {
-        (new RedBeanCnn())->setup();
+        $this->connet();
     }
 
     public function __destruct()
     {
-        R::close();
+        $this->closeDB();
     }
 }
