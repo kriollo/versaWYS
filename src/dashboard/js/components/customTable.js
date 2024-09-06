@@ -428,7 +428,7 @@ const customTable = {
                             <button
                                 class="inline-flex items-center justify-center w-6 h-6 ms-1 text-gray-500 dark:text-gray-400"
                                 @click="setOrder(col.field, data.meta.order[1] === 'asc' ? 'desc':'asc')" title="Ordenar"
-                                v-if="col.type !== 'actions' && col.type !== 'file'">
+                                v-if="col.type !== 'actions' && col.type !== 'file' && col.type !== 'position'">
                                 <svg
                                     class="w-6 h-6"
                                     aria-hidden="true"
@@ -449,13 +449,13 @@ const customTable = {
                 <tbody>
                     <tr class="text-center" v-if="data.data.length === 0">
                         <td :colspan="data.columns.length">
-<span class="text-xl" v-html="msg"></span>
-</td>
+                            <span class="text-xl" v-html="msg"></span>
+                        </td>
                     </tr>
                     <tr
                         class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                         :key="row.id"
-                        v-for="row in data.data">
+                        v-for="(row,index) in data.data">
                         <td
                             class="px-4 py-4"
                             :key="col.field"
@@ -485,6 +485,25 @@ const customTable = {
                                         v-if="action.condition_value == row[action.condition]">
                                         <i :class="action.icon"></i>
                                     </button>
+                                </div>
+                            </div>
+                            <!--position-->
+                            <div
+                                class="flex justify-between"
+                                v-else-if="col.type == 'position'">
+                                <span>{{ row[col.field] }}</span>
+                                <div class="flex items-center justify-center gap-1">
+                                    <div v-for="action in col.buttons">
+                                        <button
+                                            :class="action.class"
+                                            :key="action.id"
+                                            :title="action.title"
+                                            @click="accion({item: row, accion: action.action})"
+                                            v-if="(index === 0 && row[col.field] == 1 && action.type === 'up' ? false:true ) &&
+                                                (index ===  data.meta.total-1 && action.type === 'down' ? false:true ) ">
+                                            <i :class="action.icon"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <!--others-->
