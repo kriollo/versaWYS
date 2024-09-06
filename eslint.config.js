@@ -32,7 +32,7 @@ export default [
                 ...globals.node,
                 ...globalsLocal,
             },
-            // Parser: htmlParser,
+            // parser: htmlParser,
             sourceType: 'module',
             parserOptions: {
                 sourceType: 'module',
