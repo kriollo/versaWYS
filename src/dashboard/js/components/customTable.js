@@ -1,7 +1,7 @@
 import loader from '@/dashboard/js/components/loader.js';
 import { $dom } from '@/dashboard/js/composables/dom.js';
 import { createXlsxFromJson } from '@/dashboard/js/composables/useXlsx.js';
-import { versaFetch } from '@/dashboard/js/functions.js';
+import { removeScape, versaFetch } from '@/dashboard/js/functions.js';
 import { app } from '@/dashboard/js/vue-instancia.js';
 import { html } from '@/vendor/code-tag/code-tag-esm';
 import { computed, reactive, ref, watch, watchEffect } from 'vue';
@@ -150,6 +150,8 @@ const customTable = {
             loading.value = false;
         };
 
+        const removeScapeLocal = str => removeScape(str);
+
         return {
             showPerPages,
             getRefreshData,
@@ -160,6 +162,7 @@ const customTable = {
             exportExcelAll,
             loading,
             loadingData,
+            removeScapeLocal,
         };
     },
     methods: {
@@ -464,7 +467,7 @@ const customTable = {
                             </div>
                             <!--svg-->
                             <div v-else-if="col.type == 'svg'" class="flex justify-center">
-                                <svg class="w-[20px] h-[20px] text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" v-html="row[col.field]">
+                                <svg class="w-[20px] h-[20px] text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" v-html="removeScapeLocal(row[col.field])">
                                 </svg>
                             </div>
                             <!--actions-->
