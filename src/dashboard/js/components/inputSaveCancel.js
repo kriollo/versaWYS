@@ -40,7 +40,7 @@ export const inputSaveCancel = {
     },
     methods: {
         accion(
-            /** @type {{accion: String; id: Number; newData: String;}} */ accion
+            /** @type {{accion: String; id: Number; newData: String;}} */ accion,
         ) {
             const actions = {
                 updateData: () => {
