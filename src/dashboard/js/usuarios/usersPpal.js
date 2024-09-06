@@ -21,15 +21,15 @@ app.component('Usersppal', {
                 <svg
                     class="w-[32px] h-[32px] text-gray-800 dark:text-white"
                     aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
                     fill="currentColor"
-                    viewBox="0 0 24 24">
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg">
                     <path
-                        fill-rule="evenodd"
+                        clip-rule="evenodd"
                         d="M8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4H6Zm7.25-2.095c.478-.86.75-1.85.75-2.905a5.973 5.973 0 0 0-.75-2.906 4 4 0 1 1 0 5.811ZM15.466 20c.34-.588.535-1.271.535-2v-1a5.978 5.978 0 0 0-1.528-4H18a4 4 0 0 1 4 4v1a2 2 0 0 1-2 2h-4.535Z"
-                        clip-rule="evenodd" />
+                        fill-rule="evenodd" />
                 </svg>
                 <h1
                     class="text-2xl font-semibold text-gray-900 dark:text-white">
@@ -42,14 +42,14 @@ app.component('Usersppal', {
                     class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
                     <li class="inline-flex items-center">
                         <a
-                            href="/admin/dashboard"
-                            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
+                            href="/admin/dashboard">
                             <svg
                                 class="w-3 h-3 me-2.5"
                                 aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor"
-                                viewBox="0 0 20 20">
+                                viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
                             </svg>
@@ -61,15 +61,15 @@ app.component('Usersppal', {
                             <svg
                                 class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1"
                                 aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
-                                viewBox="0 0 6 10">
+                                viewBox="0 0 6 10"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <path
+                                    d="m1 9 4-4-4-4"
                                     stroke="currentColor"
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="m1 9 4-4-4-4" />
+                                    stroke-width="2" />
                             </svg>
                             <span
                                 class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">
@@ -82,33 +82,33 @@ app.component('Usersppal', {
                             <svg
                                 class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1"
                                 aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
-                                viewBox="0 0 6 10">
+                                viewBox="0 0 6 10"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <path
+                                    d="m1 9 4-4-4-4"
                                     stroke="currentColor"
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="m1 9 4-4-4-4" />
+                                    stroke-width="2" />
                             </svg>
                             <span
                                 class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">
                                 <a
-                                    href="/admin/usuarios/addUser"
-                                    class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer">
+                                    class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer"
+                                    href="/admin/usuarios/addUser">
                                     <svg
                                         class="w-[20px] h-[20px] text-gray-800 dark:text-white"
                                         aria-hidden="true"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="24"
-                                        height="24"
                                         fill="currentColor"
-                                        viewBox="0 0 24 24">
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        width="24"
+                                        xmlns="http://www.w3.org/2000/svg">
                                         <path
-                                            fill-rule="evenodd"
+                                            clip-rule="evenodd"
                                             d="M9 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4H7Zm8-1a1 1 0 0 1 1-1h1v-1a1 1 0 1 1 2 0v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0v-1h-1a1 1 0 0 1-1-1Z"
-                                            clip-rule="evenodd" />
+                                            fill-rule="evenodd" />
                                     </svg>
 
                                     <span class="max-lg:hidden ms-2">
@@ -233,40 +233,40 @@ app.component('tableUsers', {
     },
     template: html`
         <customTable
-            urlData="/admin/users/getUsersPaginated"
-            tablaTitle="Listado de Usuarios"
-            @accion="accion"
             :externalFilters="externalFilters"
-            :refreshData="refreshTable">
+            :refreshData="refreshTable"
+            @accion="accion"
+            tablaTitle="Listado de Usuarios"
+            urlData="/admin/users/getUsersPaginated">
             <template v-slot:buttons>
                 <button
                     type="button"
                     class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300  rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                    @click="buttonSelected = 'Todos'; setFilterExterno('')"
-                    :class="buttonSelected === 'Todos' ? 'ring-4 ring-blue-800 font-bold text-current underline underline-offset-8':'font-medium ' ">
+                    :class="buttonSelected === 'Todos' ? 'ring-4 ring-blue-800 font-bold text-current underline underline-offset-8':'font-medium ' "
+                    @click="buttonSelected = 'Todos'; setFilterExterno('')">
                     Todos
                 </button>
                 <button
                     type="button"
                     class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300  rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-                    @click="buttonSelected = 'Activos'; setFilterExterno('status = 1')"
-                    :class="buttonSelected === 'Activos' ? 'ring-4 ring-green-800 font-bold text-current  underline underline-offset-8':'font-medium ' ">
+                    :class="buttonSelected === 'Activos' ? 'ring-4 ring-green-800 font-bold text-current  underline underline-offset-8':'font-medium ' "
+                    @click="buttonSelected = 'Activos'; setFilterExterno('status = 1')">
                     Activos
                 </button>
                 <button
                     type="button"
                     class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-                    @click="buttonSelected = 'Inactivos'; setFilterExterno('status = 0')"
-                    :class="buttonSelected === 'Inactivos' ? 'ring-4 ring-red-800 font-bold text-current  underline underline-offset-8':'font-medium ' ">
+                    :class="buttonSelected === 'Inactivos' ? 'ring-4 ring-red-800 font-bold text-current  underline underline-offset-8':'font-medium ' "
+                    @click="buttonSelected = 'Inactivos'; setFilterExterno('status = 0')">
                     Inactivos
                 </button>
             </template>
         </customTable>
         <modalUpdatePass
-            origen="usersPpal"
             :showModal="showModal"
+            :tokenId="tokenIdSelected"
             @accion="showModal = false"
-            :tokenId="tokenIdSelected" />
+            origen="usersPpal" />
     `,
 });
 app.component('modalUpdatePass', {
@@ -406,64 +406,64 @@ app.component('modalUpdatePass', {
 
                     <div class="float-left">
                         <button
-                            @click="accion({accion: 'closeModal'})"
                             type="button"
-                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                            @click="accion({accion: 'closeModal'})">
                             <svg
                                 class="w-3 h-3"
                                 aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
-                                viewBox="0 0 14 14">
+                                viewBox="0 0 14 14"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <path
+                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                     stroke="currentColor"
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                    stroke-width="2" />
                             </svg>
                         </button>
                     </div>
                 </div>
             </template>
             <template v-slot:modalBody>
-                <form class="space-y-4" id="formChangePass">
+                <form id="formChangePass" class="space-y-4">
                     <input
                         type="hidden"
-                        name="csrf_token"
-                        :value="csrf_token" />
-                    <input type="hidden" name="tokenid" :value="tokenId" />
+                        :value="csrf_token"
+                        name="csrf_token" />
+                    <input type="hidden" :value="tokenId" name="tokenid" />
                     <div class="relative">
                         <label
-                            for="new_password"
-                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                            for="new_password">
                             Contraseña
                         </label>
                         <span
-                            @click="tooglePassword('new_password','imgShowPassNew','imgHiddenPassNew')"
                             id="togglePasswordNew"
-                            class="absolute end-0 flex items-center cursor-pointer pr-2 top-[60%]">
+                            class="absolute end-0 flex items-center cursor-pointer pr-2 top-[60%]"
+                            @click="tooglePassword('new_password','imgShowPassNew','imgHiddenPassNew')">
                             <svg
-                                class="hidden w-6 h-6 text-gray-800 dark:text-slate-400"
                                 id="imgShowPassNew"
+                                class="hidden w-6 h-6 text-gray-800 dark:text-slate-400"
                                 aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
-                                viewbox="0 0 20 18">
+                                viewbox="0 0 20 18"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <path
+                                    d="M1.933 10.909A4.357 4.357 0 0 1 1 9c0-1 4-6 9-6m7.6 3.8A5.068 5.068 0 0 1 19 9c0 1-3 6-9 6-.314 0-.62-.014-.918-.04M2 17 18 1m-5 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
                                     stroke="currentColor"
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M1.933 10.909A4.357 4.357 0 0 1 1 9c0-1 4-6 9-6m7.6 3.8A5.068 5.068 0 0 1 19 9c0 1-3 6-9 6-.314 0-.62-.014-.918-.04M2 17 18 1m-5 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                    stroke-width="2" />
                             </svg>
                             <svg
-                                class="show w-6 h-6 text-gray-800 dark:text-slate-400"
                                 id="imgHiddenPassNew"
+                                class="show w-6 h-6 text-gray-800 dark:text-slate-400"
                                 aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
-                                viewbox="0 0 20 14">
+                                viewbox="0 0 20 14"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <g
                                     stroke="currentColor"
                                     stroke-linecap="round"
@@ -477,45 +477,45 @@ app.component('modalUpdatePass', {
                             </svg>
                         </span>
                         <input
-                            type="password"
-                            name="new_password"
                             id="new_password"
-                            placeholder="••••••••"
+                            type="password"
                             class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            name="new_password"
+                            placeholder="••••••••"
                             required />
                     </div>
 
                     <div class="relative">
                         <label
-                            for="comfirm_new_password"
-                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                            for="comfirm_new_password">
                             Contraseña
                         </label>
                         <span
-                            @click="tooglePassword('comfirm_new_password','imgShowPassConfirmNew','imgHiddenPassConfirmNew')"
                             id="togglePasswordConfirmNew"
-                            class="absolute end-0 flex items-center cursor-pointer pr-2 top-[60%]">
+                            class="absolute end-0 flex items-center cursor-pointer pr-2 top-[60%]"
+                            @click="tooglePassword('comfirm_new_password','imgShowPassConfirmNew','imgHiddenPassConfirmNew')">
                             <svg
-                                class="hidden w-6 h-6 text-gray-800 dark:text-slate-400"
                                 id="imgShowPassConfirmNew"
+                                class="hidden w-6 h-6 text-gray-800 dark:text-slate-400"
                                 aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
-                                viewbox="0 0 20 14">
+                                viewbox="0 0 20 14"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <path
+                                    d="M1.933 10.909A4.357 4.357 0 0 1 1 9c0-1 4-6 9-6m7.6 3.8A5.068 5.068 0 0 1 19 9c0 1-3 6-9 6-.314 0-.62-.014-.918-.04M2 17 18 1m-5 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
                                     stroke="currentColor"
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M1.933 10.909A4.357 4.357 0 0 1 1 9c0-1 4-6 9-6m7.6 3.8A5.068 5.068 0 0 1 19 9c0 1-3 6-9 6-.314 0-.62-.014-.918-.04M2 17 18 1m-5 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                    stroke-width="2" />
                             </svg>
                             <svg
-                                class="show w-6 h-6 text-gray-800 dark:text-slate-400"
                                 id="imgHiddenPassConfirmNew"
+                                class="show w-6 h-6 text-gray-800 dark:text-slate-400"
                                 aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
-                                viewbox="0 0 20 14">
+                                viewbox="0 0 20 14"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <g
                                     stroke="currentColor"
                                     stroke-linecap="round"
@@ -529,26 +529,26 @@ app.component('modalUpdatePass', {
                             </svg>
                         </span>
                         <input
-                            type="password"
-                            name="comfirm_new_password"
                             id="comfirm_new_password"
-                            placeholder="••••••••"
+                            type="password"
                             class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            name="comfirm_new_password"
+                            placeholder="••••••••"
                             required />
                     </div>
                 </form>
             </template>
             <template v-slot:modalFooter>
                 <button
-                    @click="accion({accion: 'closeModal'})"
                     type="button"
-                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    @click="accion({accion: 'closeModal'})">
                     Cancelar
                 </button>
                 <button
-                    @click="sendResetPass()"
                     type="button"
-                    class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                    class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                    @click="sendResetPass()">
                     Actualizar Contraseña
                 </button>
             </template>
