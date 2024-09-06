@@ -34,7 +34,7 @@
 						{% if m.smenu == 0 %}
 							<a href="{{ m.url_menu }}" title="{{ m.desc_menu }}" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700">
 								<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
-									{{ m.ico_menu | raw }}
+									{{ m.ico_menu | removeScape | raw }}
 								</svg>
 								<span class="ml-3" sidebar-toggle-item>
 									{{ m.menu|raw|convert_encoding('UTF-8', 'ISO-8859-1')|capitalize }}
@@ -44,7 +44,7 @@
 							<button type="button" title="{{ m.desc_menu }}" class="flex justify-between w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 sidebar-item-button" aria-controls="dropdown-{{ m.id_menu }}" data-collapse-toggle="dropdown-{{ m.id_menu }}">
 								<div class="flex">
 									<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
-										{{ m.ico_menu | raw }}
+										{{ m.ico_menu | removeScape | raw }}
 									</svg>
 
 									<span class="ml-3">
