@@ -6,6 +6,7 @@ import { computed, ref } from 'vue';
 
 import customTable from '@/dashboard/js/components/customTable.js';
 import modal from '@/dashboard/js/components/modal.js';
+import { $dom } from '@/dashboard/js/composables/dom';
 
 /* eslint-disable */
 const ct = customTable;
@@ -135,36 +136,16 @@ app.component('tableUsers', {
         const externalFilters = ref('');
         const buttonSelected = ref('Todos');
 
-        return {
-            showModal,
-            tokenIdSelected,
-            refreshTable,
-            externalFilters,
-            buttonSelected,
-        };
-    },
-    methods: {
-        accion(/** @type {Object} */ accion) {
-            const actions = {
-                editUser: () => this.editUser(accion.item.tokenid),
-                changePassword: () => this.changePassword(accion.item.tokenid),
-                changeStatus: () => this.changeStatus(accion.item),
-                closeModal: () => (this.showModal = false),
-            };
-            const action =
-                actions[accion.accion] || (() => log('Accion no encontrada'));
-            if (typeof action === 'function') {
-                action();
-            }
-        },
-        editUser(/** @type {String} */ tokenid) {
+        const editUser = (/** @type {String} */ tokenid) => {
             window.location.href = `/admin/usuarios/editUser/${tokenid}`;
-        },
-        changePassword(/** @type {String} */ tokenid) {
-            this.showModal = true;
-            this.tokenIdSelected = tokenid;
-        },
-        async changeStatus(/** @type {Object} */ item) {
+        };
+
+        const changePassword = (/** @type {String} */ tokenid) => {
+            showModal.value = true;
+            tokenIdSelected.value = tokenid;
+        };
+
+        const changeStatus = async (/** @type {Object} */ item) => {
             const swalParams =
                 item.status === '1'
                     ? {
@@ -204,7 +185,7 @@ app.component('tableUsers', {
                         message: response.message,
                         type: 'success',
                         callback: () => {
-                            this.refreshTable = !this.refreshTable;
+                            refreshTable.value = !refreshTable.value;
                         },
                     });
                 } else {
@@ -215,11 +196,40 @@ app.component('tableUsers', {
                     });
                 }
             }
-        },
-        setFilterExterno(/** @type {String} */ filter) {
-            this.externalFilters = filter;
-            this.refreshTable = !this.refreshTable;
-        },
+        };
+
+        const closeModal = () => {
+            showModal.value = false;
+        };
+
+        const setFilterExterno = (/** @type {String} */ filter) => {
+            externalFilters.value = filter;
+            refreshTable.value = !refreshTable.value;
+        };
+
+        const accion = (/** @type {Object} */ accion) => {
+            const actions = {
+                editUser: () => editUser(accion.item.tokenid),
+                changePassword: () => changePassword(accion.item.tokenid),
+                changeStatus: () => changeStatus(accion.item),
+                closeModal: () => closeModal(),
+            };
+            const action =
+                actions[accion.accion] || (() => log('Accion no encontrada'));
+            if (typeof action === 'function') {
+                action();
+            }
+        };
+
+        return {
+            showModal,
+            tokenIdSelected,
+            refreshTable,
+            externalFilters,
+            buttonSelected,
+            accion,
+            setFilterExterno,
+        };
     },
     template: html`
         <customTable
@@ -275,31 +285,21 @@ app.component('modalUpdatePass', {
             default: '',
         },
     },
-    setup(props) {
+    setup(props, { emit }) {
         const showModalLocal = computed(() => props.showModal);
         const tokenId = computed(() => props.tokenId);
         const inputToken = document.getElementById('csrf_token');
         if (!(inputToken instanceof HTMLInputElement)) return;
         const csrf_token = inputToken ? inputToken.value : '';
 
-        return {
-            showModalLocal,
-            tokenId,
-            csrf_token,
-        };
-    },
-    methods: {
-        accion(/** @type {Object} */ accion) {
-            this.$emit('accion', accion);
-        },
-        tooglePassword(
+        const tooglePassword = (
             /** @type {String} */ idInput,
             /** @type {String} */ idImgShow,
             /** @type {String} */ idImgHidden,
-        ) {
-            const togglePassword = document.getElementById(idInput);
-            const imgShowPass = document.getElementById(idImgShow);
-            const imgHiddenPass = document.getElementById(idImgHidden);
+        ) => {
+            const togglePassword = $dom(`#${idInput}`);
+            const imgShowPass = $dom(`#${idImgShow}`);
+            const imgHiddenPass = $dom(`#${idImgHidden}`);
 
             if (!(togglePassword instanceof HTMLInputElement)) return;
             if (togglePassword.type == 'password') {
@@ -311,9 +311,14 @@ app.component('modalUpdatePass', {
                 imgShowPass.classList.add('hidden');
                 imgHiddenPass.classList.remove('hidden');
             }
-        },
-        async sendResetPass() {
-            const formChangePass = document.getElementById('formChangePass');
+        };
+
+        const accion = (/** @type {Object} */ accion) => {
+            emit('accion', accion);
+        };
+
+        const sendResetPass = async () => {
+            const formChangePass = $dom('#formChangePass');
             if (!(formChangePass instanceof HTMLFormElement)) return false;
             const formData = new FormData(formChangePass);
             const newPass = document.getElementById('new_password');
@@ -347,7 +352,7 @@ app.component('modalUpdatePass', {
                 versaAlert({
                     message: response.message,
                     type: 'success',
-                    callback: () => this.accion({ accion: 'closeModal' }),
+                    callback: () => accion({ accion: 'closeModal' }),
                 });
             } else {
                 let errors = '';
@@ -377,7 +382,15 @@ app.component('modalUpdatePass', {
                     },
                 });
             }
-        },
+        };
+        return {
+            showModalLocal,
+            tokenId,
+            csrf_token,
+            accion,
+            tooglePassword,
+            sendResetPass,
+        };
     },
     template: html`
         <modal
