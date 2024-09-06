@@ -190,7 +190,7 @@ export const dropZone = {
             }
 
             const indexFile = self.files.findIndex(
-                item => item.name === file.name
+                item => item.name === file.name,
             );
             if (indexFile >= 0) {
                 return {
