@@ -7,7 +7,7 @@ namespace app\models;
 use RedBeanPHP\R;
 use versaWYS\kernel\RedBeanCnn;
 
-class Pagination extends \RedBeanPHP\SimpleModel
+class Pagination extends RedBeanCnn
 {
     public function pagination(
         string $table,
@@ -26,11 +26,11 @@ class Pagination extends \RedBeanPHP\SimpleModel
 
     public function __construct()
     {
-        (new RedBeanCnn())->setup();
+        $this->connet();
     }
 
     public function __destruct()
     {
-        R::close();
+        $this->closeDB();
     }
 }
