@@ -4,7 +4,7 @@
         "DB_HOST": "localhost",
         "DB_USER": "local",
         "DB_PASS": "local",
-        "DB_NAME": "versadb"
+        "DB_NAME": "api"
     },
     "twig": {
         "cache": false,
@@ -22,7 +22,7 @@
         "charset": "utf-8"
     },
     "session": {
-        "key": "WYS",
+        "key": "APISVersaWYS",
         "lifetime": 3600,
         "user_cookie": {
             "domain": "localhost",
