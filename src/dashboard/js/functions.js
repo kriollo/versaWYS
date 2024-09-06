@@ -195,3 +195,7 @@ export const versaAlert = Params => {
 };
 
 export const log = console.log.bind(console);
+
+export const removeScape = str => {
+    return str.replace(/\\/g, '');
+};
