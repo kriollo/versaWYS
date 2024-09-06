@@ -7,7 +7,6 @@ namespace app\models;
 use Random\RandomException;
 use RedBeanPHP\R;
 use RedBeanPHP\RedException\SQL;
-use RedBeanPHP\SimpleModel;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\RedBeanCnn;
 
@@ -17,7 +16,7 @@ use versaWYS\kernel\RedBeanCnn;
  * This class represents the Users model in the application.
  * It provides methods to interact with the users table in the database.
  */
-class Users extends SimpleModel
+class Users extends RedBeanCnn
 {
     /**
      * Users constructor.
@@ -27,7 +26,7 @@ class Users extends SimpleModel
      */
     public function __construct()
     {
-        (new RedBeanCnn())->setup();
+        $this->connet();
     }
 
     /**
@@ -37,22 +36,7 @@ class Users extends SimpleModel
      */
     public function __destruct()
     {
-        R::close();
-    }
-
-    /**
-     * Get all eventos.
-     *
-     * Retrieves all the eventos from the database.
-     *
-     * @return array An array of user records.
-     */
-    public function pagination(string $filter = ''): array
-    {
-        $filter = $filter ? "WHERE $filter" : '';
-        $result = R::getAll("SELECT SQL_CALC_FOUND_ROWS * FROM versausers $filter");
-        $total = R::getCell('SELECT FOUND_ROWS()');
-        return ['total' => $total, 'data' => $result];
+        $this->closeDB();
     }
 
     /**
@@ -89,7 +73,6 @@ class Users extends SimpleModel
      * @param string $email The email of the user.
      * @param string $token The reset password token.
      * @return void
-     * @throws SQL
      */
     public function saveTokenResetPass(string $email, string $token): void
     {
@@ -120,7 +103,6 @@ class Users extends SimpleModel
      * @param string $email The email of the user.
      * @param string $password The new password.
      * @return void
-     * @throws SQL
      */
     public function updatePassword(string $email, string $password): void
     {
