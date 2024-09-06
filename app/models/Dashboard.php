@@ -6,10 +6,9 @@ namespace app\models;
 
 use RedBeanPHP\Cursor;
 use RedBeanPHP\R;
-use RedBeanPHP\SimpleModel;
 use versaWYS\kernel\RedBeanCnn;
 
-class Dashboard extends SimpleModel
+class Dashboard extends RedBeanCnn
 {
     public function getMenuAdmin(): Cursor|array|int|null
     {
@@ -23,11 +22,11 @@ class Dashboard extends SimpleModel
 
     public function __construct()
     {
-        (new RedBeanCnn())->setup();
+        $this->connet();
     }
 
     public function __destruct()
     {
-        R::close();
+        $this->closeDB();
     }
 }
