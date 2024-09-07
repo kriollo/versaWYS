@@ -132,6 +132,21 @@ class versaTwig extends Environment
         }
     }
 
+    public static function errorHandler($errno, $errstr, $errfile, $errline): void
+    {
+        Response::jsonError(
+            [
+                'success' => 0,
+                'message' => $errstr,
+                'code' => $errno,
+                'line' => $errline,
+                'file' => $errfile,
+            ],
+            500
+        );
+        exit();
+    }
+
     /**
      * This private method generates the debug HTML code.
      * If the debug mode is enabled in the configuration, it returns the debug HTML code; otherwise, it returns an empty string.
