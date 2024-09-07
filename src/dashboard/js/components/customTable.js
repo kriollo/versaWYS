@@ -1,4 +1,3 @@
-import loader from '@/dashboard/js/components/loader.js';
 import { $dom } from '@/dashboard/js/composables/dom.js';
 import { createXlsxFromJson } from '@/dashboard/js/composables/useXlsx.js';
 import { removeScape, versaFetch } from '@/dashboard/js/functions.js';
@@ -6,11 +5,12 @@ import { app } from '@/dashboard/js/vue-instancia.js';
 import { html } from '@/vendor/code-tag/code-tag-esm';
 import { computed, reactive, ref, watch, watchEffect } from 'vue';
 
+import { loader } from '@/dashboard/js/components/loader.js';
 /* eslint-disable */
 const l = loader;
 /* eslint-enable */
 
-const customTable = {
+const customTableComponent = {
     emits: ['accion', 'update:totalRegisters'],
     name: 'customTable',
     props: {
@@ -601,11 +601,4 @@ const customTable = {
     `,
 };
 
-app.component('customTable', customTable);
-
-export default {
-    name: 'customTable',
-    components: {
-        customTable,
-    },
-};
+export const customTable = app.component('customTable', customTableComponent);
