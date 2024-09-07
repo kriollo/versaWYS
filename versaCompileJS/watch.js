@@ -127,17 +127,18 @@ const removeCodeTagImport = async data => {
 };
 
 const addImportEndJs = async data => {
-    // add .js if not exist, except for 'vue', 'pinia'
-    const importRegExp = /import\s+.*\s+from\s+['"].*['"];/g;
+    const importRegExp = /import\s+[\s\S]*?\s+from\s+['"].*['"];/g;
     const importList = data.match(importRegExp);
 
     if (importList) {
         for (const item of importList) {
-            const importRegExp2 = /import\s+.*\s+from\s+['"](.*)['"];/;
+            const importRegExp2 = /from\s+['"](.*)['"];/;
             const result = item.match(importRegExp2);
             if (result) {
                 const ruta = result[1];
+
                 if (!ruta.endsWith('.js')) {
+                    // excluir https://, http://, vue, pinia, .mjs, vuex
                     if (
                         ruta === 'vue' ||
                         ruta === 'pinia' ||
