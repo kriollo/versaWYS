@@ -1,7 +1,7 @@
 import { app } from '@/dashboard/js/vue-instancia';
 import { html } from '@/vendor/code-tag/code-tag-esm';
 
-const loader = {
+const loaderComponent = {
     template: html`
         <svg
             class="animate-spin p-1 h-6 w-6 text-white"
@@ -23,11 +23,4 @@ const loader = {
     `,
 };
 
-app.component('loader', loader);
-
-export default {
-    name: 'Loader',
-    components: {
-        loader,
-    },
-};
+export const loader = app.component('loader', loaderComponent);
