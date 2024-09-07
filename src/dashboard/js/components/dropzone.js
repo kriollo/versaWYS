@@ -2,6 +2,7 @@ import {
     useFileZise,
     useValidFile,
 } from '@/dashboard/js/composables/useValidFile.js';
+import { app } from '@/dashboard/js/vue-instancia';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
 import { computed, ref } from 'vue';
 /**
@@ -45,7 +46,7 @@ export const filesError = {
  * @property {Boolean} ShowModalFilesError - Indica si se debe mostrar el modal de errores de archivos.
  * @property {Function} accion - Función para manejar la acción del modal.
  */
-export const fileErrorModal = {
+const fileErrorModalComponent = {
     emits: ['accion'],
     props: {
         FilesErrors: {
@@ -105,7 +106,7 @@ export const fileErrorModal = {
  * @prop {Array} files - Archivos seleccionados.
  * @returns {object} - Objeto con las propiedades y métodos del componente.
  */
-export const dropZone = {
+const dropZoneComponent = {
     emits: ['accion'],
     props: {
         FileTypeValid: {
@@ -297,3 +298,9 @@ export const dropZone = {
         </div>
     `,
 };
+
+export const dropZone = app.component('drop-zone', dropZoneComponent);
+export const fileErrorModal = app.component(
+    'fileErrorModal',
+    fileErrorModalComponent,
+);
