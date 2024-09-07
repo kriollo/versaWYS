@@ -4,7 +4,7 @@
         "DB_HOST": "localhost",
         "DB_USER": "local",
         "DB_PASS": "local",
-        "DB_NAME": "api"
+        "DB_NAME": "versadb"
     },
     "twig": {
         "cache": false,
