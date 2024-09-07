@@ -167,7 +167,13 @@ const customTable = {
     },
     methods: {
         accion({ item, accion }) {
-            this.$emit('accion', { item, accion });
+            const actions = {
+                default: () => this.$emit('accion', { item, accion }),
+            };
+            const fn = actions[accion] || actions.default;
+            if (typeof fn === 'function') {
+                fn();
+            }
         },
         getParams() {
             const url = new URL(this.url);
@@ -498,7 +504,7 @@ const customTable = {
                                             :class="action.class"
                                             :key="action.id"
                                             :title="action.title"
-                                            @click="accion({item: row, accion: action.action})"
+                                            @click="accion({item: {...row, direction: action.type}, accion: action.action})"
                                             v-if="(index === 0 && row[col.field] == 1 && action.type === 'up' ? false:true ) &&
                                                 (index ===  data.meta.total-1 && action.type === 'down' ? false:true ) ">
                                             <i :class="action.icon"></i>
