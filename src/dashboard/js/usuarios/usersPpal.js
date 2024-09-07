@@ -1,12 +1,17 @@
-import { log, versaAlert, versaFetch } from '@/dashboard/js/functions.js';
-import { app } from '@/dashboard/js/vue-instancia.js';
-import { html } from '@/vendor/code-tag/code-tag-esm.js';
+import { $dom } from '@/dashboard/js/composables/dom';
+import {
+    log,
+    versaAlert,
+    versaFetch,
+    VersaToast,
+} from '@/dashboard/js/functions';
+import { app } from '@/dashboard/js/vue-instancia';
+import { html } from '@/vendor/code-tag/code-tag-esm';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
 
-import customTable from '@/dashboard/js/components/customTable.js';
-import modal from '@/dashboard/js/components/modal.js';
-import { $dom } from '@/dashboard/js/composables/dom';
+import { customTable } from '@/dashboard/js/components/customTable';
+import { modal } from '@/dashboard/js/components/modal';
 
 /* eslint-disable */
 const ct = customTable;
@@ -181,18 +186,15 @@ app.component('tableUsers', {
                 };
                 const response = await versaFetch(params);
                 if (response.success === 1) {
-                    versaAlert({
-                        message: response.message,
-                        type: 'success',
-                        callback: () => {
-                            refreshTable.value = !refreshTable.value;
-                        },
+                    await VersaToast.fire({
+                        icon: 'success',
+                        title: response.message,
                     });
+                    refreshTable.value = !refreshTable.value;
                 } else {
-                    versaAlert({
-                        message: response.message,
-                        title: 'Error',
-                        type: 'error',
+                    await VersaToast.fire({
+                        icon: 'error',
+                        title: response.message,
                     });
                 }
             }
@@ -335,7 +337,7 @@ app.component('modalUpdatePass', {
                     title: 'Error',
                     type: 'error',
                 });
-                return;
+                return false;
             }
 
             const objectData = Object.fromEntries(formData.entries());
@@ -349,11 +351,11 @@ app.component('modalUpdatePass', {
             };
             const response = await versaFetch(params);
             if (response.success === 1) {
-                versaAlert({
-                    message: response.message,
-                    type: 'success',
-                    callback: () => accion({ accion: 'closeModal' }),
+                await VersaToast.fire({
+                    icon: 'success',
+                    title: response.message,
                 });
+                accion({ accion: 'closeModal' });
             } else {
                 let errors = '';
                 if (response?.errors) {
