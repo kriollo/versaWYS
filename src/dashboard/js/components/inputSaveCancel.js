@@ -1,6 +1,8 @@
+import { app } from '@/dashboard/js/vue-instancia';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
 import { computed, ref } from 'vue';
-export const inputSaveCancel = {
+
+export const inputSaveCancelComponent = {
     props: {
         id: {
             type: Number,
@@ -92,3 +94,8 @@ export const inputSaveCancel = {
         </div>
     `,
 };
+
+export const inputSaveCancel = app.component(
+    'input-save-cancel',
+    inputSaveCancelComponent,
+);
