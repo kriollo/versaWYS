@@ -18,21 +18,21 @@ registerRoutes('app/routes');
 $request = new Request();
 $session = new Session($config['session']['lifetime']);
 
-$cookie = new Cookie();
-
-if ($config['build']['debug']) {
-    $cookie->set('debug', '1', 0, $config['session']['user_cookie']['domain'], false, false);
-} else {
-    $cookie->delete('debug');
-}
-
 $twig = new versaTwig($config);
 $twig->addGlobal('session', $session);
 $twig->addGlobal('config', $config);
 
 ini_set('display_errors', $config['build']['debug'] ? '1' : '0');
 ini_set('display_startup_errors', $config['build']['debug'] ? '1' : '0');
-error_reporting(E_ALL);
+$cookie = new Cookie();
+
+if ($config['build']['debug']) {
+    $cookie->set('debug', '1', 0, $config['session']['user_cookie']['domain'], false, false);
+    set_error_handler('versaWYS\kernel\versaTwig::errorHandler', E_ALL);
+    error_reporting(E_ALL);
+} else {
+    $cookie->delete('debug');
+}
 
 date_default_timezone_set($config['build']['timezone']);
 setlocale(LC_ALL, 'es_CL.UTF-8');
