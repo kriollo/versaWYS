@@ -2,7 +2,7 @@ import { app } from '@/dashboard/js/vue-instancia';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
 import { computed, ref, watch } from 'vue';
 
-const modal = {
+const modalComponent = {
     emits: ['accion'],
     props: {
         idModal: {
@@ -76,11 +76,4 @@ const modal = {
     `,
 };
 
-app.component('modal', modal);
-
-export default {
-    name: 'modal',
-    components: {
-        modal,
-    },
-};
+export const modal = app.component('modal', modalComponent);
