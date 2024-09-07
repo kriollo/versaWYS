@@ -25,18 +25,16 @@ class Response
             $code = 500;
             self::jsonError($data, $code);
             return false;
-            //die();
         }
         header('Content-Type: application/json');
         http_response_code($code);
-        echo json_encode($data);
+        print json_encode($data);
         return true;
     }
 
     public static function jsonError(array $data, int $code = 200): bool
     {
         global $twig;
-        //header('Content-Type: text/html; charset=utf-8');
         http_response_code($code);
         echo $twig->render('versaWYS/debugError.twig', ['data' => $data]);
         return false;
