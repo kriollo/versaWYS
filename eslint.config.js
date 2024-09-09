@@ -2,7 +2,7 @@ import pluginJs from '@eslint/js';
 import html from '@html-eslint/eslint-plugin';
 // import htmlParser from '@html-eslint/parser';
 import eslintConfigPrettier from 'eslint-config-prettier';
-import eslintImport from 'eslint-plugin-import';
+//import eslintImport from 'eslint-plugin-import';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
 import pluginVue from 'eslint-plugin-vue';
 
@@ -14,7 +14,7 @@ export default [
     {
         ...html.configs['flat/essential'],
         plugins: {
-            import: eslintImport,
+            //import: eslintImport,
             prettier: eslintPluginPrettier,
             '@html-eslint': html,
             vue: pluginVue,
