@@ -211,3 +211,8 @@ export const VersaToast = Swal.mixin({
     timer: 1500,
     timerProgressBar: true,
 });
+
+export const getFechaUnix = () => {
+    const fecha = new Date();
+    return Math.floor(fecha.getTime() / 1000);
+};
