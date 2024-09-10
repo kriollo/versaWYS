@@ -68,7 +68,7 @@ export default [
             'getter-return': 'warn',
             'no-irregular-whitespace': 'warn',
             'vue/no-unused-vars': 'error',
-            'import/no-named-default': 'error',
+            // 'import/no-named-default': 'error',
             camelcase: 'off',
             'sort-keys': 'off',
             'no-magic-numbers': 'off',
