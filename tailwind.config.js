@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 
-
 export default {
     mode: 'jit',
     content: [
@@ -9,7 +8,8 @@ export default {
         './app/templates/**/*.php',
         './src/**/*.js',
         './src/**/*.css',
-        './src/vendor/flowbite/*.js',
+        './src/**/*.vue',
+        './public/vendor/flowbite/*.js',
         './versaWYS/kernel/**/*.php',
     ],
     safelist: [
