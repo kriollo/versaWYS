@@ -9,9 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const module = scriptUrl.searchParams.get('m');
 
     const inputToken = $dom('#csrf_token');
-    if (!(inputToken instanceof HTMLInputElement))
-        throw new Error('Token no encontrado');
-    const csrf_token = inputToken ? inputToken.value : '';
+    const csrf_token =
+        inputToken instanceof HTMLInputElement ? inputToken.value : '';
 
     if (!module) {
         console.error('No se ha especificado un módulo para cargar.');
