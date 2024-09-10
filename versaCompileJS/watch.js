@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { promises as fs } from 'fs';
-import { glob } from 'glob';
+import { glob } from 'glob-promise';
 import { watch } from 'gulp';
 import path from 'path';
 import { minify } from 'terser';
