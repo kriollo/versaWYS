@@ -22,7 +22,8 @@
             "args": ["versaCLI", "serve"],
             "runOptions": {
                 "runOn": "folderOpen"
-            }
+            },
+            "problemMatcher": ["$go"]
         },
         {
             "label": "Ejecutar compiladores versaCompile",
