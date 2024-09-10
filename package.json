@@ -5,7 +5,7 @@
     "scripts": {
         "watch": "node ./versaCompileJS/compile.js",
         "dev": "node --watch ./versaCompileJS/compile.js",
-        "dashboard": "tailwindcss -i ./src/dashboard/css/dashboard.css -o ./public/dashboard/css/dashboard.css --watch --minify",
+        "dashboard": "tailwindcss --max-old-space-size=800 -i ./src/dashboard/css/dashboard.css -o ./public/dashboard/css/dashboard.css --watch --minify",
         "web": "tailwindcss -i ./src/web/css/web.css -o ./public/web/css/web.css --watch --minify",
         "versaCompileJS": "node versaCompileJS/watch.js --all",
         "versaCompileCSS": "tailwindcss --max-old-space-size=800 -i ./src/dashboard/css/dashboard.css -o ./public/dashboard/css/dashboard.css --minify"
