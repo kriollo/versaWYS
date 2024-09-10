@@ -1,8 +1,4 @@
 {% extends "dashboard/dashboard.twig" %}
-{% block appDashboard %}
-	{{ csrf_field() | raw }}
-	<modulesapp></modulesapp>
-{% endblock %}
 {% block appScript %}
-	<script type="module" src="{{ getAssets('dashboard', 'js', '/modules/dashModules.js') }}?{{ date()|date('U') }}"></script>
+	<script type="module" src="{{ getAssets('dashboard', 'js', '/vue-loader.js') }}?{{ date()|date('U') }}&{{'m=/dashboard/js/modules/dashModules'}}"></script>
 {% endblock %}
