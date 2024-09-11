@@ -36,12 +36,20 @@
     };
 
     const dropdownToggle = ($dropdown, $dropdownElement) => {
-        $dropdownElement.classList.toggle('hidden');
         $dropdownElement.classList.toggle('block');
-        $dropdownElement.setAttribute(
-            'aria-hidden',
-            $dropdownElement.classList.contains('hidden') ? 'true' : 'false',
-        );
+        if ($dropdownElement.classList.contains('hidden')) {
+            $dropdownElement.classList.remove('hidden');
+            setTimeout(() => {
+                $dropdownElement.classList.remove('opacity-0');
+                $dropdownElement.classList.add('opacity-100');
+            }, 10);
+        } else {
+            $dropdownElement.classList.remove('opacity-100');
+            $dropdownElement.classList.add('opacity-0');
+            setTimeout(() => {
+                $dropdownElement.classList.add('hidden');
+            }, 300); // Duración de la transición
+        }
 
         if ($dropdownElement.classList.contains('block')) {
             $dropdownElement.style.top = `${$dropdown.offsetTop + $dropdown.offsetHeight + 10}px`;
@@ -56,27 +64,32 @@
         const $dropdownElement = $dom(
             `#${$dropdown.getAttribute('data-dropdown-toggle-component')}`,
         );
-
         $dropdownElement.style.position = 'absolute';
-        $dropdownElement.style.inset = '0px auto auto 0px';
-        $dropdownElement.style.margin = '0px';
-        $dropdownElement.style.transform = 'translate(0px, 0px)';
+        $dropdownElement.style.top = `${$dropdown.offsetTop + $dropdown.offsetHeight + 10}px`;
+        $dropdownElement.style.left = `${$dropdown.offsetLeft}px`;
+        $dropdownElement.style.width = 'auto';
+        $dropdownElement.style.whiteSpace = 'nowrap';
+
         if (!($dropdownElement instanceof HTMLElement)) {
             return;
         }
+        const documentClickListener = e => {
+            if (
+                $dropdownElement.classList.contains('block') &&
+                !$dropdown.contains(e.target)
+            ) {
+                dropdownToggle($dropdown, $dropdownElement);
+                document.removeEventListener('click', documentClickListener);
+            }
+        };
+
         $dropdown.addEventListener('click', () => {
             dropdownToggle($dropdown, $dropdownElement);
-            document.addEventListener('click', e => {
-                if (
-                    $dropdownElement.classList.contains('block') &&
-                    !$dropdown.contains(e.target)
-                ) {
-                    dropdownToggle($dropdown, $dropdownElement);
-                }
-            });
+            document.addEventListener('click', documentClickListener);
         });
     });
 </script>
+
 <template>
     <div>
         <span class="text-gray-500 pe-1">{{ title }}</span>
@@ -103,11 +116,11 @@
         <!-- Dropdown menu -->
         <div
             :id="'dropdownList' + from"
-            class="z-10 bg-white rounded-lg shadow dark:bg-gray-700 hidden">
+            class="z-10 bg-white rounded-lg shadow dark:bg-gray-700 hidden transition-opacity duration-300 ease-in-out opacity-0">
             <ul
                 class="text-sm text-gray-700 dark:text-gray-200 grid justify-center cursor-pointer"
                 aria-labelledby="dropdownPerPage">
-                <li v-for="item in list">
+                <li v-for="(item, index) in list">
                     <a
                         class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white hover:rounded-lg"
                         @click="setButtonValue(item)">
