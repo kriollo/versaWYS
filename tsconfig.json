@@ -4,8 +4,8 @@
         "moduleDetection": "auto",
         "allowJs": true,
         "checkJs": true,
-        "module": "esnext",
-        "target": "ES6",
+        "module": "ESNext",
+        "target": "ESNext",
         "lib": [
             "es2020",
             "es2015",
@@ -20,12 +20,16 @@
         "outDir": "./public/",
         "rootDir": ".",
         "paths": {
-            "@/*": ["./public/*"]
+            "@/*": ["./public/*"],
+            "#/*": ["./node_modules/*"]
         },
         "typeRoots": ["/node_modules/", "./src/dashboards/**/*"],
-        "allowSyntheticDefaultImports": true,
+        "allowSyntheticDefaultImports": false,
         "esModuleInterop": true,
         "moduleResolution": "Bundler"
+    },
+    "vueCompilerOptions": {
+        "target": 3.5
     },
     "exclude": ["./public/**/*"],
     "include": ["./src/**/*"],

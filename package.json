@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "versaWYS-PHP es un framework PHP versátil, simple, ligero, rápido y fácil de usar, diseñado para desarrolladores que buscan eficiencia y flexibilidad en sus proyectos web. Ofrece un enfoque moderno para la gestión de rutas, tanto para aplicaciones web tradicionales como para APIs REST, integrando poderosas herramientas como RedBean para ORM y Twig para la gestión de plantillas.",
     "scripts": {
+        "vite": "vite",
         "watch": "node ./versaCompileJS/compile.js",
         "dev": "node --watch ./versaCompileJS/compile.js",
         "dashboard": "tailwindcss --max-old-space-size=800 -i ./src/dashboard/css/dashboard.css -o ./public/dashboard/css/dashboard.css --watch --minify",
@@ -16,11 +17,13 @@
     "dependencies": {
         "@vue/devtools-api": "^6.6.4",
         "chalk": "5.3.0",
+        "flowbite": "^2.5.1",
+        "flowbite-vue": "^0.1.6",
         "glob-promise": "^6.0.7",
         "gulp": "5.0.0",
         "pinia": "^2.2.2",
         "terser": "5.32.0",
-        "vue": "3.5.3"
+        "vue": "3.5.4"
     },
     "devDependencies": {
         "@eslint/js": "^9.10.0",
@@ -29,6 +32,7 @@
         "@prettier/plugin-php": "^0.22.2",
         "@stylistic/eslint-plugin-js": "^2.8.0",
         "@types/node": "^22.5.4",
+        "@vitejs/plugin-vue": "^5.1.3",
         "eslint": "^9.10.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-html": "^8.1.1",
@@ -36,8 +40,9 @@
         "eslint-plugin-vue": "^9.28.0",
         "globals": "^15.9.0",
         "prettier": "3.3.3",
-        "sweetalert2": "^11.6.13",
+        "sweetalert2": "^11.14.0",
         "tailwindcss": "3.4.10",
+        "vite": "^5.4.3",
         "vue-tsc": "^2.1.6"
     }
 }
