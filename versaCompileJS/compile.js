@@ -85,22 +85,23 @@ const replaceVarByConstHTML = async data => {
 const replaceAlias = async data => {
     for (const key in pathAlias) {
         const value = pathAlias[key][0];
-        const alias = `from '${key.replaceAll('/*', '')}`;
-        const ruta = value.replaceAll('/*', '');
+        const newKey = key.replaceAll('/*', '');
+        const alias = `from '${newKey}`;
+        const alias2 = ` '${newKey}`;
+
+        const ruta = value.replaceAll('/*', '').replace('./', '/');
 
         const aliasRegExp = new RegExp(alias, 'g');
+        const aliasRegExp2 = new RegExp(alias2, 'g');
+
         data = data.replaceAll(aliasRegExp, ` from '${ruta}`);
+        data = data.replaceAll(aliasRegExp2, `'${ruta}`);
 
-        const newAliasRegExp = new RegExp('@/', 'g');
-        data = data.replaceAll(newAliasRegExp, `${ruta}/`);
+        const aliasRegExp3 = /import '.\//g;
+        data = data.replaceAll(aliasRegExp3, `import '/`);
 
-        //reemplazar esto: from '. por eso from '/
-        const aliasRegExp2 = new RegExp("from './", 'g');
-        data = data.replaceAll(aliasRegExp2, " from '/");
-        data = data.replaceAll('import(`./', 'import(`/');
-
-        const aliasRegExp3 = new RegExp("'./", 'g');
-        data = data.replaceAll(aliasRegExp3, "'/");
+        const aliasRegExp5 = /from '\.\//g;
+        data = data.replaceAll(aliasRegExp5, `from '/`);
     }
 
     return data;
@@ -126,15 +127,10 @@ const addImportEndJs = async data => {
                 const ruta = result[1];
 
                 if (!ruta.endsWith('.js')) {
-                    // excluir https://, http://, vue, pinia, .mjs, vuex
                     if (
-                        ruta === 'vue' ||
-                        ruta === 'pinia' ||
                         ruta.endsWith('.mjs') ||
-                        ruta === 'vuex' ||
-                        ruta.startsWith('https://') ||
-                        ruta.startsWith('http://') ||
-                        ruta === 'sweetalert2'
+                        ruta.endsWith('.css') ||
+                        !ruta.includes('/')
                     )
                         continue;
                     const newRuta = `${ruta}.js`;
@@ -173,13 +169,30 @@ const preCompileVue = async (data, source) => {
     const templateOptions = {
         sourceMap: false,
         filename: `${descriptor.filename}.vue`,
+        isProd: true,
         id: id,
         scoped: hasScoped,
         slotted: descriptor.slotted,
         source: descriptor.template.content,
         compilerOptions: {
-            scopeId: hasScoped ? scopeId : undefined,
+            scopeId: hasScoped ? scopeId : null,
             mode: 'module',
+            prefixIdentifiers: true,
+            hoistStatic: true,
+            cacheHandlers: true,
+            runtimeGlobalName: 'Vue',
+            runtimeModuleName: 'vue',
+            optimizeBindings: true,
+            runtimeContextBuiltins: true,
+            runtimeDirectives: true,
+            runtimeVNode: true,
+            runtimeProps: true,
+            runtimeSlots: true,
+            runtimeComponents: true,
+            runtimeCompiledRender: true,
+            runtimeCompilerOptions: {
+                whitespace: 'condense', // Opciones del compilador de templates
+            },
         },
         preprocessLang: descriptor.template.lang,
         inlineTemplate: descriptor.template.lang === 'html',
@@ -254,7 +267,7 @@ const preCompileVue = async (data, source) => {
             __name: '${fileName}',
         `,
     );
-    output = output.replaceAll('_ctx.', '$setup.');
+    output = output.replaceAll(/_ctx\.(?!\$)/g, '$setup.');
 
     output = output.replace(
         'export function render(_ctx, _cache) {',
@@ -268,7 +281,6 @@ const preCompileVue = async (data, source) => {
         export const ${fileName} = app.component('${fileName}', ${fileName}_component)
     `;
 
-    // output = output.replaceAll('viewbox', 'viewBox');
     output = `${output}\n${exportComponent}`;
 
     log(chalk.green(`🧪 :Pre Compilado VUE Finalizado ${fileName}`));
@@ -345,7 +357,6 @@ const compileJS = async (source, destination) => {
             const destinationDir = path.dirname(destination);
             await fs.mkdir(destinationDir, { recursive: true });
             await fs.writeFile(destination, result.code, 'utf-8');
-            //await fs.writeFile(destination, data, 'utf-8');
 
             const endTime = Date.now();
             const elapsedTime = endTime - startTime;
@@ -377,8 +388,8 @@ const compile = async path => {
 
 const compileAll = async watchDir => {
     try {
-        const files = await glob(watchDir);
-        pathAlias = await getPathAlias();
+        const files = glob.sync(watchDir);
+        pathAlias = getPathAlias();
 
         for (const file of files) {
             compile(file);
@@ -400,9 +411,6 @@ const init = async () => {
         log(chalk.green(`👀 :Watching ${[watchJS, watchVue].join(', ')}`));
 
         pathAlias = await getPathAlias();
-
-        // Ejecutar la compilación al inicio
-        //await compileAll(watchDir);
     } catch (error) {
         error(
             chalk.red('❎ :Error al iniciar:'),
@@ -415,5 +423,5 @@ const init = async () => {
 };
 
 if (isAll) {
-    compileAll(`${PATH_SOURCE}/**/*.js`);
+    compileAll(`${PATH_SOURCE}/**/*.{js,vue}`);
 } else init();
