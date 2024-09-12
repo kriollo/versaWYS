@@ -1,5 +1,30 @@
 <script setup>
-    import { computed, ref, watch } from 'vue';
+    /**
+     * Modal Component
+     *
+     * This component represents a modal dialog that can be shown or hidden based on the `showModal` prop.
+     * It supports custom content for the header, body, and footer through named slots.
+     *
+     * Props:
+     * - `idModal` (String, required): The ID of the modal element.
+     * - `showModal` (Boolean, required): Controls the visibility of the modal.
+     * - `size` (String, default: 'max-w-md'): The size of the modal, applied as a CSS class.
+     *
+     * Emits:
+     * - `accion`: Emitted when the modal is closed, with an object containing `{ accion: 'closeModal' }`.
+     *
+     * Slots:
+     * - `modalTitle`: Slot for the modal's title content.
+     * - `modalBody`: Slot for the modal's body content.
+     * - `modalFooter`: Slot for the modal's footer content.
+     *
+     * Methods:
+     * - `closeModal`: Emits the `accion` event to close the modal.
+     *
+     * Watchers:
+     * - `showModal`: Watches for changes to the `showModal` prop and updates the modal's visibility accordingly.
+     */
+    import { computed, defineEmits, defineProps, ref, watch } from 'vue';
 
     const props = defineProps({
         idModal: {
@@ -27,9 +52,11 @@
         if (val) {
             modal.value.classList.remove('hidden');
             modal.value.classList.add('flex');
+            modal.value.removeAttribute('inert');
         } else {
             modal.value.classList.remove('flex');
             modal.value.classList.add('hidden');
+            modal.value.setAttribute('inert', '');
         }
     });
 
