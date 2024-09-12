@@ -2,7 +2,9 @@
     import { $dom } from '@/dashboard/js/composables/dom';
     import { computed, defineProps, onMounted } from 'vue';
 
-    const emit = defineEmits(['accion']);
+    const model = defineModel();
+    const emit = defineEmits(['accion', 'update:model']);
+
     const props = defineProps({
         title: {
             type: String,
@@ -13,26 +15,26 @@
             type: String,
             required: true,
         },
-        buttonValue: {
-            type: String,
-            required: true,
-        },
         list: {
             type: Array,
             required: true,
         },
     });
-    const buttonValue = computed(() => props.buttonValue);
     const list = computed(() => props.list);
     const from = computed(() => props.from);
     const title = computed(() => props.title);
 
     const setButtonValue = value => {
-        emit('accion', {
-            from: from.value,
+        model.value = value;
+        emit('update:model', {
             accion: 'setButtonValue',
+            from: from.value,
             item: value,
         });
+        dropdownToggle(
+            $dom(`#dropdownButton${from.value}`),
+            $dom(`#dropdownList${from.value}`),
+        );
     };
 
     const dropdownToggle = ($dropdown, $dropdownElement) => {
@@ -98,7 +100,7 @@
             :data-dropdown-toggle-component="'dropdownList' + from"
             class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
             type="button">
-            {{ buttonValue }}
+            {{ model }}
             <svg
                 class="w-2.5 h-2.5 ms-2.5"
                 aria-hidden="true"
