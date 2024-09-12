@@ -2,7 +2,6 @@
     import { dropDown } from '@/dashboard/js/components/dropdown';
     import { loader } from '@/dashboard/js/components/loader';
 
-    import { $dom } from '@/dashboard/js/composables/dom';
     import { createXlsxFromJson } from '@/dashboard/js/composables/useXlsx';
     import { removeScape, versaFetch } from '@/dashboard/js/functions';
     import {
@@ -80,6 +79,13 @@
         },
     });
 
+    watch(
+        () => data.meta.per_page,
+        () => {
+            setPerPage(data.meta.per_page);
+        },
+    );
+
     const getRefreshData = async () => {
         loadingData.value = true;
         const page =
@@ -153,17 +159,17 @@
 
     const removeScapeLocal = str => removeScape(str);
 
+    const modelExcel = ref('Excel');
     const accion = ({ item, accion, from = 'local' }) => {
         const actions = {
             setButtonValue: () => {
-                if (from === 'per_page') {
-                    setPerPage(item);
-                } else if (from === 'excel') {
+                if (from === 'excel') {
                     if (item === 'Exportar Página') {
                         exportExcelPage();
                     } else {
                         exportExcelAll();
                     }
+                    modelExcel.value = 'Excel';
                 }
             },
             default: () => emit('accion', { item, accion }),
@@ -174,18 +180,15 @@
         }
     };
 
+    const clearFiler = () => {
+        data.meta.filter = '';
+        getRefreshData();
+    };
     const setPerPage = per_page => {
-        if (data.meta.per_page === per_page) return;
         data.meta.page = 1;
         data.meta.per_page = per_page;
 
         getRefreshData();
-
-        const dropdownAction = $dom('#dropdownAction');
-        if (!(dropdownAction instanceof HTMLElement)) return;
-        dropdownAction.classList.remove('show');
-        dropdownAction.classList.add('hidden');
-        dropdownAction.setAttribute('aria-hidden', 'true');
     };
     const setFilter = () => {
         data.meta.page = 1;
@@ -270,23 +273,22 @@
     <div
         class="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0 py-2 px-2">
         <dropDown
-            @accion="accion"
+            v-model="data.meta.per_page"
             key="per_page"
             title="Mostrar"
             from="per_page"
-            :buttonValue="String(data.meta.per_page)"
             :list="showPerPages" />
 
         <dropDown
-            @accion="accion"
+            @update:model="accion"
+            v-model="modelExcel"
             key="excel"
             from="excel"
-            buttonValue="excel"
             :list="['Exportar Página', 'Exportar todo']" />
 
         <!-- input buscar -->
         <div class="relative">
-            <div
+            <button
                 class="absolute inset-y-0 rtl:inset-r-0 end-0 flex items-center pe-3 cursor-pointer"
                 @click="setFilter"
                 title="Click para buscar">
@@ -303,7 +305,27 @@
                         stroke-linejoin="round"
                         stroke-width="2" />
                 </svg>
-            </div>
+            </button>
+
+            <button
+                v-if="data.meta.filter"
+                class="absolute inset-y-0 rtl:inset-r-0 end-5 flex items-center pe-3 cursor-pointer"
+                @click="clearFiler"
+                title="Limpiar filtro">
+                <svg
+                    class="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-orange-900 dark:hover:text-orange-900"
+                    aria-hidden="true"
+                    fill="none"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M6 18L18 6M6 6l12 12"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2" />
+                </svg>
+            </button>
             <input
                 type="text"
                 class="block p-2 ps-6 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
