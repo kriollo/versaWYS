@@ -260,19 +260,20 @@ const preCompileVue = async (data, source) => {
     const app = `import { app } from '@/dashboard/js/vue-instancia';`;
     output = `${app}${output}`;
 
-    // reemplazamos export default por export const
     output = output.replace(
         'export default {',
         `export const ${fileName}_component = {
-            __name: '${fileName}',
-        `,
+        __name: '${fileName}',
+    `,
     );
-    output = output.replaceAll(/_ctx\.(?!\$)/g, '$setup.');
-
-    output = output.replace(
-        'export function render(_ctx, _cache) {',
-        'function render(_ctx, _cache, $props, $setup, $data, $options) {',
-    );
+    // reemplazamos cuando usamos script setup
+    if (descriptor.scriptSetup) {
+        output = output.replaceAll(/_ctx\.(?!\$)/g, '$setup.');
+        output = output.replace(
+            'export function render(_ctx, _cache) {',
+            'function render(_ctx, _cache, $props, $setup, $data, $options) {',
+        );
+    }
 
     const exportComponent = `
         ${fileName}_component.render = render
