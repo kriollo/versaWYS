@@ -7,7 +7,6 @@
         <div class="flex gap-2 items-center">
             <svg
                 class="w-[32px] h-[32px] text-gray-800 dark:text-white"
-                aria-hidden="true"
                 fill="currentColor"
                 height="24"
                 viewBox="0 0 24 24"
@@ -32,7 +31,6 @@
                         href="/admin/dashboard">
                         <svg
                             class="w-3 h-3 me-2.5"
-                            aria-hidden="true"
                             fill="currentColor"
                             viewBox="0 0 20 20"
                             xmlns="http://www.w3.org/2000/svg">
@@ -46,7 +44,6 @@
                     <div class="flex items-center">
                         <svg
                             class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1"
-                            aria-hidden="true"
                             fill="none"
                             viewBox="0 0 6 10"
                             xmlns="http://www.w3.org/2000/svg">
@@ -67,7 +64,6 @@
                     <div class="flex items-center">
                         <svg
                             class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1"
-                            aria-hidden="true"
                             fill="none"
                             viewBox="0 0 6 10"
                             xmlns="http://www.w3.org/2000/svg">
@@ -85,7 +81,6 @@
                                 href="/admin/usuarios/addUser">
                                 <svg
                                     class="w-[20px] h-[20px] text-gray-800 dark:text-white"
-                                    aria-hidden="true"
                                     fill="currentColor"
                                     height="24"
                                     viewBox="0 0 24 24"
