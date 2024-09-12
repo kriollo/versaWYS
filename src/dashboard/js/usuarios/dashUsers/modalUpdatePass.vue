@@ -18,6 +18,7 @@
 
     const showModalLocal = computed(() => props.showModal);
     const tokenId = computed(() => props.tokenId);
+    const origen = computed(() => props.origen);
     const csrf_token = inject('csrf_token');
 
     const tooglePassword = (
