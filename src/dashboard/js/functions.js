@@ -36,7 +36,7 @@ export const existeCookieBuild = () => {
     return cookie !== undefined;
 };
 
-const validateResponeStatus = status => {
+const validateResponeStatus = (/** @type {number} */ status) => {
     if (errorMap.has(status)) {
         Swal.fire({
             title: 'Error!',
@@ -51,6 +51,7 @@ const validateResponeStatus = status => {
 };
 
 /**
+ * @preserve
  * Performs a fetch request with the provided parameters.
  * @param {Object} params - The fetch parameters.
  * @param {string} params.url - The URL to fetch.
@@ -58,7 +59,7 @@ const validateResponeStatus = status => {
  * @param {Object|HeadersInit} [params.headers = {}] - The headers to include in the request.
  * @param {FormData|Object|string} [params.data] - The data to send in the request body.
  * @param {('omit'|'same-origin'|'include')} [params.credentials='same-origin'] - The credentials mode for the request.
- * @returns {Promise} - A promise that resolves to the response data.
+ * @returns {Promise<any>} - A promise that resolves to the response data.
  * @throws {Error} - If the response status is not valid or an error occurs during the request.
  */
 export const versaFetch = async params => {
@@ -152,6 +153,7 @@ export const getTime = () => {
 };
 
 /**
+ * @preserve
  * Displays a custom alert using the Swal library.
  *
  * @param {Object} Params - The parameters for the alert.
@@ -196,10 +198,17 @@ export const versaAlert = Params => {
 
 export const log = console.log.bind(console);
 
-export const removeScape = str => {
+export const removeScape = (/** @type {string} */ str) => {
     return str.replace(/\\/g, '');
 };
 
+/**
+ * @preserve
+ * Displays a custom alert using the Swal library.
+ * @param {Object} Params - The parameters for the alert.
+ * @param {string} [Params.title='¡Éxito!'] - The title of the alert.
+ * @param {string} [Params.message=''] - The message of the alert.
+ */
 export const VersaToast = Swal.mixin({
     toast: true,
     position: 'top-right',
