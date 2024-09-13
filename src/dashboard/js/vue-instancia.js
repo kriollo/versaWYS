@@ -1,13 +1,13 @@
 import { existeCookieBuild } from '@/dashboard/js/functions.js';
 import { createApp } from 'vue';
 
+export const debug = existeCookieBuild();
 export const app = createApp({
     setup() {},
     template: `
         <vue-loader-components />
     `,
 });
-export const debug = existeCookieBuild();
 if (debug) {
     app.config.warnHandler = function (msg, vm, trace) {
         console.warn(msg, vm, trace);
