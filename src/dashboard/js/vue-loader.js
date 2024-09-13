@@ -3,13 +3,18 @@ import { getFechaUnix } from '@/dashboard/js/functions';
 import { app, debug } from '@/dashboard/js/vue-instancia';
 import { provide } from 'vue';
 
+const public_provider = {
+    debug,
+    csrf_token: '',
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // Obtener la URL del módulo actual
     const scriptUrl = new URL(import.meta.url);
     const module = scriptUrl.searchParams.get('m');
 
     const inputToken = $dom('#csrf_token');
-    const csrf_token =
+    public_provider.csrf_token =
         inputToken instanceof HTMLInputElement ? inputToken.value : '';
 
     if (!module) {
@@ -40,8 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Registrar y montar el componente
             app.component('vue-loader-components', {
                 setup() {
-                    provide('debug', debug);
-                    provide('csrf_token', csrf_token);
+                    for (const key in public_provider) {
+                        provide(key, public_provider[key]);
+                    }
                 },
                 template: `<${component}/>`,
             });
