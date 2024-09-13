@@ -2,6 +2,10 @@
 <html lang="es" class="dark">
 
 	<head>
+		<!--sólo para que no de error de mixin con ngrok, se puede sacar en producción-->
+		<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
@@ -37,16 +41,16 @@
 		{% else %}
 			{# modo debug #}
 			{# public/vendor/vue/vue.esm-browser.js #}
-			<script type="importmap">
-				{
-					"imports": {
-						"vue": "{{ assets_url('node_modules/vue/dist/vue.esm-browser.js') }}",
-						"vue-demi": "{{ assets_url('public/vendor/vue/vue-demi-v3.mjs') }}",
-						"pinia": "{{ assets_url('node_modules/pinia/dist/pinia.esm-browser.js') }}",
-						"@vue/devtools-api": "{{ assets_url('node_modules/@vue/devtools-api/lib/esm/index.js') }}",
-						"sweetalert2": "{{ assets_url('public/vendor/sweetalert2/sweetalert2.mjs') }}"
+				<script type="importmap">
+					{
+						"imports": {
+							"vue": "{{ assets_url('node_modules/vue/dist/vue.esm-browser.js') }}",
+							"vue-demi": "{{ assets_url('public/vendor/vue/vue-demi-v3.mjs') }}",
+							"pinia": "{{ assets_url('node_modules/pinia/dist/pinia.esm-browser.js') }}",
+							"@vue/devtools-api": "{{ assets_url('node_modules/@vue/devtools-api/lib/esm/index.js') }}",
+							"sweetalert2": "{{ assets_url('public/vendor/sweetalert2/sweetalert2.mjs') }}"
+						}
 					}
-				}
 			</script>
 		{% endif %}
 		<script type="module" src="{{ getAssets('dashboard', 'js', '/dashboard.js') }}?{{ date()|date('U') }}"></script>
