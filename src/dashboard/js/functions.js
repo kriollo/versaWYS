@@ -62,7 +62,7 @@ const validateResponeStatus = (/** @type {number} */ status) => {
  * @returns {Promise<any>} - A promise that resolves to the response data.
  * @throws {Error} - If the response status is not valid or an error occurs during the request.
  */
-export const versaFetch = async params => {
+export const versaFetch = async (/** @preserve @type {object} */ params) => {
     const { url, method, headers, data, credentials = 'same-origin' } = params;
 
     const init = {
