@@ -8,26 +8,56 @@ import * as m_compiler from 'vue/compiler-sfc';
 const log = console.log.bind(console);
 const error = console.error.bind(console);
 
-const PATH_SOURCE = './src';
-const PATH_DIST = './public';
+let PATH_SOURCE = './src';
+let PATH_DIST = './public';
 
 let pathAlias = null;
 
 // obtener parametro de entrada
 let isAll = false;
+let isProd = false;
 if (process.argv.length > 1) {
     const args = process.argv.slice(2);
     isAll = args.includes('--all');
+
+    if (args.includes('--prod')) {
+        isProd = true;
+    }
+
+    console.log(chalk.green(`isAll: ${isAll}`));
+    console.log(chalk.green(`isProd: ${isProd}`));
 }
 
 const getPathAlias = async () => {
     const pathFile = './tsconfig.json';
 
     const data = await fs.readFile(pathFile, 'utf-8');
-    if (!data) return;
+    if (!data) {
+        error(chalk.red('❎ :Error al leer el archivo tsconfig.json'));
+        return;
+    }
 
     const pathAlias = JSON.parse(data).compilerOptions.paths;
     log(chalk.green(`pathAlias: ${JSON.stringify(pathAlias)}`));
+
+    const sourceRoot = JSON.parse(data).compilerOptions.sourceRoot;
+    if (sourceRoot) {
+        PATH_SOURCE = sourceRoot;
+        if (PATH_SOURCE.endsWith('/')) {
+            PATH_SOURCE = sourceRoot.slice(0, -1);
+        }
+    }
+
+    const outDir = JSON.parse(data).compilerOptions.outDir;
+    if (outDir) {
+        PATH_DIST = outDir;
+        if (PATH_DIST.endsWith('/')) {
+            PATH_DIST = outDir.slice(0, -1);
+        }
+    }
+
+    console.log(chalk.green(`PATH_SOURCE: ${PATH_SOURCE}`));
+    console.log(chalk.green(`PATH_DIST: ${PATH_DIST}`));
 
     return pathAlias;
 };
@@ -83,25 +113,46 @@ const replaceVarByConstHTML = async data => {
 };
 
 const replaceAlias = async data => {
+    // Función para escapar los caracteres especiales en una expresión regular
+    const escapeRegExp = string =>
+        string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     for (const key in pathAlias) {
-        const value = pathAlias[key][0];
-        const newKey = key.replaceAll('/*', '');
-        const alias = `from '${newKey}`;
-        const alias2 = ` '${newKey}`;
+        const values = pathAlias[key];
+        // Escapa el alias para usarlo en una expresión regular
+        const escapedKey = escapeRegExp(key.replace('/*', ''));
 
-        const ruta = value.replaceAll('/*', '').replace('./', '/');
+        // Genera las posibles variaciones del alias en formato de expresión regular
+        const aliasPatterns = [
+            new RegExp(`import\\(\\s*['"]${escapedKey}`, 'g'),
+            new RegExp(`from\\s*['"]${escapedKey}`, 'g'),
+            new RegExp(`['"]${escapedKey}`, 'g'),
+            new RegExp(`import\\(\`\\${escapedKey}`, 'g'), // Maneja el caso de backticks
+        ];
 
-        const aliasRegExp = new RegExp(alias, 'g');
-        const aliasRegExp2 = new RegExp(alias2, 'g');
+        for (const value of values) {
+            const replacement = value.replace('/*', '').replace('./', '/');
 
-        data = data.replaceAll(aliasRegExp, ` from '${ruta}`);
-        data = data.replaceAll(aliasRegExp2, `'${ruta}`);
+            // Aplica todos los reemplazos
+            for (const pattern of aliasPatterns) {
+                data = data.replace(pattern, match => {
+                    // Ajuste específico según el patrón encontrado
+                    if (match.startsWith('import(`')) {
+                        return `import(\`${replacement}`;
+                    } else if (match.startsWith('import(')) {
+                        return `import('${replacement}`;
+                    } else if (match.startsWith('from ')) {
+                        return `from '${replacement}`;
+                    } else {
+                        return `'${replacement}`;
+                    }
+                });
+            }
+        }
 
-        const aliasRegExp3 = /import '.\//g;
-        data = data.replaceAll(aliasRegExp3, `import '/`);
-
-        const aliasRegExp5 = /from '\.\//g;
-        data = data.replaceAll(aliasRegExp5, `from '/`);
+        // Reemplaza los patrones específicos './' por '/'
+        data = data.replace(/import ['"]\.\//g, "import '/");
+        data = data.replace(/from ['"]\.\//g, "from '/");
     }
 
     return data;
@@ -143,7 +194,19 @@ const addImportEndJs = async data => {
     return data;
 };
 
+const removePreserverComent = async data => {
+    const preserverRegExp =
+        /\/\*[\s\S]*?@preserve[\s\S]*?\*\/|\/\/.*?@preserve.*?(?=\n|$)/g;
+    data = data.replace(preserverRegExp, match =>
+        match.replace(/@preserve/g, ''),
+    );
+    return data;
+};
+
 const estandarizaData = async data => {
+    if (isProd) {
+        data = await removePreserverComent(data);
+    }
     data = await removehtmlOfTemplateString(data);
     data = await removeCodeTagImport(data);
     data = await replaceVarByConstHTML(data);
@@ -152,11 +215,18 @@ const estandarizaData = async data => {
     return data;
 };
 
+const compileCustomBlock = async (block, source) => {};
+
 const preCompileVue = async (data, source) => {
     const fileName = path.basename(source).replace('.vue', '');
     const __fileName = path.parse(source).name;
 
-    const { descriptor, errors } = m_compiler.parse(data);
+    const { descriptor, errors } = m_compiler.parse(data, {
+        filename: fileName,
+        sourceMap: false,
+        sourceRoot: path.dirname(source),
+    });
+
     if (errors.length !== 0) {
         throw new Error(`preCompileVue: ${errors.toString()}`);
     }
@@ -222,6 +292,12 @@ const preCompileVue = async (data, source) => {
         ...templateOptions,
     });
 
+    let customBlocks = '';
+    if (descriptor.customBlocks.length > 0) {
+        // eliminar el ultimo caracter que es un punto y coma
+        customBlocks = descriptor?.customBlocks[0].content.slice(0, -1) ?? '';
+    }
+
     // Compile styles Y obtener el contenido de los estilos
     let insertStyles = '';
     if (descriptor.styles) {
@@ -260,12 +336,22 @@ const preCompileVue = async (data, source) => {
     const app = `import { app } from '@/dashboard/js/vue-instancia';`;
     output = `${app}${output}`;
 
-    output = output.replace(
-        'export default {',
-        `export const ${fileName}_component = {
-        __name: '${fileName}',
-    `,
-    );
+    if (output.includes('export default {')) {
+        output = output.replace(
+            'export default {',
+            `export const ${fileName}_component = {
+            __name: '${fileName}',
+        `,
+        );
+    } else {
+        output = output.replace(
+            'export default /*@__PURE__*/_defineComponent({',
+            `export const ${fileName}_component = /*@__PURE__*/_defineComponent({
+                __name: '${fileName}',
+            `,
+        );
+    }
+
     // reemplazamos cuando usamos script setup
     if (descriptor.scriptSetup) {
         output = output.replaceAll(/_ctx\.(?!\$)/g, '$setup.');
@@ -278,19 +364,20 @@ const preCompileVue = async (data, source) => {
     const exportComponent = `
         ${fileName}_component.render = render
         ${fileName}_component.__file = '${__fileName}'
-        ${fileName}_component.__scopeId = '${scopeId}'
+        ${fileName}_component.__scopeId = '${scopeId}';
+        ${customBlocks}
         export const ${fileName} = app.component('${fileName}', ${fileName}_component)
     `;
 
     output = `${output}\n${exportComponent}`;
-
-    log(chalk.green(`🧪 :Pre Compilado VUE Finalizado ${fileName}`));
 
     await fs.writeFile(
         `./public/dashboard/js/${fileName}-temp.js`,
         output,
         'utf-8',
     );
+
+    log(chalk.green(`🧪 :Pre Compilado VUE Finalizado ${fileName}`));
 
     return output;
 };
@@ -303,21 +390,24 @@ const compileJS = async (source, destination) => {
         const segundos = new Date().getSeconds();
 
         const filename = path.basename(source);
-        log(
+        await log(
             chalk.blue(
                 `🪄 :${hora}:${minutos}:${segundos} - Compilando ${filename}`,
             ),
         );
 
         let data = await fs.readFile(source, 'utf-8');
-        if (!data) return;
+        if (!data) {
+            await error(chalk.yellow('⚠️ :Archivo vacío\n'));
+            return;
+        }
 
         const extension = source.split('.').pop();
         if (extension === 'vue') {
-            log(chalk.green(`🧪 :Pre Compilando VUE Inicia ${filename}`));
+            await log(chalk.green(`🧪 :Pre Compilando VUE Inicia ${filename}`));
             data = await preCompileVue(data, source);
             if (data.error) {
-                error(
+                await error(
                     chalk.red(
                         `❎ :Error durante la compilación Vue :${data.error}\n`,
                     ),
@@ -329,11 +419,13 @@ const compileJS = async (source, destination) => {
 
         data = await estandarizaData(data);
 
-        log(chalk.blue(`🔍 :Minificando ${filename}`));
+        await log(chalk.blue(`🔍 :Minificando ${filename}`));
         const result = await minify(
             { [filename]: data },
             {
-                compress: true,
+                compress: {
+                    passes: 2,
+                },
                 ecma: 2022,
                 module: 'es6',
                 toplevel: true,
@@ -342,12 +434,15 @@ const compileJS = async (source, destination) => {
                     html5_comments: false,
                     shebang: false,
                 },
+                format: {
+                    preamble: '/* WYS Soluciones Informatica - VersaWYS */',
+                },
             },
         );
-        log(chalk.green(`📝 :Escribiendo ${destination}`));
+        await log(chalk.green(`📝 :Escribiendo ${destination}`));
 
         if (result.code.length === 0) {
-            error(
+            await error(
                 chalk.yellow(
                     '⚠️ :Warning al compilar JS: El archivo está vacío\n',
                 ),
@@ -361,7 +456,9 @@ const compileJS = async (source, destination) => {
 
             const endTime = Date.now();
             const elapsedTime = endTime - startTime;
-            log(chalk.gray(`✅ :Compilación exitosa (${elapsedTime} ms) \n`));
+            await log(
+                chalk.gray(`✅ :Compilación exitosa (${elapsedTime} ms) \n`),
+            );
         }
     } catch (errora) {
         error(
@@ -371,29 +468,26 @@ const compileJS = async (source, destination) => {
     }
 };
 const compile = async path => {
-    const pathParts = path.split('\\');
-    const fileName = pathParts.pop();
-    const ruta = `${pathParts.join('/')}/`;
-    const extension = fileName.split('.').pop();
+    console.log(chalk.green(`🧪 :Compilando ${path}`));
 
-    let outputPath = `${await mapRuta(ruta)}\\${fileName}`;
+    const outputPath = path.replace(PATH_SOURCE, PATH_DIST);
+    console.log(chalk.green(`🧪 :destination ${outputPath}`));
 
-    outputPath = outputPath.replace('\\', '/');
+    const extension = path.split('.').pop();
 
     if (outputPath) {
         await compileJS(path, outputPath);
     } else {
-        log(chalk.yellow(`Tipo no reconocido: ${extension}`));
+        await log(chalk.yellow(`Tipo no reconocido: ${extension}`));
     }
 };
 
 const compileAll = async watchDir => {
     try {
+        pathAlias = await getPathAlias();
         const files = glob.sync(watchDir);
-        pathAlias = getPathAlias();
-
         for (const file of files) {
-            compile(file);
+            await compile(file.startsWith('./') ? file : `./${path}`);
         }
     } catch (errora) {
         error(chalk.red('❎ :Error durante la compilación inicial:'), errora);
@@ -405,13 +499,18 @@ const init = async () => {
         const watchJS = `${PATH_SOURCE}/**/*.js`;
         const watchVue = `${PATH_SOURCE}/**/*.vue`;
 
-        await watch([watchJS, watchVue])
-            .on('add', path => compile(path))
-            .on('change', path => compile(path))
-            .on('unlink', path => deleteFile(path));
-        log(chalk.green(`👀 :Watching ${[watchJS, watchVue].join(', ')}`));
-
         pathAlias = await getPathAlias();
+        await watch([watchJS, watchVue])
+            .on('add', path =>
+                compile(path.startsWith('./') ? path : `./${path}`),
+            )
+            .on('change', path =>
+                compile(path.startsWith('./') ? path : `./${path}`),
+            )
+            .on('unlink', path =>
+                deleteFile(path.startsWith('./') ? path : `./${path}`),
+            );
+        log(chalk.green(`👀 :Watching ${[watchJS, watchVue].join(', ')}`));
     } catch (error) {
         error(
             chalk.red('❎ :Error al iniciar:'),
@@ -424,5 +523,6 @@ const init = async () => {
 };
 
 if (isAll) {
+    console.log(chalk.green('Compilando todos los archivos...'));
     compileAll(`${PATH_SOURCE}/**/*.{js,vue}`);
 } else init();
