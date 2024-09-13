@@ -105,3 +105,11 @@ Router::post('/admin/usuarios/updateAvatar', [UsersController::class, 'updateAva
 Router::get('/admin/perfiluser', [DashBoardController::class, 'perfiluser'])->middleware([
     [AuthMiddleware::class, 'checkSession'],
 ]);
+
+/**
+ * Define the route for the admin login page.
+ * This route redirects if a session is already active.
+ */
+Router::get('/admin/qr', [DashBoardController::class, 'qr'])->middleware([
+    [AuthMiddleware::class, 'redirectIfSession'],
+]);

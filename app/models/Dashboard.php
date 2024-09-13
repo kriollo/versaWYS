@@ -17,7 +17,7 @@ class Dashboard extends RedBeanCnn
         vsm.id AS id_submenu, vsm.nombre AS submenu, vsm.descripcion AS desc_submenu, vsm.icono AS ico_submenu, vsm.url AS url_submenu
         FROM versamenu AS vm LEFT JOIN versasubmenu AS vsm ON vm.id = vsm.id_menu AND vsm.estado = 1
         WHERE vm.estado = 1
-        ORDER BY vm.posicion ASC, vsm.posicion asc");
+        ORDER BY vm.seccion, vm.posicion ASC, vsm.posicion asc");
     }
 
     public function __construct()

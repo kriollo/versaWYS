@@ -2,7 +2,7 @@
 	<div class="relative flex flex-col flex-1 min-h-0 pt-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700">
 		<div class="flex flex-col flex-1 pt-5 pb-4 overflow-y-auto">
 			<div class="flex-1 px-3 space-y-1 bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-				<ul class="pb-2 space-y-2">
+				<ul class="pb-2">
 					<li>
 						<a href="/" class="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700">
 							<svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
@@ -13,7 +13,7 @@
 					</li>
 				</ul>
 
-				<ul class="pb-2 space-y-2">
+				<ul class="pb-2">
 					{% set menu = "" %}
 					{% set seccion = "" %}
 					{% set cont = 0 %}
@@ -41,7 +41,7 @@
 								</span>
 							</a>
 						{% else %}
-							<button type="button" title="{{ m.desc_menu }}" class="flex justify-between w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 sidebar-item-button" aria-controls="dropdown-{{ m.id_menu }}" data-collapse-toggle="dropdown-{{ m.id_menu }}">
+							<button type="button" title="{{ m.desc_menu }}" class="flex items-center justify-between w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 sidebar-item-button" aria-controls="dropdown-{{ m.id_menu }}" data-collapse-toggle="dropdown-{{ m.id_menu }}">
 								<div class="flex">
 									<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
 										{{ m.ico_menu | removeScape | raw }}
@@ -52,7 +52,6 @@
 									</span>
 								</div>
 								<i class="bi bi-caret-right-fill text-xs" sidebar-toggle-item></i>
-
 							</button>
 						{% endif %}
 
@@ -77,7 +76,7 @@
 			{% endif %}
 		</ul>
 
-		<div class="pt-2 space-y-2">
+		<div class="pt-2">
 			{% if current_user.role =='admin' %}
 				<a href="/admin/usuarios" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700">
 					<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">

@@ -36,6 +36,11 @@ class DashBoardController extends GlobalControllers
         return $this->template->render('dashboard/login/login');
     }
 
+    public function qr(): string
+    {
+        return $this->template->render('codeScan/codeScan');
+    }
+
     /**
      * Authenticates the user based on the provided email and password.
      *
