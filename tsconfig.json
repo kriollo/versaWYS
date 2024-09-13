@@ -18,6 +18,8 @@
             "esnext"
         ],
         "outDir": "./public/",
+        "sourceRoot": "./src/",
+        "sourceMap": true,
         "rootDir": ".",
         "paths": {
             "@/*": ["./public/*"],
