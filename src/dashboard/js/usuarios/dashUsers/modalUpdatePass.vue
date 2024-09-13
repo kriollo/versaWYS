@@ -111,7 +111,7 @@
         }
     };
 </script>
-<template #default>
+<template>
     <modal
         :idModal="origen + 'resetPass'"
         :showModal="showModalLocal"
