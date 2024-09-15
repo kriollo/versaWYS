@@ -163,7 +163,7 @@ class versaTwig extends Environment
         $dataNow = new \DateTime();
         $dataNow = $dataNow->format('Y-m-d H:i:s');
 
-        return "<div class='flex justify-between w-full bottom-0 left-0 bg-red-900 text-white fixed z-50 p-2 animate-Debugfade' id='debug'><div>Modo Debug: Activado</div><div class='flex gap-1'><img class='w-6 h-6' src='/public/dashboard/img/favicon.webp'></img>VersaWYS Framework </div><div id='tiempoCarga'></div></div><script>const antes=new Date('$dataNow').getTime(); function tdc(){ return (new Date().getTime() - antes) / 1e3 + 's';} window.onload=function (){ document.getElementById('tiempoCarga').innerHTML='CARGA: ' + tdc();}; </script>";
+        return "<div class='flex justify-between w-full bottom-0 left-0 bg-red-900 text-white fixed z-50 p-2 animate-Debugfade' id='debug'><div class='flex items-center'>Modo Debug: Activado</div><div class='flex items-center gap-1'><img class='w-6 h-6' src='/public/dashboard/img/favicon.webp'></img>VersaWYS Framework </div><div id='tiempoCarga'></div></div><script>const antes=new Date('$dataNow').getTime(); function tdc(){ return (new Date().getTime() - antes) / 1e3 + 's';} window.onload=function (){ document.getElementById('tiempoCarga').innerHTML='CARGA: ' + tdc();}; </script>";
     }
 
     /**
