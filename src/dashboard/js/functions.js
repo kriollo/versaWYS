@@ -1,15 +1,11 @@
 import Swal from 'sweetalert2';
-const loadSwallCss = async () => {
-    const SwalStyles = await import(
-        // @ts-ignore
-        '@/vendor/sweetalert2/sweetalert2.dark.min.css',
-        { with: { type: 'css' } }
-    );
-    document.adoptedStyleSheets = [
-        ...document.adoptedStyleSheets,
-        SwalStyles.default,
-    ];
+const loadSwallCss = () => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '@/vendor/sweetalert2/sweetalert2.dark.min.css';
+    document.head.appendChild(link);
 };
+
 loadSwallCss();
 
 const errorMap = new Map([
@@ -198,9 +194,8 @@ export const versaAlert = Params => {
 
 export const log = console.log.bind(console);
 
-export const removeScape = (/** @type {string} */ str) => {
-    return str.replace(/\\/g, '');
-};
+export const removeScape = (/** @type {string} */ str) =>
+    str.replace(/\\/g, '');
 
 /**
  * @preserve
