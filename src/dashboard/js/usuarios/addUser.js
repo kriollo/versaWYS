@@ -41,7 +41,6 @@ if (btnAddUser !== null) {
                     role="alert">
                     <svg
                         class="flex-shrink-0 w-4 h-4"
-                        aria-hidden="true"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                         xmlns="http://www.w3.org/2000/svg">
@@ -61,7 +60,6 @@ if (btnAddUser !== null) {
                         <span class="sr-only">Close</span>
                         <svg
                             class="w-3 h-3"
-                            aria-hidden="true"
                             fill="none"
                             viewBox="0 0 14 14"
                             xmlns="http://www.w3.org/2000/svg">

@@ -294,7 +294,6 @@
                 title="Click para buscar">
                 <svg
                     class="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                    aria-hidden="true"
                     fill="none"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg">
@@ -314,7 +313,6 @@
                 title="Limpiar filtro">
                 <svg
                     class="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-orange-900 dark:hover:text-orange-900"
-                    aria-hidden="true"
                     fill="none"
                     viewBox="0 0 20 20"
                     xmlns="http://www.w3.org/2000/svg">
@@ -386,7 +384,6 @@
                             ">
                             <svg
                                 class="w-6 h-6"
-                                aria-hidden="true"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -451,7 +448,6 @@
                             v-else-if="col.type == 'svg'">
                             <svg
                                 class="w-[20px] h-[20px] text-gray-800 dark:text-white"
-                                aria-hidden="true"
                                 fill="currentColor"
                                 height="24"
                                 v-html="removeScapeLocal(row[col.field])"
