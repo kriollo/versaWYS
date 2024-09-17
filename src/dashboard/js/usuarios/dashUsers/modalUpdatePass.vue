@@ -129,7 +129,6 @@
                         @click="accion({ accion: 'closeModal' })">
                         <svg
                             class="w-3 h-3"
-                            aria-hidden="true"
                             fill="none"
                             viewBox="0 0 14 14"
                             xmlns="http://www.w3.org/2000/svg">
@@ -167,7 +166,6 @@
                         <svg
                             id="imgShowPassNew"
                             class="hidden w-6 h-6 text-gray-800 dark:text-slate-400"
-                            aria-hidden="true"
                             fill="none"
                             viewbox="0 0 20 18"
                             xmlns="http://www.w3.org/2000/svg">
@@ -181,7 +179,6 @@
                         <svg
                             id="imgHiddenPassNew"
                             class="show w-6 h-6 text-gray-800 dark:text-slate-400"
-                            aria-hidden="true"
                             fill="none"
                             viewbox="0 0 20 14"
                             xmlns="http://www.w3.org/2000/svg">
@@ -224,7 +221,6 @@
                         <svg
                             id="imgShowPassConfirmNew"
                             class="hidden w-6 h-6 text-gray-800 dark:text-slate-400"
-                            aria-hidden="true"
                             fill="none"
                             viewbox="0 0 20 14"
                             xmlns="http://www.w3.org/2000/svg">
@@ -238,7 +234,6 @@
                         <svg
                             id="imgHiddenPassConfirmNew"
                             class="show w-6 h-6 text-gray-800 dark:text-slate-400"
-                            aria-hidden="true"
                             fill="none"
                             viewbox="0 0 20 14"
                             xmlns="http://www.w3.org/2000/svg">
