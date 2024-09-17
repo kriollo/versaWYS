@@ -106,7 +106,7 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
 }
 
 const $sidebar = $dom('#sidebar');
-if ($sidebar) {
+if ($sidebar instanceof HTMLElement) {
     const $sidebarItems = $dom('.sidebar-item', $sidebar);
     const $sidebarItemsButton = $domAll('.sidebar-item-button', $sidebarItems);
     $sidebarItemsButton.forEach(button => {
