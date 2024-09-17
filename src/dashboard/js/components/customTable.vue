@@ -1,5 +1,5 @@
 <script setup>
-    import { dropDown } from '@/dashboard/js/components/dropdown';
+    import { dropDown } from '@/dashboard/js/components/dropDown';
     import { loader } from '@/dashboard/js/components/loader';
 
     import { createXlsxFromJson } from '@/dashboard/js/composables/useXlsx';
