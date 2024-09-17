@@ -371,11 +371,11 @@ const preCompileVue = async (data, source) => {
 
     output = `${output}\n${exportComponent}`;
 
-    await fs.writeFile(
-        `./public/dashboard/js/${fileName}-temp.js`,
-        output,
-        'utf-8',
-    );
+    // await fs.writeFile(
+    //     `./public/dashboard/js/${fileName}-temp.js`,
+    //     output,
+    //     'utf-8',
+    // );
 
     log(chalk.green(`🧪 :Pre Compilado VUE Finalizado ${fileName}`));
 
