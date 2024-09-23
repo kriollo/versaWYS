@@ -339,14 +339,14 @@ const preCompileVue = async (data, source) => {
     if (output.includes('export default {')) {
         output = output.replace(
             'export default {',
-            `export const ${fileName}_component = {
+            `const ${fileName}_component = {
             __name: '${fileName}',
         `,
         );
     } else {
         output = output.replace(
             'export default /*@__PURE__*/_defineComponent({',
-            `export const ${fileName}_component = /*@__PURE__*/_defineComponent({
+            `const ${fileName}_component = /*@__PURE__*/_defineComponent({
                 __name: '${fileName}',
             `,
         );
