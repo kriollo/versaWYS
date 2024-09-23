@@ -6,7 +6,7 @@
         versaFetch,
         VersaToast,
     } from '@/dashboard/js/functions';
-    import { computed, defineEmits, defineProps, inject } from 'vue';
+    import { computed, inject } from 'vue';
 
     const props = defineProps({
         showModal: Boolean,

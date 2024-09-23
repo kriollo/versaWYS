@@ -4,15 +4,7 @@
 
     import { createXlsxFromJson } from '@/dashboard/js/composables/useXlsx';
     import { removeScape, versaFetch } from '@/dashboard/js/functions';
-    import {
-        computed,
-        defineEmits,
-        defineProps,
-        reactive,
-        ref,
-        watch,
-        watchEffect,
-    } from 'vue';
+    import { computed, reactive, ref, watch, watchEffect } from 'vue';
 
     const props = defineProps({
         id: {

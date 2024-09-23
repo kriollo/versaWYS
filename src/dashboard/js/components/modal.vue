@@ -13,7 +13,7 @@
  */
 </docs>
 <script setup lang="ts">
-    import { computed, defineEmits, defineProps, ref, watch } from 'vue';
+    import { computed, ref, watch } from 'vue';
     const props = defineProps({
         idModal: {
             type: String,

@@ -1,6 +1,6 @@
 <script setup>
     import { $dom } from '@/dashboard/js/composables/dom';
-    import { computed, defineProps, onMounted } from 'vue';
+    import { computed, onMounted } from 'vue';
 
     const model = defineModel();
     const emit = defineEmits(['accion', 'update:model']);
