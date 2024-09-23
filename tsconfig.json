@@ -22,8 +22,8 @@
         "sourceMap": true,
         "rootDir": ".",
         "paths": {
-            "@/*": ["./public/*"],
-            "@n/*": ["./node_modules/*"]
+            "@#/*": ["./node_modules/*"],
+            "@/*": ["./public/*"]
         },
         "typeRoots": ["/node_modules/", "./src/dashboards/**/*"],
         "allowSyntheticDefaultImports": false,
