@@ -57,7 +57,7 @@
             };
             const response = await versaFetch(params);
             if (response.success === 1) {
-                await VersaToast.fire({
+                VersaToast.fire({
                     icon: 'success',
                     title: response.message,
                 });
