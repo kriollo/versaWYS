@@ -108,7 +108,8 @@ const removehtmlOfTemplateString = async data => {
 };
 
 const replaceVarByConstHTML = async data => {
-    const varRegExp = /var\s+/g;
+    // Reemplaza todas las declaraciones de variables por constantes, excepto las que contienen 'html'
+    const varRegExp = /\bvar\b\s+/g;
     return data.replaceAll(varRegExp, 'const ');
 };
 
@@ -212,6 +213,7 @@ const estandarizaData = async data => {
     data = await replaceVarByConstHTML(data);
     data = await replaceAlias(data);
     data = await addImportEndJs(data);
+
     return data;
 };
 
@@ -318,7 +320,7 @@ const preCompileVue = async (data, source) => {
             insertStyles = `
                 (function(){
                     let styleTag = document.createElement('style');
-                    styleTag.setAttribute('data-v-${fileName}', '');
+                    styleTag.setAttribute('data-v-${id}', '');
                     styleTag.innerHTML = \`${cssCode}\`;
                     document.head.appendChild(styleTag);
                 })();
@@ -364,7 +366,7 @@ const preCompileVue = async (data, source) => {
     const exportComponent = `
         ${fileName}_component.render = render
         ${fileName}_component.__file = '${__fileName}'
-        ${fileName}_component.__scopeId = '${scopeId}';
+        ${hasScoped ? `${fileName}_component.__scopeId = '${scopeId}'` : ''}
         ${customBlocks}
         export const ${fileName} = app.component('${fileName}', ${fileName}_component)
     `;
@@ -450,6 +452,10 @@ const compileJS = async (source, destination) => {
             // eliminar si existe el archivo de destino
             await fs.unlink(destination);
         } else {
+            if (!isProd) {
+                result.code = result.code.replaceAll('*/;export', '*/\nexport');
+                result.code = result.code.replaceAll('*/export', '*/\nexport');
+            }
             const destinationDir = path.dirname(destination);
             await fs.mkdir(destinationDir, { recursive: true });
             await fs.writeFile(destination, result.code, 'utf-8');
