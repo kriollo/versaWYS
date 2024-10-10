@@ -23,6 +23,14 @@ class Perfil extends RedBeanCnn
         return R::getAll('SELECT * FROM versaperfil');
     }
 
+    public function save(array $params): int
+    {
+        $perfil = R::dispense(self::$table);
+        $perfil->nombre = $params['nombre'];
+        $perfil->estado = $params['estado'];
+        return R::store($perfil);
+    }
+
     public function __construct()
     {
         $this->connet();

@@ -1,6 +1,7 @@
 import { read, utils, writeFile } from '@/vendor/xlsx/xlsx.full.min.esm.js';
 
 /**
+ * @preserve
  * Retrieves the names of all sheets in the Excel file.
  * @param {File} file - The Excel file to read.
  * @returns {Promise<string[]>} - A promise that resolves to an array of sheet names.
@@ -15,6 +16,7 @@ export const getSheetNames = async file => {
 };
 
 /**
+ * @preserve
  * Reads an XLSX file and returns the data from the specified sheet.
  * @param {File} file - The XLSX file to read.
  * @param {number} [hoja=0] - The index of the sheet to read (default is 0).
@@ -32,6 +34,7 @@ export const readXlsx = async (file, hoja = 0) => {
 };
 
 /**
+ * @preserve
  * Creates an XLSX file from JSON data.
  * @param {Array} data - The JSON data to be converted to XLSX.
  * @param {string} [sheetName='Sheet1'] - The name of the sheet in the XLSX file.

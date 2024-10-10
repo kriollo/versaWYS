@@ -8,7 +8,15 @@ use versaWYS\kernel\Request;
 use versaWYS\kernel\Session;
 use versaWYS\kernel\versaTwig;
 
-$config = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
+$configPath = __DIR__ . '/config.json';
+if (!file_exists($configPath)) {
+    throw new Exception("Configuration file not found: $configPath");
+}
+
+$config = json_decode(file_get_contents($configPath), true);
+if (json_last_error() !== JSON_ERROR_NONE) {
+    throw new Exception('Error parsing configuration file: ' . json_last_error_msg());
+}
 
 // TODO: Crear funcionamiento para el caché de rutas, crear comando en versaCLI para activar o desactivar el caché de rutas, crear comando en versaCLI para limpiar el caché de rutas, crear comando en versaCLI para mostrar el estado del caché de rutas
 // TODO: crear logica de carga de rutas, si el caché de rutas esta activado, cargar las rutas desde el caché, si no esta activado, cargar las rutas desde los archivos de rutas
@@ -50,7 +58,7 @@ header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Ac
 header('Access-Control-Allow-Credentials: true');
 header('X-Frame-Options: SAMEORIGIN');
 header('Access-Control-Max-Age: 86400');
-header('X-powered-by: none');
+header('X-Powered-By: none');
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     header('HTTP/1.1 200 OK');

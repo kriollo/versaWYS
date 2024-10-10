@@ -6,13 +6,13 @@
  * Props:
  * @property {string} idModal - (required): The ID of the modal.
  * @property {boolean} showModal - (required): Determines whether the modal is visible.
- * @property {('max-w-md'|'max-xl-md'|'max-2xl-md')} [size='max-w-md'] - (optional): The size of the modal.
+ * @property {('max-w-md'|'max-w-lg'|'max-w-2xl'|'max-w-4xl'|'max-w-7xl')} [size='max-w-md'] - (optional): The size of the modal.
  *
  * Emits:
  * @event {Object} accion - Emits an object with the action to be performed.
  */
 </docs>
-<script setup lang="ts">
+<script setup>
     import { computed, ref, watch } from 'vue';
     const props = defineProps({
         idModal: {
@@ -68,7 +68,7 @@
                     class="relative bg-white rounded-lg shadow dark:bg-gray-700">
                     <!-- Modal header -->
                     <div
-                        class="p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                        class="p-4 md:p-3 border-b rounded-t dark:border-gray-600">
                         <slot name="modalTitle"></slot>
                     </div>
                     <!-- Modal body -->

@@ -26,8 +26,38 @@ class PerfilController extends GlobalControllers
      */
     public function index(): string
     {
-        return $this->template->render('dashboard/perfil/dashPerfil', [
-            'menu_op' => ['id_menu' => 0],
+        return $this->template->render('dashboard/loader', [
+            'm' => 'dashboard/js/perfil/dashPerfiles',
+        ]);
+    }
+
+    public function getAllPerfiles(): void
+    {
+        $perfiles = (new Models\Perfil())->all();
+        Response::json([
+            'success' => 1,
+            'data' => $perfiles,
+        ]);
+    }
+
+    public function savePerfil(): void
+    {
+        global $request;
+        $params = $request->getAllParams();
+        $id = (new Models\Perfil())->save($params);
+
+        if ($id === 0) {
+            Response::json([
+                'success' => 0,
+                'message' => 'Error al guardar el perfil',
+                'code' => 500,
+            ]);
+        }
+
+        Response::json([
+            'success' => 1,
+            'message' => 'Perfil guardado correctamente',
+            'code' => 200,
         ]);
     }
 }

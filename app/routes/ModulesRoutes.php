@@ -9,6 +9,7 @@ use app\middleware\AuthMiddleware;
 use app\middleware\ModulesMiddleware;
 use versaWYS\kernel\Router;
 
+// Rutas de Navegador
 Router::get('/admin/modulesRoutes', [ModulesController::class, 'index'])->middleware([
     [AuthMiddleware::class, 'checkSession'],
     [AuthMiddleware::class, 'onlyAdmin'],
@@ -39,4 +40,24 @@ Router::patch('/admin/modules/movePosition', [ModulesController::class, 'movePos
     [AuthMiddleware::class, 'checkSession'],
     [AuthMiddleware::class, 'onlyAdmin'],
     [ModulesMiddleware::class, 'validateMovePositionParams'],
+]);
+
+//submodules
+Router::get('/admin/modules/getSubModules', [ModulesController::class, 'getSubModules'])->middleware([
+    [AuthMiddleware::class, 'checkSession'],
+    [AuthMiddleware::class, 'onlyAdmin'],
+]);
+
+Router::patch('/admin/submodules/changeStatus', [ModulesController::class, 'changeStatusSubModule'])->middleware([
+    [AuthMiddleware::class, 'validateCSRFToken'],
+    [AuthMiddleware::class, 'checkSession'],
+    [AuthMiddleware::class, 'onlyAdmin'],
+    [ModulesMiddleware::class, 'validateChangeStatusSubModulesParams'],
+]);
+
+Router::post('/admin/submodules/saveModule', [ModulesController::class, 'saveSubModule'])->middleware([
+    [AuthMiddleware::class, 'validateCSRFToken'],
+    [AuthMiddleware::class, 'checkSession'],
+    [AuthMiddleware::class, 'onlyAdmin'],
+    [ModulesMiddleware::class, 'validateSaveSubModuleParams'],
 ]);

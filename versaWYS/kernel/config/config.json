@@ -1,5 +1,5 @@
 {
-    "framework": "versaWYS-PHP 0.9.5",
+    "framework": "versaWYS-PHP 0.9.6",
     "DB": {
         "DB_HOST": "localhost",
         "DB_USER": "local",
@@ -16,18 +16,18 @@
     },
     "build": {
         "debug": true,
-        "name": "WYS Soluciones Inform\u00e1ticas",
-        "version": "1.5.1",
+        "name": "VERSAWYS-PHP",
+        "version": "0.1.2",
         "timezone": "America/Santiago",
         "charset": "utf-8"
     },
     "session": {
-        "key": "APISVersaWYS",
+        "key": "VERSAWYS2024",
         "lifetime": 3600,
         "user_cookie": {
             "domain": "localhost",
             "enable": true,
-            "key_encript": "X8f3p@9Vde0WvKauzI8C2",
+            "key_encript": "X8f3p@9Vde0WvKauzI8Cs2",
             "lifetime": 3600,
             "lifetime_remember": 2592000,
             "secure": false,

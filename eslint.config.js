@@ -13,6 +13,7 @@ export default [
     pluginJs.configs.recommended,
     {
         ...html.configs['flat/essential'],
+        ...pluginVue.configs['flat/essential'],
         plugins: {
             //import: eslintImport,
             prettier: eslintPluginPrettier,

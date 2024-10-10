@@ -56,11 +56,7 @@ class AuthMiddleware
     {
         global $session, $request;
 
-        $token = $request->get('_csrf_token')
-            ? $request->get('_csrf_token')
-            : ($request->get('csrf_token')
-                ? $request->get('csrf_token')
-                : null);
+        $token = $request->get('_csrf_token') ?: ($request->get('csrf_token') ?: null);
 
         if ($token === null) {
             return [

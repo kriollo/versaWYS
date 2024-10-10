@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace app\controllers;
 
-use app\Models as Models;
-use versaWYS\kernel\Globalcontrollers;
-use versaWYS\kernel\helpers\Functions;
-use versaWYS\kernel\Response;
+use app\models as Models;
+use versaWYS\kernel\GlobalControllers;
 
-class ModulesController extends Globalcontrollers
+class ModulesController extends GlobalControllers
 {
     public function __construct()
     {
@@ -31,20 +29,21 @@ class ModulesController extends Globalcontrollers
      *
      * @return void
      */
-    public function getModulesPaginated()
+    public function getModulesPaginated(): array
     {
         global $request;
 
-        $params = Functions::getParamsPaginate($request, ['seccion', 'nombre', 'descripcion']);
+        $params = $this->getParamsPaginate($request, ['seccion', 'nombre', 'descripcion']);
         $filter = $params['filter'] ? $params['filter'] : '';
         $order = $params['order'] ? "ORDER BY seccion asc, $params[order]" : 'ORDER BY seccion asc , posicion DESC';
         $result = (new Models\Pagination())->pagination(
             'versamenu',
-            ['id', 'seccion', 'nombre', 'descripcion', 'icono', 'estado', 'url', 'posicion'],
+            ['id', 'seccion', 'nombre', 'descripcion', 'icono', 'estado', 'url', 'posicion', 'submenu'],
             $filter,
             $order,
             $params['limit']
         );
+
         $count = (int) $result['total'];
 
         $total_pages = ceil($count / $params['per_page']);
@@ -97,8 +96,13 @@ class ModulesController extends Globalcontrollers
                     ],
                     [
                         'title' => 'Ver Submenús',
-                        'icon' => 'bi bi-menu-app-fill text-xl text-blue-500',
-                        'class' => 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white',
+                        'icon' => 'bi bi-menu-app-fill text-xl text-blue-500  dark:text-blue-300',
+                        'class' => [
+                            'condition_field' => 'submenu',
+                            'condition_value' => '1',
+                            'active' => 'bg-gray-500 hover:bg-gray-600 dark:bg-gray-500 dark:hover:bg-gray-600',
+                            'inactive' => 'text-gray-400 dark:text-gray-400',
+                        ],
                         'action' => 'viewSubmenus',
                         'condition' => 'estado',
                         'condition_value' => '1',
@@ -123,22 +127,19 @@ class ModulesController extends Globalcontrollers
             ],
         ];
 
-        Response::json(
-            [
-                'success' => 1,
-                'data' => $result['data'],
-                'columns' => $columns,
-                'meta' => [
-                    'filter' => $params['filtro'],
-                    'total' => $count,
-                    'from' => $params['page'] + 1,
-                    'to' => $params['page'] + count($result['data']),
-                    'page' => $params['page'],
-                    'total_pages' => (int) $total_pages,
-                ],
+        return [
+            'success' => 1,
+            'data' => $result['data'],
+            'columns' => $columns,
+            'meta' => [
+                'filter' => $params['filtro'],
+                'total' => $count,
+                'from' => $params['page'] + 1,
+                'to' => $params['page'] + count($result['data']),
+                'page' => $params['page'],
+                'total_pages' => (int) $total_pages,
             ],
-            200
-        );
+        ];
     }
 
     /**
@@ -146,7 +147,7 @@ class ModulesController extends Globalcontrollers
      *
      * @return void
      */
-    public function saveModule()
+    public function saveModule(): array
     {
         global $request;
 
@@ -155,10 +156,9 @@ class ModulesController extends Globalcontrollers
         $result = (new Models\Modules())->saveModule($params);
 
         if ($result) {
-            Response::json(['success' => 1, 'message' => 'Menú guardado correctamente'], 200);
-        } else {
-            Response::json(['success' => 0, 'message' => 'Error al crear el menú'], 500);
+            return ['success' => 1, 'message' => 'Menú guardado correctamente'];
         }
+        return ['success' => 0, 'message' => 'Error al crear el menú'];
     }
 
     /**
@@ -168,7 +168,7 @@ class ModulesController extends Globalcontrollers
      *
      * @return void
      */
-    public function changeStatus(): void
+    public function changeStatus(): array
     {
         global $request;
 
@@ -176,19 +176,146 @@ class ModulesController extends Globalcontrollers
         $result = (new Models\Modules())->changeStatus($params);
 
         if ($result) {
-            Response::json(['success' => 1, 'message' => 'Menú actualizado correctamente'], 200);
-        } else {
-            Response::json(['success' => 0, 'message' => 'Error al actualizar el menú'], 500);
+            return ['success' => 1, 'message' => 'Menú actualizado correctamente'];
         }
+        return ['success' => 0, 'message' => 'Error al actualizar el menú'];
     }
 
-    public function movePosition(): void
+    public function movePosition(): array
+    {
+        global $request;
+
+        //todo: finalizar este método
+        $params = $request->getAllParams();
+        (new Models\Modules())->movePosition($params);
+
+        return ['success' => 1];
+    }
+
+    //submodules
+    public function getSubModules(): array
+    {
+        global $request;
+
+        $params = $this->getParamsPaginate($request, ['id'], true);
+
+        $filter = $params['filter'] ? $params['filter'] : '';
+        $order = $params['order'] ? "ORDER BY $params[order]" : 'ORDER BY id asc , posicion DESC';
+        $result = (new Models\Pagination())->pagination(
+            'versasubmenu',
+            ['id_menu', 'id', 'nombre', 'descripcion', 'estado', 'url', 'posicion'],
+            $filter,
+            $order,
+            $params['limit']
+        );
+
+        $count = (int) $result['total'];
+
+        $total_pages = ceil($count / $params['per_page']);
+        if ($total_pages === 1 || $total_pages === 0) {
+            $total_pages = 1;
+            if ($params['page'] >= 1) {
+                $params['page'] = 0;
+            }
+        }
+
+        $columns = [
+            [
+                'field' => 'id',
+                'title' => 'Posición',
+                'type' => 'position',
+                'buttons' => [
+                    [
+                        'type' => 'up',
+                        'title' => 'Arriba',
+                        'class' => 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white',
+                        'icon' => 'bi bi-arrow-up',
+                        'action' => 'changePosition',
+                    ],
+                    [
+                        'type' => 'down',
+                        'title' => 'Abajo',
+                        'class' => 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white',
+                        'icon' => 'bi bi-arrow-down',
+                        'action' => 'changePosition',
+                    ],
+                ],
+            ],
+            ['field' => 'nombre', 'title' => 'Nombre Menú'],
+            ['field' => 'descripcion', 'title' => 'Descripción'],
+            ['field' => 'estado', 'title' => 'Estado', 'type' => 'status'],
+            [
+                'field' => 'actions',
+                'title' => 'Acciones',
+                'type' => 'actions',
+                'buttons' => [
+                    [
+                        'title' => 'Editar',
+                        'icon' => 'bi bi-pencil-fill text-xl text-yellow-500',
+                        'class' => 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white',
+                        'action' => 'showEditSubModule',
+                        'condition' => 'estado',
+                        'condition_value' => '1',
+                    ],
+                    [
+                        'title' => 'Desactivar Menú',
+                        'icon' => 'bi bi-trash-fill text-xl text-red-500',
+                        'class' => 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white',
+                        'action' => 'changeStatusSubMenu',
+                        'condition' => 'estado',
+                        'condition_value' => '1',
+                    ],
+                    [
+                        'title' => 'Activar Menú',
+                        'icon' => 'bi bi-recycle text-xl text-green-500',
+                        'class' => 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white',
+                        'action' => 'changeStatusSubMenu',
+                        'condition' => 'estado',
+                        'condition_value' => '0',
+                    ],
+                ],
+            ],
+        ];
+
+        return [
+            'success' => 1,
+            'data' => $result['data'],
+            'columns' => $columns,
+            'meta' => [
+                'filter' => $params['filtro'],
+                'total' => $count,
+                'from' => $params['page'] + 1,
+                'to' => $params['page'] + count($result['data']),
+                'page' => $params['page'],
+                'total_pages' => (int) $total_pages,
+            ],
+        ];
+    }
+
+    public function saveSubModule(): array
     {
         global $request;
 
         $params = $request->getAllParams();
-        (new Models\Modules())->movePosition($params);
+        $params['estado'] = $params['estado'] === 'true' ? 1 : 0;
+        $result = (new Models\Modules())->saveSubModule($params);
 
-        Response::json(['success' => 1], 200);
+        if ($result) {
+            return ['success' => 1, 'message' => 'Menú guardado correctamente'];
+        }
+        return ['success' => 0, 'message' => 'Error al crear el menú'];
+    }
+
+    public function changeStatusSubModule(): array
+    {
+        global $request;
+
+        $params = $request->getAllParams();
+        $result = (new Models\Modules())->changeStatusSubModule($params);
+
+        if ($result) {
+            return ['success' => 1, 'message' => 'Menú actualizado correctamente'];
+        }
+        return ['success' => 0, 'message' => 'Error al actualizar el menú'];
     }
 }

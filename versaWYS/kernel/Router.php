@@ -127,13 +127,12 @@ class Router
     /**
      * Handles the catching and handling of exceptions in the Router class.
      *
-     * @param Exception $e The exception to be caught and handled.
+     * @param Exception|Throwable $e The exception to be caught and handled.
      * @return void
      */
     private function catch($e): void
     {
         global $config;
-        header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
 
         if ($config['build']['debug']) {
             Response::jsonError(
@@ -178,7 +177,8 @@ class Router
                 return null;
             }
 
-            foreach (self::${$method . 'Routes'} as $route => $callback) {
+            $routes = self::${$method . 'Routes'} ?? [];
+            foreach ($routes as $route => $callback) {
                 $originalRoute = $route;
                 if (str_contains($route, '{')) {
                     $route = preg_replace('#{[a-zA-Z0-9]+}#', '([a-zA-Z0-9]+)', $route);
@@ -234,13 +234,7 @@ class Router
                         404
                     );
                 } else {
-                    Response::jsonError(
-                        [
-                            'success' => 0,
-                            'message' => 'Ruta no encontrada',
-                        ],
-                        404
-                    );
+                    throw new Exception('Error Processing Interno', 1);
                 }
             }
         } catch (Exception $e) {

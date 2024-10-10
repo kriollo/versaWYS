@@ -1,4 +1,5 @@
 /**
+ * @preserve
  * Selects the first element that matches the specified selector within the given context.
  *
  * @param {string} selector - The CSS selector to match the element.
@@ -9,6 +10,7 @@ export const $dom = (selector, context = document) =>
     context.querySelector(selector);
 
 /**
+ * @preserve
  * Returns a list of elements that match the given selector within the specified context.
  *
  * @param {string} selector - The CSS selector to match elements against.
@@ -19,6 +21,7 @@ export const $domAll = (selector, context = document) =>
     context.querySelectorAll(selector);
 
 /**
+ * @preserve
  * Sets the locked status of a form and disables its inputs and submit button accordingly.
  * @param {HTMLFormElement} $form - The form element to be locked.
  * @param {string} [status='true'] - The status to set for the form. Defaults to 'true'.
@@ -49,6 +52,7 @@ export const blockedForm = ($form, status = 'true') => {
 };
 
 /**
+ * @preserve
  * Serializes a form into an array of objects containing the form field names and values.
  * @param {HTMLFormElement} $form - The form element to be serialized.
  * @returns {Array} - An array of objects containing the form field names and values.
@@ -63,6 +67,7 @@ export const serializeToArray = $form =>
     });
 
 /**
+ * @preserve
  * Serializes a form into an object.
  *
  * @param {HTMLFormElement} $form - The form element to serialize.
@@ -73,3 +78,33 @@ export const serializeToObject = $form =>
         acc[name] = value;
         return acc;
     }, {});
+
+/**
+ * @preserve
+ * Validates a form by checking if all required fields are filled.
+ * @param {HTMLFormElement} $form - The form element to validate.
+ * @returns {boolean} - Whether the form is valid.
+ */
+export const validateFormRequired = $form => {
+    const requiredFields = $domAll('[required]', $form);
+    let isValid = true;
+    requiredFields.forEach(field => {
+        field.parentElement.classList.remove(
+            'border',
+            'border-red-500',
+            'border-solid',
+            'border-dashed',
+        );
+        if (!(field instanceof HTMLInputElement)) return;
+        if (!field.value) {
+            field.parentElement.classList.add(
+                'border',
+                'border-red-500',
+                'border-solid',
+                'border-dashed',
+            );
+            isValid = false;
+        }
+    });
+    return isValid;
+};

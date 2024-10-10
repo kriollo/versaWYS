@@ -192,10 +192,11 @@ class CommandLineInterface
             exit();
         }
 
+        $migrate = new MigrationManager();
         match ($params[0]) {
-            'up' => MigrationManager::runUP(),
-            'down' => MigrationManager::runDown($params[1]),
-            'new' => MigrationManager::createMigration($params[1]),
+            'up' => $migrate->runUP(),
+            'down' => $migrate->runDown($params[1]),
+            'new' => $migrate->createMigration($params[1]),
             default => $this->printHelp(),
         };
     }

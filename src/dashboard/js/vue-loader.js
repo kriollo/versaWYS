@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const component = module.split('/').pop();
-    const $contenedor = '.content-wrapper';
+    const $contenedor = '#main-content';
 
     // Importar dinámicamente el módulo
     import(`@/${module}.js?${getFechaUnix()}`)
@@ -56,6 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error al cargar el módulo:', error);
         })
         .finally(() => {
-            app.mount('.content-wrapper');
+            app.mount($contenedor);
         });
 });

@@ -67,12 +67,54 @@ class Modules extends RedBeanCnn
             $newPosition = $params['currentPosition'] + 1;
         }
 
-        
-
-
         // return R::store($module);
     }
 
+    //submodules
+    public function changeStatusSubModule($params): mixed
+    {
+        $module = R::load('versasubmenu', $params['id']);
+        $module->estado = $params['estado'];
+        $result = R::store($module);
+
+        //check if all submodules are disabled
+        $subModules = R::find('versasubmenu', 'id_menu = ?', [$module->id_menu]);
+        $allDisabled = true;
+        foreach ($subModules as $subModule) {
+            if ($subModule->estado === '1') {
+                $allDisabled = false;
+                break;
+            }
+        }
+
+        //if all submodules are disabled, disable the main module
+        $mainModule = R::load('versamenu', $module->id_menu);
+        if ($allDisabled) {
+            $mainModule->submenu = '0';
+        } else {
+            $mainModule->submenu = '1';
+        }
+        R::store($mainModule);
+
+        return $result;
+    }
+
+    public function saveSubModule($data): int|string
+    {
+        if ($data['action'] === 'edit') {
+            $module = R::load('versasubmenu', $data['id']);
+        } else {
+            $module = R::dispense('versasubmenu');
+        }
+        $module->id_menu = $data['id_menu'];
+        $module->nombre = $data['nombre'];
+        $module->descripcion = $data['descripcion'];
+        $module->estado = $data['estado'];
+        $module->url = $data['url'];
+        $module->created_at = date('Y-m-d H:i:s');
+        $module->updated_at = date('Y-m-d H:i:s');
+        return R::store($module);
+    }
     public function __construct()
     {
         $this->connet();

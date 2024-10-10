@@ -21,10 +21,9 @@
 		{% block appHeader %}{% endblock %}
 	</head>
 
-	<body class="bg-gray-50 dark:bg-gray-800"> {% block appBody %}{% endblock %}{% block appFooter %}{% endblock %}
+	<body class="bg-gray-50 dark:bg-gray-800"> {% block appBody %}{% endblock %}
 
 		<script src="{{ assets_url('/public/vendor/flowbite/flowbite.min.js') }}"></script>
-
 		{% if config['build']['debug'] == '0' %}
 			{# public/vendor/vue/vue.esm-browser.prod.js #}
 			<script type="importmap">

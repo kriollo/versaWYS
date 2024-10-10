@@ -9,7 +9,7 @@ use RedBeanPHP\R;
 use RedBeanPHP\RedException;
 use versaWYS\kernel\RedBeanCnn;
 
-class MigrationManager
+class MigrationManager extends RedBeanCnn
 {
     private static string $path = 'app/migrations/';
     private static string $pathClass = '\\app\\migrations\\';
@@ -17,24 +17,22 @@ class MigrationManager
     /**
      * @throws RedException
      */
-    private static function inicializate(): void
+    public function __construct()
     {
-        (new RedBeanCnn())->setup();
+        $this->connet();
         R::freeze(false);
         R::debug(true, 1);
     }
-    public static function close(): void
+    public function __destruct()
     {
         R::freeze();
-        R::close();
+        $this->closeDB();
     }
 
     public static function runUP(): void
     {
         $className = '';
         try {
-            self::inicializate();
-
             $migrations = glob(self::$path . '*.php');
             $c = 0;
             foreach ($migrations as $migration) {
@@ -52,7 +50,6 @@ class MigrationManager
 
                 if (!$result['success']) {
                     echo "Error: {$result['message']}\n";
-                    self::close();
                     exit();
                 }
 
@@ -66,11 +63,10 @@ class MigrationManager
             } else {
                 echo "Migraciones ejecutadas con éxito.\n";
             }
-            self::close();
+
             exit();
         } catch (Exception $e) {
             echo "Error al ejecutar la migración $className: {$e->getMessage()}\n";
-            self::close();
             exit();
         }
     }
@@ -78,13 +74,11 @@ class MigrationManager
     /**
      * @throws RedException
      */
-    public static function runDown($fileDown): void
+    public function runDown($fileDown): void
     {
-        self::inicializate();
-
         if (!file_exists(self::$path . "$fileDown.php")) {
             echo "No existe la migración $fileDown.php\n";
-            self::close();
+
             exit();
         }
 
@@ -94,7 +88,7 @@ class MigrationManager
         echo "Verificando migración $className...";
         if (!self::checkIfExecuted($className)) {
             echo "No ejecutada.\n";
-            self::close();
+
             exit();
         }
 
@@ -104,18 +98,18 @@ class MigrationManager
 
         if (!$result['success']) {
             echo "Error: {$result['message']}\n";
-            self::close();
+
             exit();
         }
         try {
             R::exec("DELETE FROM versamigrations WHERE name = '$className'");
 
             echo "Migración ejecutada con éxito.\n";
-            self::close();
+
             exit();
         } catch (Exception $e) {
             echo "Error al ejecutar la migración $className: {$e->getMessage()}\n";
-            self::close();
+
             exit();
         }
     }

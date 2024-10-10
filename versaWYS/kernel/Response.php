@@ -37,7 +37,7 @@ class Response
         global $twig;
         http_response_code($code);
         echo $twig->render('versaWYS/debugError.twig', ['data' => $data]);
-        return false;
+        exit();
     }
 
     /**

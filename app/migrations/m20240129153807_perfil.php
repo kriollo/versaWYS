@@ -14,7 +14,8 @@ class m20240129153807_perfil
             R::exec("CREATE TABLE IF NOT EXISTS `versaperfil` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
                 `nombre` VARCHAR(255) NOT NULL,
-                `descripcion` VARCHAR(255) NOT NULL,
+                `pagina_inicio` VARCHAR(255) DEFAULT 'dashboard',
+                `estado` INT(11) NOT NULL DEFAULT '1',
                 `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (`id`)

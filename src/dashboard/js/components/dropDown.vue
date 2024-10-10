@@ -66,6 +66,12 @@
         const $dropdownElement = $dom(
             `#${$dropdown.getAttribute('data-dropdown-toggle-component')}`,
         );
+        if (
+            !($dropdown instanceof HTMLElement) ||
+            !($dropdownElement instanceof HTMLElement)
+        ) {
+            return;
+        }
         $dropdownElement.style.position = 'absolute';
         $dropdownElement.style.top = `${$dropdown.offsetTop + $dropdown.offsetHeight + 10}px`;
         $dropdownElement.style.left = `${$dropdown.offsetLeft}px`;
