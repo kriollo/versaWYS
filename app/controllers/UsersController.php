@@ -40,19 +40,29 @@ class UsersController extends GlobalControllers
      */
     public function addUserTemplate(): string
     {
-        return $this->template->render('dashboard/usuarios/addUser');
+        return $this->template->render('dashboard/usuarios/addUser', [
+            'perfiles' => (new Models\Perfil())->all(1),
+        ]);
+    }
+    public function editUserTemplate($slug = null): string
+    {
+        $user = (new models\Users())->find($slug, 'tokenid');
+        $perfiles = (new models\Perfil())->all(1);
+        return $this->template->render('dashboard/usuarios/editUser', [
+            'user' => $user,
+            'perfiles' => $perfiles,
+        ]);
     }
 
     public function getUsersPaginated(): void
     {
         global $request;
 
-        $params = $this->getParamsPaginate($request, ['name', 'email', 'role', 'status']);
+        $params = $this->getParamsPaginate($request, ['name', 'email', 'role', 'status', 'vu.pagina_inicio']);
         $filter = $params['filter'] ? $params['filter'] : '';
         $order = $params['order'] ? "ORDER BY $params[order]" : 'ORDER BY id DESC';
-        $result = (new Models\Pagination())->pagination(
-            'versausers',
-            ['id', 'name', 'email', 'role', 'status', 'tokenid'],
+        $result = (new Models\Users())->getUsersPaginate(
+            ['vu.id', 'name', 'email', 'role', 'status', 'tokenid', 'vu.pagina_inicio', 'vp.nombre as perfil'],
             $filter,
             $order,
             $params['limit']
@@ -71,6 +81,8 @@ class UsersController extends GlobalControllers
             ['field' => 'id', 'title' => 'ID'],
             ['field' => 'name', 'title' => 'Nombre'],
             ['field' => 'email', 'title' => 'Correo'],
+            ['field' => 'perfil', 'title' => 'Perfil'],
+            ['field' => 'pagina_inicio', 'title' => 'Página de inicio'],
             ['field' => 'role', 'title' => 'Rol'],
             ['field' => 'status', 'title' => 'Estado', 'type' => 'status'],
             [
@@ -176,14 +188,6 @@ class UsersController extends GlobalControllers
                 500
             );
         }
-    }
-
-    public function editUserTemplate($slug = null): string
-    {
-        $user = (new models\Users())->find($slug, 'tokenid');
-        return $this->template->render('dashboard/usuarios/editUser', [
-            'user' => $user,
-        ]);
     }
 
     public function editUser(): void

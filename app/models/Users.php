@@ -39,6 +39,24 @@ class Users extends RedBeanCnn
         $this->closeDB();
     }
 
+    public function getUsersPaginate(
+        array $fields = [],
+        string $where = '',
+        string $order = 'ORDER BY id ASC',
+        string $limit = 'LIMIT 0, 15'
+    ): array {
+        $filter = trim($where) != '' ? "WHERE $where" : '';
+        $fields = $fields ? implode(',', $fields) : '*';
+
+        $result = R::getAll("SELECT SQL_CALC_FOUND_ROWS $fields
+        FROM versausers vu
+        LEFT JOIN versaperfil vp
+        ON vp.id = vu.id_perfil
+        $filter $order $limit");
+        $total = R::getCell('SELECT FOUND_ROWS()');
+        return ['total' => $total, 'data' => $result];
+    }
+
     /**
      * Find a user by ID or a specific field.
      *
@@ -124,9 +142,16 @@ class Users extends RedBeanCnn
         $user->password = $params['password'];
         $user->role = $params['role'];
         $user->status = $params['status'];
+        $user->id_perfil = $params['perfil'];
         $user->created_at = date('Y-m-d H:i:s');
         $user->updated_at = date('Y-m-d H:i:s');
-        return R::store($user);
+        $result = R::store($user);
+
+        if ($result) {
+            $this->setPerfilUser($user->id, $params['perfil']);
+        }
+
+        return $result;
     }
 
     /**
@@ -138,8 +163,24 @@ class Users extends RedBeanCnn
         $user->name = $params['name'];
         $user->password = $params['password'];
         $user->role = $params['role'];
+        $user->id_perfil = $params['perfil'];
         $user->updated_at = date('Y-m-d H:i:s');
-        return R::store($user);
+        $result = R::store($user);
+
+        if ($result) {
+            $this->setPerfilUser($user->id, $params['perfil']);
+        }
+
+        return $result;
+    }
+
+    private function setPerfilUser($idUser, $idPerfil): void
+    {
+        R::exec('DELETE FROM versaperfildetalleuser WHERE id_user = ?', [$idUser]);
+        R::exec(
+            'INSERT INTO versaperfildetalleuser (id_user, menu_id, submenu_id) SELECT ?, menu_id, submenu_id FROM versaperfildetalle WHERE perfil_id = ?',
+            [$idUser, $idPerfil]
+        );
     }
 
     /**
