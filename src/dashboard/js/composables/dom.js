@@ -15,14 +15,10 @@ export const $dom = (selector, context = document) =>
  *
  * @param {string} selector - The CSS selector to match elements against.
  * @param {Document|Element} [context=document] - The context within which to search for elements. Defaults to the document.
- * @returns { NodeList | Array } - A list of elements that match the given selector.
+ * @returns { NodeList  } - A list of elements that match the given selector.
  */
-export const $domAll = (selector, context = document) => {
-    if (context === null || context === undefined) {
-        return [];
-    }
+export const $domAll = (selector, context = document) =>
     context.querySelectorAll(selector);
-};
 
 /**
  * @preserve
