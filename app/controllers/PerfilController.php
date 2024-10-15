@@ -87,10 +87,14 @@ class PerfilController extends GlobalControllers
         global $request;
         $result = (new Models\Perfil())->getPerfil((int) $slug);
 
+        $data = [];
+        $urls = [
+            [
+                'url' => 'admin/dashboard',
+                'nombre' => 'Dashboard',
+            ],
+        ];
         if ($result !== []) {
-            $data = [];
-            $urls = [];
-
             foreach ($result as $item) {
                 if (!array_key_exists($item['seccion'], $data)) {
                     $data[$item['seccion']] = [];
