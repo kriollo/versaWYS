@@ -1,6 +1,7 @@
 <script setup>
     import { inputEditable } from '@/dashboard/js/components/inputEditable';
     import { removeScape, versaFetch } from '@/dashboard/js/functions';
+    import Swal from 'sweetalert2';
     import { inject, ref, watch } from 'vue';
 
     const emit = defineEmits(['accion']);
@@ -37,7 +38,10 @@
             nombre: perfil.value.nombre,
             pagina_inicio: perfil.value.pagina_inicio,
             csrf_token: csrf_token,
-            data: JSON.stringify(perfilData.value),
+            data:
+                JSON.stringify(perfilData.value) === []
+                    ? ''
+                    : JSON.stringify(perfilData.value),
         };
 
         const response = await versaFetch({
@@ -47,7 +51,19 @@
         });
 
         if (response.success) {
-            console.log('Perfil guardado');
+            Swal.fire({
+                icon: 'success',
+                title: 'Perfil actualizado',
+                showConfirmButton: false,
+                timer: 1500,
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al actualizar el perfil',
+                showConfirmButton: false,
+                timer: 1500,
+            });
         }
     };
 

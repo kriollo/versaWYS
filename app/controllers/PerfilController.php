@@ -85,7 +85,17 @@ class PerfilController extends GlobalControllers
     public function getPerfil($slug = null): void
     {
         global $request;
-        $result = (new Models\Perfil())->getPerfil((int) $slug);
+
+        $perfil = (new Models\Perfil())->getPerfil((int) $slug);
+        if ($perfil === null) {
+            Response::json([
+                'success' => 0,
+                'message' => 'Perfil no encontrado',
+                'code' => 404,
+            ]);
+        }
+
+        $result = (new Models\Perfil())->getPerfilPermisos((int) $slug);
 
         $data = [];
         $urls = [
@@ -140,6 +150,7 @@ class PerfilController extends GlobalControllers
 
         Response::json([
             'success' => 1,
+            'perfil' => $perfil,
             'result_puro' => $result,
             'data' => $data,
             'urls' => $urls,
@@ -163,6 +174,7 @@ class PerfilController extends GlobalControllers
 
         Response::json([
             'success' => 1,
+            'result' => $id,
             'message' => 'Perfil guardado correctamente',
             'code' => 200,
         ]);

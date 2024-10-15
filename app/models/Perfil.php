@@ -18,9 +18,12 @@ class Perfil extends RedBeanCnn
      *
      * @return array An array of user records.
      */
-    public function all(): array
+    public function all($estado = 'all'): array
     {
-        return R::getAll('SELECT * FROM versaperfil');
+        if ($estado === 'all') {
+            return R::findAll(self::$table);
+        }
+        return R::getAll('SELECT * FROM versaperfil WHERE estado = ?', [$estado]);
     }
 
     public function save(array $params): int
@@ -39,6 +42,11 @@ class Perfil extends RedBeanCnn
     }
 
     public function getPerfil(int $id): array
+    {
+        return R::getRow('SELECT * FROM versaperfil WHERE id = ?', [$id]);
+    }
+
+    public function getPerfilPermisos(int $id): array
     {
         $sql = "SELECT * FROM (SELECT
                     am.id AS id_menu,
@@ -84,7 +92,7 @@ class Perfil extends RedBeanCnn
         return R::getAll($sql, [$id, $id]);
     }
 
-    public function savePerfilPermisos(array $params): int
+    public function savePerfilPermisos(array $params)
     {
         R::exec('DELETE FROM versaperfildetalle WHERE perfil_id = ?', [$params['id']]);
         $perfil = R::load(self::$table, $params['id']);
@@ -93,10 +101,13 @@ class Perfil extends RedBeanCnn
         $result = R::store($perfil);
 
         $permisos = $params['data'];
+        if ($permisos === '[]' || $permisos === '') {
+            return $result;
+        }
 
-        foreach ($permisos as $key => $value) {
+        foreach ($permisos as $value) {
             //seccion
-            foreach ($value as $key2 => $value2) {
+            foreach ($value as $value2) {
                 //menu
                 if (array_key_exists('checked', $value2)) {
                     if ($value2['checked'] === true) {
@@ -108,7 +119,7 @@ class Perfil extends RedBeanCnn
                     }
                 }
                 if (array_key_exists('submenu', $value2)) {
-                    foreach ($value2['submenu'] as $key3 => $value3) {
+                    foreach ($value2['submenu'] as $value3) {
                         //submenu
                         if (array_key_exists('checked', $value3)) {
                             if ($value3['checked'] === true) {
@@ -132,6 +143,11 @@ class Perfil extends RedBeanCnn
                 'INSERT INTO versaperfildetalleuser (id_user, menu_id, submenu_id) SELECT ?, menu_id, submenu_id FROM versaperfildetalle WHERE perfil_id = ?',
                 [$value['id'], $params['id']]
             );
+
+            //actualizo la pagina de inicio
+            $user = R::load('versausers', $value['id']);
+            $user->pagina_inicio = $params['pagina_inicio'];
+            R::store($user);
         }
         return $result;
     }
