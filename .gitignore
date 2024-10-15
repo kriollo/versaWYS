@@ -7,3 +7,4 @@
 /versaCompileJS/node_modules/*
 .idea
 node_modules
+package-lock.json
