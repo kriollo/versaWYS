@@ -11,13 +11,32 @@ class PerfilDefaultSeeder
     public static function run()
     {
         try {
-            $perfil = R::dispense('versaperfil');
-            $perfil->nombre = 'Personalizado';
-            $perfil->pagina_inicio = 'admin/dashboard';
-            $perfil->estado = 1;
-            $perfil->created_at = date('Y-m-d H:i:s');
-            $perfil->updated_at = date('Y-m-d H:i:s');
-            R::store($perfil);
+            $perfiles = [
+                [
+                    'nombre' => 'Personalizado',
+                    'pagina_inicio' => 'admin/dashboard',
+                    'estado' => 1,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'nombre' => 'Usuario',
+                    'pagina_inicio' => 'user/dashboard',
+                    'estado' => 1,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+            ];
+
+            foreach ($perfiles as $currentPerfil) {
+                $perfil = R::dispense('versaperfil');
+                $perfil->nombre = $currentPerfil['nombre'];
+                $perfil->pagina_inicio = $currentPerfil['pagina_inicio'];
+                $perfil->estado = $currentPerfil['estado'];
+                $perfil->created_at = $currentPerfil['created_at'];
+                $perfil->updated_at = $currentPerfil['updated_at'];
+                R::store($perfil);
+            }
 
             return ['message' => 'Seeder ejecutado con éxito.', 'success' => true];
         } catch (\Exception $e) {

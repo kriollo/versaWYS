@@ -12,18 +12,47 @@ class UsersSeeder
     public static function run()
     {
         try {
-            $users = R::dispense('versausers');
-            $users->tokenid = Functions::generateCSRFToken();
-            $users->name = 'admin';
-            $users->email = 'admin@wys.cl';
-            $users->password = Functions::hash('admin2023');
-            $users->created_at = date('Y-m-d H:i:s');
-            $users->updated_at = date('Y-m-d H:i:s');
-            $users->role = 'admin';
-            $users->id_perfil = 0;
-            $users->pagina_inicio = 'admin/usuarios';
-            $users->status = 1;
-            R::store($users);
+            $users = [
+                [
+                    'name' => 'admin',
+                    'tokenid' => Functions::generateCSRFToken(),
+                    'email' => 'admin@wys.cl',
+                    'password' => Functions::hash('admin2023'),
+                    'role' => 'admin',
+                    'id_perfil' => 1,
+                    'pagina_inicio' => 'admin/usuarios',
+                    'status' => 1,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+                [
+                    'name' => 'user',
+                    'tokenid' => Functions::generateCSRFToken(),
+                    'email' => 'user@wys.cl',
+                    'password' => Functions::hash('user2023'),
+                    'role' => 'user',
+                    'id_perfil' => 2,
+                    'pagina_inicio' => 'user/dashboard',
+                    'status' => 1,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
+            ];
+
+            foreach ($users as $currentUser) {
+                $user = R::dispense('versausers');
+                $user->name = $currentUser['name'];
+                $user->tokenid = $currentUser['tokenid'];
+                $user->email = $currentUser['email'];
+                $user->password = $currentUser['password'];
+                $user->role = $currentUser['role'];
+                $user->id_perfil = $currentUser['id_perfil'];
+                $user->pagina_inicio = $currentUser['pagina_inicio'];
+                $user->status = $currentUser['status'];
+                $user->created_at = $currentUser['created_at'];
+                $user->updated_at = $currentUser['updated_at'];
+                R::store($user);
+            }
 
             return ['message' => 'Seeder ejecutado con éxito.', 'success' => true];
         } catch (\Exception $e) {
