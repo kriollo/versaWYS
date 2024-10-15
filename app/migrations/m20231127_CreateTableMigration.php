@@ -24,8 +24,14 @@ class m20231127_CreateTableMigration
         }
     }
 
-    public static function down(): void
+    public static function down(): array
     {
-        R::exec('DROP TABLE `versamigrations`;');
+        try {
+            R::exec('DROP TABLE `versamigrations`;');
+
+            return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
+        } catch (\Exception $e) {
+            return ['message' => $e->getMessage(), 'success' => false];
+        }
     }
 }

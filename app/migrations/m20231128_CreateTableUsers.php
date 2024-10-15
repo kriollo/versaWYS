@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace app\migrations;
 
 use RedBeanPHP\R;
-use versaWYS\kernel\helpers\Functions;
 
 class m20231128_CreateTableUsers
 {
@@ -31,27 +30,20 @@ class m20231128_CreateTableUsers
                 INDEX `id_perfil` (`id_perfil`) USING BTREE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-            $users = R::dispense('versausers');
-            $users->tokenid = Functions::generateCSRFToken();
-            $users->name = 'admin';
-            $users->email = 'admin@wys.cl';
-            $users->password = Functions::hash('admin2023');
-            $users->created_at = date('Y-m-d H:i:s');
-            $users->updated_at = date('Y-m-d H:i:s');
-            $users->role = 'admin';
-            $users->perfil = 0;
-            $users->pagina_inicio = 'admin/usuarios';
-            $users->status = 1;
-            R::store($users);
-
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
         } catch (\Exception $e) {
             return ['message' => $e->getMessage(), 'success' => false];
         }
     }
 
-    public static function down(): void
+    public static function down(): array
     {
-        R::exec('DROP TABLE `versausers`;');
+        try {
+            R::exec('DROP TABLE `versausers`;');
+
+            return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
+        } catch (\Exception $e) {
+            return ['message' => $e->getMessage(), 'success' => false];
+        }
     }
 }

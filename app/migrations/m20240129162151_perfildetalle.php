@@ -11,29 +11,24 @@ class m20240129162151_perfildetalle
     public static function up()
     {
         try {
-            R::exec("CREATE TABLE IF NOT EXISTS `versaperfildetalle` (
-                `id` INT(11) NOT NULL AUTO_INCREMENT,
-                `perfil_id` INT(11) NOT NULL,
-                `menu_id` INT(11) NOT NULL,
-                `estado` TINYINT(1) NOT NULL DEFAULT 1,
-                `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (`id`),
-                INDEX `fk_perfildetalle_perfil_idx` (`perfil_id` ASC) VISIBLE,
-                INDEX `fk_perfildetalle_menu_idx` (`menu_id` ASC) VISIBLE,
-                CONSTRAINT `fk_perfildetalle_perfil`
-                  FOREIGN KEY (`perfil_id`)
-                  REFERENCES `versaperfil` (`id`)
-                  ON DELETE NO ACTION
-                  ON UPDATE NO ACTION,
-                CONSTRAINT `fk_perfildetalle_menu`
-                  FOREIGN KEY (`menu_id`)
-                  REFERENCES `versamenu` (`id`)
-                  ON DELETE NO ACTION
-                  ON UPDATE NO ACTION)
-              ENGINE = InnoDB
-              DEFAULT CHARSET = utf8mb4
-              COLLATE = utf8mb4_unicode_ci;");
+            R::exec("CREATE TABLE `versaperfildetalle` (
+                            `id` INT NOT NULL AUTO_INCREMENT,
+                            `perfil_id` INT NOT NULL,
+                            `menu_id` INT NOT NULL,
+                            `submenu_id` INT NULL DEFAULT NULL,
+                            `estado` TINYINT(1) NOT NULL DEFAULT '1',
+                            `created_at` DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+                            `updated_at` DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP) ON UPDATE CURRENT_TIMESTAMP,
+                            PRIMARY KEY (`id`) USING BTREE,
+                            INDEX `fk_perfildetalle_perfil_idx` (`perfil_id`) USING BTREE,
+                            INDEX `fk_perfildetalle_menu_idx` (`menu_id`) USING BTREE,
+                            INDEX `fk_perfildetalle_submenu` (`submenu_id`) USING BTREE,
+                            CONSTRAINT `fk_perfildetalle_menu` FOREIGN KEY (`menu_id`) REFERENCES `versamenu` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION,
+                            CONSTRAINT `fk_perfildetalle_perfil` FOREIGN KEY (`perfil_id`) REFERENCES `versaperfil` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION
+                        )
+                        COLLATE='utf8mb4_unicode_ci'
+                        ENGINE=InnoDB
+                        ;");
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
         } catch (\Exception $e) {
@@ -45,6 +40,9 @@ class m20240129162151_perfildetalle
     {
         try {
             // Agrega tu lógica para revertir la migración aquí
+
+            R::exec('DROP TABLE `versaperfildetalle`;');
+
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
         } catch (\Exception $e) {
             return ['message' => $e->getMessage(), 'success' => false];

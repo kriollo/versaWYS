@@ -40,7 +40,7 @@ class m20240128160458_submenu
     public static function down()
     {
         try {
-            R::exec('DROP TABLE IF EXISTS `versamenu`;');
+            R::exec('DROP TABLE IF EXISTS `versasubmenu`;');
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
         } catch (\Exception $e) {
