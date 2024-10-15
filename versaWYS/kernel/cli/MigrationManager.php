@@ -29,7 +29,7 @@ class MigrationManager extends RedBeanCnn
         $this->closeDB();
     }
 
-    public static function runUP(): void
+    public static function runUP($close = true): void
     {
         $className = '';
         try {
@@ -43,7 +43,7 @@ class MigrationManager extends RedBeanCnn
                     continue;
                 }
 
-                echo "Ejecutando... $className:";
+                echo "Ejecutando... $className....:";
                 $result = $fullClassName::up();
                 echo "{$result['message']}\n";
                 $c++;
@@ -64,7 +64,9 @@ class MigrationManager extends RedBeanCnn
                 echo "Migraciones ejecutadas con éxito.\n";
             }
 
-            exit();
+            if ($close) {
+                exit();
+            }
         } catch (Exception $e) {
             echo "Error al ejecutar la migración $className: {$e->getMessage()}\n";
             exit();
@@ -175,5 +177,47 @@ EOT;
             }
         }
         return false;
+    }
+
+    public function rollbackAll(): void
+    {
+        $migrations = R::getAll('SELECT * FROM versamigrations ORDER BY id DESC');
+        foreach ($migrations as $m) {
+            echo "Ejecutando rollback... {$m['name']}... :";
+
+            $className = basename($m['name'], '.php');
+            $fullClassName = self::$pathClass . $className;
+
+            $result = $fullClassName::down();
+            echo "{$result['message']}\n";
+
+            if (!$result['success']) {
+                echo "Error: {$result['message']}\n";
+                exit();
+            }
+        }
+    }
+
+    public function rollback(): void
+    {
+        $migrations = R::getAll('SELECT * FROM versamigrations');
+        $migrations = array_reverse($migrations);
+        $this->runDown($migrations[0]['name']);
+    }
+
+    public function refresh($runSeeders = false): void
+    {
+        $this->rollbackAll();
+        echo "\n";
+        echo "\n";
+        echo "Ejecutando migraciones...\n";
+        $this->runUP(false);
+
+        if ($runSeeders) {
+            echo "\n";
+            echo "\n";
+            echo "Ejecutando seeders...\n";
+            (new SeederManager())->runAllSeeders();
+        }
     }
 }

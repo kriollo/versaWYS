@@ -32,6 +32,7 @@ class CommandLineInterface
         match ($modulo) {
             'serve' => exec('php -S localhost:8000'),
             'migrate' => $this->handleMigrate($params),
+            'seeder' => $this->handleSeeder($params),
             'config' => $this->handleConfig($params),
             'controller' => $this->handleController($params),
             'route' => $this->handleRoute($params),
@@ -39,6 +40,27 @@ class CommandLineInterface
             'model' => $this->handleModel($params),
             'RCMD' => $this->handleAtajos($params),
             'versaMODULE' => $this->handleModule($params),
+            default => $this->printHelp(),
+        };
+    }
+
+    private function handleSeeder($params): void
+    {
+        if ($params[0] === 'make' && !isset($params[1])) {
+            $this->printHelp();
+            exit();
+        }
+
+        if ($params[0] === 'run' && !isset($params[1])) {
+            $this->printHelp();
+            exit();
+        }
+
+        $seederManager = new SeederManager();
+        match ($params[0]) {
+            'make' => $seederManager->createSeeder($params[1]),
+            'runAll' => $seederManager->runAllSeeders(),
+            'run' => $seederManager->runSeeder($params[1]),
             default => $this->printHelp(),
         };
     }
@@ -182,7 +204,7 @@ class CommandLineInterface
             exit();
         }
 
-        if (!in_array($params[0], ['up', 'down', 'new'])) {
+        if (!in_array($params[0], ['up', 'down', 'new', 'rollback', 'refresh'])) {
             $this->printHelp();
             exit();
         }
@@ -192,50 +214,82 @@ class CommandLineInterface
             exit();
         }
 
+        if ($params[0] === 'refresh' && isset($params[1])) {
+            if ($params[1] !== 'seeder') {
+                $this->printHelp();
+                exit();
+            }
+            $params[0] = 'refresh:seeder';
+        }
+
         $migrate = new MigrationManager();
         match ($params[0]) {
             'up' => $migrate->runUP(),
             'down' => $migrate->runDown($params[1]),
             'new' => $migrate->createMigration($params[1]),
+            'rollback' => $migrate->rollback(),
+            'refresh' => $migrate->refresh(),
+            'refresh:seeder' => $migrate->refresh(true),
             default => $this->printHelp(),
         };
     }
 
     private function printHelp(): void
     {
-        // TODO: Agregar comando a RCMD como por ejemplo: php versaCLI RCMD:nombre --crud Crea las rutas necesarias para un crud, tambien los metodos del controlador y las vistas
+        // Colores y estilos ANSI
+        $reset = "\033[0m";
+        $bold = "\033[1m";
+        $underline = "\033[4m";
+        $cyan = "\033[36m";
+        $yellow = "\033[33m";
+        $green = "\033[32m";
+        $red = "\033[31m";
+
         echo "\n";
+        echo "{$bold}{$cyan}Uso:{$reset} php versaCLI [comando]\n";
         echo "\n";
-        echo "Uso: php versaCLI [comando]\n";
+        echo "{$bold}{$cyan}Atajos:{$reset}\n";
+        echo "  {$yellow}RCMD:[nombre]{$reset} Crear un archivo de ruta, controller, Modelo y Middleware \n";
+        echo "  {$yellow}versaMODULE:[nombre]{$reset} Crear un modulo con sus archivos de ruta, controller, Modelo y Middleware \n";
         echo "\n";
-        echo "Atajos:\n";
-        echo "  RCMD:[nombre] Crear un archivo de ruta, controller, Modelo y Middleware \n";
-        echo "  versaMODULE:[nombre] Crear un modulo con sus archivos de ruta, controller, Modelo y Middleware \n";
-        echo "\n";
-        echo "Comandos:\n";
-        echo "-help Muestra esta ayuda\n";
-        echo "-serve Inicia el servidor de desarrollo\n";
-        echo "-config.\n";
-        echo "  config:debug:[true/false] Activa o desactiva el modo debug\n";
-        echo "  config:templateCache:[true/false] Activa o desactiva el cache de templates\n";
-        echo "  config:ClearCache Limpia el cache de templates\n";
-        echo "-migrate.\n";
-        echo "  migrate:new:[nombre] Crea una nueva migración\n";
-        echo "  migrate:up Ejecuta las migraciones pendientes\n";
-        echo "  migrate:down:[nombre]  Ejecuta la migración indicada\n";
-        echo "-Controller.\n";
-        echo "  controller:make:[nombre] Crea un nuevo controlador, NO AGREGAR SUFIJO 'Controller'\n";
-        echo "  controller:delete:[nombre] Elimina un controlador, NO AGREGAR SUFIJO 'Controller'\n";
-        echo "-Route.\n";
-        echo "  route:make:[nombre] Crea un nuevo archivo de ruta\n";
-        echo "  route:delete:[nombre] Elimina un archivo de ruta\n";
-        echo "  route:list Muestra todas las rutas registradas, seleccionando el archivo de ruta especifico\n";
-        echo "-Middleware.\n";
-        echo "  middleware:make:[nombre] Crea un nuevo middleware, NO AGREGAR SUFIJO 'Middleware'\n";
-        echo "  middleware:delete:[nombre] Elimina un middleware, NO AGREGAR SUFIJO 'Middleware'\n";
-        echo "-Model.\n";
-        echo "  model:make:[nombre] Crea un nuevo modelo\n";
-        echo "  model:delete:[nombre] Elimina un modelo\n";
+        echo "{$bold}{$cyan}Comandos:{$reset}\n";
+        echo "{$bold}{$green}-help{$reset} Muestra esta ayuda\n";
+        echo "{$bold}{$green}-serve{$reset} Inicia el servidor de desarrollo\n";
+
+        echo "{$bold}{$green}-config{$reset}\n";
+        echo "  {$yellow}config:debug:[true/false]{$reset} Activa o desactiva el modo debug\n";
+        echo "  {$yellow}config:templateCache:[true/false]{$reset} Activa o desactiva el cache de templates\n";
+        echo "  {$yellow}config:ClearCache{$reset} Limpia el cache de templates\n";
+
+        echo "{$bold}{$green}-migrate{$reset}\n";
+        echo "  {$yellow}migrate:new:[nombre]{$reset} Crea una nueva migración\n";
+        echo "  {$yellow}migrate:up{$reset} Ejecuta las migraciones pendientes\n";
+        echo "  {$yellow}migrate:down:[nombre]{$reset} Ejecuta la migra ción indicada\n";
+        echo "  {$yellow}migrate:rollback{$reset} Revierte la última migración\n";
+        echo "  {$yellow}migrate:refresh{$reset} Revierte todas las migraciones y las vuelve a ejecutar\n";
+        echo "  {$yellow}migrate:refresh:seeder{$reset} Revierte todas las migraciones, las vuelve a ejecutar y ejecuta todos los seeders\n";
+
+        echo "{$bold}{$green}-seeder{$reset}\n";
+        echo "  {$yellow}seeder:make:[nombre]{$reset} Crea un nuevo seeder\n";
+        echo "  {$yellow}seeder:runAll{$reset} Ejecuta todos los seeders\n";
+        echo "  {$yellow}seeder:run:[nombre]{$reset} Ejecuta el seeder indicado\n";
+
+        echo "{$bold}{$green}-Controller{$reset}\n";
+        echo "  {$yellow}controller:make:[nombre]{$reset} Crea un nuevo controlador, NO AGREGAR SUFIJO 'Controller'\n";
+        echo "  {$yellow}controller:delete:[nombre]{$reset} Elimina un controlador, NO AGREGAR SUFIJO 'Controller'\n";
+
+        echo "{$bold}{$green}-Route{$reset}\n";
+        echo "  {$yellow}route:make:[nombre]{$reset} Crea un nuevo archivo de ruta\n";
+        echo "  {$yellow}route:delete:[nombre]{$reset} Elimina un archivo de ruta\n";
+        echo "  {$yellow}route:list{$reset} Muestra todas las rutas registradas, seleccionando el archivo de ruta especifico\n";
+
+        echo "{$bold}{$green}-Middleware{$reset}\n";
+        echo "  {$yellow}middleware:make:[nombre]{$reset} Crea un nuevo middleware, NO AGREGAR SUFIJO 'Middleware'\n";
+        echo "  {$yellow}middleware:delete:[nombre]{$reset} Elimina un middleware, NO AGREGAR SUFIJO 'Middleware'\n";
+
+        echo "{$bold}{$green}-Model{$reset}\n";
+        echo "  {$yellow}model:make:[nombre]{$reset} Crea un nuevo modelo\n";
+        echo "  {$yellow}model:delete:[nombre]{$reset} Elimina un modelo\n";
 
         echo "\n";
         echo "\n";
