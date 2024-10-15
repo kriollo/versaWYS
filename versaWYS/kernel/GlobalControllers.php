@@ -46,14 +46,10 @@ class GlobalControllers
             $this->user = (new Models\Users())->find($session->get('id_user'));
             $this->id_user = (int) $session->get('id_user');
 
-            if ($this->user['role'] == 'admin') {
-                $this->menu_user = (new Models\Dashboard())->getMenuAdmin();
-            } else {
-                $this->menu_user = (new Models\Dashboard())->getMenuUser(
-                    (int) $this->id_user,
-                    (int) $this->user['id_perfil']
-                );
-            }
+            $this->menu_user = ($this->user['role'] == 'admin') ? (new Models\Dashboard())->getMenuAdmin() : (new Models\Dashboard())->getMenuUser(
+                (int) $this->id_user,
+                (int) $this->user['id_perfil']
+            );
         }
         $twig->addGlobal('current_user', $this->user);
         $twig->addGlobal('menu_user', $this->menu_user);
