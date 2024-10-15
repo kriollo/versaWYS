@@ -108,21 +108,26 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
 const $sidebar = $dom('#sidebar');
 if ($sidebar instanceof HTMLElement && $sidebar !== null) {
     const $sidebarItems = $dom('.sidebar-item', $sidebar);
-    const $sidebarItemsButton = $domAll('.sidebar-item-button', $sidebarItems);
-    $sidebarItemsButton.forEach(button => {
-        button.addEventListener('click', e => {
-            e.preventDefault();
-            const $target = e.currentTarget;
-            const $caret = $dom('[sidebar-toggle-item]', $target);
-            if ($caret) {
-                if ($caret.classList.contains('bi-caret-right-fill')) {
-                    $caret.classList.remove('bi-caret-right-fill');
-                    $caret.classList.add('bi-caret-down-fill');
-                } else {
-                    $caret.classList.remove('bi-caret-down-fill');
-                    $caret.classList.add('bi-caret-right-fill');
+    if ($sidebarItems !== null) {
+        const $sidebarItemsButton = $domAll(
+            '.sidebar-item-button',
+            $sidebarItems,
+        );
+        $sidebarItemsButton.forEach(button => {
+            button.addEventListener('click', e => {
+                e.preventDefault();
+                const $target = e.currentTarget;
+                const $caret = $dom('[sidebar-toggle-item]', $target);
+                if ($caret) {
+                    if ($caret.classList.contains('bi-caret-right-fill')) {
+                        $caret.classList.remove('bi-caret-right-fill');
+                        $caret.classList.add('bi-caret-down-fill');
+                    } else {
+                        $caret.classList.remove('bi-caret-down-fill');
+                        $caret.classList.add('bi-caret-right-fill');
+                    }
                 }
-            }
+            });
         });
-    });
+    }
 }
