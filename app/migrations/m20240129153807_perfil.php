@@ -21,15 +21,6 @@ class m20240129153807_perfil
                 PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
-            $perfil = R::dispense('versaperfil');
-            $perfil->id = 0;
-            $perfil->nombre = 'Administrador';
-            $perfil->pagina_inicio = 'admin/dashboard';
-            $perfil->estado = 1;
-            $perfil->created_at = date('Y-m-d H:i:s');
-            $perfil->updated_at = date('Y-m-d H:i:s');
-            R::store($perfil);
-
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
         } catch (\Exception $e) {
             return ['message' => $e->getMessage(), 'success' => false];
