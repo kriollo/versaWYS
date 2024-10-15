@@ -80,6 +80,7 @@ EOT;
             exit();
         }
 
+        echo "Ejecutando... $seederName....:";
         $seeder = new $seederClass();
         $result = $seeder::run();
 
