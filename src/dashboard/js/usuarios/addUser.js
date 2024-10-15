@@ -1,4 +1,4 @@
-import { $dom } from '@/dashboard/js/composables/dom.js';
+import { $dom, validateFormRequired } from '@/dashboard/js/composables/dom.js';
 import { versaAlert, versaFetch } from '@/dashboard/js/functions';
 import { html } from '@/vendor/code-tag/code-tag-esm.js';
 
@@ -7,6 +7,9 @@ if (btnAddUser !== null) {
     btnAddUser.addEventListener('click', async () => {
         const formNewUser = $dom('#formNewUser');
         if (!(formNewUser instanceof HTMLFormElement)) return false;
+
+        if (validateFormRequired(formNewUser) === false) return false;
+
         const formData = new FormData(formNewUser);
 
         const existsId = formData.get('tokenid') !== null;
