@@ -49,7 +49,10 @@ class GlobalControllers
             if ($this->user['role'] == 'admin') {
                 $this->menu_user = (new Models\Dashboard())->getMenuAdmin();
             } else {
-                $this->menu_user = (new Models\Dashboard())->getMenuAdmin();
+                $this->menu_user = (new Models\Dashboard())->getMenuUser(
+                    (int) $this->id_user,
+                    (int) $this->user['id_perfil']
+                );
             }
         }
         $twig->addGlobal('current_user', $this->user);

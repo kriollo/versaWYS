@@ -241,8 +241,12 @@ class AuthMiddleware
     public function onlyAdmin(): void
     {
         global $session;
-        $iduser = $session->get('id_user');
+        $iduser = (int) $session->get('id_user');
         $user = (new Users())->find($iduser);
+        if ($user === []) {
+            Response::redirect('/admin/login');
+            exit();
+        }
 
         if ($user['role'] !== 'admin') {
             Response::redirect('/admin/dashboard');

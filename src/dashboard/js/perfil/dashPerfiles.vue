@@ -2,10 +2,13 @@
     import { $dom } from '@/dashboard/js/composables/dom';
     import { versaFetch, VersaToast } from '@/dashboard/js/functions';
     import { listPerfilesSide } from '@/dashboard/js/perfil/listPerfilesSide';
+    import { perfilSide } from '@/dashboard/js/perfil/perfilSide';
     import Swal from 'sweetalert2';
-    import { onMounted, ref } from 'vue';
+    import { onMounted, provide, ref } from 'vue';
 
     const refreshData = ref(false);
+    const perfil = ref({});
+    provide('perfil', perfil);
 
     const newPerfil = async () => {
         const result = await Swal.fire({
@@ -62,7 +65,9 @@
 
     const accion = accion => {
         const actions = {
-            openModal: () => {},
+            refreshData: () => {
+                refreshData.value = !refreshData.value;
+            },
             default: () => console.log('Accion no encontrada'),
         };
 
@@ -181,9 +186,9 @@
         </div>
         <div class="relative shadow-md sm:rounded-lg mx-4">
             <hr class="h-px mt-8 mb-4 bg-gray-200 border-0 dark:bg-gray-700" />
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid lg:grid-cols-[1fr,2fr] gap-4 grid-cols-1">
                 <listPerfilesSide :refreshData="refreshData" />
-                <div>AQUI VA EL DETALLE DEL PERFIL</div>
+                <perfilSide @accion="accion" />
             </div>
         </div>
     </div>

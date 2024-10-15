@@ -18,7 +18,7 @@
 					{% set seccion = "" %}
 					{% set cont = 0 %}
 					{% for m in menu_user %}
-						{% if menu != m.menu %}
+						{% if menu != m.desc_menu %}
 							{% if cont >= 1 %}
 							</ul>
 						</li>
@@ -37,7 +37,7 @@
 									{{ m.ico_menu | removeScape | raw }}
 								</svg>
 								<span class="ml-3" sidebar-toggle-item>
-									{{ m.menu|raw|convert_encoding('UTF-8', 'ISO-8859-1')|capitalize }}
+									{{ m.desc_menu|raw|capitalize }}
 								</span>
 							</a>
 						{% else %}
@@ -48,7 +48,7 @@
 									</svg>
 
 									<span class="ml-3">
-										{{ m.menu|raw|convert_encoding('UTF-8', 'ISO-8859-1')|capitalize }}
+										{{ m.desc_menu|raw|capitalize }}
 									</span>
 								</div>
 								<i class="bi bi-caret-right-fill text-xs" sidebar-toggle-item></i>
@@ -62,11 +62,11 @@
 							<li>
 								<a href="{{ m.url_submenu }}" title="{{ m.desc_submenu }}" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-5 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 {{ url_actual == m.url_submenu ? 'bg-gray-700 text-dark':''}}">
 									<i class="mr-3 text-xs {{ " "~m.ico_submenu }}" aria-hidden="true"></i>
-									{{ m.submenu }}
+									{{ m.desc_submenu |raw|capitalize }}
 								</a>
 							</li>
 						{% endif %}
-						{% set menu = m.menu %}
+						{% set menu = m.desc_menu %}
 						{% set seccion = m.seccion %}
 						{% set cont = cont + 1 %}
 					{% endfor %}
