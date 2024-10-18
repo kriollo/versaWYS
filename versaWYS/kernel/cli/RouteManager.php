@@ -6,7 +6,7 @@ namespace versaWYS\kernel\cli;
 
 class RouteManager
 {
-    private static string $path = 'app/Routes/';
+    private static string $path = 'app/routes/';
     public static function createRoute(string $routeNameModule): void
     {
         $controllerName = ucfirst($routeNameModule) . 'Controller';
@@ -34,14 +34,18 @@ declare(strict_types=1);
 namespace app\routes;
 
 use versaWYS\kernel\Router;
+use app\controllers\$controllerName;
 use app\middleware\AuthMiddleware;
 use app\middleware\$middlewareName;
 
+// Rutas de Navegador
+// index => funcion que se ejecutara en el controlador
 Router::get('/admin/$routeName',
-    [\app\controllers\$controllerName::class,'index']
-)->(
+    [$controllerName::class,'index']
+)->middleware([
     [AuthMiddleware::class, 'checkSession'],
-);
+    // [$middlewareName::class, 'middlewareMethod'],
+]);
 
 EOT;
 

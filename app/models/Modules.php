@@ -70,15 +70,9 @@ class Modules extends RedBeanCnn
         // return R::store($module);
     }
 
-    //submodules
-    public function changeStatusSubModule($params): mixed
+    private function toggleSubMenuField($idMenu): void
     {
-        $module = R::load('versasubmenu', $params['id']);
-        $module->estado = $params['estado'];
-        $result = R::store($module);
-
-        //check if all submodules are disabled
-        $subModules = R::find('versasubmenu', 'id_menu = ?', [$module->id_menu]);
+        $subModules = R::find('versasubmenu', 'id_menu = ?', [$idMenu]);
         $allDisabled = true;
         foreach ($subModules as $subModule) {
             if ($subModule->estado === '1') {
@@ -87,14 +81,23 @@ class Modules extends RedBeanCnn
             }
         }
 
-        //if all submodules are disabled, disable the main module
-        $mainModule = R::load('versamenu', $module->id_menu);
+        $mainModule = R::load('versamenu', $idMenu);
         if ($allDisabled) {
             $mainModule->submenu = '0';
         } else {
             $mainModule->submenu = '1';
         }
         R::store($mainModule);
+    }
+
+    //submodules
+    public function changeStatusSubModule($params): mixed
+    {
+        $module = R::load('versasubmenu', $params['id']);
+        $module->estado = $params['estado'];
+        $result = R::store($module);
+
+        $this->toggleSubMenuField($module->id_menu);
 
         return $result;
     }
@@ -113,7 +116,11 @@ class Modules extends RedBeanCnn
         $module->url = $data['url'];
         $module->created_at = date('Y-m-d H:i:s');
         $module->updated_at = date('Y-m-d H:i:s');
-        return R::store($module);
+        $result = R::store($module);
+
+        $this->toggleSubMenuField($data['id_menu']);
+
+        return $result;
     }
     public function __construct()
     {

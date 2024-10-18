@@ -91,19 +91,17 @@ Router::post('/admin/login/apply-reset-password', [DashBoardController::class, '
 ]);
 
 Router::post('/admin/login/resetPassByUser', [UsersController::class, 'resetPassByIdUser'])->middleware([
-    [AuthMiddleware::class, 'checkSession'],
     [AuthMiddleware::class, 'validateCSRFToken'],
+    [AuthMiddleware::class, 'checkSession'],
     [UsersMiddleware::class, 'validateParamsResetPassByUser'],
 ]);
 
 Router::post('/admin/usuarios/updateAvatar', [UsersController::class, 'updateAvatarById'])->middleware([
-    [AuthMiddleware::class, 'checkSession'],
     [AuthMiddleware::class, 'validateCSRFToken'],
+    [AuthMiddleware::class, 'checkSession'],
     [UsersMiddleware::class, 'validateParamsUpdateAvatar'],
 ]);
 
 Router::get('/admin/perfiluser', [DashBoardController::class, 'perfiluser'])->middleware([
     [AuthMiddleware::class, 'checkSession'],
 ]);
-
-Router::get('/admin/registraAsistencia', [DashBoardController::class, 'barcodeScannerApp'])->middleware([]);

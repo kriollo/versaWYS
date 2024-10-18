@@ -38,9 +38,16 @@ class MigrationManager extends RedBeanCnn
             foreach ($migrations as $migration) {
                 $className = basename($migration, '.php');
                 $fullClassName = self::$pathClass . $className;
+                $fullPathClassName = self::$path . $className . '.php';
 
                 if (self::checkIfExecuted($className)) {
                     continue;
+                }
+
+                //check if file exists
+                if (!file_exists($fullPathClassName)) {
+                    echo "No existe la migración $className.php\n";
+                    exit();
                 }
 
                 echo "Ejecutando... $className....:";
@@ -80,7 +87,6 @@ class MigrationManager extends RedBeanCnn
     {
         if (!file_exists(self::$path . "$fileDown.php")) {
             echo "No existe la migración $fileDown.php\n";
-
             exit();
         }
 
@@ -184,6 +190,12 @@ EOT;
         $migrations = R::getAll('SELECT * FROM versamigrations ORDER BY id DESC');
         foreach ($migrations as $m) {
             echo "Ejecutando rollback... {$m['name']}... :";
+
+            if (!file_exists(self::$path . $m['name'] . '.php')) {
+                echo 'No existe la migración ' . $m['name'] . ".php\n";
+                R::exec("DELETE FROM versamigrations WHERE name = '{$m['name']}'");
+                continue;
+            }
 
             $className = basename($m['name'], '.php');
             $fullClassName = self::$pathClass . $className;

@@ -38,7 +38,7 @@ class ModulesController extends GlobalControllers
         $order = $params['order'] ? "ORDER BY seccion asc, $params[order]" : 'ORDER BY seccion asc , posicion DESC';
         $result = (new Models\Pagination())->pagination(
             'versamenu',
-            ['id', 'seccion', 'nombre', 'descripcion', 'icono', 'estado', 'url', 'posicion', 'submenu'],
+            ['id', 'seccion', 'nombre', 'descripcion', 'icono', 'fill', 'estado', 'url', 'posicion', 'submenu'],
             $filter,
             $order,
             $params['limit']
@@ -79,6 +79,7 @@ class ModulesController extends GlobalControllers
             ['field' => 'seccion', 'title' => 'Sección'],
             ['field' => 'nombre', 'title' => 'Nombre Menú'],
             ['field' => 'descripcion', 'title' => 'Descripción'],
+            ['field' => 'url', 'title' => 'URL'],
             ['field' => 'icono', 'title' => 'Icono SVG', 'type' => 'svg'],
             ['field' => 'estado', 'title' => 'Estado', 'type' => 'status'],
             [
@@ -243,6 +244,7 @@ class ModulesController extends GlobalControllers
             ],
             ['field' => 'nombre', 'title' => 'Nombre Menú'],
             ['field' => 'descripcion', 'title' => 'Descripción'],
+            ['field' => 'url', 'title' => 'URL'],
             ['field' => 'estado', 'title' => 'Estado', 'type' => 'status'],
             [
                 'field' => 'actions',

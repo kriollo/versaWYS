@@ -6,7 +6,7 @@ namespace versaWYS\kernel\cli;
 
 class ModelManager
 {
-    private static string $path = 'app/Models/';
+    private static string $path = 'app/models/';
     public static function createModel(string $modelName): void
     {
         $originalModelName = strtolower($modelName);
@@ -35,7 +35,7 @@ namespace app\models;
 use RedBeanPHP\R;
 use versaWYS\kernel\RedBeanCnn;
 
-class $modelName extends \RedBeanPHP\SimpleModel
+class $modelName extends RedBeanCnn
 {
     protected static $table = '$originalModelName';
 
@@ -48,17 +48,17 @@ class $modelName extends \RedBeanPHP\SimpleModel
      */
     public function all()
     {
-        return R::getAll('SELECT * FROM $originalModelName');
+        return R::getAll('SELECT * FROM self::$table');
     }
 
     public function __construct()
     {
-        (new RedBeanCnn())->setup();
+        $this->connet();
     }
 
     public function __destruct()
     {
-        R::close();
+        $this->closeDB();
     }
 }
 EOT;

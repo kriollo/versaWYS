@@ -9,6 +9,7 @@ class ControllerManager
     private static string $path = 'app/controllers/';
     public static function createController(string $controllerName): void
     {
+        $controllerNameLimpio = $controllerName;
         $controllerName = ucfirst($controllerName) . 'Controller';
 
         echo "Creando controlador $controllerName...\n";
@@ -35,6 +36,7 @@ use app\models as Models;
 use versaWYS\kernel\GlobalControllers;
 use versaWYS\kernel\Response;
 
+//Controlador de la vista $controllerName
 class $controllerName extends GlobalControllers {
     public function __construct()
     {
@@ -42,14 +44,32 @@ class $controllerName extends GlobalControllers {
         parent::__construct($twig, $session);
     }
 
+    //metodo para renderizar desde twig por defecto
     public function index()
     {
         return $this->template->render('dashboard/$controllerName/index');
     }
+
+    //metodo para renderizar desde twig por defecto con data
+    //public function index()
+    //{
+    //    return $this->template->render('dashboard/$controllerName/index',[
+    //        'data' => (new Models\$controllerNameLimpio())->all()
+    //    ]);
+    //}
+
+    //metodo para renderizar desde twig y VUE
+    //public function index()
+    //{
+    //        return $this->template->render('dashboard/loader', [
+    //            'm' => 'dashboard/js/$controllerName/dash$controllerNameLimpio',
+    //        ]);
+    //}
 }
 EOT;
 
         $template = str_replace('$controllerName', $controllerName, $template);
+        $template = str_replace('$controllerNameLimpio', $controllerNameLimpio, $template);
 
         file_put_contents($controllersFile, $template);
         echo "Migración $controllersFile creada.\n";

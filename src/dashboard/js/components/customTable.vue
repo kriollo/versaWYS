@@ -147,6 +147,7 @@
         emit('update:totalRegisters', data.meta?.total ?? 0);
     });
 
+    //TODO: limitar los campos que se exportan
     const exportExcelPage = async () => {
         loading.value = true;
         await createXlsxFromJson(data.data, idTable.value);
@@ -469,7 +470,11 @@
                                 v-else-if="col.type == 'svg'">
                                 <svg
                                     class="w-[20px] h-[20px] text-gray-800 dark:text-white"
-                                    fill="currentColor"
+                                    :fill="
+                                        row['fill'] === '1'
+                                            ? 'currentColor'
+                                            : 'none'
+                                    "
                                     height="24"
                                     v-html="removeScapeLocal(row[col.field])"
                                     viewBox="0 0 24 24"

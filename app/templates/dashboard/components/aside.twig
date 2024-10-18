@@ -1,15 +1,18 @@
-<aside id="sidebar" class="fixed top-0 left-0 z-20 flex flex-col flex-shrink-0 w-64 h-full pt-16 font-normal duration-75 lg:flex transition-width bg-white dark:bg-gray-800 hidden" aria-label="Sidebar">
-	<div class="relative flex flex-col flex-1 min-h-0 pt-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-		<div class="flex flex-col flex-1 pt-5 pb-4 overflow-y-auto">
-			<div class="flex-1 px-3 space-y-1 bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+<aside id="sidebar" class="fixed top-0 left-0 z-20 flex flex-col flex-shrink-0 w-16  h-full pt-16 font-normal duration-75 lg:flex transition-width bg-white dark:bg-gray-800 hidden" aria-label="Sidebar">
+	<div class="relative flex flex-col flex-1 min-h-0 pt-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 transform ease-in-out duration-500">
+		<div class="flex flex-col flex-1 pb-4">
+			<div class="flex-1 space-y-1 bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700 pt-5">
 				<ul class="pb-2">
-					<li>
-						<a href="/" class="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700">
-							<svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
+					<li id="liDropDownHome" class="group/liDropDownHome hover:ml-4 justify-start text-white hover:text-purple-500 dark:hover:text-blue-500 w-full rounded-full transform ease-in-out duration-300 flex bg-white dark:bg-gray-800">
+						<a href="/" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 w-full">
+							<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
 								<path fill-rule="evenodd" d="M11.293 3.293a1 1 0 0 1 1.414 0l6 6 2 2a1 1 0 0 1-1.414 1.414L19 12.414V19a2 2 0 0 1-2 2h-3a1 1 0 0 1-1-1v-3h-2v3a1 1 0 0 1-1 1H7a2 2 0 0 1-2-2v-6.586l-.293.293a1 1 0 0 1-1.414-1.414l2-2 6-6Z" clip-rule="evenodd"/>
 							</svg>
-							<span class="ml-3" sidebar-toggle-item="">Home</span>
+							<span class="ml-3 hidden" sidebar-toggle-item>Home</span>
 						</a>
+						<span class="hidden text-dark dark:text-white group-hover/liDropDownHome:flex left-[100%] absolute block bg-gray-200 dark:bg-gray-800 bg-gray rounded-lg space-y-2 p-2">
+							Home
+						</span>
 					</li>
 				</ul>
 
@@ -24,44 +27,47 @@
 						</li>
 					{% endif %}
 					{% if seccion != m.seccion %}
-						<li class="flex items-center p-2 text-base text-gray-900 rounded-lg group dark:text-gray-200">
+						<li class="flex items-center p-2 text-base text-gray-900 rounded-lg group dark:text-gray-200 hidden" sidebar-toggle-item>
 							{{ m.seccion|raw|convert_encoding('UTF-8', 'ISO-8859-1')|upper }}
 						</li>
 					{% endif %}
 
 
-					<li class="{{ url_actual == m.url_menu or url_actual == m.url_submenu ? 'bg-gray-700 text-dark sidebar-item sidebar-item':'sidebar-item'}}">
+					<li id="lisDropDown" class="{{ url_actual == m.url_menu or url_actual == m.url_submenu ? 'hover:ml-4 justify-start text-white hover:text-purple-500 dark:hover:text-blue-500 w-full transform ease-in-out duration-300 flex bg-slate-200 dark:bg-gray-700 text-dark sidebar-item rounded-lg group/lisDropDown':'hover:ml-4 justify-start text-white hover:text-purple-500 dark:hover:text-blue-500 w-full transform ease-in-out duration-300 flex sidebar-item group/lisDropDown'}}">
 						{% if m.smenu == 0 %}
-							<a href="{{ m.url_menu }}" title="{{ m.desc_menu }}" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700">
-								<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
+							<a id="title-menu-{{ m.id_menu }}" href="{{ m.url_menu }}" title="{{ m.desc_menu }}" class="group flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 w-full">
+								<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="{{ m.fill_menu == 1 ? 'currentColor':'none' }}" viewbox="0 0 24 24">
 									{{ m.ico_menu | removeScape | raw }}
 								</svg>
-								<span class="ml-3" sidebar-toggle-item>
+								<span class="ml-3 hidden" sidebar-toggle-item>
+									{{ m.desc_menu|raw|capitalize }}
+								</span>
+								<span class="hidden text-dark dark:text-white group-hover/lisDropDown:flex left-[100%] absolute block bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2 text-nowrap">
 									{{ m.desc_menu|raw|capitalize }}
 								</span>
 							</a>
 						{% else %}
 							<button type="button" title="{{ m.desc_menu }}" class="flex items-center justify-between w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 sidebar-item-button" aria-controls="dropdown-{{ m.id_menu }}" data-collapse-toggle="dropdown-{{ m.id_menu }}">
 								<div class="flex">
-									<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
+									<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="{{ m.fill_menu == 1 ? 'currentColor':'none' }}" viewbox="0 0 24 24">
 										{{ m.ico_menu | removeScape | raw }}
 									</svg>
 
-									<span class="ml-3">
+									<span class="ml-3 hidden" sidebar-toggle-item>
 										{{ m.desc_menu|raw|capitalize }}
 									</span>
 								</div>
-								<i class="bi bi-caret-right-fill text-xs" sidebar-toggle-item></i>
+								<i class="bi bi-caret-right-fill text-xs" sidebar-item-i></i>
 							</button>
 						{% endif %}
 
 
-						<ul id="dropdown-{{ m.id_menu }}" class="hidden py-2 space-y-2">
+						<ul id="dropdown-{{ m.id_menu }}" class="hidden group-hover/lisDropDown:flex group-hover/lisDropDown:flex-col  rounded-lg space-y-2 absolute block left-[100%] z-30 bg-gray-200 dark:bg-gray-800">
 						{% endif %}
 						{% if m.desc_submenu != "" %}
 							<li>
-								<a href="{{ m.url_submenu }}" title="{{ m.desc_submenu }}" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-5 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 {{ url_actual == m.url_submenu ? 'bg-gray-700 text-dark':''}}">
-									<i class="mr-3 text-xs {{ " "~m.ico_submenu }}" aria-hidden="true"></i>
+								<a href="{{ m.url_submenu }}" title="{{ m.desc_submenu }}" class="flex items-center p-2 px-4 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 {{ url_actual == m.url_submenu ? 'bg-slate-400 dark:bg-gray-700 text-base dark:text-white text-nowrap':'text-nowrap'}}">
+									<i class="mr-3 text-xs {{ m.ico_submenu }}" aria-hidden="true"></i>
 									{{ m.desc_submenu |raw|capitalize }}
 								</a>
 							</li>
@@ -78,25 +84,42 @@
 
 		<div class="pt-2">
 			{% if current_user.role =='admin' %}
-				<a href="/admin/usuarios" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700">
-					<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
-						<path fill-rule="evenodd" d="M8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4H6Zm7.25-2.095c.478-.86.75-1.85.75-2.905a5.973 5.973 0 0 0-.75-2.906 4 4 0 1 1 0 5.811ZM15.466 20c.34-.588.535-1.271.535-2v-1a5.978 5.978 0 0 0-1.528-4H18a4 4 0 0 1 4 4v1a2 2 0 0 1-2 2h-4.535Z" clip-rule="evenodd"/>
-					</svg>
-					<span class="ml-3" sidebar-toggle-item="">Usuarios</span>
-				</a>
-				<a href="/admin/perfiles" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700">
-					<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
-						<path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
-					</svg>
-					<span class="ml-3" sidebar-toggle-item="">Perfiles</span>
-				</a>
-				<a href="/admin/modulesRoutes" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700">
-					<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
-						<path fill-rule="evenodd" d="M4.857 3A1.857 1.857 0 0 0 3 4.857v4.286C3 10.169 3.831 11 4.857 11h4.286A1.857 1.857 0 0 0 11 9.143V4.857A1.857 1.857 0 0 0 9.143 3H4.857Zm10 0A1.857 1.857 0 0 0 13 4.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 21 9.143V4.857A1.857 1.857 0 0 0 19.143 3h-4.286Zm-10 10A1.857 1.857 0 0 0 3 14.857v4.286C3 20.169 3.831 21 4.857 21h4.286A1.857 1.857 0 0 0 11 19.143v-4.286A1.857 1.857 0 0 0 9.143 13H4.857Zm10 0A1.857 1.857 0 0 0 13 14.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 21 19.143v-4.286A1.857 1.857 0 0 0 19.143 13h-4.286Z" clip-rule="evenodd"/>
-					</svg>
-					<span class="ml-3" sidebar-toggle-item="">Módulos</span>
-				</a>
+				<ul>
+					<li id="liDropDownUser" class="group/liDropDownUser hover:ml-4 justify-start text-white hover:text-purple-500 dark:hover:text-blue-500 w-full rounded-full transform ease-in-out duration-300 flex">
+						<a href="/admin/usuarios" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 w-full">
+							<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
+								<path fill-rule="evenodd" d="M8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4H6Zm7.25-2.095c.478-.86.75-1.85.75-2.905a5.973 5.973 0 0 0-.75-2.906 4 4 0 1 1 0 5.811ZM15.466 20c.34-.588.535-1.271.535-2v-1a5.978 5.978 0 0 0-1.528-4H18a4 4 0 0 1 4 4v1a2 2 0 0 1-2 2h-4.535Z" clip-rule="evenodd"/>
+							</svg>
+							<span class="ml-3 hidden" sidebar-toggle-item>Usuarios</span>
+						</a>
+						<span class="hidden text-dark dark:text-white group-hover/liDropDownUser:flex left-[100%] absolute block bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2">
+							Usuarios
+						</span>
+					</li>
+					<li id="liDropDownPerfiles" class="group/liDropDownPerfiles hover:ml-4 justify-start text-white hover:text-purple-500 dark:hover:text-blue-500 w-full rounded-full transform ease-in-out duration-300 flex">
+						<a href="/admin/perfiles" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 w-full">
+							<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
+								<path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
+							</svg>
+							<span class="ml-3 hidden" sidebar-toggle-item>Perfiles</span>
+						</a>
+						<span class="hidden text-dark dark:text-white group-hover/liDropDownPerfiles:flex left-[100%] absolute block bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2">
+							Perfiles
+						</span>
+					</li>
+					<li id="liDropDownModulos" class="group/liDropDownModulos hover:ml-4 justify-start text-white hover:text-purple-500 dark:hover:text-blue-500 w-full rounded-full transform ease-in-out duration-300 flex">
+						<a href="/admin/modulesRoutes" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 w-full">
+							<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24">
+								<path fill-rule="evenodd" d="M4.857 3A1.857 1.857 0 0 0 3 4.857v4.286C3 10.169 3.831 11 4.857 11h4.286A1.857 1.857 0 0 0 11 9.143V4.857A1.857 1.857 0 0 0 9.143 3H4.857Zm10 0A1.857 1.857 0 0 0 13 4.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 21 9.143V4.857A1.857 1.857 0 0 0 19.143 3h-4.286Zm-10 10A1.857 1.857 0 0 0 3 14.857v4.286C3 20.169 3.831 21 4.857 21h4.286A1.857 1.857 0 0 0 11 19.143v-4.286A1.857 1.857 0 0 0 9.143 13H4.857Zm10 0A1.857 1.857 0 0 0 13 14.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 21 19.143v-4.286A1.857 1.857 0 0 0 19.143 13h-4.286Z" clip-rule="evenodd"/>
+							</svg>
+							<span class="ml-3 hidden" sidebar-toggle-item>Módulos</span>
+						</a>
+						<span class="hidden text-dark dark:text-white group-hover/liDropDownModulos:flex left-[100%] absolute block bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2">
+							Módulos
+						</span>
+					</li>
+				</ul>
 			{% endif %}
 		</div>
 	</div>
-</div></div></aside>
+</aside>

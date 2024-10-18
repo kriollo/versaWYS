@@ -94,6 +94,7 @@ class ModulesMiddleware
         $params = $request->getAllParams();
 
         $result = Functions::validateParams($params, [
+            'id_menu' => 'required',
             'nombre' => 'required',
             'descripcion' => 'required',
             'url' => 'required',

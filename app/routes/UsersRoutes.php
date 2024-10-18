@@ -18,7 +18,6 @@ Router::get('/admin/usuarios/addUser', [UsersController::class, 'addUserTemplate
     [AuthMiddleware::class, 'checkSession'],
     [AuthMiddleware::class, 'onlyAdmin'],
 ]);
-
 Router::get('/admin/usuarios/editUser/{id}', [UsersController::class, 'editUserTemplate'])->middleware([
     [AuthMiddleware::class, 'checkSession'],
     [AuthMiddleware::class, 'onlyAdmin'],
@@ -33,21 +32,25 @@ Router::get('/admin/users/getUsersPaginated', [UsersController::class, 'getUsers
 Router::post('/admin/users/addUser', [UsersController::class, 'registerUser'])->middleware([
     [AuthMiddleware::class, 'validateCSRFToken'],
     [AuthMiddleware::class, 'checkSession'],
+    [AuthMiddleware::class, 'onlyAdmin'],
     [UsersMiddleware::class, 'validateRegisterParams'],
 ]);
 
 Router::put('/admin/users/editUser', [UsersController::class, 'editUser'])->middleware([
     [AuthMiddleware::class, 'validateCSRFToken'],
     [AuthMiddleware::class, 'checkSession'],
+    [AuthMiddleware::class, 'onlyAdmin'],
     [UsersMiddleware::class, 'validateEditParams'],
 ]);
 
 Router::delete('/admin/users/deleteUser', [UsersController::class, 'deleteUser'])->middleware([
     [AuthMiddleware::class, 'checkSession'],
+    [AuthMiddleware::class, 'onlyAdmin'],
 ]);
 
 Router::patch('/admin/users/changePassword', [UsersController::class, 'changePassword'])->middleware([
     [AuthMiddleware::class, 'validateCSRFToken'],
     [AuthMiddleware::class, 'checkSession'],
+    [AuthMiddleware::class, 'onlyAdmin'],
     [UsersMiddleware::class, 'validateChangePasswordParams'],
 ]);

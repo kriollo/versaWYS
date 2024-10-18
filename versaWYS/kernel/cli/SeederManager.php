@@ -30,11 +30,11 @@ class SeederManager extends RedBeanCnn
     {
         $seederName = ucfirst($seederName) . 'Seeder';
 
-        echo "Creando controlador $seederName...\n";
+        echo "Creando seeder $seederName...\n";
         $SeedersFile = self::$path . "$seederName.php";
 
         if (file_exists($SeedersFile)) {
-            echo "El Controllador $SeedersFile ya existe.\nDesea sobreescribirlo? (y/n): ";
+            echo "El seeder $SeedersFile ya existe.\nDesea sobreescribirlo? (y/n): ";
             $handle = fopen('php://stdin', 'r');
             $line = fgets($handle);
             if (trim($line) != 'y' && trim($line) != 'Y') {
@@ -67,7 +67,7 @@ EOT;
         $template = str_replace('$seederName', $seederName, $template);
 
         file_put_contents($SeedersFile, $template);
-        echo "Migración $SeedersFile creada.\n";
+        echo "Seeder $SeedersFile creada.\n";
     }
 
     public static function runSeeder($seederName): void

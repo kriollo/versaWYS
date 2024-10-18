@@ -17,6 +17,7 @@ class m20240128160457_menu
                 `seccion` VARCHAR(255) NOT NULL,
                 `descripcion` VARCHAR(255) NOT NULL,
                 `icono` VARCHAR(255) NOT NULL,
+                `fill` TINYINT(1) NOT NULL DEFAULT '0',
                 `posicion` INT(11) NOT NULL DEFAULT '0',
                 `estado` TINYINT(1) NOT NULL DEFAULT '1',
                 `submenu` TINYINT(1) NOT NULL DEFAULT '0',

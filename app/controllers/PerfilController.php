@@ -113,6 +113,7 @@ class PerfilController extends GlobalControllers
                     $data[$item['seccion']][$item['menu']] = [
                         'id_menu' => $item['id_menu'],
                         'icon' => $item['icon'],
+                        'fill_menu' => $item['fill_menu'],
                     ];
                     $data[$item['seccion']][$item['menu']]['submenu'] = [];
                     if ($item['ifsubmenu'] === '1') {

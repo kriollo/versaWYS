@@ -128,7 +128,11 @@
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="24"
                                 height="24"
-                                fill="currentColor"
+                                :fill="
+                                    menu.fill_menu === '1'
+                                        ? 'currentColor'
+                                        : 'none'
+                                "
                                 viewbox="0 0 24 24"
                                 v-html="removeScapeLocal(menu.icon)"></svg>
                             <div v-if="menu.submenu.length > 0" class="w-full">

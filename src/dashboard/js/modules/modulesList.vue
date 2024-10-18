@@ -87,7 +87,6 @@
     const accion = (
         /** @type {{ item: any; accion: string | number; direction: any; }} */ accion,
     ) => {
-        console.log(accion);
         const actions = {
             showEditModule: () => {
                 showModalForm.showModalForm = true;

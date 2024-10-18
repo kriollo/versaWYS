@@ -5,9 +5,11 @@
 
     const ShowModalSubForm = inject('ShowModalSubForm');
     const csrf_token = inject('csrf_token');
+    const id_menu = inject('id_menu');
 
     const showModal = ref(false);
     const newModule = {
+        id_menu: 0,
         action: 'create',
         nombre: '',
         descripcion: '',
@@ -21,8 +23,6 @@
     watch(
         () => ShowModalSubForm,
         value => {
-            console.log(value);
-
             if (value.ShowModalSubForm) {
                 showModal.value = value.ShowModalSubForm;
                 localFormData.value = JSON.parse(
@@ -30,6 +30,7 @@
                         value.itemSelected ? value.itemSelected : newModule,
                     ),
                 );
+                localFormData.value.id_menu = id_menu;
                 if (value.itemSelected) {
                     localFormData.value.action = 'edit';
                     localFormData.value.estado =

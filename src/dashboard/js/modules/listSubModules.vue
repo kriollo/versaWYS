@@ -27,6 +27,7 @@
         action: '',
     });
     provide('ShowModalSubForm', ShowModalSubForm);
+    provide('id_menu', idModule);
 
     const csrf_token = inject('csrf_token');
     const refreshTable = ref(false);
@@ -72,7 +73,6 @@
     };
 
     const accion = (/** @type {Object} */ payload) => {
-        console.log(payload);
         const actions = {
             create: () => {
                 ShowModalSubForm.itemSelected = null;

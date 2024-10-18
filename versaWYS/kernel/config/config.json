@@ -1,5 +1,5 @@
 {
-    "framework": "versaWYS-PHP 0.9.6",
+    "framework": "versaWYS-PHP 0.9.7",
     "DB": {
         "DB_HOST": "localhost",
         "DB_USER": "local",
