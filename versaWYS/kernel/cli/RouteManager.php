@@ -43,7 +43,8 @@ use app\middleware\$middlewareName;
 Router::get('/admin/$routeName',
     [$controllerName::class,'index']
 )->middleware([
-    [AuthMiddleware::class, 'checkSession'],
+    // [AuthMiddleware::class, 'checkSession'],
+    // [AuthMiddleware::class, 'onlyUserWithAccess'],
     // [$middlewareName::class, 'middlewareMethod'],
 ]);
 

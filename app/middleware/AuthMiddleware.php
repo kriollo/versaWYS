@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
-use app\models\Users;
+use versaWYS\kernel\GlobalMiddleWare;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Response;
 
@@ -13,7 +13,7 @@ use versaWYS\kernel\Response;
  *
  * This class represents a middleware for authentication.
  */
-class AuthMiddleware
+class AuthMiddleware extends GlobalMiddleWare
 {
     /**
      * Check session and authentication for API calls and user sessions.
@@ -236,21 +236,5 @@ class AuthMiddleware
             ];
         }
         return true;
-    }
-
-    public function onlyAdmin(): void
-    {
-        global $session;
-        $iduser = (int) $session->get('id_user');
-        $user = (new Users())->find($iduser);
-        if ($user === []) {
-            Response::redirect('/admin/login');
-            exit();
-        }
-
-        if ($user['role'] !== 'admin') {
-            Response::redirect('/admin/dashboard');
-            exit();
-        }
     }
 }

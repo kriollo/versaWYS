@@ -72,7 +72,7 @@ EOT;
         $template = str_replace('$controllerNameLimpio', $controllerNameLimpio, $template);
 
         file_put_contents($controllersFile, $template);
-        echo "Migración $controllersFile creada.\n";
+        echo "Controler $controllersFile creada.\n";
     }
     public static function deleteController(string $controllerName): void
     {
@@ -87,6 +87,6 @@ EOT;
         }
 
         unlink($controllersFile);
-        echo "Migración $controllersFile eliminada.\n";
+        echo "Controler $controllersFile eliminada.\n";
     }
 }

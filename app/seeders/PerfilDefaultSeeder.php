@@ -26,6 +26,13 @@ class PerfilDefaultSeeder
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
+                [
+                    'nombre' => 'Invitado',
+                    'pagina_inicio' => 'admin/dashboard',
+                    'estado' => 1,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ],
             ];
 
             foreach ($perfiles as $currentPerfil) {

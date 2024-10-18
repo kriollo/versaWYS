@@ -153,7 +153,8 @@ class ModulesController extends GlobalControllers
         global $request;
 
         $params = $request->getAllParams();
-        $params['estado'] = $params['estado'] === 'true' ? 1 : 0;
+        $params['estado'] = $params['estado'] === 'true' || $params['estado'] === true ? 1 : 0;
+        $params['fill'] = $params['fill'] === 'true' || $params['fill'] === true ? 1 : 0;
         $result = (new Models\Modules())->saveModule($params);
 
         if ($result) {

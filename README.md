@@ -42,12 +42,12 @@ versaWYS-PHP ofrece las siguientes características de seguridad:
 
 ## Requisitos
 
--   PHP 8.2 o superior
+-   PHP 8.3 o superior
 -   Composer
 -   MySQL 5.7 o superior
--   Apache 2.4 o superior
+-   Apache 2.4 o superior (también puedes usar NGINX)
 -   Modulo Apache mod_rewrite
--   node 18 o superior con pnpm (`npm install -g pnpm`)
+-   node 20 o superior
 
 ## Inicio Rápido
 
@@ -58,7 +58,7 @@ Para comenzar con `versaWYS-PHP`, sigue estos pasos:
 3. Instala las dependencias: `cd versaWYS && composer install`
 4. Configura tu base de datos, abre el Editor de Codigo y actualiza `versaWYS/kernel/config/config.json` con tus credenciales.
 5. En la terminal ejecuta `php versaCLI migrate:up` para iniciar tu base de datos.
-6. Instala las dependencias para la compiliación de los archivos js y css (`pnpm install`)
+6. Instala las dependencias para la compiliación de los archivos js y css.
     - ejecuta: `node --run versaCompileJS` para generar archivos JS compilados
     - ejecuta: `node --run versaCompileCSS` para generar archivo CSS del proyecto
 7. Inicia el servidor de desarrollo: `php versaCLI serve`
@@ -70,9 +70,7 @@ Ahora puedes acceder a tu nueva aplicación `versaWYS-PHP` en `http://localhost:
 
 ## Minificación y ofuscación de archivos CSS y JS en tiempo de desarrollo
 
--   Abre una terminal y sigue estos pasos: (necesitas tener instalado node y pnpm `npm install -g pnpm`)
-
-    -   `pnpm install`
+-   Abre una terminal y sigue estos pasos: (si usas VSCODE puedes ejecutar la task que está configurada)
 
 -   Para compiliar los archivos css:
 

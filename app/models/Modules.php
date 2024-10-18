@@ -42,6 +42,7 @@ class Modules extends RedBeanCnn
         $module->nombre = $data['nombre'];
         $module->descripcion = $data['descripcion'];
         $module->icono = $this->scape($data['icono']);
+        $module->fill = $data['fill'];
         $module->estado = $data['estado'];
         $module->url = $data['url'];
         $module->created_at = date('Y-m-d H:i:s');

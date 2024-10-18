@@ -37,7 +37,7 @@
 				</div>
 				<div class="flex items-center ml-3">
 					<div>
-						<button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button-2" aria-expanded="false" data-dropdown-toggle="dropdown-2">
+						<button type="button" class="flex text-sm rounded-full border-2 border-black focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button-2" aria-expanded="false" data-dropdown-toggle="dropdown-2">
 							<span class="sr-only">Open user menu</span>
 							{% if current_user.avatar != null %}
 								<img class="w-8 h-8 rounded-full border-2 border-transparent dark:border-gray-600" src="{{ getAssets('dashboard', 'avatars', '/' ~ current_user.avatar) }}" alt="{{ current_user.name }}"/>

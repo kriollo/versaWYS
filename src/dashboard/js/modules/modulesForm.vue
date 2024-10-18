@@ -5,11 +5,11 @@
         versaAlert,
         versaFetch,
     } from '@/dashboard/js/functions';
+    import Swal from 'sweetalert2';
     import { inject, onWatcherCleanup, ref, watch } from 'vue';
 
     const showModalForm = inject('showModalForm');
     const csrf_token = inject('csrf_token');
-
     const showModal = ref(false);
     const newModule = {
         action: 'create',
@@ -17,6 +17,7 @@
         nombre: '',
         descripcion: '',
         icono: '',
+        fill: false,
         url: '',
         estado: true,
         csrf_token,
@@ -39,6 +40,7 @@
                     localFormData.value.icono = removeScape(
                         value.itemSelected.icono,
                     );
+                    localFormData.value.fill = value.itemSelected.fill === '1';
                     localFormData.value.estado =
                         value.itemSelected?.estado === '1';
                     localFormData.value.csrf_token = csrf_token;
@@ -80,8 +82,17 @@
                 title: 'Éxito',
                 message: response.message,
                 type: 'success',
-                callback: () => {
-                    location.reload();
+                callback: async () => {
+                    const result = await Swal.fire({
+                        title: 'Recargar la página',
+                        text: '¿Desea recargar la página para ver los cambios?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Recargar',
+                        cancelButtonText: 'Cancelar',
+                    });
+                    if (result.isConfirmed) window.location.reload();
+                    else accion({ accion: 'closeModal' });
                 },
             });
         }
@@ -200,18 +211,36 @@
                             required
                             rows="5"
                             v-model="localFormData.icono"></textarea>
-                        <div
-                            class="flex-shrink-0 w-20 h-20 border border-gray-300 rounded-md flex items-center justify-center overflow-hidden">
+                        <div>
+                            <div class="flex gap-2 mb-2">
+                                <label
+                                    class="block text-sm font-medium text-gray-900 dark:text-white"
+                                    for="fill">
+                                    Rellenar
+                                </label>
+                                <input
+                                    type="checkbox"
+                                    class="form-checkbox h-5 w-5 text-primary-600 dark:text-primary-400 focus:ring-primary-500 dark:focus:ring-primary-500"
+                                    v-model="localFormData.fill" />
+                            </div>
                             <div
-                                class="w-full h-full flex items-center justify-center">
-                                <svg
-                                    class="w-full h-full text-gray-800 dark:text-white text-center"
-                                    fill="currentColor"
-                                    height="24"
-                                    v-html="localFormData.icono"
-                                    viewBox="0 0 24 24"
-                                    width="24"
-                                    xmlns="http://www.w3.org/2000/svg"></svg>
+                                class="flex-shrink-0 w-20 h-20 border border-gray-300 rounded-md flex items-center justify-center overflow-hidden">
+                                <div
+                                    class="w-full h-full flex items-center justify-center">
+                                    <svg
+                                        class="w-full h-full text-gray-800 dark:text-white text-center"
+                                        :fill="
+                                            localFormData.fill === '1' ||
+                                            localFormData.fill === true
+                                                ? 'currentColor'
+                                                : 'none'
+                                        "
+                                        height="24"
+                                        v-html="localFormData.icono"
+                                        viewBox="0 0 24 24"
+                                        width="24"
+                                        xmlns="http://www.w3.org/2000/svg"></svg>
+                                </div>
                             </div>
                         </div>
                     </div>

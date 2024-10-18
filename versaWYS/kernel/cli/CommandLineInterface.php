@@ -204,12 +204,12 @@ class CommandLineInterface
             exit();
         }
 
-        if (!in_array($params[0], ['up', 'down', 'new', 'rollback', 'refresh'])) {
+        if (!in_array($params[0], ['up', 'down', 'make', 'rollback', 'refresh'])) {
             $this->printHelp();
             exit();
         }
 
-        if ($params[0] === 'new' && !isset($params[1])) {
+        if ($params[0] === 'make' && !isset($params[1])) {
             $this->printHelp();
             exit();
         }
@@ -226,7 +226,7 @@ class CommandLineInterface
         match ($params[0]) {
             'up' => $migrate->runUP(),
             'down' => $migrate->runDown($params[1]),
-            'new' => $migrate->createMigration($params[1]),
+            'make' => $migrate->createMigration($params[1]),
             'rollback' => $migrate->rollback(),
             'refresh' => $migrate->refresh(),
             'refresh:seeder' => $migrate->refresh(true),
@@ -262,7 +262,7 @@ class CommandLineInterface
         echo "  {$yellow}config:ClearCache{$reset} Limpia el cache de templates\n";
 
         echo "{$bold}{$green}-migrate{$reset}\n";
-        echo "  {$yellow}migrate:new:[nombre]{$reset} Crea una nueva migración\n";
+        echo "  {$yellow}migrate:make:[nombre]{$reset} Crea una nueva migración\n";
         echo "  {$yellow}migrate:up{$reset} Ejecuta las migraciones pendientes\n";
         echo "  {$yellow}migrate:down:[nombre]{$reset} Ejecuta la migra ción indicada\n";
         echo "  {$yellow}migrate:rollback{$reset} Revierte la última migración\n";
