@@ -100,7 +100,7 @@ class PerfilController extends GlobalControllers
         $data = [];
         $urls = [
             [
-                'url' => 'admin/dashboard',
+                'url' => 'dashboard',
                 'nombre' => 'Dashboard',
             ],
         ];

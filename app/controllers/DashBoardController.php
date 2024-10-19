@@ -77,7 +77,7 @@ class DashBoardController extends GlobalControllers
                 [
                     'success' => 1,
                     'message' => 'Autenticación correcta',
-                    'redirect' => '/admin/dashboard',
+                    'redirect' => $user['pagina_inicio'],
                 ],
                 200
             );
