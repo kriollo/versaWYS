@@ -7,9 +7,10 @@ namespace versaWYS\kernel\cli;
 class ControllerManager
 {
     private static string $path = 'app/controllers/';
-    public static function createController(string $controllerName): void
+    public static function createController(string $controllerName, $front = 'twig'): void
     {
         $controllerNameLimpio = $controllerName;
+        $controllerNameUC = ucfirst($controllerName);
         $controllerName = ucfirst($controllerName) . 'Controller';
 
         echo "Creando controlador $controllerName...\n";
@@ -25,6 +26,15 @@ class ControllerManager
             }
             unlink($controllersFile);
         }
+
+        $front = match ($front) {
+            'twig'
+                => "//metodo para renderizar desde twig por defecto\n    public function index()\n    {\n        return \$this->template->render('dashboard/$controllerNameLimpio/index');\n    }",
+            'vue'
+                => "//metodo para renderizar desde twig y VUE\n    public function index()\n    {\n            return \$this->template->render('dashboard/loader', [\n                'm' => 'dashboard/js/$controllerNameLimpio/dash$controllerNameUC',\n            ]);\n    }",
+            default => '',
+        };
+
         $template = <<<'EOT'
 <?php
 
@@ -44,29 +54,11 @@ class $controllerName extends GlobalControllers {
         parent::__construct($twig, $session);
     }
 
-    //metodo para renderizar desde twig por defecto
-    public function index()
-    {
-        return $this->template->render('dashboard/$controllerName/index');
-    }
-
-    //metodo para renderizar desde twig por defecto con data
-    //public function index()
-    //{
-    //    return $this->template->render('dashboard/$controllerName/index',[
-    //        'data' => (new Models\$controllerNameLimpio())->all()
-    //    ]);
-    //}
-
-    //metodo para renderizar desde twig y VUE
-    //public function index()
-    //{
-    //        return $this->template->render('dashboard/loader', [
-    //            'm' => 'dashboard/js/$controllerName/dash$controllerNameLimpio',
-    //        ]);
-    //}
+    $front
 }
 EOT;
+        $template = str_replace('$front', $front, $template);
+        $template = str_replace('$controllerNameUC', $controllerNameUC, $template);
 
         $template = str_replace('$controllerName', $controllerName, $template);
         $template = str_replace('$controllerNameLimpio', $controllerNameLimpio, $template);

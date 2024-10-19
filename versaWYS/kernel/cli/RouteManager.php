@@ -11,6 +11,7 @@ class RouteManager
     {
         $controllerName = ucfirst($routeNameModule) . 'Controller';
         $routeName = ucfirst($routeNameModule) . 'Routes';
+        $routeNameModule = strtolower($routeNameModule);
         $middlewareName = ucfirst($routeNameModule) . 'Middleware';
 
         echo "Creando ruta $routeName...\n";
@@ -40,7 +41,7 @@ use app\middleware\$middlewareName;
 
 // Rutas de Navegador
 // index => funcion que se ejecutara en el controlador
-Router::get('/admin/$routeName',
+Router::get('/admin/$routeNameModule',
     [$controllerName::class,'index']
 )->middleware([
     // [AuthMiddleware::class, 'checkSession'],
@@ -50,6 +51,7 @@ Router::get('/admin/$routeName',
 
 EOT;
 
+        $template = str_replace('$routeNameModule', $routeNameModule, $template);
         $template = str_replace('$routeName', $routeName, $template);
         $template = str_replace('$controllerName', $controllerName, $template);
         $template = str_replace('$middlewareName', $middlewareName, $template);

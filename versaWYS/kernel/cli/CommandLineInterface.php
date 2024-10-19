@@ -40,6 +40,37 @@ class CommandLineInterface
             'model' => $this->handleModel($params),
             'RCMD' => $this->handleAtajos($params),
             'versaMODULE' => $this->handleModule($params),
+            'front' => $this->handleFront($params),
+            default => $this->printHelp(),
+        };
+    }
+
+    private function handleFront($params, $prefix = ''): void
+    {
+        if (!isset($params[0])) {
+            $this->printHelp();
+            exit();
+        }
+
+        if (!in_array($params[0], ['makeTwig', 'makeVue'])) {
+            $this->printHelp();
+            exit();
+        }
+
+        if ($params[0] === 'makeTwig' && !isset($params[1])) {
+            $this->printHelp();
+            exit();
+        }
+
+        if ($params[0] === 'makeVue' && !isset($params[1])) {
+            $this->printHelp();
+            exit();
+        }
+
+        $frontManager = new FrontManager();
+        match ($params[0]) {
+            'makeTwig' => $frontManager->createTwig($params[1], $prefix),
+            'makeVue' => $frontManager->createVue($params[1], $prefix),
             default => $this->printHelp(),
         };
     }
@@ -102,17 +133,34 @@ class CommandLineInterface
             exit();
         }
 
+        if (!in_array($params[0], ['twig', 'vue'])) {
+            $this->printHelp();
+            exit();
+        }
+
+        if (!isset($params[1])) {
+            $this->printHelp();
+            exit();
+        }
+
         $params = [
             0 => 'make',
-            1 => $params[0],
+            1 => $params[1],
+            2 => $params[0],
         ];
 
         $make = function ($params) {
             $this->handleRoute($params);
-            $this->handleController($params);
+            $this->handleController($params, $params[2]);
             $this->handleModel($params);
             $this->handleMiddleware($params);
-            VersaModuleManager::createModule($params[1]);
+            $this->handleFront(
+                [
+                    0 => $params[2] === 'twig' ? 'makeTwig' : 'makeVue',
+                    1 => $params[1],
+                ],
+                'dash'
+            );
         };
 
         $make($params);
@@ -186,12 +234,12 @@ class CommandLineInterface
         };
     }
 
-    private function handleController($params): void
+    private function handleController($params, $front = 'twig'): void
     {
         $params = $this->getParams($params);
 
         match ($params[0]) {
-            'make' => ControllerManager::createController($params[1]),
+            'make' => ControllerManager::createController($params[1], $front),
             'delete' => ControllerManager::deleteController($params[1]),
             default => $this->printHelp(),
         };
@@ -250,7 +298,8 @@ class CommandLineInterface
         echo "\n";
         echo "{$bold}{$cyan}Atajos:{$reset}\n";
         echo "  {$yellow}RCMD:[nombre]{$reset} Crear un archivo de ruta, controller, Modelo y Middleware \n";
-        echo "  {$yellow}versaMODULE:[nombre]{$reset} Crear un modulo con sus archivos de ruta, controller, Modelo y Middleware \n";
+        echo "  {$yellow}versaMODULE:twig:[nombre]{$reset} Crear un modulo con sus archivos de ruta, controller, Modelo, Middleware y template con twig \n";
+        echo "  {$yellow}versaMODULE:vue:[nombre]{$reset} Crear un modulo con sus archivos de ruta, controller, Modelo, Middleware y componente Vue \n";
         echo "\n";
         echo "{$bold}{$cyan}Comandos:{$reset}\n";
         echo "{$bold}{$green}-help{$reset} Muestra esta ayuda\n";
@@ -258,8 +307,8 @@ class CommandLineInterface
 
         echo "{$bold}{$green}-config{$reset}\n";
         echo "  {$yellow}config:debug:[true/false]{$reset} Activa o desactiva el modo debug\n";
-        echo "  {$yellow}config:templateCache:[true/false]{$reset} Activa o desactiva el cache de templates\n";
-        echo "  {$yellow}config:ClearCache{$reset} Limpia el cache de templates\n";
+        echo "  {$yellow}config:templateCache:[true/false]{$reset} Activa o desactiva el cache de templates twig\n";
+        echo "  {$yellow}config:ClearCache{$reset} Limpia el cache de templates twig\n";
 
         echo "{$bold}{$green}-migrate{$reset}\n";
         echo "  {$yellow}migrate:make:[nombre]{$reset} Crea una nueva migración\n";
@@ -290,6 +339,10 @@ class CommandLineInterface
         echo "{$bold}{$green}-Model{$reset}\n";
         echo "  {$yellow}model:make:[nombre]{$reset} Crea un nuevo modelo\n";
         echo "  {$yellow}model:delete:[nombre]{$reset} Elimina un modelo\n";
+
+        echo "{$bold}{$green}-front{$reset}\n";
+        echo "  {$yellow}front:makeTwig:[nombre]{$reset} Crea un nuevo template Twig\n";
+        echo "  {$yellow}front:makeVue:[nombre]{$reset} Crea un nuevo componente Vue\n";
 
         echo "\n";
         echo "\n";
