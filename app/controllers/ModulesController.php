@@ -75,13 +75,14 @@ class ModulesController extends GlobalControllers
                         'action' => 'changePosition',
                     ],
                 ],
+                'export' => true,
             ],
-            ['field' => 'seccion', 'title' => 'Sección'],
-            ['field' => 'nombre', 'title' => 'Nombre Menú'],
-            ['field' => 'descripcion', 'title' => 'Descripción'],
-            ['field' => 'url', 'title' => 'URL'],
+            ['field' => 'seccion', 'title' => 'Sección', 'export' => true],
+            ['field' => 'nombre', 'title' => 'Nombre Menú', 'export' => true],
+            ['field' => 'descripcion', 'title' => 'Descripción', 'export' => true],
+            ['field' => 'url', 'title' => 'URL', 'export' => true],
             ['field' => 'icono', 'title' => 'Icono SVG', 'type' => 'svg'],
-            ['field' => 'estado', 'title' => 'Estado', 'type' => 'status'],
+            ['field' => 'estado', 'title' => 'Estado', 'type' => 'status', 'export' => true],
             [
                 'field' => 'actions',
                 'title' => 'Acciones',
@@ -187,7 +188,7 @@ class ModulesController extends GlobalControllers
     {
         global $request;
 
-        //todo: finalizar este método
+        //TODO: finalizar este método
         $params = $request->getAllParams();
         (new Models\Modules())->movePosition($params);
 
@@ -242,11 +243,12 @@ class ModulesController extends GlobalControllers
                         'action' => 'changePosition',
                     ],
                 ],
+                'export' => true,
             ],
-            ['field' => 'nombre', 'title' => 'Nombre Menú'],
-            ['field' => 'descripcion', 'title' => 'Descripción'],
-            ['field' => 'url', 'title' => 'URL'],
-            ['field' => 'estado', 'title' => 'Estado', 'type' => 'status'],
+            ['field' => 'nombre', 'title' => 'Nombre Menú', 'export' => true],
+            ['field' => 'descripcion', 'title' => 'Descripción', 'export' => true],
+            ['field' => 'url', 'title' => 'URL', 'export' => true],
+            ['field' => 'estado', 'title' => 'Estado', 'type' => 'status', 'export' => true],
             [
                 'field' => 'actions',
                 'title' => 'Acciones',

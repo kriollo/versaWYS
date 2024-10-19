@@ -78,13 +78,13 @@ class UsersController extends GlobalControllers
         }
 
         $columns = [
-            ['field' => 'id', 'title' => 'ID'],
-            ['field' => 'name', 'title' => 'Nombre'],
-            ['field' => 'email', 'title' => 'Correo'],
-            ['field' => 'perfil', 'title' => 'Perfil'],
-            ['field' => 'pagina_inicio', 'title' => 'Página de inicio'],
-            ['field' => 'role', 'title' => 'Rol'],
-            ['field' => 'status', 'title' => 'Estado', 'type' => 'status'],
+            ['field' => 'id', 'title' => 'ID', 'export' => true],
+            ['field' => 'name', 'title' => 'Nombre', 'export' => true],
+            ['field' => 'email', 'title' => 'Correo', 'export' => true],
+            ['field' => 'perfil', 'title' => 'Perfil', 'export' => true],
+            ['field' => 'pagina_inicio', 'title' => 'Página de inicio', 'export' => true],
+            ['field' => 'role', 'title' => 'Rol', 'export' => true],
+            ['field' => 'status', 'title' => 'Estado', 'type' => 'status', 'export' => true],
             [
                 'field' => 'actions',
                 'title' => 'Acciones',

@@ -147,10 +147,20 @@
         emit('update:totalRegisters', data.meta?.total ?? 0);
     });
 
-    //TODO: limitar los campos que se exportan
     const exportExcelPage = async () => {
         loading.value = true;
-        await createXlsxFromJson(data.data, idTable.value);
+
+        const newDataExport = data.data.map(item => {
+            const newItem = {};
+            data.columns.forEach(col => {
+                if (col?.export) {
+                    newItem[col.field] = item[col.field];
+                }
+            });
+            return newItem;
+        });
+
+        await createXlsxFromJson(newDataExport, idTable.value);
         loading.value = false;
     };
 
@@ -160,7 +170,18 @@
             url: `${url.value}?page=1&per_page=${data.meta.total}&filter=${data.meta.filter}&order=${data.meta.order}&externalFilters=${externalFilters.value}`,
             method: 'GET',
         });
-        await createXlsxFromJson(response.data, idTable.value);
+
+        const newData = response.data.map(item => {
+            const newItem = {};
+            data.columns.forEach(col => {
+                if (col?.export) {
+                    newItem[col.field] = item[col.field];
+                }
+            });
+            return newItem;
+        });
+
+        await createXlsxFromJson(newData, idTable.value);
         loading.value = false;
     };
 
