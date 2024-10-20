@@ -146,7 +146,7 @@ class UsersController extends GlobalControllers
 
     public function registerUser(): void
     {
-        global $request;
+        global $request, $config;
 
         $params = $request->getAllParams();
 
@@ -164,7 +164,8 @@ class UsersController extends GlobalControllers
             );
             exit();
         }
-
+        $expiration_days_password = $config['auth']['expiration_days_password'] ?? 30;
+        $params['expiration_pass'] = date('Y-m-d', strtotime("+$expiration_days_password days"));
         $params['password'] = Functions::hash($params['password']);
         $params['role'] = isset($params['rol']) && $params['rol'] === 'on' ? 'admin' : 'user';
         $params['status'] = isset($params['status']) ? 0 : 1;
@@ -192,7 +193,7 @@ class UsersController extends GlobalControllers
 
     public function editUser(): void
     {
-        global $request;
+        global $request, $config;
 
         $params = $request->getAllParams();
 
@@ -210,6 +211,9 @@ class UsersController extends GlobalControllers
             );
             exit();
         }
+
+        $expiration_days_password = $config['auth']['expiration_days_password'] ?? 30;
+        $params['expiration_pass'] = date('Y-m-d', strtotime("+$expiration_days_password days"));
 
         $params['password'] = Functions::hash($params['password']);
         $params['role'] = isset($params['rol']) && $params['rol'] === 'on' ? 'admin' : 'user';
@@ -267,10 +271,12 @@ class UsersController extends GlobalControllers
      */
     public function changePassword(): void
     {
-        global $request;
+        global $request, $config;
 
         $params = $request->getAllParams();
 
+        $expiration_days_password = $config['auth']['expiration_days_password'] ?? 30;
+        $params['expiration_pass'] = date('Y-m-d', strtotime("+$expiration_days_password days"));
         $params['new_password'] = Functions::hash($params['new_password']);
 
         $result = (new models\Users())->updatePassworByTokenId($params);
@@ -293,10 +299,12 @@ class UsersController extends GlobalControllers
 
     public function resetPassByIdUser(): void
     {
-        global $request;
+        global $request, $config;
 
         $params = $request->getAllParams();
 
+        $expiration_days_password = $config['auth']['expiration_days_password'] ?? 30;
+        $params['expiration_pass'] = date('Y-m-d', strtotime("+$expiration_days_password days"));
         $params['password'] = Functions::hash($params['password']);
 
         $result = (new models\Users())->updatePassworById($params);

@@ -47,6 +47,14 @@ if ($buttonResetPassword instanceof HTMLButtonElement) {
                 message: response.message,
                 type: 'success',
                 callback: () => {
+                    const expiratePass = document.cookie
+                        .split(';')
+                        .find(cookie =>
+                            cookie.trim().startsWith('expiratePass'),
+                        );
+                    if (expiratePass) {
+                        location.reload();
+                    }
                     $formResetPass.reset();
                 },
             });

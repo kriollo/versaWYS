@@ -1,8 +1,8 @@
 import chalk from 'chalk';
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import { glob } from 'glob-promise';
 import { watch } from 'gulp';
-import path from 'path';
+import path from 'node:path';
 import { minify } from 'terser';
 import * as m_compiler from 'vue/compiler-sfc';
 const log = console.log.bind(console);

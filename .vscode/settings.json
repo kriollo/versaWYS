@@ -4,5 +4,5 @@
     "[twig]": {
         "editor.defaultFormatter": "mblode.twig-language-2"
     },
-    "todo-tree.tree.scanMode": "workspace only"
+    "todo-tree.tree.scanMode": "workspace"
 }

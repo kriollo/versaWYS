@@ -205,25 +205,16 @@ class AuthMiddleware extends GlobalMiddleWare
      */
     public function validateParamsApplyResetPassword(): true|array
     {
-        global $request;
+        global $request, $config;
 
         $params = $request->getAllParams();
 
         $result = Functions::validateParams($params, [
-            'new_password' => 'required|min:8',
-            'comfirm_new_password' => 'required|min:8',
+            'new_password' => 'required',
+            'comfirm_new_password' => 'required',
             'tokenReset' => 'required',
             'email' => 'required|email',
         ]);
-
-        if (count($result) > 0) {
-            return [
-                'success' => 0,
-                'message' => 'Los datos enviados no son correctos',
-                'errors' => $result,
-                'code' => 401,
-            ];
-        }
 
         if ($params['new_password'] !== $params['comfirm_new_password']) {
             return [
@@ -235,6 +226,27 @@ class AuthMiddleware extends GlobalMiddleWare
                 'code' => 401,
             ];
         }
+
+        if ($this->validatePolicyPassword($params['new_password']) === false) {
+            return [
+                'success' => 0,
+                'message' => 'La contraseña no cumple con las politicas de seguridad',
+                'errors' => [
+                    'error' => $this->getMessagePolicyPassword(),
+                ],
+                'code' => 401,
+            ];
+        }
+
+        if (count($result) > 0) {
+            return [
+                'success' => 0,
+                'message' => 'Los datos enviados no son correctos',
+                'errors' => $result,
+                'code' => 401,
+            ];
+        }
+
         return true;
     }
 }

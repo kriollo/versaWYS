@@ -18,9 +18,10 @@ class UsersSeeder
                     'tokenid' => Functions::generateCSRFToken(),
                     'email' => 'admin@wys.cl',
                     'password' => Functions::hash('admin2023'),
+                    'expiration_pass' => date('Y-m-d H:i:s', strtotime('-1 days')),
                     'role' => 'admin',
                     'id_perfil' => 1,
-                    'pagina_inicio' => 'dashboard',
+                    'pagina_inicio' => 'usuarios',
                     'status' => 1,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
@@ -30,6 +31,7 @@ class UsersSeeder
                     'tokenid' => Functions::generateCSRFToken(),
                     'email' => 'user@wys.cl',
                     'password' => Functions::hash('user2023'),
+                    'expiration_pass' => date('Y-m-d H:i:s', strtotime('-1 days')),
                     'role' => 'user',
                     'id_perfil' => 2,
                     'pagina_inicio' => 'dashboard',
@@ -42,6 +44,7 @@ class UsersSeeder
                     'tokenid' => Functions::generateCSRFToken(),
                     'email' => 'guest@wys.cl',
                     'password' => Functions::hash('guest2023'),
+                    'expiration_pass' => date('Y-m-d H:i:s', strtotime('+90 days')),
                     'role' => 'user',
                     'id_perfil' => 3,
                     'pagina_inicio' => 'dashboard',
@@ -57,6 +60,7 @@ class UsersSeeder
                 $user->tokenid = $currentUser['tokenid'];
                 $user->email = $currentUser['email'];
                 $user->password = $currentUser['password'];
+                $user->expiration_pass = $currentUser['expiration_pass'];
                 $user->role = $currentUser['role'];
                 $user->id_perfil = $currentUser['id_perfil'];
                 $user->pagina_inicio = $currentUser['pagina_inicio'];

@@ -6,7 +6,7 @@ namespace app\middleware;
 
 use versaWYS\kernel\helpers\Functions;
 
-class UsersMiddleware
+class UsersMiddleware extends AuthMiddleware
 {
     public function validateRegisterParams(): true|array
     {
@@ -17,8 +17,20 @@ class UsersMiddleware
         $result = Functions::validateParams($params, [
             'name' => 'required',
             'email' => 'required|email',
-            'password' => 'required|min:8',
+            'password' => 'required',
         ]);
+
+        if ($this->validatePolicyPassword($params['password']) === false) {
+            return [
+                'success' => 0,
+                'message' => 'La contraseña no cumple con las politicas de seguridad',
+                'errors' => [
+                    'error' => $this->getMessagePolicyPassword(),
+                ],
+                'code' => 401,
+            ];
+        }
+
         if (count($result) > 0) {
             return [
                 'success' => 0,
@@ -39,8 +51,20 @@ class UsersMiddleware
             'tokenid' => 'required',
             'name' => 'required',
             'email' => 'required|email',
-            'password' => 'required|min:8',
+            'password' => 'required',
         ]);
+
+        if ($this->validatePolicyPassword($params['password']) === false) {
+            return [
+                'success' => 0,
+                'message' => 'La contraseña no cumple con las politicas de seguridad',
+                'errors' => [
+                    'error' => $this->getMessagePolicyPassword(),
+                ],
+                'code' => 401,
+            ];
+        }
+
         if (count($result) > 0) {
             return [
                 'success' => 0,
@@ -59,8 +83,20 @@ class UsersMiddleware
 
         $result = Functions::validateParams($params, [
             'tokenid' => 'required',
-            'new_password' => 'required|min:8',
+            'new_password' => 'required',
         ]);
+
+        if ($this->validatePolicyPassword($params['new_password']) === false) {
+            return [
+                'success' => 0,
+                'message' => 'La contraseña no cumple con las politicas de seguridad',
+                'errors' => [
+                    'error' => $this->getMessagePolicyPassword(),
+                ],
+                'code' => 401,
+            ];
+        }
+
         if (count($result) > 0) {
             return [
                 'success' => 0,
@@ -80,17 +116,9 @@ class UsersMiddleware
 
         $result = Functions::validateParams($params, [
             'id' => 'required',
-            'password' => 'required|min:8',
-            'password_confirmation' => 'required|min:8',
+            'password' => 'required',
+            'password_confirmation' => 'required',
         ]);
-        if (count($result) > 0) {
-            return [
-                'success' => 0,
-                'message' => 'Los datos enviados no son correctos',
-                'errors' => $result,
-                'code' => 401,
-            ];
-        }
 
         if ($params['password'] !== $params['password_confirmation']) {
             return [
@@ -102,6 +130,30 @@ class UsersMiddleware
                 'code' => 401,
             ];
         }
+
+        if (count($result) > 0) {
+            return [
+                'success' => 0,
+                'message' => 'Los datos enviados no son correctos',
+                'errors' => $result,
+                'code' => 401,
+            ];
+        }
+
+        if (
+            $this->validatePolicyPassword($params['password']) === false ||
+            $this->validatePolicyPassword($params['password_confirmation']) === false
+        ) {
+            return [
+                'success' => 0,
+                'message' => 'La contraseña no cumple con las politicas de seguridad',
+                'errors' => [
+                    'error' => $this->getMessagePolicyPassword(),
+                ],
+                'code' => 401,
+            ];
+        }
+
         return true;
     }
 

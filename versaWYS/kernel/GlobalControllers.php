@@ -9,9 +9,6 @@ use RedBeanPHP\Cursor;
 use Twig\Environment;
 use versaWYS\kernel\helpers\Functions;
 
-//TODO: implementar politica de contraseñas (tiempo de expiración)
-
-
 class GlobalControllers
 {
     /**
@@ -31,6 +28,8 @@ class GlobalControllers
      */
     protected int $id_user = 0;
 
+    protected $expiratePass = null;
+
     /**
      * Obtiene el objeto del template
      *
@@ -40,21 +39,45 @@ class GlobalControllers
 
     public function __construct(Environment $twig, $session)
     {
-        global $request;
+        global $request, $cookie, $config;
 
         $this->template = $twig;
         if ($session->get('id_user') !== null) {
             $this->user = (new Models\Users())->find($session->get('id_user'));
             $this->id_user = (int) $session->get('id_user');
-
             $this->menu_user =
                 $this->user['role'] == 'admin'
                     ? (new Models\Dashboard())->getMenuAdmin()
                     : (new Models\Dashboard())->getMenuUser((int) $this->id_user, (int) $this->user['id_perfil']);
+
+            $this->expiratePass = $this->expiratePass($this->user['expiration_pass']);
+
+            if ($request->getUrl() !== '/admin/perfiluser' && $this->expiratePass) {
+                Response::redirect('perfiluser');
+            }
         }
+        $cookie->set(
+            'expiratePass',
+            $this->expiratePass ? 'true' : 'false',
+            0,
+            $config['session']['user_cookie']['domain'],
+            false,
+            false
+        );
+        $twig->addGlobal('expiratePass', $this->expiratePass);
         $twig->addGlobal('current_user', $this->user);
         $twig->addGlobal('menu_user', $this->menu_user);
         $twig->addGlobal('url_actual', $request->getUrl());
+    }
+
+    public function expiratePass($dateExpiration): bool
+    {
+        $expiration = strtotime($dateExpiration);
+        $today = strtotime(date('Y-m-d H:i:s'));
+        if ($expiration < $today) {
+            return true;
+        }
+        return false;
     }
 
     /**

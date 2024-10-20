@@ -47,36 +47,6 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
             document.dispatchEvent(event);
         });
     }
-
-    // const $sidebar = $dom('#sidebar');
-    // if ($sidebar) {
-    //     const toggleSidebarMobile = (sidebar, sidebarBackdrop) => {
-    //         sidebar.classList.toggle('hidden');
-    //         sidebarBackdrop.classList.toggle('hidden');
-    //     };
-
-    //     const $toggleSidebarMobileEl = $dom('#toggleSidebarMobile');
-    //     const $sidebarBackdrop = $dom('#sidebarBackdrop');
-    //     const $toggleSidebarMobileSearch = $dom('#toggleSidebarMobileSearch');
-
-    //     if ($toggleSidebarMobileSearch) {
-    //         $toggleSidebarMobileSearch.addEventListener('click', () => {
-    //             toggleSidebarMobile($sidebar, $sidebarBackdrop);
-    //         });
-    //     }
-
-    //     if ($toggleSidebarMobileEl) {
-    //         $toggleSidebarMobileEl.addEventListener('click', () => {
-    //             toggleSidebarMobile($sidebar, $sidebarBackdrop);
-    //         });
-    //     }
-
-    //     if ($sidebarBackdrop) {
-    //         $sidebarBackdrop.addEventListener('click', () => {
-    //             toggleSidebarMobile($sidebar, $sidebarBackdrop);
-    //         });
-    //     }
-    // }
 }
 
 const $sidebar = $dom('#sidebar');

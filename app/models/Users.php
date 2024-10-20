@@ -140,6 +140,7 @@ class Users extends RedBeanCnn
         $user->name = $params['name'];
         $user->email = $params['email'];
         $user->password = $params['password'];
+        $user->expiration_pass = $params['expiration_pass'];
         $user->role = $params['role'];
         $user->status = $params['status'];
         $user->id_perfil = $params['perfil'];
@@ -162,6 +163,7 @@ class Users extends RedBeanCnn
         $user = R::findOne('versausers', 'tokenid = ?', [$params['tokenid']]);
         $user->name = $params['name'];
         $user->password = $params['password'];
+        $user->expiration_pass = $params['expiration_pass'];
         $user->role = $params['role'];
         $user->id_perfil = $params['perfil'];
         $user->updated_at = date('Y-m-d H:i:s');
@@ -200,6 +202,7 @@ class Users extends RedBeanCnn
     {
         $user = R::findOne('versausers', 'tokenid = ?', [$params['tokenid']]);
         $user->password = $params['new_password'];
+        $user->expiration_pass = $params['expiration_pass'];
         $user->updated_at = date('Y-m-d H:i:s');
         return R::store($user);
     }
@@ -208,6 +211,7 @@ class Users extends RedBeanCnn
     {
         $user = R::findOne('versausers', 'id = ?', [$params['id']]);
         $user->password = $params['password'];
+        $user->expiration_pass = $params['expiration_pass'];
         $user->updated_at = date('Y-m-d H:i:s');
         return R::store($user);
     }

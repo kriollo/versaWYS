@@ -247,7 +247,7 @@ class DashBoardController extends GlobalControllers
      */
     public function applyChangePassword(): void
     {
-        global $request;
+        global $request, $config;
 
         try {
             $params = $request->getAllParams();
@@ -258,6 +258,8 @@ class DashBoardController extends GlobalControllers
                 throw new InvalidArgumentException('Los datos enviados no son correctos', 401);
             }
 
+            $expiration_days_password = $config['auth']['expiration_days_password'] ?? 30;
+            $params['expiration_pass'] = date('Y-m-d', strtotime("+$expiration_days_password days"));
             $password = Functions::hash($params['new_password']);
 
             (new models\Users())->updatePassword($user['email'], $password);

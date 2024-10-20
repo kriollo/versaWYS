@@ -14,21 +14,21 @@ class PerfilDefaultSeeder
             $perfiles = [
                 [
                     'nombre' => 'Personalizado',
-                    'pagina_inicio' => 'admin/dashboard',
+                    'pagina_inicio' => 'dashboard',
                     'estado' => 1,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
                 [
                     'nombre' => 'Usuario',
-                    'pagina_inicio' => 'admin/dashboard',
+                    'pagina_inicio' => 'dashboard',
                     'estado' => 1,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ],
                 [
                     'nombre' => 'Invitado',
-                    'pagina_inicio' => 'admin/dashboard',
+                    'pagina_inicio' => 'dashboard',
                     'estado' => 1,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),

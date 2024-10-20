@@ -17,7 +17,7 @@ use app\middleware\UsersMiddleware;
 use versaWYS\kernel\Router;
 
 // Rutas de ingreso a la raiz del sitio
-Router::get('/', [DashBoardController::class, 'index']);
+Router::get('/', [DashBoardController::class, 'index'])->middleware([[AuthMiddleware::class, 'redirectIfSession']]);
 
 /**
  * Define the route for the admin dashboard.

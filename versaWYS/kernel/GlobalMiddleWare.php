@@ -52,4 +52,70 @@ class GlobalMiddleWare
 
         Response::redirect('/e404');
     }
+
+    public function validatePolicyPassword($password): bool
+    {
+        global $config;
+
+        //politicas de contraseñas por defecto
+        $large = $config['auth']['password_policy']['large'] ?? 8;
+        $uppercase = $config['auth']['password_policy']['uppercase'] ?? false;
+        $lowercase = $config['auth']['password_policy']['lowercase'] ?? false;
+        $number = $config['auth']['password_policy']['number'] ?? false;
+        $specialChars = $config['auth']['password_policy']['special_chars'] ?? false;
+
+        if (strlen($password) < $large) {
+            return false;
+        }
+
+        if ($uppercase && !preg_match('/[A-Z]/', $password)) {
+            return false;
+        }
+
+        if ($lowercase && !preg_match('/[a-z]/', $password)) {
+            return false;
+        }
+
+        if ($number && !preg_match('/\d/', $password)) {
+            return false;
+        }
+
+        if ($specialChars && !preg_match('/[^a-zA-Z\d]/', $password)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function getMessagePolicyPassword(): string
+    {
+        global $config;
+
+        //politicas de contraseñas por defecto
+        $large = $config['auth']['password_policy']['large'] ?? 8;
+        $uppercase = $config['auth']['password_policy']['uppercase'] ?? false;
+        $lowercase = $config['auth']['password_policy']['lowercase'] ?? false;
+        $number = $config['auth']['password_policy']['number'] ?? false;
+        $specialChars = $config['auth']['password_policy']['special_chars'] ?? false;
+
+        $message = 'La contraseña debe tener al menos ' . $large . ' caracteres';
+
+        if ($uppercase) {
+            $message .= ', una letra mayúscula';
+        }
+
+        if ($lowercase) {
+            $message .= ', una letra minúscula';
+        }
+
+        if ($number) {
+            $message .= ', un número';
+        }
+
+        if ($specialChars) {
+            $message .= ', un carácter especial';
+        }
+
+        return $message;
+    }
 }
