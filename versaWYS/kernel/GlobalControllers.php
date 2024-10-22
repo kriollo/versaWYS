@@ -50,8 +50,12 @@ class GlobalControllers
                     ? (new Models\Dashboard())->getMenuAdmin()
                     : (new Models\Dashboard())->getMenuUser((int) $this->id_user, (int) $this->user['id_perfil']);
 
-            $this->expiratePass = $this->expiratePass($this->user['expiration_pass']);
+            if (isset($config['auth']['inactive_account_days']) && $config['auth']['inactive_account_days'] > 0) {
+                $inactive_account_days = $config['auth']['inactive_account_days'];
+                (new Models\Users())->updateStatusInactiveAccount($inactive_account_days);
+            }
 
+            $this->expiratePass = $this->expiratePass($this->user['expiration_pass']);
             if ($request->getUrl() !== '/admin/perfiluser' && $this->expiratePass) {
                 Response::redirect('perfiluser');
             }

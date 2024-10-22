@@ -9,6 +9,8 @@ use RedBeanPHP\R;
 use RedBeanPHP\RedException;
 use versaWYS\kernel\RedBeanCnn;
 
+//TODO: validar si el modo debug está activo y preguntar si está seguro
+
 class MigrationManager extends RedBeanCnn
 {
     private static string $path = 'app/migrations/';

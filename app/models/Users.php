@@ -130,8 +130,21 @@ class Users extends RedBeanCnn
         R::store($user);
     }
 
+
+
     /**
-     * @throws SQL|RandomException
+     * Creates a new user record in the database.
+     *
+     * @param array $params An associative array containing user details:
+     *                      - 'name' (string): The name of the user.
+     *                      - 'email' (string): The email address of the user.
+     *                      - 'password' (string): The password for the user.
+     *                      - 'expiration_pass' (string): The password expiration date.
+     *                      - 'role' (string): The role assigned to the user.
+     *                      - 'status' (string): The status of the user.
+     *                      - 'perfil' (int): The profile ID associated with the user.
+     *
+     * @return int|string The ID of the newly created user record, or an error message.
      */
     public function create($params): int|string
     {
@@ -154,6 +167,9 @@ class Users extends RedBeanCnn
 
         return $result;
     }
+
+
+
 
     /**
      * @throws SQL
@@ -222,5 +238,19 @@ class Users extends RedBeanCnn
         $user->avatar = $params['avatar'];
         $user->updated_at = date('Y-m-d H:i:s');
         return R::store($user);
+    }
+
+    public function updateLastLogin($idUser): void
+    {
+        $user = R::findOne('versausers', 'id = ?', [$idUser]);
+        $user->last_login = date('Y-m-d H:i:s');
+        R::store($user);
+    }
+
+    public function updateStatusInactiveAccount($daysInactive): void
+    {
+        R::exec('UPDATE versausers SET status = 0 WHERE last_login < DATE_SUB(NOW(), INTERVAL ? DAY) AND status = 1', [
+            $daysInactive,
+        ]);
     }
 }

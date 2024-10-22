@@ -8,35 +8,34 @@
         "dashboard": "tailwindcss --max-old-space-size=800 -i ./src/dashboard/css/dashboard.css -o ./public/dashboard/css/dashboard.css --watch --minify",
         "web": "tailwindcss -i ./src/web/css/web.css -o ./public/web/css/web.css --watch --minify",
         "versaCompileJS": "node versaCompileJS/compile.js --all --prod",
-        "versaCompileCSS": "tailwindcss --max-old-space-size=800 -i ./src/dashboard/css/dashboard.css -o ./public/dashboard/css/dashboard.css --minify"
+        "versaCompileCSS": "tailwindcss -i ./src/dashboard/css/dashboard.css -o ./public/dashboard/css/dashboard.css --minify"
     },
     "type": "module",
     "author": "Jorge Jara H.(jjara@wys.cl)",
     "license": "MIT",
     "dependencies": {
-        "@vue/devtools-api": "^7.5.2",
+        "@vue/devtools-api": "^7.5.3",
         "chalk": "5.3.0",
-        "glob-promise": "^6.0.7",
         "gulp": "5.0.0",
         "pinia": "^2.2.4",
         "terser": "5.36.0",
         "vue": "3.5.12"
     },
     "devDependencies": {
-        "@eslint/js": "^9.12.0",
+        "@eslint/js": "^9.13.0",
         "@html-eslint/eslint-plugin": "^0.27.0",
         "@html-eslint/parser": "^0.27.0",
         "@prettier/plugin-php": "^0.22.2",
         "@stylistic/eslint-plugin-js": "^2.9.0",
-        "@types/node": "^22.7.6",
-        "eslint": "^9.12.0",
+        "@types/node": "^22.7.8",
+        "eslint": "^9.13.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-html": "^8.1.2",
         "eslint-plugin-prettier": "^5.2.1",
-        "eslint-plugin-vue": "^9.29.0",
+        "eslint-plugin-vue": "^9.29.1",
         "globals": "^15.11.0",
         "prettier": "3.3.3",
-        "sweetalert2": "^11.14.3",
+        "sweetalert2": "^11.14.4",
         "tailwindcss": "3.4.14",
         "vue-tsc": "^2.1.6"
     }

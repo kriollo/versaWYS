@@ -25,6 +25,7 @@ class UsersSeeder
                     'status' => 1,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
+                    'last_login' => date('Y-m-d H:i:s'),
                 ],
                 [
                     'name' => 'user',
@@ -38,6 +39,7 @@ class UsersSeeder
                     'status' => 1,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
+                    'last_login' => date('Y-m-d H:i:s', strtotime('-90 days')),
                 ],
                 [
                     'name' => 'guest',
@@ -51,6 +53,7 @@ class UsersSeeder
                     'status' => 1,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
+                    'last_login' => date('Y-m-d H:i:s'),
                 ],
             ];
 
@@ -67,6 +70,7 @@ class UsersSeeder
                 $user->status = $currentUser['status'];
                 $user->created_at = $currentUser['created_at'];
                 $user->updated_at = $currentUser['updated_at'];
+                $user->last_login = $currentUser['last_login'];
                 R::store($user);
             }
 

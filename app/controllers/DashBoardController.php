@@ -71,6 +71,8 @@ class DashBoardController extends GlobalControllers
             $attemps = $session->getAllAttempts();
             $session->restoreAttempts($attemps, $params['email']);
 
+            (new Models\Users())->updateLastLogin($user['id']);
+
             $session->set('id_user', $user['id']);
 
             Response::json(

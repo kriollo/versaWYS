@@ -1,7 +1,14 @@
 import chalk from 'chalk';
-import { promises as fs } from 'node:fs';
-import { glob } from 'glob-promise';
 import { watch } from 'gulp';
+import {
+    glob,
+    mkdir,
+    readdir,
+    readFile,
+    rmdir,
+    unlink,
+    writeFile,
+} from 'node:fs/promises';
 import path from 'node:path';
 import { minify } from 'terser';
 import * as m_compiler from 'vue/compiler-sfc';
@@ -31,7 +38,8 @@ if (process.argv.length > 1) {
 const getPathAlias = async () => {
     const pathFile = './tsconfig.json';
 
-    const data = await fs.readFile(pathFile, 'utf-8');
+    const data = await readFile(pathFile, { encoding: 'utf-8' });
+
     if (!data) {
         error(chalk.red('❎ :Error al leer el archivo tsconfig.json'));
         return;
@@ -72,17 +80,17 @@ const deleteFile = async ruta => {
     try {
         log(chalk.yellow(`🗑️ :Eliminando ${newPath}`));
 
-        const stat = await fs.stat(newPath);
+        const stat = await stat(newPath);
         if (stat.isDirectory()) {
-            await fs.rmdir(newPath, { recursive: true });
+            await rmdir(newPath, { recursive: true });
         } else if (stat.isFile()) {
-            if (stat.isFile()) await fs.unlink(newPath);
+            if (stat.isFile()) await unlink(newPath);
         }
 
         const dir = path.dirname(newPath);
-        const files = await fs.readdir(dir);
+        const files = await readdir(dir);
         if (files.length === 0) {
-            await fs.rmdir(dir);
+            await rmdir(dir);
         }
 
         log(chalk.gray(`✅ :Eliminación exitosa: ${newPath} \n`));
@@ -373,7 +381,7 @@ const preCompileVue = async (data, source) => {
 
     output = `${output}\n${exportComponent}`;
 
-    // await fs.writeFile(
+    // await writeFile(
     //     `./public/dashboard/js/${fileName}-temp.js`,
     //     output,
     //     'utf-8',
@@ -398,7 +406,7 @@ const compileJS = async (source, destination) => {
             ),
         );
 
-        let data = await fs.readFile(source, 'utf-8');
+        let data = await readFile(source, 'utf-8');
         if (!data) {
             await error(chalk.yellow('⚠️ :Archivo vacío\n'));
             return;
@@ -450,15 +458,15 @@ const compileJS = async (source, destination) => {
                 ),
             );
             // eliminar si existe el archivo de destino
-            await fs.unlink(destination);
+            await unlink(destination);
         } else {
             if (!isProd) {
                 result.code = result.code.replaceAll('*/;export', '*/\nexport');
                 result.code = result.code.replaceAll('*/export', '*/\nexport');
             }
             const destinationDir = path.dirname(destination);
-            await fs.mkdir(destinationDir, { recursive: true });
-            await fs.writeFile(destination, result.code, 'utf-8');
+            await mkdir(destinationDir, { recursive: true });
+            await writeFile(destination, result.code, 'utf-8');
 
             const endTime = Date.now();
             const elapsedTime = endTime - startTime;
@@ -491,9 +499,8 @@ const compile = async path => {
 const compileAll = async watchDir => {
     try {
         pathAlias = await getPathAlias();
-        const files = glob.sync(watchDir);
-        for (const file of files) {
-            await compile(file.startsWith('./') ? file : `./${path}`);
+        for await (const file of glob(watchDir)) {
+            await compile(file.startsWith('./') ? file : `./${file}`);
         }
     } catch (errora) {
         error(chalk.red('❎ :Error durante la compilación inicial:'), errora);
@@ -502,9 +509,6 @@ const compileAll = async watchDir => {
 
 const init = async () => {
     try {
-        const watchJS = `${PATH_SOURCE}/**/*.js`;
-        const watchVue = `${PATH_SOURCE}/**/*.vue`;
-
         pathAlias = await getPathAlias();
         await watch([watchJS, watchVue])
             .on('add', path =>
@@ -528,7 +532,9 @@ const init = async () => {
     }
 };
 
+const watchJS = `${PATH_SOURCE}/**/*.js`;
+const watchVue = `${PATH_SOURCE}/**/*.vue`;
 if (isAll) {
     console.log(chalk.green('Compilando todos los archivos...'));
-    compileAll(`${PATH_SOURCE}/**/*.{js,vue}`);
+    compileAll([watchJS, watchVue]);
 } else init();
