@@ -199,6 +199,12 @@ class Functions
         }
     }
 
+    public static function validateJson(string $json): bool
+    {
+        json_decode($json);
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+
     /**
      * Permite generar un token para la contraseña
      * @param string $password

@@ -126,11 +126,10 @@ class Users extends RedBeanCnn
     {
         $user = R::findOne('versausers', 'email = ?', [$email]);
         $user->password = $password;
+        $user->last_login = date('Y-m-d H:i:s');
         $user->restore_token = null;
         R::store($user);
     }
-
-
 
     /**
      * Creates a new user record in the database.
@@ -154,6 +153,7 @@ class Users extends RedBeanCnn
         $user->email = $params['email'];
         $user->password = $params['password'];
         $user->expiration_pass = $params['expiration_pass'];
+        $user->last_login = date('Y-m-d H:i:s');
         $user->role = $params['role'];
         $user->status = $params['status'];
         $user->id_perfil = $params['perfil'];
@@ -167,9 +167,6 @@ class Users extends RedBeanCnn
 
         return $result;
     }
-
-
-
 
     /**
      * @throws SQL
@@ -208,6 +205,9 @@ class Users extends RedBeanCnn
     {
         $user = R::findOne('versausers', 'tokenid = ?', [$id]);
         $user->status = $user->status === '1' ? '0' : '1';
+        if ($user->status === '1') {
+            $user->last_login = date('Y-m-d H:i:s');
+        }
         return R::store($user);
     }
 
@@ -228,6 +228,7 @@ class Users extends RedBeanCnn
         $user = R::findOne('versausers', 'id = ?', [$params['id']]);
         $user->password = $params['password'];
         $user->expiration_pass = $params['expiration_pass'];
+        $user->last_login = date('Y-m-d H:i:s');
         $user->updated_at = date('Y-m-d H:i:s');
         return R::store($user);
     }

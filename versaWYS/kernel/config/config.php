@@ -23,7 +23,6 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 
 registerRoutes('app/routes');
 
-$request = new Request();
 $session = new Session($config['session']['lifetime']);
 
 $twig = new versaTwig($config);
@@ -64,3 +63,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     header('HTTP/1.1 200 OK');
     exit();
 }
+
+$request = new Request();

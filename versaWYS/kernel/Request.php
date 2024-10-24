@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace versaWYS\kernel;
 
 use Exception;
+use Throwable;
+use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\Response;
 
 class Request
 {
@@ -18,7 +21,7 @@ class Request
 
     public function __construct()
     {
-        $this->contentType = $_SERVER['CONTENT_TYPE'] ?? null;
+        $this->contentType = $_SERVER['CONTENT_TYPE'] ?? '';
         $this->method = strtoupper($_SERVER['REQUEST_METHOD']) ?? 'GET';
         $this->url = $_SERVER['REQUEST_URI'] ?? '/';
         $this->params = $_REQUEST;
@@ -55,8 +58,12 @@ class Request
     {
         $params = file_get_contents('php://input');
 
-        if (strtolower($this->contentType) === 'application/json') {
-            $this->params = json_decode($params, true);
+        if ($this->contentType != '' && strtolower($this->contentType) === 'application/json') {
+            if ($params === '' || $params === null || !Functions::validateJson($params)) {
+                $this->params = [];
+            } else {
+                $this->params = json_decode($params, true);
+            }
         } else {
             if (str_contains($this->contentType, 'multipart/form-data')) {
                 $this->params = $this->procesaFormData($params);

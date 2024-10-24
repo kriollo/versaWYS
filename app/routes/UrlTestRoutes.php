@@ -15,3 +15,5 @@ Router::get('/admin/urlTest', [UrlTestController::class, 'index'])->middleware([
     [AuthMiddleware::class, 'checkSession'],
     [AuthMiddleware::class, 'onlyUserWithAccess'],
 ]);
+
+Router::put('/admin/api/urlTest', [UrlTestController::class, 'returnApi'])->middleware([]);

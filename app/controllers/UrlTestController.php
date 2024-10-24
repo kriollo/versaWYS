@@ -23,4 +23,15 @@ class UrlTestController extends GlobalControllers
             'm' => 'dashboard/js/UrlTestController/dashUrlTestControllerLimpio',
         ]);
     }
+
+    public function returnApi()
+    {
+        global $request;
+        return [
+            'status' => 'success',
+            'message' => 'Api respondiendo',
+            'params' => $request->getAllParams(),
+            'files' => $request->getFiles()
+        ];
+    }
 }

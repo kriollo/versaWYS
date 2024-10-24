@@ -33,12 +33,12 @@
         }
     },
     "session": {
-        "key": "VERSAWYS2024",
+        "key": "VERSAWYS.9",
         "lifetime": 3600,
         "user_cookie": {
             "domain": "localhost",
             "enable": true,
-            "key_encript": "X8f3p@9Vde0WvKauzI8Cs2",
+            "key_encript": "X8f3p@9Vde0WvKauzI8Cs0",
             "lifetime": 3600,
             "lifetime_remember": 2592000,
             "secure": false,
