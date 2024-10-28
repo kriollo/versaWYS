@@ -1,7 +1,5 @@
 <?php
 
-//TODO: crear nombre para las rutas y acceder desde la vista
-
 declare(strict_types=1);
 
 namespace versaWYS\kernel;

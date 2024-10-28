@@ -42,7 +42,7 @@ class Request
             $this->params = filter_var_array($_GET ?? [], FILTER_SANITIZE_SPECIAL_CHARS);
         } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($this->contentType != '' && strtolower($this->contentType) === 'application/json') {
-                $this->params = json_decode(file_get_contents('php://input'), true);
+                $this->params = (!empty($_POST)) ? json_decode(file_get_contents('php://input'), true) : [];
             } else {
                 $this->params = $_POST;
                 foreach ($this->params as $key => $value) {
@@ -59,11 +59,7 @@ class Request
         $params = file_get_contents('php://input');
 
         if ($this->contentType != '' && strtolower($this->contentType) === 'application/json') {
-            if ($params === '' || $params === null || !Functions::validateJson($params)) {
-                $this->params = [];
-            } else {
-                $this->params = json_decode($params, true);
-            }
+            $this->params = ($params === '' || $params === null || !Functions::validateJson($params)) ? [] : json_decode($params, true);
         } else {
             if (str_contains($this->contentType, 'multipart/form-data')) {
                 $this->params = $this->procesaFormData($params);

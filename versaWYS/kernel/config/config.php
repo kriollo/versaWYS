@@ -33,6 +33,8 @@ ini_set('display_errors', $config['build']['debug'] ? '1' : '0');
 ini_set('display_startup_errors', $config['build']['debug'] ? '1' : '0');
 $cookie = new Cookie();
 
+$debug = $config['build']['debug'] ?? false;
+
 if ($config['build']['debug']) {
     $cookie->set('debug', '1', 0, $config['session']['user_cookie']['domain'], false, false);
     set_error_handler('versaWYS\kernel\versaTwig::errorHandler', E_ALL);
