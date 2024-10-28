@@ -6,10 +6,80 @@ namespace versaWYS\kernel;
 
 use app\models\Dashboard;
 use app\models\Users;
+use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Response;
 
 class GlobalMiddleWare
 {
+    /**
+     * Check session and authentication for API calls and user sessions.
+     *
+     * @return void
+     */
+    public function checkSession(): void
+    {
+        global $session, $request, $config, $debug;
+
+        if ($request->isApiCall()) {
+            if (!$config['api']['auth'] || $debug) {
+                return;
+            }
+
+            if ($request->getHeader('Authorization') === null) {
+                Response::json(
+                    [
+                        'success' => 0,
+                        'message' => 'No se ha enviado el token de autenticación',
+                    ],
+                    401
+                );
+            }
+        } else {
+            if (!$session->checkUserSession()) {
+                Response::redirect('/admin/login');
+            }
+        }
+    }
+
+    /**
+     * Validates the CSRF token in the request.
+     *
+     * @return array|null Returns an array with error details if the CSRF token is invalid or missing, or null if the token is valid.
+     */
+    public function validateCSRFToken(): true|array
+    {
+        global $session, $request, $debug;
+
+        if ($debug) {
+            return true;
+        }
+
+        $token = $request->get('_csrf_token') ?: ($request->get('csrf_token') ?: null);
+
+        if ($token === null) {
+            return [
+                'success' => 0,
+                'message' => 'los datos enviados no son correctos',
+                'errors' => [
+                    'error' => 'El formulario no es valido, refresque y vuelva a intentarlo nuevamente...',
+                ],
+                'code' => 403,
+            ];
+        }
+
+        if (!Functions::validateCSRFToken($session->get('csrf_token'), $token)) {
+            return [
+                'success' => 0,
+                'message' => 'los datos enviados no son correctos',
+                'errors' => [
+                    'error' => 'Algo no salió bien, Refresque y vuelva a intentarlo nuevamente...',
+                ],
+                'code' => 403,
+            ];
+        }
+        return true;
+    }
+
     public function onlyAdmin(): void
     {
         global $session;
