@@ -18,6 +18,8 @@ class GlobalControllers
     protected array $user = [
         'name' => 'Guest',
         'email' => 'guest@localhost',
+        'avatar' => 'default.png',
+        'role' => 'guest',
     ];
 
     protected array|int|null|Cursor $menu_user = [];
