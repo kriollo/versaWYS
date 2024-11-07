@@ -120,6 +120,11 @@ class Functions
                                     $errors[$field] = 'El campo ' . $field . ' no es un email valido';
                                 }
                                 break;
+                            case 'rut':
+                                if (!self::validarRut($params[$field])) {
+                                    $errors[$field] = 'El campo ' . $field . ' no es un rut valido';
+                                }
+                                break;
                             case 'min':
                                 if (strlen($params[$field]) < $rul[1]) {
                                     $errors[$field] =
@@ -197,6 +202,38 @@ class Functions
         } catch (Exception $e) {
             return ['error' => $e->getMessage()];
         }
+    }
+
+    public static function validarRut(string $rut): bool
+    {
+        $rut = str_replace('.', '', $rut);
+        $rut = str_replace('-', '', $rut);
+
+        $rut = explode('-', $rut);
+        $rut = $rut[0];
+        $dv = strtoupper($rut[strlen($rut) - 1]);
+        $rut = substr($rut, 0, -1);
+
+        $i = 2;
+        $suma = 0;
+        foreach (array_reverse(str_split($rut)) as $v) {
+            if ($i == 8) {
+                $i = 2;
+            }
+            $suma += $v * $i;
+            ++$i;
+        }
+
+        $dvr = 11 - ($suma % 11);
+
+        if ($dvr == 11) {
+            $dvr = 0;
+        }
+        if ($dvr == 10) {
+            $dvr = 'K';
+        }
+
+        return $dv == $dvr;
     }
 
     public static function validateJson(string $json): bool
