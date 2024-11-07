@@ -123,6 +123,14 @@ class Modules extends RedBeanCnn
 
         return $result;
     }
+
+    public function movePositionSubModule($params): mixed
+    {
+        $subModule = R::load('versasubmenu', $params['id']);
+        $subModule->posicion = $params['position'];
+        return R::store($subModule);
+    }
+
     public function __construct()
     {
         $this->connet();

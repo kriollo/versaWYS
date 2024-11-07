@@ -111,4 +111,27 @@ class ModulesMiddleware
 
         return true;
     }
+
+    public function validateMovePositionSubModuleParams(): true|array
+    {
+        global $request;
+
+        $params = $request->getAllParams();
+
+        $result = Functions::validateParams($params, [
+            'id' => 'numeric',
+            'id_menu' => 'numeric',
+            'position' => 'numeric',
+        ]);
+        if (count($result) > 0) {
+            return [
+                'success' => 0,
+                'message' => 'Los datos enviados no son correctos',
+                'errors' => $result,
+                'code' => 401,
+            ];
+        }
+
+        return true;
+    }
 }

@@ -61,3 +61,13 @@ Router::post('/admin/submodules/saveModule', [ModulesController::class, 'saveSub
     [AuthMiddleware::class, 'onlyAdmin'],
     [ModulesMiddleware::class, 'validateSaveSubModuleParams'],
 ]);
+
+Router::patch('/admin/submodules/changePositionSubModule', [
+    ModulesController::class,
+    'movePositionSubModule',
+])->middleware([
+    [AuthMiddleware::class, 'validateCSRFToken'],
+    [AuthMiddleware::class, 'checkSession'],
+    [AuthMiddleware::class, 'onlyAdmin'],
+    [ModulesMiddleware::class, 'validateMovePositionSubModuleParams'],
+]);

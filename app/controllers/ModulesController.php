@@ -21,7 +21,9 @@ class ModulesController extends GlobalControllers
      */
     public function index()
     {
-        return $this->template->render('dashboard/modules/dashModules.twig');
+        return $this->template->render('dashboard/loader', [
+            'm' => '/dashboard/js/modules/dashModules',
+        ]);
     }
 
     /**
@@ -56,7 +58,7 @@ class ModulesController extends GlobalControllers
 
         $columns = [
             [
-                'field' => 'id',
+                'field' => 'posicion',
                 'title' => 'Posición',
                 'type' => 'position',
                 'buttons' => [
@@ -203,7 +205,7 @@ class ModulesController extends GlobalControllers
         $params = $this->getParamsPaginate($request, ['id'], true);
 
         $filter = $params['filter'] ? $params['filter'] : '';
-        $order = $params['order'] ? "ORDER BY $params[order]" : 'ORDER BY id asc , posicion DESC';
+        $order = $params['order'] ? "ORDER BY $params[order]" : 'ORDER BY posicion DESC, id ASC';
         $result = (new Models\Pagination())->pagination(
             'versasubmenu',
             ['id_menu', 'id', 'nombre', 'descripcion', 'estado', 'url', 'posicion'],
@@ -224,7 +226,7 @@ class ModulesController extends GlobalControllers
 
         $columns = [
             [
-                'field' => 'id',
+                'field' => 'posicion',
                 'title' => 'Posición',
                 'type' => 'position',
                 'buttons' => [
@@ -232,7 +234,7 @@ class ModulesController extends GlobalControllers
                         'type' => 'up',
                         'title' => 'Arriba',
                         'class' => 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white',
-                        'icon' => 'bi bi-arrow-up',
+                        'icon' => 'bi bi-arrow-up ',
                         'action' => 'changePosition',
                     ],
                     [
@@ -322,5 +324,15 @@ class ModulesController extends GlobalControllers
             return ['success' => 1, 'message' => 'Menú actualizado correctamente'];
         }
         return ['success' => 0, 'message' => 'Error al actualizar el menú'];
+    }
+
+    public function movePositionSubModule(): array
+    {
+        global $request;
+
+        $params = $request->getAllParams();
+        (new Models\Modules())->movePositionSubModule($params);
+
+        return ['success' => 1, 'message' => 'Menú actualizado correctamente'];
     }
 }
