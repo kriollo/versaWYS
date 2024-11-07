@@ -31,13 +31,13 @@ class CommandLineInterface
 
         match ($modulo) {
             'serve' => exec('php -S localhost:8000'),
+            'migrate' => $this->handleMigrate($params),
+            'seeder' => $this->handleSeeder($params),
             'config' => $this->handleConfig($params),
             'controller' => $this->handleController($params),
-            'middleware' => $this->handleMiddleware($params),
-            'migrate' => $this->handleMigrate($params),
             'route' => $this->handleRoute($params),
+            'middleware' => $this->handleMiddleware($params),
             'model' => $this->handleModel($params),
-            'seeder' => $this->handleSeeder($params),
             'RCMD' => $this->handleAtajos($params),
             'versaMODULE' => $this->handleModule($params),
             'front' => $this->handleFront($params),
