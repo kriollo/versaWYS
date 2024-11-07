@@ -42,7 +42,7 @@ export const readXlsx = async (file, hoja = 0) => {
  */
 export const createXlsxFromJson = async (
     /** @type {Array} */ data,
-    sheetName = 'Sheet1'
+    sheetName = 'Sheet1',
 ) => {
     const wb = utils.book_new();
     const ws = utils.json_to_sheet(data);

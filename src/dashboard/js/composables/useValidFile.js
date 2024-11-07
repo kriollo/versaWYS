@@ -6,9 +6,14 @@ import fileTypes from '@/dashboard/js/store/fileTypes.js';
  * @param {File} file - El archivo a comprobar.
  * @returns {boolean} - Devuelve true si el archivo es válido, de lo contrario devuelve false.
  */
-export const useValidFile = (/** @type {Array} */ filesPermitidos, /** @type {File} */ file) => {
+export const useValidFile = (
+    /** @type {Array} */ filesPermitidos,
+    /** @type {File} */ file,
+) => {
     //obterner la ext desde fileTypes
-    const fileExt = fileTypes.data().fileTypes.find(item => item.type === file.type);
+    const fileExt = fileTypes
+        .data()
+        .fileTypes.find(item => item.type === file.type);
     if (!fileExt) return false;
 
     const fileTypeValid = filesPermitidos.find(item => item === fileExt.ext);
@@ -21,7 +26,10 @@ export const useValidFile = (/** @type {Array} */ filesPermitidos, /** @type {Fi
  * @param {Number} size - The maximum allowed size in megabytes.
  * @returns {boolean} - Returns true if the file size is less than or equal to the specified size, otherwise returns false.
  */
-export const useFileZise = (/** @type {File} */ file, /** @type {Number} */ size) => {
+export const useFileZise = (
+    /** @type {File} */ file,
+    /** @type {Number} */ size,
+) => {
     const fileSize = file.size / 1000000;
     return fileSize <= size;
 };

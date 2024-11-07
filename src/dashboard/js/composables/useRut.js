@@ -28,12 +28,13 @@ export const validateRut = rut => {
      *  @type {string | number}
      */
     let dvEsperado = 11 - (suma % 11);
-    dvEsperado =
-        dvEsperado === 10
-            ? 'k'
-            : dvEsperado === 11
-              ? '0'
-              : dvEsperado.toString();
+    if (dvEsperado === 10) {
+        dvEsperado = 'K';
+    } else if (dvEsperado === 11) {
+        dvEsperado = '0';
+    } else {
+        dvEsperado = dvEsperado.toString();
+    }
 
     // Comparar el dígito verificador esperado con el proporcionado
     return String(dvEsperado).toLowerCase() === dv.toLowerCase();
