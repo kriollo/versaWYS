@@ -21,18 +21,22 @@ class Request
 
     public function __construct()
     {
-        $this->contentType = $_SERVER['CONTENT_TYPE'] ?? '';
-        $this->method = strtoupper($_SERVER['REQUEST_METHOD']) ?? 'GET';
-        $this->url = $_SERVER['REQUEST_URI'] ?? '/';
-        $this->params = $_REQUEST;
-        $this->files = $_FILES;
-        $this->ip = $_SERVER['REMOTE_ADDR'];
-        $this->accept = $_SERVER['HTTP_ACCEPT'] ?? '*/*';
-        $this->prepareFiles();
-        $this->prepareParams();
+        try {
+            $this->contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+            $this->method = strtoupper($_SERVER['REQUEST_METHOD']) ?? 'GET';
+            $this->url = $_SERVER['REQUEST_URI'] ?? '/';
+            $this->params = $_REQUEST;
+            $this->files = $_FILES;
+            $this->ip = $_SERVER['REMOTE_ADDR'];
+            $this->accept = $_SERVER['HTTP_ACCEPT'] ?? '*/*';
+            $this->prepareFiles();
+            $this->prepareParams();
 
-        if (isset($this->params['_method'])) {
-            $this->method = strtoupper($this->params['_method']);
+            if (isset($this->params['_method'])) {
+                $this->method = strtoupper($this->params['_method']);
+            }
+        } catch (Throwable $e) {
+            throw new Exception('Error al inicializar la solicitud: ' . $e->getMessage());
         }
     }
 
@@ -42,7 +46,7 @@ class Request
             $this->params = filter_var_array($_GET ?? [], FILTER_SANITIZE_SPECIAL_CHARS);
         } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($this->contentType != '' && strtolower($this->contentType) === 'application/json') {
-                $this->params = (!empty($_POST)) ? json_decode(file_get_contents('php://input'), true) : [];
+                $this->params = json_decode(file_get_contents('php://input'), true) ?? [];
             } else {
                 $this->params = $_POST;
                 foreach ($this->params as $key => $value) {
@@ -59,7 +63,10 @@ class Request
         $params = file_get_contents('php://input');
 
         if ($this->contentType != '' && strtolower($this->contentType) === 'application/json') {
-            $this->params = ($params === '' || $params === null || !Functions::validateJson($params)) ? [] : json_decode($params, true);
+            $this->params =
+                $params === '' || $params === null || !Functions::validateJson($params)
+                    ? []
+                    : json_decode($params, true);
         } else {
             if (str_contains($this->contentType, 'multipart/form-data')) {
                 $this->params = $this->procesaFormData($params);
