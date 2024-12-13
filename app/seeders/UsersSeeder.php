@@ -18,7 +18,7 @@ class UsersSeeder
                     'tokenid' => Functions::generateCSRFToken(),
                     'email' => 'admin@wys.cl',
                     'password' => Functions::hash('admin2023'),
-                    'expiration_pass' => date('Y-m-d H:i:s', strtotime('-1 days')),
+                    'expiration_pass' => date('Y-m-d H:i:s', strtotime('30 days')),
                     'role' => 'admin',
                     'id_perfil' => 1,
                     'pagina_inicio' => 'usuarios',

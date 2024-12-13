@@ -147,7 +147,8 @@ class Perfil extends RedBeanCnn
             );
 
             //actualizo la pagina de inicio
-            $user = R::load('versausers', $value['id']);
+            $id = (int)$value['id'];
+            $user = R::load('versausers', $id);
             $user->pagina_inicio = $params['pagina_inicio'];
             R::store($user);
         }

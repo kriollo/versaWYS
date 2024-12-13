@@ -23,7 +23,7 @@ class m20231128_CreateTableUsers
                 `status` tinyint(1) NOT NULL,
                 `avatar` varchar(255) DEFAULT NULL,
                 `id_perfil` int(11) DEFAULT NULL,
-                `pagina_inicio` varchar(255) DEFAULT 'admin/dashboard',
+                `pagina_inicio` varchar(255) DEFAULT 'dashboard',
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `email` (`email`)  USING BTREE,
                 UNIQUE KEY `tokenid` (`tokenid`)  USING BTREE,

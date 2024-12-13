@@ -58,7 +58,14 @@ class UsersController extends GlobalControllers
     {
         global $request;
 
-        $params = $this->getParamsPaginate($request, ['name', 'email', 'role', 'status', 'vu.pagina_inicio']);
+        $params = $this->getParamsPaginate($request, [
+            'name',
+            'email',
+            'role',
+            'status',
+            'vu.pagina_inicio',
+            'vp.nombre',
+        ]);
         $filter = $params['filter'] ? $params['filter'] : '';
         $order = $params['order'] ? "ORDER BY $params[order]" : 'ORDER BY id DESC';
         $result = (new Models\Users())->getUsersPaginate(
