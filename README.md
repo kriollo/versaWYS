@@ -43,7 +43,7 @@ versaWYS-PHP ofrece las siguientes características de seguridad:
 
 ## Requisitos
 
--   PHP 8.3 o superior
+-   PHP 8.3 o superior (apt install php-intl )
 -   Composer
 -   MySQL 5.7 o superior
 -   Apache 2.4 o superior (también puedes usar NGINX)

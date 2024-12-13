@@ -168,7 +168,7 @@ class Router
 
             // Si es un archivo no se ejecuta el router
             if (
-                preg_match('/\.(js|css|jpg|jpeg|png|gif|svg)$/', $url) ||
+                preg_match('/\.(js|css|jpg|jpeg|png|gif|svg|pdf|json|csv|xlsx)$/', $url) ||
                 str_starts_with($url, 'blob:') ||
                 str_starts_with($url, 'data:')
             ) {
@@ -188,7 +188,7 @@ class Router
                     if (isset(self::$middlewares[$originalRoute])) {
                         foreach (self::$middlewares[$originalRoute] as $middleware) {
                             [$middlewareClass, $method] = $middleware;
-                            $response = (new $middlewareClass())->$method();
+                            $response = (new $middlewareClass())->$method(...$slug);
 
                             if (is_array($response) || is_object($response)) {
                                 return Response::json($response, $response['code'] ?? 200);

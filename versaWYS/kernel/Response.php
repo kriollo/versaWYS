@@ -26,9 +26,14 @@ class Response
             self::jsonError($data, $code);
             return false;
         }
-        header('Content-Type: application/json');
-        http_response_code($code);
-        print json_encode($data);
+        if (is_array($data) || is_object($data)) {
+            header('Content-Type: application/json');
+            http_response_code($code);
+            print json_encode($data);
+        } else {
+            self::jsonError(['message' => 'Error en la petición', 'code' => 500], 500);
+            return false;
+        }
         return true;
     }
 

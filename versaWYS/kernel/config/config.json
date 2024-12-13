@@ -17,7 +17,7 @@
     "build": {
         "debug": true,
         "name": "VERSAWYS-PHP",
-        "version": "0.1.2",
+        "version": "0.9.7",
         "timezone": "America/Santiago",
         "charset": "utf-8"
     },
@@ -34,19 +34,19 @@
     },
     "session": {
         "key": "VERSAWYS.9",
-        "lifetime": 3600,
+        "lifetime": 36000,
         "user_cookie": {
             "domain": "localhost",
             "enable": true,
             "key_encript": "X8f3p@9Vde0WvKauzI8Cs0",
-            "lifetime": 3600,
+            "lifetime": 36000,
             "lifetime_remember": 2592000,
             "secure": false,
             "http_only": false
         }
     },
     "api": {
-        "auth": false
+        "auth": true
     },
     "login_attempt": {
         "max": 5,
@@ -79,6 +79,9 @@
             },
             "store": {
                 "dist": "public/dashboard/store"
+            },
+            "temp": {
+                "dist": "public/temp"
             }
         }
     }

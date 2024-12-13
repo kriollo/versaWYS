@@ -16,28 +16,48 @@ class GlobalMiddleWare
      *
      * @return void
      */
-    public function checkSession(): void
+    public function checkSession(): bool|array
     {
-        global $session, $request, $config, $debug;
+        global $session, $request, $config, $debug, $cookie;
 
+        // Verificar si es una llamada API
         if ($request->isApiCall()) {
+            // Si la autenticación de la API está deshabilitada o estamos en modo debug, permitir la solicitud
             if (!$config['api']['auth'] || $debug) {
-                return;
+                return true;
             }
 
-            if ($request->getHeader('Authorization') === null) {
-                Response::json(
-                    [
-                        'success' => 0,
-                        'message' => 'No se ha enviado el token de autenticación',
-                    ],
-                    401
-                );
+            // Obtener el token de autenticación desde la cookie o el encabezado
+            $tokenHash = $cookie->get('tknHash') ?? '';
+
+            // obtener de $request->getHeader('Authorization') el token de autenticación y eliminar la palabra Bearer
+            $authToken = $request->getHeader('Authorization') ?? '';
+            $authToken = str_replace('Bearer ', '', $authToken);
+
+            // Si no se envió ningún token, devolver un error
+            if ($tokenHash === null && $authToken === null) {
+                return [
+                    'success' => 0,
+                    'message' => 'No se ha enviado el token de autenticación',
+                    'code' => 401,
+                ];
             }
+
+            // Verificar los tokens
+            $isTokenValid = $session->checkTokenHash($tokenHash) || $session->checkTokenHash($authToken);
+            return $isTokenValid
+                ? true
+                : [
+                    'success' => 0,
+                    'message' => 'Token de autenticación inválido',
+                    'code' => 401,
+                ];
         } else {
+            // Verificar la sesión del usuario para solicitudes no API
             if (!$session->checkUserSession()) {
                 Response::redirect('/admin/login');
             }
+            return true;
         }
     }
 
@@ -46,7 +66,7 @@ class GlobalMiddleWare
      *
      * @return array|null Returns an array with error details if the CSRF token is invalid or missing, or null if the token is valid.
      */
-    public function validateCSRFToken(): true|array
+    public function validateCSRFToken($slug = null): true|array
     {
         global $session, $request, $debug;
 
@@ -54,7 +74,7 @@ class GlobalMiddleWare
             return true;
         }
 
-        $token = $request->get('_csrf_token') ?: ($request->get('csrf_token') ?: null);
+        $token = $request->get('_csrf_token') ?: ($request->get('csrf_token') ?: ($slug ?: null));
 
         if ($token === null) {
             return [

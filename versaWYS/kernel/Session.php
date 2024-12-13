@@ -16,6 +16,7 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use versaWYS\kernel\helpers\Functions;
 
+
 /**
  * Class Session
  *
@@ -40,7 +41,10 @@ class Session
         ini_set('session.gc_maxlifetime', $lifetime);
 
         if (session_status() == PHP_SESSION_NONE) {
-            session_start();
+            if (!session_start()) {
+                error_log('Failed to start session: ' . print_r(error_get_last(), true));
+                throw new \Exception('Failed to start session');
+            }
             if (empty($_SESSION['csrf_token'])) {
                 $this->setCSRFToken();
             }
@@ -52,7 +56,12 @@ class Session
      */
     public function regenerate(): void
     {
-        session_regenerate_id();
+        if (session_status() == PHP_SESSION_ACTIVE) {
+            session_regenerate_id();
+        } else {
+            error_log('Cannot regenerate session ID: No active session');
+            throw new \Exception('Cannot regenerate session ID: No active session');
+        }
     }
 
     /**
@@ -292,6 +301,13 @@ class Session
 
         $decoded = JWT::decode($jwt, new Key($config['session']['key'], 'HS256'));
 
+        if ($decoded === false) {
+            throw new \Exception('Failed to decode JWT');
+        }
+
+        // transformar objeto a array
+        $decoded = json_decode(json_encode($decoded), true);
+
         return (array) $decoded;
     }
 
@@ -346,6 +362,26 @@ class Session
                     return true;
                 }
             }
+        }
+
+        return false;
+    }
+
+    public function checkTokenHash($token): bool
+    {
+        if (empty($token) || !is_string($token) || $token === 'undefined') {
+            return false;
+        }
+
+        $tks = explode('.', $token);
+        if (count($tks) != 3) {
+            return false;
+        }
+
+        $decoded = $this->decodeJWT($token);
+
+        if (isset($decoded['id_user']) && $decoded['exp'] > time()) {
+            return true;
         }
 
         return false;

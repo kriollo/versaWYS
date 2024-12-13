@@ -10,6 +10,7 @@ use Exception;
 use IntlDateFormatter;
 use Random\RandomException;
 
+
 class Functions
 {
     public static function dump($data): void
@@ -94,105 +95,85 @@ class Functions
      * @param array $params => $rules | $params = ['email' => 'required|email', 'password' => 'required|min:8']
      * @return array $errors
      */
+
     public static function validateParams(array $params, array $rules): array
     {
         try {
             $errors = [];
 
+            // Definir las validaciones en un arreglo tipo hash
+            $validations = [
+                'required' => function ($field, $value) {
+                    return empty($value) ? "El campo $field es requerido" : null;
+                },
+                'email' => function ($field, $value) {
+                    return !filter_var($value, FILTER_VALIDATE_EMAIL) ? "El campo $field no es un email valido" : null;
+                },
+                'rut' => function ($field, $value) {
+                    return !self::validarRut($value) ? "El campo $field no es un rut valido" : null;
+                },
+                'min' => function ($field, $value, $param) {
+                    return strlen($value) < $param ? "El campo $field debe tener minimo $param caracteres" : null;
+                },
+                'max' => function ($field, $value, $param) {
+                    return strlen($value) > $param ? "El campo $field debe tener maximo $param caracteres" : null;
+                },
+                'numeric' => function ($field, $value) {
+                    return !is_numeric($value) ? "El campo $field debe ser numerico" : null;
+                },
+                'int' => function ($field, $value, $param) {
+                    if (!is_numeric($value)) {
+                        return "El campo $field debe ser numerico";
+                    }
+                    $value = (int) $value;
+                    if (str_contains($param, '-')) {
+                        [$min, $max] = explode('-', $param);
+                        return $value < $min || $value > $max
+                            ? "El campo $field debe ser numerico entre $min y $max"
+                            : null;
+                    } elseif (str_contains($param, ',')) {
+                        $valid = explode(',', $param);
+                        return !in_array($value, $valid)
+                            ? "El campo $field debe ser numerico y debe ser uno de los siguientes valores " .
+                                    implode(',', $valid)
+                            : null;
+                    }
+                    return null;
+                },
+                'time' => function ($field, $value) {
+                    return !preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/', $value)
+                        ? "El campo $field debe ser una hora valida"
+                        : null;
+                },
+                'date' => function ($field, $value) {
+                    try {
+                        new DateTime($value);
+                        return null;
+                    } catch (Exception $e) {
+                        return "El campo $field debe ser una fecha valida";
+                    }
+                },
+                'array' => function ($field, $value) {
+                    return !is_array($value) ? "El campo $field debe ser un arreglo" : null;
+                },
+            ];
+
             foreach ($rules as $field => $rule) {
-                $rules = explode('|', $rule);
+                $rulesArray = explode('|', $rule);
 
-                foreach ($rules as $rul) {
-                    $rul = explode(':', $rul);
+                foreach ($rulesArray as $rul) {
+                    [$rulName, $param] = array_pad(explode(':', $rul), 2, null);
 
-                    // check if the field exists
+                    // Verificar si el campo existe
                     if (!isset($params[$field])) {
                         $errors[$field] = "El campo $field no existe";
                     } else {
-                        switch ($rul[0]) {
-                            case 'required':
-                                if (empty($params[$field])) {
-                                    $errors[$field] = 'El campo ' . $field . ' es requerido';
-                                }
-                                break;
-                            case 'email':
-                                if (!filter_var($params[$field], FILTER_VALIDATE_EMAIL)) {
-                                    $errors[$field] = 'El campo ' . $field . ' no es un email valido';
-                                }
-                                break;
-                            case 'rut':
-                                if (!self::validarRut($params[$field])) {
-                                    $errors[$field] = 'El campo ' . $field . ' no es un rut valido';
-                                }
-                                break;
-                            case 'min':
-                                if (strlen($params[$field]) < $rul[1]) {
-                                    $errors[$field] =
-                                        'El campo ' . $field . ' debe tener minimo ' . $rul[1] . ' caracteres';
-                                }
-                                break;
-                            case 'max':
-                                if (strlen($params[$field]) > $rul[1]) {
-                                    $errors[$field] =
-                                        'El campo ' . $field . ' debe tener maximo ' . $rul[1] . ' caracteres';
-                                }
-                                break;
-                            case 'numeric':
-                                if (!is_numeric($params[$field])) {
-                                    $errors[$field] = 'El campo ' . $field . ' debe ser numerico';
-                                }
-                                break;
-                            case 'alpha':
-                                if (!ctype_alpha($params[$field])) {
-                                    $errors[$field] = 'El campo ' . $field . ' debe ser alfabetico';
-                                }
-                                break;
-                            case 'alpha_numeric':
-                                if (!ctype_alnum($params[$field])) {
-                                    $errors[$field] = 'El campo ' . $field . ' debe ser alfanumerico';
-                                }
-                                break;
-                            case 'alpha_numeric_space':
-                                if (!ctype_alnum(str_replace(' ', '', $params[$field]))) {
-                                    $errors[$field] = 'El campo ' . $field . ' debe ser alfanumerico con espacios';
-                                }
-                                break;
-                            case 'alpha_space':
-                                if (!ctype_alpha(str_replace(' ', '', $params[$field]))) {
-                                    $errors[$field] = 'El campo ' . $field . ' debe ser alfabetico con espacios';
-                                }
-                                break;
-                            case 'int':
-                                if (!is_numeric($params[$field])) {
-                                    $errors[$field] = 'El campo ' . $field . ' debe ser numerico';
-                                } else {
-                                    $params[$field] = (int) $params[$field];
-
-                                    if (str_contains($rul[1], '-')) {
-                                        $valid = explode('-', $rul[1]);
-
-                                        if ($params[$field] < $valid[0] || $params[$field] > $valid[1]) {
-                                            $errors[$field] =
-                                                'El campo ' .
-                                                $field .
-                                                ' debe ser numerico entre ' .
-                                                $valid[0] .
-                                                ' y ' .
-                                                $valid[1];
-                                        }
-                                    } elseif (str_contains($rul[1], ',')) {
-                                        $valid = explode(',', $rul[1]);
-
-                                        if (!in_array($params[$field], $valid)) {
-                                            $errors[$field] =
-                                                'El campo ' .
-                                                $field .
-                                                ' debe ser numerico y debe ser uno de los siguientes valores ' .
-                                                implode(',', $valid);
-                                        }
-                                    }
-                                }
-                                break;
+                        // Ejecutar la validación correspondiente
+                        if (isset($validations[$rulName])) {
+                            $error = $validations[$rulName]($field, $params[$field], $param);
+                            if ($error) {
+                                $errors[$field] = $error;
+                            }
                         }
                     }
                 }
@@ -396,6 +377,27 @@ class Functions
     }
 
     /**
+     * Formats a Chilean RUT (Rol Único Tributario) by removing dots and hyphens,
+     * then adding a period every three digits and appending the verification digit.
+     *
+     * @param string $rut The RUT to be formatted.
+     * @return string The formatted RUT.
+     */
+    public static function formatRut(string $rut): string
+    {
+        $rut = str_replace('.', '', $rut);
+        $rut = str_replace('-', '', $rut);
+
+        $rut = explode('-', $rut);
+        $rut = $rut[0];
+        $dv = strtoupper($rut[strlen($rut) - 1]);
+        $rut = substr($rut, 0, -1);
+
+        $rut = number_format((float) $rut, 0, ',', '.');
+        return "$rut-$dv";
+    }
+
+    /**
      * Returns an array of Twig filters.
      *
      * @return array The array of Twig filters.
@@ -403,9 +405,9 @@ class Functions
     public function setTwigFilters(): array
     {
         return [
-            ['formaFechaFullES', 'versaWYS\kernel\helpers\Functions::formaFechaFullES'],
             ['replace_spaces_with_underscore', 'versaWYS\kernel\helpers\Functions::replace_spaces_with_underscore'],
             ['removeScape', 'versaWYS\kernel\helpers\Functions::removeScape'],
+            ['formatRut', 'versaWYS\kernel\helpers\Functions::formatRut'],
         ];
     }
 

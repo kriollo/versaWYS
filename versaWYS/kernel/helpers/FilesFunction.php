@@ -9,8 +9,7 @@ class FilesFunction
     public static function destroyAllDir($dirPath): void
     {
         if (!is_dir($dirPath)) {
-            echo 'Error: No existe el directorio: ' . $dirPath . "\n";
-            exit();
+            return;
         }
 
         if (!str_ends_with($dirPath, '/')) {
@@ -25,6 +24,8 @@ class FilesFunction
                 unlink($file);
             }
         }
-        rmdir($dirPath);
+        if (!file_exists($dirPath)) {
+            rmdir($dirPath);
+        }
     }
 }

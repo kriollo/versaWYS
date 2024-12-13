@@ -9,6 +9,7 @@ use Throwable;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Response;
 
+
 class Request
 {
     protected mixed $contentType;
@@ -234,7 +235,7 @@ class Request
     {
         return $this->ip;
     }
-    public function getAccept()
+    public function getAccept(): string
     {
         return $this->accept;
     }
@@ -264,24 +265,41 @@ class Request
     }
 
     /**
-     * Determina en base a los header recividos si es una llama por api rest o navegador.
+     * Determina en base a los headers recibidos si es una llamada por API REST o navegador.
      *
      * @return boolean
      */
     public function isApiCall(): bool
     {
-        if ($this->getHeader('Content-Type') === null) {
-            return false;
-        }
-        if (
-            str_starts_with($this->getHeader('Content-Type'), 'application/json') ||
-            str_starts_with($this->getHeader('Content-Type'), 'multipart/form-data') ||
-            str_starts_with($this->getHeader('Content-Type'), 'application/x-www-form-urlencoded') ||
-            str_starts_with($this->getHeader('Content-Type'), 'text/plain') ||
-            str_starts_with($this->getAccept(), 'text/css')
-        ) {
+        $url = strtolower($this->getUrl());
+        $contentType = $this->getHeader('Content-Type');
+        $accept = $this->getAccept();
+
+        if (str_contains($url, 'api')) {
             return true;
         }
+
+        if ($contentType === null) {
+            return false;
+        }
+
+        $apiContentTypes = [
+            'application/json',
+            'multipart/form-data',
+            'application/x-www-form-urlencoded',
+            'text/plain',
+        ];
+
+        foreach ($apiContentTypes as $type) {
+            if (str_starts_with($contentType, $type)) {
+                return true;
+            }
+        }
+
+        if (str_starts_with($accept, 'text/css')) {
+            return true;
+        }
+
         return false;
     }
 }

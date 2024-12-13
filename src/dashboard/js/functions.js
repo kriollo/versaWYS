@@ -1,3 +1,4 @@
+import { html } from '@/vendor/code-tag/code-tag-esm';
 import Swal from 'sweetalert2';
 const loadSwallCss = () => {
     const link = document.createElement('link');
@@ -219,4 +220,57 @@ export const VersaToast = Swal.mixin({
 export const getFechaUnix = () => {
     const fecha = new Date();
     return Math.floor(fecha.getTime() / 1000);
+};
+
+/**
+ * Displays an error response using versaAlert.
+ *
+ * @param {object} response - The response object containing error information.
+ * @param {object} [response.errors] - An optional object containing specific error messages.
+ * @param {string} response.message - A general error message.
+ * @param {string} [type='alert'] - The type of notification to display ('alert' or 'toast').
+ */
+export const showErrorResponse = (
+    /** @type {object} */ response,
+    type = 'alert',
+) => {
+    if (response?.errors === undefined) {
+        if (type === 'toast') {
+            VersaToast.fire({
+                icon: 'error',
+                title: response.message,
+            });
+        } else {
+            versaAlert({
+                title: 'Error',
+                message: response.message,
+                type: 'error',
+            });
+        }
+        return;
+    }
+    const errores = html`
+        <ul
+            class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
+            ${Object.keys(response.errors)
+                .map(
+                    key => html`
+                        <li>${response.errors[key]}</li>
+                    `,
+                )
+                .join('')}
+        </ul>
+    `;
+    if (type === 'toast') {
+        VersaToast.fire({
+            icon: 'error',
+            title: errores,
+        });
+    } else {
+        versaAlert({
+            title: 'Error',
+            html: errores,
+            type: 'error',
+        });
+    }
 };
