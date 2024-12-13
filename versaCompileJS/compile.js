@@ -11,7 +11,7 @@ import {
 } from 'node:fs/promises';
 import path from 'node:path';
 import { minify } from 'terser';
-import * as m_compiler from 'vue/compiler-sfc';
+import * as vCompiler from 'vue/compiler-sfc';
 const log = console.log.bind(console);
 const error = console.error.bind(console);
 
@@ -41,7 +41,7 @@ const getPathAlias = async () => {
     const data = await readFile(pathFile, { encoding: 'utf-8' });
 
     if (!data) {
-        error(chalk.red('❎ :Error al leer el archivo tsconfig.json'));
+        error(chalk.red('🚩 :Error al leer el archivo tsconfig.json'));
         return;
     }
 
@@ -65,7 +65,7 @@ const getPathAlias = async () => {
     }
 
     console.log(chalk.green(`PATH_SOURCE: ${PATH_SOURCE}`));
-    console.log(chalk.green(`PATH_DIST: ${PATH_DIST}`));
+    console.log(chalk.green(`PATH_DIST: ${PATH_DIST}\n`));
 
     return pathAlias;
 };
@@ -97,7 +97,7 @@ const deleteFile = async ruta => {
     } catch (errora) {
         error(
             chalk.red(
-                `❎ :Error al eliminar el archivo/directorio ${newPath}: ${errora}\n`,
+                `🚩 :Error al eliminar el archivo/directorio ${newPath}: ${errora}\n`,
             ),
         );
     }
@@ -111,7 +111,13 @@ const deleteFile = async ruta => {
  */
 const removehtmlOfTemplateString = async data => {
     const htmlRegExp = /html\s*`/g;
+
     data = data.replace(htmlRegExp, '`');
+
+    //remove ", get html() { return html }"
+    const htmlGetterRegExp = /,\s*get\s+html\(\)\s*{\s*return\s*html\s*}/g;
+    data = data.replace(htmlGetterRegExp, '');
+
     return data;
 };
 
@@ -231,7 +237,7 @@ const preCompileVue = async (data, source) => {
     const fileName = path.basename(source).replace('.vue', '');
     const __fileName = path.parse(source).name;
 
-    const { descriptor, errors } = m_compiler.parse(data, {
+    const { descriptor, errors } = vCompiler.parse(data, {
         filename: fileName,
         sourceMap: false,
         sourceRoot: path.dirname(source),
@@ -287,7 +293,7 @@ const preCompileVue = async (data, source) => {
     // Compile script
     let compiledScript;
     if (descriptor.script || descriptor.scriptSetup) {
-        compiledScript = m_compiler.compileScript(descriptor, {
+        compiledScript = vCompiler.compileScript(descriptor, {
             id,
             templateOptions,
         });
@@ -298,7 +304,7 @@ const preCompileVue = async (data, source) => {
     }
 
     // Compile template y obtener el contenido del template
-    const compiledTemplate = m_compiler.compileTemplate({
+    const compiledTemplate = vCompiler.compileTemplate({
         ...templateOptions,
     });
 
@@ -312,7 +318,7 @@ const preCompileVue = async (data, source) => {
     let insertStyles = '';
     if (descriptor.styles) {
         const styled = descriptor.styles.map(function (style) {
-            return m_compiler.compileStyle({
+            return vCompiler.compileStyle({
                 id,
                 source: style.content,
                 scoped: style.scoped,
@@ -387,7 +393,7 @@ const preCompileVue = async (data, source) => {
     //     'utf-8',
     // );
 
-    log(chalk.green(`🧪 :Pre Compilado VUE Finalizado ${fileName}`));
+    // log(chalk.green(`🧪 :Pre Compilado VUE Finalizado ${fileName}`));
 
     return output;
 };
@@ -395,16 +401,9 @@ const preCompileVue = async (data, source) => {
 const compileJS = async (source, destination) => {
     try {
         const startTime = Date.now(); // optener la hora actual
-        const hora = new Date().getHours();
-        const minutos = new Date().getMinutes();
-        const segundos = new Date().getSeconds();
 
         const filename = path.basename(source);
-        await log(
-            chalk.blue(
-                `🪄 :${hora}:${minutos}:${segundos} - Compilando ${filename}`,
-            ),
-        );
+        await log(chalk.blue(`🪄  :start transformation`));
 
         let data = await readFile(source, 'utf-8');
         if (!data) {
@@ -414,12 +413,12 @@ const compileJS = async (source, destination) => {
 
         const extension = source.split('.').pop();
         if (extension === 'vue') {
-            await log(chalk.green(`🧪 :Pre Compilando VUE Inicia ${filename}`));
+            await log(chalk.green(`💚 :Pre Compile VUE`));
             data = await preCompileVue(data, source);
             if (data.error) {
                 await error(
                     chalk.red(
-                        `❎ :Error durante la compilación Vue :${data.error}\n`,
+                        `🚩 :Error durante la compilación Vue :${data.error}\n`,
                     ),
                 );
                 return;
@@ -429,7 +428,7 @@ const compileJS = async (source, destination) => {
 
         data = await estandarizaData(data);
 
-        await log(chalk.blue(`🔍 :Minificando ${filename}`));
+        await log(chalk.blue(`🤖 :minifying`));
         const result = await minify(
             { [filename]: data },
             {
@@ -476,23 +475,24 @@ const compileJS = async (source, destination) => {
         }
     } catch (errora) {
         error(
-            chalk.red(`❎ :Error durante la compilación JS: ${errora}\n`),
+            chalk.red(`🚩 :Error durante la compilación JS: ${errora}\n`),
             errora,
         );
     }
 };
 const compile = async path => {
-    console.log(chalk.green(`🧪 :Compilando ${path}`));
+    console.log(chalk.green(`🔜 :Source ${path}`));
 
     const outputPath = path.replace(PATH_SOURCE, PATH_DIST);
-    console.log(chalk.green(`🧪 :destination ${outputPath}`));
+    const outFileJs = outputPath.replace('.vue', '.js');
+    console.log(chalk.green(`🔚 :destination ${outFileJs}`));
 
     const extension = path.split('.').pop();
 
     if (outputPath) {
         await compileJS(path, outputPath);
     } else {
-        await log(chalk.yellow(`Tipo no reconocido: ${extension}`));
+        await log(chalk.yellow(`⚠️ :Tipo no reconocido: ${extension}`));
     }
 };
 
@@ -503,14 +503,15 @@ const compileAll = async watchDir => {
             await compile(file.startsWith('./') ? file : `./${file}`);
         }
     } catch (errora) {
-        error(chalk.red('❎ :Error durante la compilación inicial:'), errora);
+        error(chalk.red('🚩 :Error durante la compilación inicial:'), errora);
     }
 };
 
 const init = async () => {
     try {
         pathAlias = await getPathAlias();
-        await watch([watchJS, watchVue])
+        log(chalk.green(`👀 :Watching ${[watchJS, watchVue].join(', ')}\n`));
+        watch([watchJS, watchVue])
             .on('add', path =>
                 compile(path.startsWith('./') ? path : `./${path}`),
             )
@@ -520,10 +521,9 @@ const init = async () => {
             .on('unlink', path =>
                 deleteFile(path.startsWith('./') ? path : `./${path}`),
             );
-        log(chalk.green(`👀 :Watching ${[watchJS, watchVue].join(', ')}`));
     } catch (error) {
         error(
-            chalk.red('❎ :Error al iniciar:'),
+            chalk.red('🚩 :Error al iniciar:'),
             error,
             error.fileName,
             error.lineNumber,
@@ -535,6 +535,6 @@ const init = async () => {
 const watchJS = `${PATH_SOURCE}/**/*.js`;
 const watchVue = `${PATH_SOURCE}/**/*.vue`;
 if (isAll) {
-    console.log(chalk.green('Compilando todos los archivos...'));
+    console.log(chalk.green('🔄️ :Compilando todos los archivos...'));
     compileAll([watchJS, watchVue]);
 } else init();
