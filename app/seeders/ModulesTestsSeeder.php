@@ -6,12 +6,13 @@ namespace app\seeders;
 
 use RedBeanPHP\R;
 
+
 class ModulesTestsSeeder
 {
     public static function run()
     {
         try {
-            $modules = [
+            $AllModule = [
                 [
                     'seccion' => 'Seccion 1',
                     'nombre' => 'Opcion 1',
@@ -21,6 +22,7 @@ class ModulesTestsSeeder
                     'fill' => 0,
                     'url' => 'urlTest',
                     'submenu' => 0,
+                    'posicion' => 1,
                 ],
                 [
                     'seccion' => 'Seccion 1',
@@ -31,6 +33,7 @@ class ModulesTestsSeeder
                     'fill' => 0,
                     'url' => 'url2',
                     'submenu' => 0,
+                    'posicion' => 2,
                 ],
                 [
                     'seccion' => 'Seccion 2',
@@ -41,11 +44,13 @@ class ModulesTestsSeeder
                     'fill' => 0,
                     'url' => 'url3',
                     'submenu' => 1,
+                    'posicion' => 3,
                 ],
             ];
 
-            foreach ($modules as $module) {
-                $newModule = R::dispense('versamenu');
+            $moduleInsert = [];
+            foreach ($AllModule as $module) {
+                $newModule = R::dispense(typeOrBeanArray: 'versamenu');
                 $newModule->seccion = $module['seccion'];
                 $newModule->nombre = $module['nombre'];
                 $newModule->descripcion = $module['descripcion'];
@@ -53,8 +58,12 @@ class ModulesTestsSeeder
                 $newModule->fill = $module['fill'];
                 $newModule->url = $module['url'];
                 $newModule->submenu = $module['submenu'];
-                $lastId = R::store($newModule);
+                $newModule->posicion = $module['posicion'];
+                $moduleInsert[] = $newModule;
             }
+            R::storeAll($moduleInsert);
+
+            $lastId = R::getCell('SELECT MAX(id) FROM versamenu');
 
             $subMenu = [
                 [
