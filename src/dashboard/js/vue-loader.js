@@ -6,6 +6,7 @@ import { provide } from 'vue';
 const public_provider = {
     debug,
     csrf_token: '',
+    current_user: {},
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,6 +17,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputToken = $dom('#csrf_token');
     public_provider.csrf_token =
         inputToken instanceof HTMLInputElement ? inputToken.value : '';
+
+    const current_user = $dom('#current_user');
+    public_provider.current_user =
+        current_user instanceof HTMLInputElement
+            ? JSON.parse(current_user.value)
+            : {};
 
     if (!module) {
         console.error('No se ha especificado un módulo para cargar.');

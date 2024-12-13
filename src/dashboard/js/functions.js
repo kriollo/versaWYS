@@ -266,6 +266,7 @@ export const showErrorResponse = (
             icon: 'error',
             title: errores,
         });
+        return;
     } else {
         versaAlert({
             title: 'Error',

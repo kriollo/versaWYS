@@ -4,7 +4,9 @@
 /public/dashboard/store/*
 /public/dashboard/**/*.js
 /public/dashboard/**/*.css
+/public/dashboard/**/temp
 /versaCompileJS/node_modules/*
+/public/temp/*
 .idea
 node_modules
 package-lock.json

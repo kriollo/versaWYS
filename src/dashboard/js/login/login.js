@@ -109,6 +109,17 @@ if (showPass != null) {
     });
 }
 
+if (password != null) {
+    password.addEventListener('keypress', event => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            if (login != null) {
+                login.click();
+            }
+        }
+    });
+}
+
 // Lost Password
 const btnlostPass = $dom('#btnLostPass');
 if (btnlostPass != null) {
