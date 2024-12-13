@@ -25,7 +25,7 @@
 
 		<script src="{{ assets_url('/public/vendor/flowbite/flowbite.min.js') }}"></script>
 		{% if config['build']['debug'] == '0' %}
-			{# public/vendor/vue/vue.esm-browser.prod.js #}
+			{# modo producción #}
 			<script type="importmap">
 				{
 					"imports": {
@@ -39,7 +39,6 @@
 			</script>
 		{% else %}
 			{# modo debug #}
-			{# public/vendor/vue/vue.esm-browser.js #}
 			<script type="importmap">
 				{
 					"imports": {
@@ -52,7 +51,7 @@
 				}
 			</script>
 		{% endif %}
-		<script type="module" src="{{ getAssets('dashboard', 'js', '/dashboard.js') }}?{{ date()|date('U') }}"></script>
+		<script type="module" src="{{ getAssets('dashboard', 'js', '/dashboard.js') }}?{{ date()|date('U') }}" defer></script>
 		{% block appScript %}{% endblock %}
 	</body>
 
