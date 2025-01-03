@@ -25,10 +25,11 @@
             "@#/*": ["./node_modules/*"],
             "@/*": ["./public/*"]
         },
-        "typeRoots": ["/node_modules/", "./src/dashboards/**/*"],
+        "typeRoots": ["/node_modules/", "./src/dashboard/**/*"],
         "allowSyntheticDefaultImports": false,
         "esModuleInterop": true,
-        "moduleResolution": "Bundler"
+        "moduleResolution": "node",
+        "skipLibCheck": true
     },
     "vueCompilerOptions": {
         "target": 3.5
