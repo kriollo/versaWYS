@@ -99,6 +99,7 @@ EOT;
                 -
             </button>
         </div>
+    </div>
 </template>
 <style scoped>
     /* Agrega tu estilo aquí */
