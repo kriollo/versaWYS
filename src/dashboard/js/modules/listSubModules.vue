@@ -1,9 +1,10 @@
-<script setup>
-    import { customTable } from '@/dashboard/js/components/customTable';
-    import { modal } from '@/dashboard/js/components/modal';
+<script setup lang="ts">
+    import customTable from '@/dashboard/js/components/customTable.vue';
+    import modal from '@/dashboard/js/components/modal.vue';
     import { versaFetch, VersaToast } from '@/dashboard/js/functions';
-    import { subModulesForm } from '@/dashboard/js/modules/subModulesForm';
+    import subModulesForm from '@/dashboard/js/modules/subModulesForm.vue';
     import Swal from 'sweetalert2';
+    import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
     import { computed, inject, provide, reactive, ref } from 'vue';
 
     const emit = defineEmits(['accion']);
@@ -54,7 +55,7 @@
                     csrf_token,
                 }),
                 headers: { 'Content-Type': 'application/json' },
-            };
+            } as VersaParamsFetch;
             const response = await versaFetch(params);
             if (response.success === 1) {
                 refreshTable.value = !refreshTable.value;
@@ -75,15 +76,23 @@
     const changePosition = async (/** @type {Object} */ item) => {
         const { value: position } = await Swal.fire({
             title: 'Cambiar posición',
+            icon: 'question',
             input: 'number',
-            inputValue:
-                Number(item.posicion) + (item.direction === 'up' ? -1 : 1),
+            inputValue: item.posicion,
+            inputOptions: {
+                min: 1,
+            },
             inputAttributes: {
                 min: 1,
             },
             showCancelButton: true,
             confirmButtonText: 'Cambiar',
             cancelButtonText: 'Cancelar',
+            inputValidator: value => {
+                if (!value) {
+                    return 'Debes ingresar una posición';
+                }
+            },
         });
         if (position) {
             const params = {
@@ -96,7 +105,7 @@
                     csrf_token,
                 }),
                 headers: { 'Content-Type': 'application/json' },
-            };
+            } as VersaParamsFetch;
             const response = await versaFetch(params);
             if (response.success === 1) {
                 refreshTable.value = !refreshTable.value;
@@ -114,8 +123,8 @@
         }
     };
 
-    const accion = (/** @type {Object} */ payload) => {
-        const actions = {
+    const accion = (payload: AccionData) => {
+        const actions: actionsType = {
             create: () => {
                 ShowModalSubForm.itemSelected = null;
                 ShowModalSubForm.action = 'new';

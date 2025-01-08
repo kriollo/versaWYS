@@ -60,7 +60,7 @@ if ($sidebar) {
         $sidebarItemsButton.forEach(button => {
             button.addEventListener('click', e => {
                 e.preventDefault();
-                const $target = e.currentTarget;
+                const $target = e.currentTarget as HTMLElement;
                 const $caret = $dom('[sidebar-item-i]', $target);
                 if ($caret) {
                     if ($caret.classList.contains('bi-caret-right-fill')) {
@@ -99,29 +99,27 @@ if ($toggleAside instanceof HTMLElement && $toggleAside !== null) {
             $maincontent.classList.remove('lg:ml-56');
             $maincontent.classList.add('lg:ml-16');
 
-            $asideItems.forEach(item => {
+            $asideItems.forEach((item: HTMLDivElement) => {
+                item.classList.add('hidden');
+            });
+        } else if ($aside.classList.contains('w-56')) {
+            $aside.classList.remove('w-56');
+            $aside.classList.add('w-16');
+            $maincontent.classList.remove('lg:ml-56');
+            $maincontent.classList.add('lg:ml-16');
+
+            $asideItems.forEach((item: HTMLDivElement) => {
                 item.classList.add('hidden');
             });
         } else {
-            if ($aside.classList.contains('w-56')) {
-                $aside.classList.remove('w-56');
-                $aside.classList.add('w-16');
-                $maincontent.classList.remove('lg:ml-56');
-                $maincontent.classList.add('lg:ml-16');
+            $aside.classList.remove('w-16');
+            $aside.classList.add('w-56');
+            $maincontent.classList.remove('lg:ml-16');
+            $maincontent.classList.add('lg:ml-56');
 
-                $asideItems.forEach(item => {
-                    item.classList.add('hidden');
-                });
-            } else {
-                $aside.classList.remove('w-16');
-                $aside.classList.add('w-56');
-                $maincontent.classList.remove('lg:ml-16');
-                $maincontent.classList.add('lg:ml-56');
-
-                $asideItems.forEach(item => {
-                    item.classList.remove('hidden');
-                });
-            }
+            $asideItems.forEach((item: HTMLDivElement) => {
+                item.classList.remove('hidden');
+            });
         }
     };
 

@@ -1,9 +1,10 @@
-import { html } from '@/vendor/code-tag/code-tag-esm';
+import { html } from 'P@/vendor/code-tag/code-tag-esm.js';
 import Swal from 'sweetalert2';
+import type { VersaFetchResponse, VersaParamsFetch } from 'versaTypes';
 const loadSwallCss = () => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '@/vendor/sweetalert2/sweetalert2.dark.min.css';
+    link.href = 'P@/vendor/sweetalert2/sweetalert2.dark.min.css';
     document.head.appendChild(link);
 };
 
@@ -23,6 +24,7 @@ const errorMap = new Map([
 ]);
 
 /**
+ * @preserve
  * Verifica si existe una cookie llamada 'debug'.
  * @returns {boolean} True si la cookie existe, de lo contrario False.
  */
@@ -50,22 +52,24 @@ const validateResponeStatus = (/** @type {number} */ status) => {
 /**
  * @preserve
  * Performs a fetch request with the provided parameters.
- * @param {Object} params - The fetch parameters.
- * @param {string} params.url - The URL to fetch.
- * @param {string} params.method - The HTTP method to use.
- * @param {Object|HeadersInit} [params.headers = {}] - The headers to include in the request.
- * @param {FormData|Object|string} [params.data] - The data to send in the request body.
- * @param {('omit'|'same-origin'|'include')} [params.credentials='same-origin'] - The credentials mode for the request.
- * @returns {Promise<any>} - A promise that resolves to the response data.
- * @throws {Error} - If the response status is not valid or an error occurs during the request.
+ * @param {VersaParamsFetch} params - The parameters for the fetch request.
+ * @property {string} url - The URL to which the request will be made.
+ * @property {'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'} method - The HTTP method to use for the request.
+ * @property {Record<string, string> | HeadersInit} [headers] - The headers to include in the request.
+ * @property {FormData | Record<string, any> | string} [data] - The data to include in the request.
+ * @property {'omit' | 'same-origin' | 'include'} [credentials='same-origin'] - The credentials policy to use for the request.
+ * @returns {Promise<VersaFetchResponse>} The response from the fetch request.
  */
-export const versaFetch = async (/** @preserve @type {object} */ params) => {
+export const versaFetch = async (
+    params: VersaParamsFetch,
+): Promise<VersaFetchResponse> => {
     const { url, method, headers, data, credentials = 'same-origin' } = params;
 
     const init = {
         method: method,
         headers: headers || {},
         credentials: credentials,
+        body: null,
     };
 
     if (
@@ -111,6 +115,7 @@ export const versaFetch = async (/** @preserve @type {object} */ params) => {
 };
 
 /**
+ * @preserve
  * Returns the current date in the format "YYYY-MM-DD".
  * @returns {string} The current date in the format "YYYY-MM-DD".
  */
@@ -123,6 +128,33 @@ export const getDateToday = () => {
 };
 
 /**
+ * @preserve
+ * Gets the current year and month in the format 'YYYY-MM'.
+ *
+ * @returns {string} The formatted date string representing the current year and month.
+ */
+export const getAnnoMes = () => {
+    const fecha = new Date();
+    const año = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const fechaFormateada = `${año}-${mes}`;
+    return fechaFormateada;
+};
+
+/**
+ * @preserve
+ * Gets the current year.
+ *
+ * @returns {number} The current year.
+ */
+export const getAnno = () => {
+    const fecha = new Date();
+    const año = fecha.getFullYear();
+    return año;
+};
+
+/**
+ * @preserve
  * Returns the current date and time in the format "YYYY-MM-DD HH:MM:SS".
  * @returns {string} The current date and time.
  */
@@ -138,6 +170,7 @@ export const getDateTimeToday = () => {
 };
 
 /**
+ * @preserve
  * Returns the current time in the format "HH:MM:SS".
  * @returns {string} The current time.
  */
@@ -147,6 +180,48 @@ export const getTime = () => {
     const minuto = String(fecha.getMinutes()).padStart(2, '0');
     const segundo = String(fecha.getSeconds()).padStart(2, '0');
     return `${hora}:${minuto}:${segundo}`;
+};
+
+/**
+ * @preserve
+ * Añade un número específico de días a una fecha dada y devuelve la nueva fecha en formato YYYY-MM-DD.
+ *
+ * @param {string|Date} fecha - La fecha inicial a la que se le añadirán los días. Puede ser una cadena de texto en formato reconocible por Date o un objeto Date.
+ * @param {number} dias - El número de días a añadir a la fecha.
+ * @returns {string} La nueva fecha en formato YYYY-MM-DD.
+ * @throws {Error} Si los parámetros de fecha y días no son válidos.
+ */
+export const addDias = (fecha, dias) => {
+    // Verificar que los parámetros sean válidos
+    if (!fecha || !dias || isNaN(dias)) {
+        throw new Error(
+            'Los parámetros de fecha y días son obligatorios y deben ser válidos.',
+        );
+    }
+
+    const fechaActual = new Date(fecha);
+    fechaActual.setDate(fechaActual.getDate() + dias);
+
+    // Obtener los valores de año, mes y día
+    const { year, month, day } = {
+        year: fechaActual.getFullYear(),
+        month: String(fechaActual.getMonth() + 1).padStart(2, '0'),
+        day: String(fechaActual.getDate()).padStart(2, '0'),
+    };
+
+    // Formatear la fecha en formato YYYY-MM-DD
+    const fechaFormateada = `${year}-${month}-${day}`;
+    return fechaFormateada;
+};
+
+export const diffDias = (
+    /** @type {string} */ fecha1,
+    /** @type {string} */ fecha2,
+) => {
+    const fecha1Date = new Date(fecha1);
+    const fecha2Date = new Date(fecha2);
+    const diffTime = Math.abs(fecha2Date.getTime() - fecha1Date.getTime()) + 1;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };
 
 /**
@@ -195,6 +270,13 @@ export const versaAlert = Params => {
 
 export const log = console.log.bind(console);
 
+/**
+ * @preserve
+ * Removes all backslashes from the given string.
+ *
+ * @param {string} str - The string from which to remove backslashes.
+ * @returns {string} The resulting string with all backslashes removed.
+ */
 export const removeScape = (/** @type {string} */ str) =>
     str.replace(/\\/g, '');
 
@@ -217,12 +299,19 @@ export const VersaToast = Swal.mixin({
     timerProgressBar: true,
 });
 
+/**
+ * @preserve
+ * Gets the current date and time in Unix timestamp format.
+ *
+ * @returns {number} The current Unix timestamp in seconds.
+ */
 export const getFechaUnix = () => {
     const fecha = new Date();
     return Math.floor(fecha.getTime() / 1000);
 };
 
 /**
+ * @preserve
  * Displays an error response using versaAlert.
  *
  * @param {object} response - The response object containing error information.
@@ -266,12 +355,29 @@ export const showErrorResponse = (
             icon: 'error',
             title: errores,
         });
-        return;
     } else {
         versaAlert({
             title: 'Error',
             html: errores,
             type: 'error',
         });
+    }
+};
+
+/**
+ * Converts a 24-hour time string to a 12-hour time string with AM/PM.
+ *
+ * @param {number} timing - The value of the timing en miliseconds.
+ * @returns {string} the timing in ms, seconds, minutes or hours.
+ */
+export const showTimingForHumans = timing => {
+    if (timing < 1000) {
+        return `${timing} ms`;
+    } else if (timing < 60000) {
+        return `${timing / 1000} s`;
+    } else if (timing < 3600000) {
+        return `${timing / 60000} min`;
+    } else {
+        return `${timing / 3600000} h`;
     }
 };

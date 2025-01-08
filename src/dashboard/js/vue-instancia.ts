@@ -1,9 +1,8 @@
-import { existeCookieBuild } from '@/dashboard/js/functions.js';
+import { existeCookieBuild } from '@/dashboard/js/functions';
 import { createApp } from 'vue';
 
 export const debug = existeCookieBuild();
 export const app = createApp({
-    setup() {},
     template: `
         <vue-loader-components />
     `,

@@ -1,20 +1,26 @@
-<script setup>
+<script setup lang="ts">
     import { versaFetch, VersaToast } from '@/dashboard/js/functions';
     import Swal from 'sweetalert2';
+    import type { Reactive } from 'vue';
     import { inject, ref } from 'vue';
 
-    import { customTable } from '@/dashboard/js/components/customTable';
-    import { listSubModules } from '@/dashboard/js/modules/listSubModules';
+    import customTable from '@/dashboard/js/components/customTable.vue';
+    import listSubModules from '@/dashboard/js/modules/listSubModules.vue';
+    import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
 
     const externalFilters = ref('');
     const buttonSelected = ref('Todos');
     const refreshTable = ref(false);
     const showModalSubMenu = ref(false);
 
-    /** @type {{showModalForm: boolean, itemSelected: null|Object, action: string}} */
-    const showModalForm = inject('showModalForm');
+    type ShowModalForm = {
+        showModalForm: boolean;
+        itemSelected: any;
+        action: string;
+    };
+    const showModalForm = inject('showModalForm') as Reactive<ShowModalForm>;
 
-    const csrf_token = inject('csrf_token');
+    const csrf_token = inject<string>('csrf_token');
 
     const setFilterExterno = (/** @type {string} */ filter) => {
         externalFilters.value = filter;
@@ -42,7 +48,7 @@
                     csrf_token,
                 }),
                 headers: { 'Content-Type': 'application/json' },
-            };
+            } as VersaParamsFetch;
             const response = await versaFetch(params);
             if (response.success === 1) {
                 await VersaToast.fire({
@@ -70,7 +76,7 @@
                 csrf_token,
             }),
             headers: { 'Content-Type': 'application/json' },
-        };
+        } as VersaParamsFetch;
         const response = await versaFetch(params);
         if (response.success === 1) {
             refreshTable.value = !refreshTable.value;
@@ -84,10 +90,8 @@
 
     const idModuleSelected = ref(0);
 
-    const accion = (
-        /** @type {{ item: any; accion: string | number; direction: any; }} */ accion,
-    ) => {
-        const actions = {
+    const accion = (accion: AccionData) => {
+        const actions: actionsType = {
             showEditModule: () => {
                 showModalForm.showModalForm = true;
                 showModalForm.itemSelected = accion.item;

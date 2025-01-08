@@ -1,13 +1,15 @@
-<script setup>
-    import { modal } from '@/dashboard/js/components/modal';
+<script setup lang="ts">
+    import modal from '@/dashboard/js/components/modal.vue';
     import { $dom } from '@/dashboard/js/composables/dom';
     import {
         versaAlert,
         versaFetch,
         VersaToast,
     } from '@/dashboard/js/functions';
-    import { html } from '@/vendor/code-tag/code-tag-esm';
+    import { html } from 'P@/vendor/code-tag/code-tag-esm';
     import { computed, inject } from 'vue';
+
+    import type { VersaParamsFetch } from 'versaTypes';
 
     const props = defineProps({
         showModal: Boolean,
@@ -74,7 +76,7 @@
                 'content-type': 'application/json',
             },
             data: JSON.stringify(objectData),
-        };
+        } as VersaParamsFetch;
         const response = await versaFetch(params);
         if (response.success === 1) {
             await VersaToast.fire({

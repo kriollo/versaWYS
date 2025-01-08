@@ -52,12 +52,6 @@
             modal.value.setAttribute('inert', '');
         }
     });
-
-    const closeModal = () => {
-        emit('accion', {
-            accion: 'closeModal',
-        });
-    };
 </script>
 <template>
     <Transition>
@@ -67,8 +61,6 @@
             :id="idModal"
             ref="modal"
             tabindex="-1">
-            <div
-                class="max-w-md max-w-lg max-w-xl max-w-2xl max-w-3xl max-w-4xl max-w-5xl max-w-6xl max-w-7xl"></div>
             <div class="relative p-4 w-full max-h-full" :class="size">
                 <!-- Modal content -->
                 <div

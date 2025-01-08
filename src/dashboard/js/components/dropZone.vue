@@ -1,12 +1,13 @@
-<script setup>
-    import { loader } from '@/dashboard/js/components/loader';
+<script setup lang="ts">
+    import loader from '@/dashboard/js/components/loader.vue';
     import { $dom } from '@/dashboard/js/composables/dom';
     import {
         useFileZise,
         useValidFile,
     } from '@/dashboard/js/composables/useValidFile';
-    import { html } from '@/vendor/code-tag/code-tag-esm';
+    import { html } from 'P@/vendor/code-tag/code-tag-esm';
     import Swal from 'sweetalert2';
+    import type { Ref } from 'vue';
     import { computed, ref } from 'vue';
 
     const emit = defineEmits(['accion']);
@@ -44,7 +45,9 @@
     });
     const multiple = computed(() => props.multiple);
     const nfilesMultiple = computed(() => props.nfilesMultiple);
-    const fileTypeValid = computed(() => props.fileTypeValid);
+    const fileTypeValid = computed(() => props.fileTypeValid) as unknown as Ref<
+        string[]
+    >;
     const msgTiposArchivos = computed(() => props.msgTiposArchivos);
     const maxSizeFile = computed(() => props.maxSizeFileMB);
     const ArrayFilesErrors = ref([]);
@@ -115,8 +118,7 @@
         }
 
         const indexFile = files.value.findIndex(
-            (/** @type {{ archivo: any; }} */ item) =>
-                item?.archivo === file.name,
+            (item: { archivo: string }) => item?.archivo === file.name,
         );
         if (indexFile >= 0) {
             return {
@@ -183,13 +185,20 @@
         e.preventDefault();
         setFilesLocal(e.target.files);
     };
-    const drag = (/** @type {{ preventDefault: () => void; }} */ e) => {
+    const drag = (
+        /** @type {{ preventDefault: () => void; }} */ e: {
+            preventDefault: () => void;
+        },
+    ) => {
         e.preventDefault();
         classActive.value = true;
         mensaje.value = 'Suelta para Subir';
     };
     const drop = (
-        /** @type {{ preventDefault: () => void; dataTransfer: { files: any; }; }} */ e,
+        /** @type {{ preventDefault: () => void; dataTransfer: { files: any; }; }} */ e: {
+            preventDefault: () => void;
+            dataTransfer: { files: any };
+        },
     ) => {
         loading.value = true;
         e.preventDefault();

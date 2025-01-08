@@ -1,12 +1,17 @@
-<script setup>
-    import { modal } from '@/dashboard/js/components/modal';
+<script setup lang="ts">
+    import modal from '@/dashboard/js/components/modal.vue';
     import { versaAlert, versaFetch } from '@/dashboard/js/functions';
-    import { html } from '@/vendor/code-tag/code-tag-esm';
+    import { html } from 'P@/vendor/code-tag/code-tag-esm';
+    import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
     import { inject, onWatcherCleanup, ref, watch } from 'vue';
 
-    const ShowModalSubForm = inject('ShowModalSubForm');
-    const csrf_token = inject('csrf_token');
-    const id_menu = inject('id_menu');
+    type ShowModalSubForm = {
+        ShowModalSubForm: boolean;
+        itemSelected: any;
+    };
+    const ShowModalSubForm = inject<ShowModalSubForm>('ShowModalSubForm');
+    const csrf_token = inject<string>('csrf_token');
+    const id_menu = inject<string>('id_menu');
 
     const showModal = ref(false);
     const newModule = {
@@ -53,7 +58,7 @@
             url: '/admin/submodules/saveModule',
             method: 'POST',
             data: localFormData.value,
-        };
+        } as VersaParamsFetch;
 
         const response = await versaFetch(params);
         if (response.success === 0) {
@@ -86,8 +91,8 @@
         }
     };
 
-    const accion = (/** @type {Object} */ accion) => {
-        const actions = {
+    const accion = (accion: AccionData) => {
+        const actions: actionsType = {
             closeModal: () => {
                 ShowModalSubForm.ShowModalSubForm = false;
                 ShowModalSubForm.itemSelected = null;

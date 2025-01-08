@@ -1,6 +1,8 @@
 import { $dom, validateFormRequired } from '@/dashboard/js/composables/dom.js';
 import { versaAlert, versaFetch } from '@/dashboard/js/functions';
-import { html } from '@/vendor/code-tag/code-tag-esm.js';
+import { html } from 'P@/vendor/code-tag/code-tag-esm.js';
+
+import type { VersaParamsFetch } from 'versaTypes';
 
 const btnAddUser = $dom('#btnAddUser');
 if (btnAddUser !== null) {
@@ -23,14 +25,14 @@ if (btnAddUser !== null) {
                 'content-type': 'application/json',
             },
             data: JSON.stringify(objectData),
-        };
+        } as VersaParamsFetch;
 
         const alerta = $dom('#alert');
         if (!(alerta instanceof HTMLDivElement)) return false;
         alerta.innerHTML = '';
 
         const data = await versaFetch(paramsFetch);
-        if (data.success != '1') {
+        if (data.success !== 1) {
             let errores = `<ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">`;
             for (const key in data.errors) {
                 errores += `<li>${data.errors[key]}</li>`;

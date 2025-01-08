@@ -30,6 +30,9 @@ class RedBeanCnn extends SimpleModel
             R::setup('mysql:host=' . $this->host . ';dbname=' . $this->dbName, $this->user, $this->pass, false, false, [
                 PDO::MYSQL_ATTR_LOCAL_INFILE => true,
             ]);
+
+            R::useFeatureSet('novice/latest');
+
             R::freeze();
         }
     }

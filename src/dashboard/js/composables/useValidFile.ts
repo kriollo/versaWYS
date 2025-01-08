@@ -1,4 +1,4 @@
-import fileTypes from '@/dashboard/js/store/fileTypes.js';
+import fileTypes from '@/dashboard/js/store/fileTypes';
 
 /**
  * Comprueba si un archivo es válido según una lista de tipos de archivo permitidos.
@@ -7,9 +7,9 @@ import fileTypes from '@/dashboard/js/store/fileTypes.js';
  * @returns {boolean} - Devuelve true si el archivo es válido, de lo contrario devuelve false.
  */
 export const useValidFile = (
-    /** @type {Array} */ filesPermitidos,
-    /** @type {File} */ file,
-) => {
+    /** @type {Array} */ filesPermitidos: string[],
+    /** @type {File} */ file: File,
+): boolean => {
     //obterner la ext desde fileTypes
     const fileExt = fileTypes
         .data()
@@ -17,7 +17,7 @@ export const useValidFile = (
     if (!fileExt) return false;
 
     const fileTypeValid = filesPermitidos.find(item => item === fileExt.ext);
-    return fileTypeValid;
+    return !!fileTypeValid;
 };
 
 /**
@@ -27,9 +27,9 @@ export const useValidFile = (
  * @returns {boolean} - Returns true if the file size is less than or equal to the specified size, otherwise returns false.
  */
 export const useFileZise = (
-    /** @type {File} */ file,
-    /** @type {Number} */ size,
-) => {
+    /** @type {File} */ file: File,
+    /** @type {number} */ size: number,
+): boolean => {
     const fileSize = file.size / 1000000;
     return fileSize <= size;
 };

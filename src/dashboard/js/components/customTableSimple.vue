@@ -14,61 +14,48 @@
     * @property {Object} itemSelected - Item seleccionado
     * @property {Boolean} smallLine - Linea pequeña
     */
-
 </docs>
 
-<script setup>
-    import { dropDown } from '@/dashboard/js/components/dropDown';
-    import { loader } from '@/dashboard/js/components/loader';
+<script setup lang="ts">
+    import dropDown from '@/dashboard/js/components/dropDown.vue';
+    import loader from '@/dashboard/js/components/loader.vue';
 
     import { computed, reactive, ref, toRefs, watch, watchEffect } from 'vue';
 
-    const props = defineProps({
-        id: {
-            type: String,
-            default: 'table',
-        },
-        tablaTitle: {
-            type: String,
-            default: '',
-        },
-        columns: {
-            type: Array,
-            required: true,
-        },
-        dataInput: {
-            type: Array,
-            required: true,
-        },
-        fieldOrder: {
-            type: String,
-            required: false,
-            default: 'id',
-        },
-        perPage: {
-            type: Number,
-            default: 25,
-        },
-        showPerPage: {
-            type: Boolean,
-            default: true,
-        },
-        showExportExcel: {
-            type: Boolean,
-            default: true,
-        },
-        showSearch: {
-            type: Boolean,
-            default: true,
-        },
-        itemSelected: {
-            type: Object,
-            default: () => ({}),
-        },
-        smallLine: {
-            type: Boolean,
-            default: false,
-        },
+    type ItemSelected = {
+        id: string;
+        fieldCompare: string;
+    };
+
+    type Colspan = {
+        title: string;
+        colspan: number;
+    };
+
+    interface Props {
+        id?: string;
+        tablaTitle: string;
+        columns: Array<string>;
+        dataInput: Array<any>;
+        fieldOrder?: string;
+        perPage: number;
+        showPerPage?: boolean;
+        showExportExcel?: boolean;
+        showSearch?: boolean;
+        itemSelected?: ItemSelected;
+        smallLine?: boolean;
+        colspan?: Colspan[];
+    }
+
+    const props = withDefaults(defineProps<Props>(), {
+        id: 'table',
+        tablaTitle: '',
+        fieldOrder: 'id',
+        perPage: 25,
+        showPerPage: true,
+        showExportExcel: true,
+        showSearch: true,
+        smallLine: false,
     });
     const emit = defineEmits(['accion', 'update:totalRegisters']);
 
@@ -90,11 +77,28 @@
         smallLine,
         columns,
         dataInput,
+        colspan,
     } = toRefs(props);
 
     const showPerPages = [1, 5, 10, 25, 50, 100];
 
-    const data = reactive({
+    type Data = {
+        data: Array<any>;
+        columns: Array<string>;
+        colspan: Array<string>;
+        meta: {
+            total: number;
+            per_page: number;
+            page: number;
+            total_pages: number;
+            filter: string;
+            from: number;
+            to: number;
+            order: Array<string>;
+        };
+    };
+
+    const data = reactive<Data>({
         data: [],
         columns: [],
         colspan: [],
@@ -258,10 +262,6 @@
         }
         return 'bg-white border-b dark:bg-gray-800 dark:border-gray-700';
     };
-
-    const accion = accion => {
-        console.log(accion);
-    };
 </script>
 
 <template>
@@ -348,11 +348,11 @@
                     class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                         <th
-                            :colspan="col.col"
+                            v-for="cols in colspan"
                             scope="colspan"
-                            v-for="col in data.colspan">
+                            :colspan="cols.colspan">
                             <div class="flex justify-center">
-                                {{ col.title }}
+                                {{ cols.title }}
                             </div>
                         </th>
                     </tr>
@@ -405,7 +405,7 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="overflow-y-auto max-h-72">
                     <tr class="text-center" v-if="data.data.length === 0">
                         <td :colspan="data.columns.length">
                             <span class="text-xl" v-html="msg"></span>
@@ -423,7 +423,7 @@
         </div>
 
         <nav
-            class="grid justify-center md:content-center md:flex md:justify-between my-4 w-full px-2">
+            class="grid justify-center md:content-center md:flex md:justify-between my-4 w-full px-2 overflow-auto">
             <span
                 class="text-sm font-normal text-gray-500 dark:text-gray-400 h-8 flex items-center gap-1">
                 Monstrando

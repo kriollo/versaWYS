@@ -1,38 +1,47 @@
-<script setup>
-    import { computed } from 'vue';
+<docs lang="JSDoc">
+/**
+ * @preserve
+    * This Vue component is a checkbox that can be checked or unchecked.
+    *
+    * Props:
+    * @property {string} id - (required): The ID of the checkbox.
+    * @property {string} [label=''] - (optional): The label of the checkbox.
+    * @property {('success'|'danger'|'warning'|'info')} [type='success'] - (optional): The type of the checkbox.
+    * @property {boolean} [disabled=false] - (optional): Determines whether the checkbox is disabled.
+    *
+    * Emits:
+    * @event {Boolean} v-model - Emits a boolean value to determine whether the checkbox is checked or unchecked.
+ */
+</docs>
 
-    const props = defineProps({
-        id: {
-            type: String,
-            default: 'estado',
-        },
-        label: {
-            type: String,
-            default: '',
-        },
-        type: {
-            type: String,
-            default: 'success',
-        },
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
-    });
-    const estado = defineModel();
-    const type = computed(() => types[props.type]);
-    const id = computed(() => props.id);
-    const label = computed(() => props.label);
-    const disabled = computed(() => props.disabled);
+<script setup lang="ts">
+    import { computed, toRefs } from 'vue';
 
-    const types = {
-        success:
-            'text-green-600 dark:text-green-400 focus:ring-green-500 dark:focus:ring-green-500',
-        danger: 'text-red-600 dark:text-red-400 focus:ring-red-500 dark:focus:ring-red-500',
-        warning:
-            'text-yellow-600 dark:text-yellow-400 focus:ring-yellow-500 dark:focus:ring-yellow-500',
-        info: 'text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-500',
+    interface Props {
+        id: string;
+        label?: string;
+        type?: 'success' | 'danger' | 'warning' | 'info' | 'primary';
+        disabled?: boolean;
     };
+
+    const props = withDefaults(defineProps<Props>(), {
+        label: '',
+        type: 'success',
+        disabled: false,
+    });
+
+    const { id, label, type, disabled } = toRefs(props);
+
+    enum CheckTypes {
+        success = 'text-green-600 dark:text-green-400 focus:ring-green-500 dark:focus:ring-green-500',
+        danger = 'text-red-600 dark:text-red-400 focus:ring-red-500 dark:focus:ring-red-500',
+        warning = 'text-yellow-600 dark:text-yellow-400 focus:ring-yellow-500 dark:focus:ring-yellow-500',
+        info = 'text-gray-600 dark:text-gray-400 focus:ring-gray-500 dark:focus:ring-gray-500',
+        primary = 'text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-500',
+    }
+
+    const estado = defineModel();
+    const checkType = computed(() => CheckTypes[type.value]);
 </script>
 <template>
     <div class="flex gap-2">
@@ -40,7 +49,7 @@
             :id="id"
             type="checkbox"
             class="h-5 w-5"
-            :class="type"
+            :class="checkType"
             v-model="estado"
             :disabled="disabled" />
         <label

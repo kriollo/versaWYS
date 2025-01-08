@@ -1,6 +1,7 @@
 import { $dom } from '@/dashboard/js/composables/dom.js';
 import { versaAlert, versaFetch } from '@/dashboard/js/functions.js';
-import { html } from '@/vendor/code-tag/code-tag-esm.js';
+import { html } from 'P@/vendor/code-tag/code-tag-esm.js';
+import { VersaParamsFetch } from 'versaTypes';
 
 // Login Form
 const login = $dom('#login');
@@ -16,7 +17,7 @@ if (login != null) {
             url: '/admin/login/autentication',
             method: 'POST',
             data: datos,
-        };
+        } as VersaParamsFetch;
 
         const data = await versaFetch(params);
         if (data.success == 0) {
@@ -110,10 +111,10 @@ if (showPass != null) {
 }
 
 if (password != null) {
-    password.addEventListener('keypress', event => {
+    password.addEventListener('keypress', (event: KeyboardEvent) => {
         if (event.key === 'Enter') {
             event.preventDefault();
-            if (login != null) {
+            if (login instanceof HTMLButtonElement) {
                 login.click();
             }
         }
@@ -161,7 +162,7 @@ if (btnlostPass != null) {
                 'content-type': 'application/json',
             },
             data: JSON.stringify(objectData),
-        };
+        } as VersaParamsFetch;
         const data = await versaFetch(params);
         if (data.success == 0) {
             const errores = html`
@@ -282,7 +283,7 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
             url: '/admin/login/apply-reset-password',
             method: 'POST',
             data: datos,
-        };
+        } as VersaParamsFetch;
 
         if (!(btnResetPass instanceof HTMLButtonElement)) return;
         btnResetPass.disabled = true;
@@ -344,12 +345,12 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
             return false;
         }
 
-        const divProgress = $dom('#divProgress');
-        const progress = $dom('#progress');
+        const divProgress = $dom('#divProgress') as HTMLDivElement;
+        const progress = $dom('#progress') as HTMLDivElement;
 
         if (
-            !(divProgress instanceof HTMLElement) ||
-            !(progress instanceof HTMLElement)
+            !(divProgress instanceof HTMLDivElement) ||
+            !(progress instanceof HTMLDivElement)
         ) {
             btnResetPass.disabled = false;
             return;

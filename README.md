@@ -39,7 +39,6 @@ versaWYS-PHP ofrece las siguientes características de seguridad:
     -   Puedes usar el método `{{ csrf_field() | raw }}` de Twig para generar un token.
 -   Protección contra ataques SQL Injection: Protección contra ataques SQL Injection con el ORM RedBean.
 -   Protección contra ataques de Fuerza Bruta: Protección contra ataques de Fuerza Bruta desde Middleware y control de Intentos.
--   Politicas de contraseña configurables desde el archivo config
 
 ## Requisitos
 
@@ -48,14 +47,14 @@ versaWYS-PHP ofrece las siguientes características de seguridad:
 -   MySQL 5.7 o superior
 -   Apache 2.4 o superior (también puedes usar NGINX)
 -   Modulo Apache mod_rewrite
--   node 23
+-   node 20 o superior
 
 ## Inicio Rápido
 
 Para comenzar con `versaWYS-PHP`, sigue estos pasos:
 
 1. Abre una terminal en la carpeta donde guardarás el proyecto
-2. Clona el repositorio: `git clone https://github.com/kriollo/versaWYS.git .` o descargar el zip `https://github.com/kriollo/versaWYS/archive/refs/heads/main.zip`
+2. Clona el repositorio: `git clone https://github.com/kriollo/solfonpro-tqw.git .` o descargar el zip `https://github.com/kriollo/solfonpro-tqw/archive/refs/heads/main.zip`
 3. Instala las dependencias: `cd versaWYS && composer install`
 4. Configura tu base de datos, abre el Editor de Codigo y actualiza `versaWYS/kernel/config/config.json` con tus credenciales.
 5. En la terminal ejecuta `php versaCLI migrate:up` para iniciar tu base de datos.
@@ -105,17 +104,6 @@ Ahora puedes acceder a tu nueva aplicación `versaWYS-PHP` en `http://localhost:
             "version": "1.0.0",
             "timezone": "America\/Santiago",
             "charset": "utf-8"
-        },
-        "auth": {
-            "inactive_account_days": 30,
-            "expiration_days_password": 90,
-            "password_policy": {
-                "large": 8,
-                "uppercase": true,
-                "lowercase": true,
-                "number": true,
-                "special_chars": true
-            }
         },
         "session": {
             "key": "WYS",

@@ -1,19 +1,38 @@
-<script setup>
-    import { check } from '@/dashboard/js/components/check';
-    import { inputEditable } from '@/dashboard/js/components/inputEditable';
+<script setup lang="ts">
+    import check from '@/dashboard/js/components/check.vue';
+    import inputEditable from '@/dashboard/js/components/inputEditable.vue';
     import { removeScape, versaFetch } from '@/dashboard/js/functions';
+    import type { Perfil } from 'perfilTypes';
     import Swal from 'sweetalert2';
+    import type { AccionData, actionsType } from 'versaTypes';
+    import type { Ref } from 'vue';
     import { inject, ref, watch } from 'vue';
-
     const emit = defineEmits(['accion']);
 
-    const perfil = inject('perfil');
+    const perfil = inject('perfil') as Ref<Perfil>;
     const csrf_token = inject('csrf_token');
 
-    const perfilData = ref({});
+    type PerfilData = {
+        [key: string]: {
+            [key: string]: {
+                id_menu: string;
+                submenu: {
+                    id_menu: string;
+                    id_submenu: string;
+                    submenu: string;
+                    checked: boolean;
+                }[];
+                checked: boolean;
+                icon: string;
+                fill_menu: string;
+            };
+        };
+    };
+
+    const perfilData = ref<PerfilData>({});
     const urls = ref([]);
 
-    const removeScapeLocal = str => removeScape(str);
+    const removeScapeLocal = (str: string) => removeScape(str);
     const getPerfil = async () => {
         const response = await versaFetch({
             url: `/admin/perfiles/getPerfil/${perfil.value.id}`,
@@ -43,10 +62,7 @@
             nombre: perfil.value.nombre,
             pagina_inicio: perfil.value.pagina_inicio,
             csrf_token: csrf_token,
-            data:
-                JSON.stringify(perfilData.value) === []
-                    ? ''
-                    : JSON.stringify(perfilData.value),
+            data: JSON.stringify(perfilData.value),
         };
 
         const response = await versaFetch({
@@ -72,11 +88,9 @@
         }
     };
 
-    const accion = (/** @type {Object} */ accion) => {
-        const actions = {
-            updateData: () => {
-                savePerfilPersmisos();
-            },
+    const accion = (accion: AccionData) => {
+        const actions: actionsType = {
+            updateData: () => savePerfilPersmisos(),
         };
 
         const selectedAction = actions[accion.accion] || actions['default'];

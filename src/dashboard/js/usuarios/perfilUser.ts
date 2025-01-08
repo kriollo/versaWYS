@@ -4,7 +4,7 @@ import {
     serializeToArray,
 } from '@/dashboard/js/composables/dom.js';
 import { versaAlert, versaFetch } from '@/dashboard/js/functions';
-import { html } from '@/vendor/code-tag/code-tag-esm';
+import { html } from 'P@/vendor/code-tag/code-tag-esm';
 
 const $buttonResetPassword = $dom('#resetPassword');
 if ($buttonResetPassword instanceof HTMLButtonElement) {
@@ -15,7 +15,7 @@ if ($buttonResetPassword instanceof HTMLButtonElement) {
         if ($formResetPass.getAttribute('data-locked') === 'true') return;
 
         const __data = {};
-        serializeToArray($formResetPass).map(x => (__data[x.name] = x.value));
+        serializeToArray($formResetPass).forEach(x => (__data[x.name] = x.value));
         blockedForm($formResetPass, 'true');
 
         const response = await versaFetch({

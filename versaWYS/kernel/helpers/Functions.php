@@ -154,7 +154,12 @@ class Functions
                     }
                 },
                 'array' => function ($field, $value) {
-                    return !is_array($value) ? "El campo $field debe ser un arreglo" : null;
+
+                    if(is_array($value)) {
+                        return null;
+                    }
+
+                    return !(is_array(json_decode($value, true)) && json_last_error() == JSON_ERROR_NONE) ? "El campo $field debe ser un arreglo" : null;
                 },
             ];
 

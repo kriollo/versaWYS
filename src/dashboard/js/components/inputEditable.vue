@@ -1,4 +1,5 @@
-<script setup>
+<script setup lang="ts">
+    import type { AccionData, actionsType } from 'versaTypes';
     import { computed, nextTick, ref, watch } from 'vue';
 
     const props = defineProps({
@@ -47,8 +48,8 @@
         txtInput.value.focus();
     });
 
-    const accion = (/** @type {Object} */ accion) => {
-        const actions = {
+    const accion = (accion: AccionData) => {
+        const actions: actionsType = {
             updateData: () => {
                 emit('accion', accion);
             },
@@ -80,7 +81,7 @@
                 @click="
                     accion({
                         accion: 'updateData',
-                        id: idProps,
+                        id: Number(idProps),
                         newData,
                         field,
                     })
@@ -95,7 +96,7 @@
                 @click="
                     accion({
                         accion: 'cancelUpdate',
-                        id: idProps,
+                        id: Number(idProps),
                         field,
                     })
                 "

@@ -1,12 +1,13 @@
-<script setup>
-    import { dropZone } from '@/dashboard/js/components/dropZone';
-    import { modal } from '@/dashboard/js/components/modal';
+<script setup lang="ts">
+    import dropZone from '@/dashboard/js/components/dropZone.vue';
+    import modal from '@/dashboard/js/components/modal.vue';
     import {
         getSheetNames,
         readXlsx,
     } from '@/dashboard/js/composables/useXlsx';
-    import { html } from '@/vendor/code-tag/code-tag-esm';
+    import { html } from 'P@/vendor/code-tag/code-tag-esm';
     import Swal from 'sweetalert2';
+    import type { AccionData, actionsType, SwalResult } from 'versaTypes';
     import { toRefs } from 'vue';
 
     const emit = defineEmits(['accion']);
@@ -26,8 +27,8 @@
 
     const { files, showModal } = toRefs(props);
 
-    const accion = response => {
-        const actions = {
+    const accion = (response: AccionData) => {
+        const actions: actionsType = {
             addFiles: () => showDialogSelectSheet(response.files),
             closeModal: () =>
                 emit('accion', { accion: 'closeModalUploadExcel' }),
@@ -40,7 +41,7 @@
 
     const showDialogSelectSheet = async file => {
         const sheets = await getSheetNames(file.file);
-        const result = await Swal.fire({
+        const result: SwalResult = await Swal.fire({
             title: '¿Está seguro de subir el archivo?',
             text: `Una vez subido el archivo: ${file.archivo}, no podrá ser revertido `,
             icon: 'warning',
@@ -73,7 +74,7 @@
             showCancelButton: true,
             confirmButtonText: 'Subir',
             cancelButtonText: 'Cancelar',
-            inputValidator: (/** @type {String} */ value) => {
+            inputValidator: (value: string) => {
                 if (!value) {
                     return 'Debe seleccionar una hoja';
                 }

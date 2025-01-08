@@ -1,4 +1,4 @@
-import { read, utils, writeFile } from '@/vendor/xlsx/xlsx.full.min.esm.js';
+import { read, utils, writeFile } from 'P@/vendor/xlsx/xlsx.full.min.esm.js';
 
 /**
  * @preserve
@@ -6,7 +6,7 @@ import { read, utils, writeFile } from '@/vendor/xlsx/xlsx.full.min.esm.js';
  * @param {File} file - The Excel file to read.
  * @returns {Promise<string[]>} - A promise that resolves to an array of sheet names.
  */
-export const getSheetNames = async file => {
+export const getSheetNames = async (file: File): Promise<string[]> => {
     const f = await file.arrayBuffer();
     const w = new Uint8Array(f);
 
@@ -22,7 +22,7 @@ export const getSheetNames = async file => {
  * @param {number} [hoja=0] - The index of the sheet to read (default is 0).
  * @returns { Promise<Array> } - A promise that resolves to an array of arrays, where each array represents a row of the sheet.
  */
-export const readXlsx = async (file, hoja = 0) => {
+export const readXlsx = async (file: File, hoja: number = 0): Promise<{}[]> => {
     const f = await file.arrayBuffer();
     const w = new Uint8Array(f);
 
@@ -41,9 +41,9 @@ export const readXlsx = async (file, hoja = 0) => {
  * @returns {Promise<void>} - A promise that resolves when the XLSX file is created.
  */
 export const createXlsxFromJson = async (
-    /** @type {Array} */ data,
-    sheetName = 'Sheet1',
-) => {
+    data: {}[],
+    sheetName: string = 'Sheet1',
+): Promise<void> => {
     const wb = utils.book_new();
     const ws = utils.json_to_sheet(data);
     utils.book_append_sheet(wb, ws, sheetName);

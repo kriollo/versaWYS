@@ -5,7 +5,7 @@
  * @param {string} rut - The RUT to validate.
  * @returns {boolean} - Returns true if the RUT is valid, otherwise false.
  */
-export const validateRut = rut => {
+export const validateRut = (rut: string): boolean => {
     if (!rut) return false;
 
     // Eliminar caracteres no válidos
@@ -24,10 +24,8 @@ export const validateRut = rut => {
         multiplo = multiplo < 7 ? multiplo + 1 : 2;
     }
 
-    /**
-     *  @type {string | number}
-     */
-    let dvEsperado = 11 - (suma % 11);
+    type dvEspandoType = number | string;
+    let dvEsperado: dvEspandoType = 11 - (suma % 11);
     if (dvEsperado === 10) {
         dvEsperado = 'K';
     } else if (dvEsperado === 11) {

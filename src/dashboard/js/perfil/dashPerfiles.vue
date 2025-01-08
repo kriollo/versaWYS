@@ -1,14 +1,22 @@
-<script setup>
+<script setup lang="ts">
     import { $dom } from '@/dashboard/js/composables/dom';
     import { versaFetch, VersaToast } from '@/dashboard/js/functions';
-    import { listPerfilesSide } from '@/dashboard/js/perfil/listPerfilesSide';
-    import { perfilSide } from '@/dashboard/js/perfil/perfilSide';
-    import { html } from '@/vendor/code-tag/code-tag-esm';
+    import listPerfilesSide from '@/dashboard/js/perfil/listPerfilesSide.vue';
+    import perfilSide from '@/dashboard/js/perfil/perfilSide.vue';
+    import { html } from 'P@/vendor/code-tag/code-tag-esm';
     import Swal from 'sweetalert2';
     import { onMounted, provide, ref } from 'vue';
 
+    import type { Perfil } from 'perfilTypes';
+    import type { AccionData, actionsType } from 'versaTypes';
+
     const refreshData = ref(false);
-    const perfil = ref({});
+
+    const perfil = ref<Perfil>({
+        id: 0,
+        nombre: '',
+        pagina_inicio: '',
+    });
     provide('perfil', perfil);
 
     const newPerfil = async () => {
@@ -63,8 +71,8 @@
         }
     };
 
-    const accion = accion => {
-        const actions = {
+    const accion = (accion: AccionData) => {
+        const actions: actionsType = {
             refreshData: () => {
                 refreshData.value = !refreshData.value;
             },
@@ -82,7 +90,7 @@
     });
 </script>
 <template>
-    <div class="flex flex-col max-h-screen overflow-y-auto">
+    <div class="flex flex-col overflow-y-auto">
         <div
             class="mx-4 my-4 lg:flex lg:justify-between max-sm:flex-col max-sm:flex-wrap">
             <div class="flex gap-2 items-center">

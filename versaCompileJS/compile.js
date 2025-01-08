@@ -6,6 +6,7 @@ import {
     readdir,
     readFile,
     rmdir,
+    stat,
     unlink,
     writeFile,
 } from 'node:fs/promises';
@@ -17,9 +18,13 @@ import * as vCompiler from 'vue/compiler-sfc';
 const log = console.log.bind(console);
 const error = console.error.bind(console);
 
-let PATH_SOURCE = './src';
-let PATH_DIST = './public';
+let PATH_SOURCE = '';
+let PATH_DIST = '';
 const PATH_CONFIG_FILE = './tsconfig.json';
+
+let watchJS = `${PATH_SOURCE}/**/*.js`;
+let watchVue = `${PATH_SOURCE}/**/*.vue`;
+let watchTS = `${PATH_SOURCE}/**/*.ts`;
 
 let pathAlias = null;
 
@@ -35,9 +40,12 @@ if (process.argv.length > 1) {
     console.log(chalk.green(`isProd: ${isProd}`));
 }
 
+/**
+ * Obtiene los alias de ruta desde el archivo tsconfig.json.
+ * @returns {Promise<Object>} - Un objeto con los alias de ruta.
+ */
 const getPathAlias = async () => {
     const data = await readFile(PATH_CONFIG_FILE, { encoding: 'utf-8' });
-
     if (!data) {
         error(chalk.red('🚩 :Error al leer el archivo tsconfig.json'));
         return;
@@ -62,12 +70,25 @@ const getPathAlias = async () => {
     console.log(chalk.green(`PATH_SOURCE: ${PATH_SOURCE}`));
     console.log(chalk.green(`PATH_DIST: ${PATH_DIST}\n`));
 
+    watchJS = `${PATH_SOURCE}/**/*.js`;
+    watchVue = `${PATH_SOURCE}/**/*.vue`;
+    watchTS = `${PATH_SOURCE}/**/*.ts`;
+
     return pathAlias;
 };
 
+/**
+ * Mapea una ruta de origen a una ruta de destino en el directorio de distribución.
+ * @param {string} ruta - La ruta de origen.
+ * @returns {Promise<string>} - La ruta mapeada en el directorio de distribución.
+ */
 const mapRuta = async ruta =>
     path.join(PATH_DIST, path.relative(PATH_SOURCE, ruta));
 
+/**
+ * Elimina un archivo o directorio en la ruta especificada.
+ * @param {string} ruta - La ruta del archivo o directorio a eliminar.
+ */
 const deleteFile = async ruta => {
     const newPath = (
         await mapRuta(
@@ -80,10 +101,10 @@ const deleteFile = async ruta => {
     try {
         log(chalk.yellow(`🗑️ :Eliminando ${newPath}`));
 
-        const stat = await stat(newPath);
-        if (stat.isDirectory()) {
+        const stats = await stat(newPath);
+        if (stats.isDirectory()) {
             await rmdir(newPath, { recursive: true });
-        } else if (stat.isFile()) {
+        } else if (stats.isFile()) {
             await unlink(newPath);
         }
 
@@ -104,10 +125,9 @@ const deleteFile = async ruta => {
 };
 
 /**
- * Removes the "html" tag from a template string.
- *
- * @param {string} data - The template string to remove the "html" tag from.
- * @returns {string} - The modified template string without the "html" tag.
+ * Elimina la etiqueta "html" de una cadena de plantilla.
+ * @param {string} data - La cadena de plantilla de la cual eliminar la etiqueta "html".
+ * @returns {Promise<string>} - La cadena de plantilla modificada sin la etiqueta "html".
  */
 const removehtmlOfTemplateString = async data => {
     const htmlRegExp = /html\s*`/g;
@@ -121,12 +141,11 @@ const removehtmlOfTemplateString = async data => {
     return data;
 };
 
-const replaceVarByConstHTML = async data => {
-    // Reemplaza todas las declaraciones de variables por constantes, excepto las que contienen 'html'
-    // const varRegExp = /\bvar\b\s+/g;
-    // return data.replaceAll(varRegExp, 'const ');
-};
-
+/**
+ * Reemplaza los alias de ruta en la cadena de datos proporcionada con sus valores correspondientes.
+ * @param {string} data - La cadena de entrada que contiene el código con alias de ruta.
+ * @returns {Promise<string>} - Una promesa que se resuelve con la cadena modificada con los alias de ruta reemplazados.
+ */
 const replaceAlias = async data => {
     // Función para escapar los caracteres especiales en una expresión regular
     const escapeRegExp = string =>
@@ -134,6 +153,7 @@ const replaceAlias = async data => {
 
     for (const key in pathAlias) {
         const values = pathAlias[key];
+
         // Escapa el alias para usarlo en una expresión regular
         const escapedKey = escapeRegExp(key.replace('/*', ''));
 
@@ -146,7 +166,11 @@ const replaceAlias = async data => {
         ];
 
         for (const value of values) {
-            const replacement = value.replace('/*', '').replace('./', '/');
+            let replacement = value.replace('/*', '').replace('./', '/');
+
+            replacement = replacement
+                .replace(replacement, PATH_DIST)
+                .replace('./', '/');
 
             // Aplica todos los reemplazos
             for (const pattern of aliasPatterns) {
@@ -173,18 +197,54 @@ const replaceAlias = async data => {
     return data;
 };
 
+/**
+ * Reemplaza los alias de importación en la cadena de datos proporcionada con sus valores correspondientes.
+ * @param {string} data - La cadena de entrada que contiene el código con alias de importación.
+ * @returns {Promise<string>} - Una promesa que se resuelve con la cadena modificada con los alias de importación reemplazados.
+ */
+const replaceAliasImportsAsync = async data => {
+    const importRegExp = /import\(['"](.*)['"]\)/g;
+    const importList = data.match(importRegExp);
+
+    if (importList) {
+        for (const item of importList) {
+            const importRegExp2 = /import\(['"](.*)['"]\)/;
+            const result = item.match(importRegExp2);
+
+            if (result) {
+                const ruta = result[1];
+                const newRuta = ruta.replace('@', PATH_DIST);
+                const newImport = item
+                    .replace(ruta, newRuta)
+                    .replace('.vue', '.js')
+                    .replace('.ts', '.js');
+                data = data.replace(item, newImport);
+            }
+        }
+    }
+    return data;
+};
+
+/**
+ * Elimina la declaración de importación para 'code-tag' de la cadena de datos proporcionada.
+ * @param {string} data - La cadena de entrada que contiene el código JavaScript.
+ * @returns {Promise<string>} - Una promesa que se resuelve con la cadena modificada sin la importación de 'code-tag'.
+ */
 const removeCodeTagImport = async data => {
     // remove import if exist code-tag
-
     const codeTagRegExp = /import\s+{.*}\s+from\s+['"].*code-tag.*['"];/g;
     data = data.replace(codeTagRegExp, '');
     return data;
 };
 
+/**
+ * Agrega la extensión .js a las importaciones en la cadena de datos proporcionada.
+ * @param {string} data - La cadena de entrada que contiene el código JavaScript.
+ * @returns {Promise<string>} - Una promesa que se resuelve con la cadena modificada con las importaciones actualizadas.
+ */
 const addImportEndJs = async data => {
     const importRegExp = /import\s+[\s\S]*?\s+from\s+['"].*['"];/g;
     const importList = data.match(importRegExp);
-
     if (importList) {
         for (const item of importList) {
             const importRegExp2 = /from\s+['"](.*)['"];/;
@@ -192,7 +252,22 @@ const addImportEndJs = async data => {
             if (result) {
                 const ruta = result[1];
 
-                if (!ruta.endsWith('.js')) {
+                if (ruta.endsWith('.vue')) {
+                    const importRegExp3 = /from\s+['"](.+\/(\w+))\.vue['"];/;
+                    const resultVue = item.match(importRegExp3);
+
+                    if (resultVue) {
+                        const fullPath = resultVue[1].replace('.vue', '');
+                        const fileName = resultVue[2];
+
+                        const newImport = item.replace(
+                            /import\s+(\w+)\s+from\s+['"](.+\/(\w+))\.vue['"];/,
+                            `import {${fileName}} from '${fullPath}.js';`,
+                        );
+
+                        data = data.replace(item, newImport);
+                    }
+                } else if (!ruta.endsWith('.js')) {
                     if (
                         ruta.endsWith('.mjs') ||
                         ruta.endsWith('.css') ||
@@ -209,6 +284,11 @@ const addImportEndJs = async data => {
     return data;
 };
 
+/**
+ * Elimina los comentarios con la etiqueta @preserve de la cadena de datos proporcionada.
+ * @param {string} data - La cadena de entrada que contiene el código JavaScript.
+ * @returns {Promise<string>} - Una promesa que se resuelve con la cadena modificada sin los comentarios @preserve.
+ */
 const removePreserverComent = async data => {
     const preserverRegExp =
         /\/\*[\s\S]*?@preserve[\s\S]*?\*\/|\/\/.*?@preserve.*?(?=\n|$)/g;
@@ -218,20 +298,36 @@ const removePreserverComent = async data => {
     return data;
 };
 
+/**
+ * Estandariza la cadena de datos proporcionada aplicando varias transformaciones.
+ * @param {string} data - La cadena de entrada que contiene el código JavaScript.
+ * @returns {Promise<string>} - Una promesa que se resuelve con la cadena estandarizada.
+ */
 const estandarizaData = async data => {
     if (isProd) {
         data = await removePreserverComent(data);
     }
     data = await removehtmlOfTemplateString(data);
     data = await removeCodeTagImport(data);
-    // data = await replaceVarByConstHTML(data);
     data = await replaceAlias(data);
+    data = await replaceAliasImportsAsync(data);
     data = await addImportEndJs(data);
 
     return data;
 };
 
+/**
+ * Compila un bloque personalizado.
+ * @param {Object} block - El bloque personalizado a compilar.
+ * @param {string} source - La fuente del bloque.
+ */
 const compileCustomBlock = async (block, source) => {};
+
+/**
+ * Precompila el código TypeScript proporcionado.
+ * @param {string} data - El código TypeScript a precompilar.
+ * @returns {Promise<Object>} - Un objeto con el código precompilado o un error.
+ */
 const preCompileTS = async data => {
     try {
         // Leer tsconfig.json
@@ -253,13 +349,18 @@ const preCompileTS = async data => {
             );
         }
 
-        // Crear host de compilación (necesario para parsear correctamente los paths relativos y absolutos)
-        const host = ts.createCompilerHost(compilerOptions);
+        // Crear host de configuración de parseo
+        const parseConfigHost = {
+            useCaseSensitiveFileNames: ts.sys.useCaseSensitiveFileNames,
+            readDirectory: ts.sys.readDirectory,
+            fileExists: ts.sys.fileExists,
+            readFile: ts.sys.readFile,
+        };
 
         // Parsear la configuración para que TS la entienda
         const parsedConfig = ts.parseJsonConfigFileContent(
             tsConfig,
-            host,
+            parseConfigHost,
             path.dirname(PATH_CONFIG_FILE),
         );
         if (parsedConfig.errors.length) {
@@ -294,13 +395,19 @@ const preCompileTS = async data => {
             );
         }
 
-        return result.outputText;
+        return { error: null, data: result.outputText };
     } catch (error) {
         console.error(error.message); // Consider a more generic error logging mechanism
-        return { error: error.message };
+        return { error: error.message, data: null };
     }
 };
 
+/**
+ * Precompila un componente Vue.
+ * @param {string} data - El código del componente Vue.
+ * @param {string} source - La fuente del componente Vue.
+ * @returns {Promise<Object>} - Un objeto con el código precompilado o un error.
+ */
 const preCompileVue = async (data, source) => {
     try {
         const fileName = path.basename(source).replace('.vue', '');
@@ -323,7 +430,6 @@ const preCompileVue = async (data, source) => {
         const templateOptions = {
             sourceMap: false,
             filename: `${fileName}.vue`,
-            isProd: true,
             id,
             scoped: !!scopeId,
             slotted: descriptor.slotted,
@@ -421,20 +527,20 @@ const preCompileVue = async (data, source) => {
 
         const componentName = `${fileName}_component`;
         const exportComponent = `
-            ${componentName}.render = render;
-            ${componentName}.__file = '${fileName}';
-            ${scopeId ? `${componentName}.__scopeId = '${scopeId}';` : ''}
-            ${customBlocks}
-            export const ${fileName} = app.component('${fileName}', ${componentName});
-        `;
+                ${componentName}.render = render;
+                ${componentName}.__file = '${fileName}';
+                ${scopeId ? `${componentName}.__scopeId = '${scopeId}';` : ''}
+                ${customBlocks}
+                export const ${fileName} = app.component('${fileName}', ${componentName});
+            `;
 
         // quitamos export default y añadimos el nombre del archivo
         if (output.includes('export default {')) {
             output = output.replace(
                 'export default {',
                 `const ${componentName} = {
-                __name: '${fileName}',
-            `,
+                        __name: '${fileName}',
+                    `,
             );
         } else {
             output = output.replace(
@@ -477,6 +583,55 @@ const preCompileVue = async (data, source) => {
     }
 };
 
+/**
+ * Minifica el codigo JavaScript usando opciones especificas.
+ *
+ * @param {string} data - The JavaScript code to be minified.
+ * @param {string} filename - The name of the file containing the JavaScript code.
+ * @returns {Promise<Object>} The result of the minification process.
+ */
+const minifyJS = async (data, filename) => {
+    const result = await minify(
+        { [filename]: data },
+        {
+            compress: {
+                passes: 3,
+                unsafe: true,
+                unsafe_comps: true,
+                unsafe_Function: true,
+                unsafe_math: true,
+                unsafe_proto: true,
+                drop_debugger: true, // Eliminar debugger;
+                pure_getters: true, // Permitir optimizar getters puros
+                sequences: true, // Unir sentencias secuenciales
+                booleans: true, // Simplificar expresiones booleanas
+                conditionals: true, // Simplificar condicionales
+                dead_code: true, // Eliminar código muerto
+                if_return: true, // Optimizar if/return
+                join_vars: true, // Unir declaraciones de variables
+                reduce_vars: true, // Reducir variables
+                collapse_vars: true, // Colapsar variables
+            },
+            mangle: {
+                toplevel: true, // Minificar nombres de variables globales
+            },
+            ecma: 5,
+            module: true, // Indicar que es un módulo ES
+            toplevel: true, // Aplicar optimizaciones a nivel superior
+            format: {
+                preamble: '/* WYS Soluciones Informatica - VersaWYS */',
+                comments: isProd ? false : 'all', // Eliminar comentarios
+            },
+        },
+    );
+    return result;
+};
+
+/**
+ * Compila un archivo JavaScript.
+ * @param {string} source - La ruta del archivo fuente.
+ * @param {string} destination - La ruta del archivo de destino.
+ */
 const compileJS = async (source, destination) => {
     try {
         const startTime = Date.now(); // optener la hora actual
@@ -499,7 +654,7 @@ const compileJS = async (source, destination) => {
             if (resultVue.error !== null) {
                 await error(
                     chalk.red(
-                        `🚩 :Error durante la compilación Vue :${resultVue?.error}\n`,
+                        `🚩 :Error durante la compilación Vue :${resultVue.error}\n`,
                     ),
                 );
                 return;
@@ -509,16 +664,17 @@ const compileJS = async (source, destination) => {
 
         if (extension === 'ts' || resultVue?.lang === 'ts') {
             await log(chalk.blue(`🔄️ :Pre Compilando TS`));
-            data = await preCompileTS(data);
-            if (data.error) {
+            const Resultdata = await preCompileTS(data);
+            if (Resultdata.error !== null) {
                 await error(
                     chalk.red(
-                        `🚩 :Error durante la compilación TS: ${data.error}\n`,
+                        `🚩 :Error durante la compilación TS: ${Resultdata.error}\n`,
                     ),
                 );
                 return;
             }
             destination = destination.replace('.ts', '.js');
+            data = Resultdata.data;
         }
 
         data = await estandarizaData(data);
@@ -528,40 +684,7 @@ const compileJS = async (source, destination) => {
         let result = null;
         if (isProd) {
             await log(chalk.blue(`🤖 :minifying`));
-            result = await minify(
-                { [filename]: data },
-                {
-                    compress: {
-                        passes: 3,
-                        unsafe: true, // Asegúrate de probar exhaustivamente
-                        unsafe_comps: true, // Asegúrate de probar exhaustivamente
-                        unsafe_Function: true, // Asegúrate de probar exhaustivamente
-                        unsafe_math: true, // Asegúrate de probar exhaustivamente
-                        unsafe_proto: true, // Asegúrate de probar exhaustivamente
-                        drop_debugger: true, // Eliminar debugger;
-                        pure_getters: true, // Permitir optimizar getters puros
-                        sequences: true, // Unir sentencias secuenciales
-                        booleans: true, // Simplificar expresiones booleanas
-                        conditionals: true, // Simplificar condicionales
-                        dead_code: true, // Eliminar código muerto
-                        if_return: true, // Optimizar if/return
-                        join_vars: true, // Unir declaraciones de variables
-                        reduce_vars: true, // Reducir variables
-                        collapse_vars: true, // Colapsar variables
-                        warnings: false, // Ocultar warnings (usar con precaución)
-                    },
-                    mangle: {
-                        toplevel: true, // Minificar nombres de variables globales
-                    },
-                    ecma: 2022,
-                    module: true, // Indicar que es un módulo ES
-                    toplevel: true, // Aplicar optimizaciones a nivel superior
-                    format: {
-                        preamble: '/* WYS Soluciones Informatica - VersaWYS */',
-                        comments: isProd ? false : 'all', // Eliminar comentarios
-                    },
-                },
-            );
+            result = await minifyJS(data, filename);
         } else {
             result = { code: data };
         }
@@ -590,12 +713,17 @@ const compileJS = async (source, destination) => {
             );
         }
     } catch (errora) {
-        error(
+        await error(
             chalk.red(`🚩 :Error durante la compilación JS: ${errora}\n`),
             errora,
         );
     }
 };
+
+/**
+ * Compila un archivo dado su ruta.
+ * @param {string} path - La ruta del archivo a compilar.
+ */
 const compile = async path => {
     if (path.includes('.d.ts')) {
         return;
@@ -616,10 +744,14 @@ const compile = async path => {
     }
 };
 
-const compileAll = async watchDir => {
+/**
+ * Compila todos los archivos en los directorios de origen.
+ */
+const compileAll = async () => {
     try {
         pathAlias = await getPathAlias();
-        for await (const file of glob(watchDir)) {
+
+        for await (const file of glob([watchJS, watchVue, watchTS])) {
             await compile(file.startsWith('./') ? file : `./${file}`);
         }
     } catch (errora) {
@@ -627,6 +759,9 @@ const compileAll = async watchDir => {
     }
 };
 
+/**
+ * Inicializa el proceso de compilación y observación de archivos.
+ */
 const init = async () => {
     try {
         pathAlias = await getPathAlias();
@@ -656,11 +791,7 @@ const init = async () => {
     }
 };
 
-const watchJS = `${PATH_SOURCE}/**/*.js`;
-const watchVue = `${PATH_SOURCE}/**/*.vue`;
-const watchTS = `${PATH_SOURCE}/**/*.ts`;
-
 if (isAll) {
     console.log(chalk.green('🔄️ :Compilando todos los archivos...'));
-    compileAll([watchJS, watchVue, watchTS]);
+    compileAll();
 } else init();

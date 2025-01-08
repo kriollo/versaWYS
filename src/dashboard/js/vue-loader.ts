@@ -9,7 +9,7 @@ const public_provider = {
     current_user: {},
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+function init() {
     // Obtener la URL del módulo actual
     const scriptUrl = new URL(import.meta.url);
     const module = scriptUrl.searchParams.get('m');
@@ -65,4 +65,5 @@ document.addEventListener('DOMContentLoaded', () => {
         .finally(() => {
             app.mount($contenedor);
         });
-});
+}
+init();

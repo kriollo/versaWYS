@@ -67,10 +67,11 @@ EOT;
         }
 
         $component = <<<'EOT'
-<script setup>
+<script setup lang="ts">
     import { ref } from 'vue';
+    import type { Ref } from 'vue';
     const title = ref('Hello World');
-    const count = ref(0);
+    const count: Ref<number> = ref(0);
 </script>
 <template>
     <div class="grid justify-center items-center content-center p-6">

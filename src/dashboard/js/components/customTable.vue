@@ -12,12 +12,13 @@
  */
 </docs>
 
-<script setup>
-    import { dropDown } from '@/dashboard/js/components/dropDown';
-    import { loader } from '@/dashboard/js/components/loader';
+<script setup lang="ts">
+    import dropDown from '@/dashboard/js/components/dropDown.vue';
+    import loader from '@/dashboard/js/components/loader.vue';
 
     import { createXlsxFromJson } from '@/dashboard/js/composables/useXlsx';
     import { removeScape, versaFetch } from '@/dashboard/js/functions';
+    import type { actionsType } from 'versaTypes';
     import { computed, reactive, ref, toRefs, watch, watchEffect } from 'vue';
 
     const props = defineProps({
@@ -36,10 +37,6 @@
         refreshData: {
             type: Boolean,
             default: false,
-        },
-        totalRegisters: {
-            type: Number,
-            default: 0,
         },
         externalFilters: {
             type: String,
@@ -130,6 +127,21 @@
         },
     );
 
+    type ResponseData = {
+        success: number;
+        data: any[];
+        columns: any[];
+        colspan: any[];
+        meta: {
+            total: number;
+            total_pages: number;
+            from: number;
+            to: number;
+            filter: string;
+        };
+        message: string;
+    };
+
     const getRefreshData = async () => {
         loadingData.value = true;
         const page =
@@ -142,10 +154,10 @@
         const order =
             new URLSearchParams(url.value).get('order') ?? data.meta.order;
 
-        const response = await versaFetch({
+        const response = (await versaFetch({
             url: `${url.value}?page=${page}&per_page=${per_page}&filter=${filter}&order=${order}&externalFilters=${externalFilters.value}`,
             method: 'GET',
-        });
+        })) as ResponseData;
 
         data.data = [];
         data.columns = [];
@@ -181,8 +193,10 @@
         { immediate: true },
     );
 
+    const model = defineModel();
+
     watchEffect(() => {
-        emit('update:totalRegisters', data.meta?.total ?? 0);
+        model.value = data.meta.total;
     });
 
     const exportExcelPage = async () => {
@@ -227,7 +241,7 @@
 
     const modelExcel = ref('Excel');
     const accion = ({ item, accion, from = 'local' }) => {
-        const actions = {
+        const actions: actionsType = {
             setButtonValue: () => {
                 if (from === 'excel') {
                     if (item === 'Exportar Página') {
@@ -669,7 +683,7 @@
         </div>
 
         <nav
-            class="grid justify-center md:content-center md:flex md:justify-between my-4 w-full px-2">
+            class="grid justify-center lg:content-center lg:flex lg:justify-between my-4 w-full px-2 overflow-auto">
             <span
                 class="text-sm font-normal text-gray-500 dark:text-gray-400 h-8 flex items-center gap-1">
                 Monstrando

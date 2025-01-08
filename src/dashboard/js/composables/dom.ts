@@ -6,8 +6,10 @@
  * @param {Document|Element} [context=document] - The context within which to search for the element.
  * @returns {Element|null} - The first matching element, or null if no element is found.
  */
-export const $dom = (selector, context = document) =>
-    context.querySelector(selector);
+export const $dom = (
+    selector: string,
+    context: Document | Element = document,
+): Element | null => context.querySelector(selector);
 
 /**
  * @preserve
@@ -17,8 +19,10 @@ export const $dom = (selector, context = document) =>
  * @param {Document|Element} [context=document] - The context within which to search for elements. Defaults to the document.
  * @returns { NodeList  } - A list of elements that match the given selector.
  */
-export const $domAll = (selector, context = document) =>
-    context.querySelectorAll(selector);
+export const $domAll = (
+    selector: string,
+    context: Document | Element = document,
+): NodeList => context.querySelectorAll(selector);
 
 /**
  * @preserve
@@ -26,7 +30,29 @@ export const $domAll = (selector, context = document) =>
  * @param {HTMLFormElement} $form - The form element to be locked.
  * @param {string} [status='true'] - The status to set for the form. Defaults to 'true'.
  */
-export const blockedForm = ($form, status = 'true') => {
+interface BlockedFormElements extends HTMLFormElement {
+    querySelector<K extends keyof HTMLElementTagNameMap>(
+        selectors: K,
+    ): HTMLElementTagNameMap[K] | null;
+    querySelector<K extends keyof SVGElementTagNameMap>(
+        selectors: K,
+    ): SVGElementTagNameMap[K] | null;
+    querySelector<E extends Element = Element>(selectors: string): E | null;
+    querySelectorAll<K extends keyof HTMLElementTagNameMap>(
+        selectors: K,
+    ): NodeListOf<HTMLElementTagNameMap[K]>;
+    querySelectorAll<K extends keyof SVGElementTagNameMap>(
+        selectors: K,
+    ): NodeListOf<SVGElementTagNameMap[K]>;
+    querySelectorAll<E extends Element = Element>(
+        selectors: string,
+    ): NodeListOf<E>;
+}
+
+export const blockedForm = (
+    $form: BlockedFormElements,
+    status: string = 'true',
+): void => {
     $form.setAttribute('data-locked', status);
 
     const $submit = $form.querySelector('[type="submit"]');
@@ -57,11 +83,11 @@ export const blockedForm = ($form, status = 'true') => {
  * @param {HTMLFormElement} $form - The form element to be serialized.
  * @returns {Array} - An array of objects containing the form field names and values.
  */
-export const serializeToArray = $form =>
+export const serializeToArray = ($form: HTMLFormElement) =>
     Array.from(new FormData($form), ([name, value]) => {
-        const element = $form.elements[name];
+        const element = $form.elements[name] as HTMLInputElement;
         if (element && element.type === 'checkbox') {
-            value = element.checked;
+            value = element.checked ? value : '';
         }
         return { name, value };
     });
@@ -73,7 +99,7 @@ export const serializeToArray = $form =>
  * @param {HTMLFormElement} $form - The form element to serialize.
  * @returns {Object} - The serialized form data as an object.
  */
-export const serializeToObject = $form =>
+export const serializeToObject = ($form: HTMLFormElement) =>
     serializeToArray($form).reduce((acc, { name, value }) => {
         acc[name] = value;
         return acc;
@@ -85,7 +111,7 @@ export const serializeToObject = $form =>
  * @param {HTMLFormElement} $form - The form element to validate.
  * @returns {boolean} - Whether the form is valid.
  */
-export const validateFormRequired = $form => {
+export const validateFormRequired = ($form: HTMLFormElement) => {
     const requiredFields = $domAll('[required]', $form);
     let isValid = true;
     requiredFields.forEach(field => {

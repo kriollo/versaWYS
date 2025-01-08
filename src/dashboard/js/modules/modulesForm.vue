@@ -1,15 +1,23 @@
-<script setup>
-    import { modal } from '@/dashboard/js/components/modal';
+<script setup lang="ts">
+    import check from '@/dashboard/js/components/check.vue';
+    import modal from '@/dashboard/js/components/modal.vue';
     import {
         removeScape,
         versaAlert,
         versaFetch,
     } from '@/dashboard/js/functions';
-    import { html } from '@/vendor/code-tag/code-tag-esm';
+    import { html } from 'P@/vendor/code-tag/code-tag-esm';
     import Swal from 'sweetalert2';
+    import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
+    import type { Reactive } from 'vue';
     import { inject, onWatcherCleanup, ref, watch } from 'vue';
 
-    const showModalForm = inject('showModalForm');
+    type ShowModalForm = {
+        showModalForm: boolean;
+        itemSelected: any;
+    };
+
+    const showModalForm = inject('showModalForm') as Reactive<ShowModalForm>;
     const csrf_token = inject('csrf_token');
     const showModal = ref(false);
     const newModule = {
@@ -61,7 +69,7 @@
             url: '/admin/modules/saveModule',
             method: 'POST',
             data: localFormData.value,
-        };
+        } as VersaParamsFetch;
 
         const response = await versaFetch(params);
         if (response.success === 0) {
@@ -103,8 +111,8 @@
         }
     };
 
-    const accion = (/** @type {Object} */ accion) => {
-        const actions = {
+    const accion = (accion: AccionData) => {
+        const actions: actionsType = {
             closeModal: () => {
                 showModalForm.showModalForm = false;
                 showModalForm.itemSelected = null;
@@ -216,14 +224,9 @@
                             v-model="localFormData.icono"></textarea>
                         <div>
                             <div class="flex gap-2 mb-2">
-                                <label
-                                    class="block text-sm font-medium text-gray-900 dark:text-white"
-                                    for="fill">
-                                    Rellenar
-                                </label>
-                                <input
-                                    type="checkbox"
-                                    class="form-checkbox h-5 w-5 text-primary-600 dark:text-primary-400 focus:ring-primary-500 dark:focus:ring-primary-500"
+                                <check
+                                    id="fill"
+                                    label="Rellenar"
                                     v-model="localFormData.fill" />
                             </div>
                             <div
