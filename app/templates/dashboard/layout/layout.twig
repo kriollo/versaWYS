@@ -3,7 +3,7 @@
 
 	<head>
 		<!--sólo para que no de error de mixin con ngrok, se puede sacar en producción-->
-		<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+		{# <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> #}
 
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<meta charset="UTF-8"/>
@@ -14,15 +14,16 @@
 		<link href="{{ assets_url('/public/vendor/flowbite/flowbite.min.css') }}" rel="stylesheet"/>
 		<link href="{{ getAssets('dashboard', 'css', '/dashboard.css') }}" rel="stylesheet"/>
 
-		<link href="{{ getAssets('dashboard', 'img', '/favicon.png') }}" rel="shortcut icon"/> {% block appHead %}{%
-	endblock %}
+		<link href="{{ getAssets('dashboard', 'img', '/favicon.png') }}" rel="shortcut icon"/>
+
+		{% block appHead %}{% endblock %}
 
 		<title>{{ config.build.name }}</title>
 		{% block appHeader %}{% endblock %}
 	</head>
 
-	<body class="bg-gray-50 dark:bg-gray-800"> {% block appBody %}{% endblock %}
-
+	<body class="bg-gray-50 dark:bg-gray-800 min-h-screen flex flex-col">
+		{% block appBody %}{% endblock %}
 		<script src="{{ assets_url('/public/vendor/flowbite/flowbite.min.js') }}"></script>
 		{% if config['build']['debug'] == '0' %}
 			{# modo producción #}
@@ -34,9 +35,6 @@
 					}
 				}
 			</script>
-						{# //"vue-demi": "{{ assets_url('public/vendor/vue/vue-demi-v3.mjs') }}",
-						//"pinia": "{{ assets_url('node_modules/pinia/dist/pinia.esm-browser.js') }}",
-						//"@vue/devtools-api": "{{ assets_url('node_modules/@vue/devtools-api/lib/esm/index.js') }}", #}
 		{% else %}
 			{# modo debug #}
 			<script type="importmap">
@@ -44,7 +42,7 @@
 					"imports": {
 						"vue": "{{ assets_url('node_modules/vue/dist/vue.esm-browser.js') }}",
 						"sweetalert2": "{{ assets_url('node_modules/sweetalert2/dist/sweetalert2.esm.all.min.js') }}"
-						
+
 					}
 				}
 			</script>
