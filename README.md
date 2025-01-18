@@ -38,6 +38,22 @@ versaWYS-PHP ofrece las siguientes características de seguridad:
 - **Protección contra Ataques SQL Injection:** Protección contra ataques SQL Injection con el ORM RedBean.
 - **Protección contra Ataques de Fuerza Bruta:** Protección contra ataques de fuerza bruta desde Middleware y control de intentos.
 
+## Documentación de Rutas
+
+Puedes revisar la documentación de las rutas directamente desde la web, ingresando a `http://localhost/doc`.
+
+### Visualización de Rutas
+
+La documentación de las rutas ahora se puede visualizar de manera interactiva. Para acceder a esta funcionalidad:
+
+1. Navega a `http://localhost/doc`.
+2. Verás una lista de archivos de rutas disponibles.
+3. Haz clic en cualquier archivo de ruta para ver las rutas definidas en ese archivo.
+4. Puedes buscar rutas utilizando el campo de búsqueda proporcionado.
+5. Al hacer clic en una ruta específica, se desplegará información detallada sobre la ruta, incluyendo el método HTTP, la URL, la clase y el método asociado, los parámetros de consulta, el cuerpo de la solicitud y los middlewares aplicados.
+
+Esta funcionalidad facilita la comprensión y el mantenimiento de las rutas definidas en tu aplicación.
+
 ## Requisitos
 
 - PHP 8.3 o superior (apt install php-intl)
