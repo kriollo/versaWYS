@@ -1,7 +1,8 @@
 import { $dom } from '@/dashboard/js/composables/dom.js';
 import { versaAlert, versaFetch } from '@/dashboard/js/functions.js';
 import { html } from 'P@/vendor/code-tag/code-tag-esm.js';
-import { VersaParamsFetch } from 'versaTypes';
+
+import type { VersaParamsFetch } from 'versaTypes';
 
 // Login Form
 const login = $dom('#login');

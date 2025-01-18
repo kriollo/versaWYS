@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import dropZone from '@/dashboard/js/components/dropZone.vue';
+    import loader from '@/dashboard/js/components/loader.vue';
     import modal from '@/dashboard/js/components/modal.vue';
     import {
         getSheetNames,
@@ -7,31 +8,37 @@
     } from '@/dashboard/js/composables/useXlsx';
     import { html } from 'P@/vendor/code-tag/code-tag-esm';
     import Swal from 'sweetalert2';
+    import { ref, toRefs } from 'vue';
+
     import type { AccionData, actionsType, SwalResult } from 'versaTypes';
-    import { toRefs } from 'vue';
 
     const emit = defineEmits(['accion']);
 
-    const props = defineProps({
-        files: {
-            type: Array,
-            default: [],
-        },
-        showModal: {
-            type: Boolean,
-            default: false,
-        },
+    interface Props {
+        from?: string;
+        files: any;
+        showModal: boolean;
+        returnData?: boolean;
+    }
+    const props = withDefaults(defineProps<Props>(), {
+        from: '',
+        showModal: false,
+        returnData: true,
     });
 
     const fileTypes = ['xlsx'];
+    const showLoader = ref(false);
 
-    const { files, showModal } = toRefs(props);
+    const { files, showModal, from, returnData } = toRefs(props);
 
     const accion = (response: AccionData) => {
         const actions: actionsType = {
             addFiles: () => showDialogSelectSheet(response.files),
             closeModal: () =>
-                emit('accion', { accion: 'closeModalUploadExcel' }),
+                emit('accion', {
+                    accion: 'closeModalUploadExcel',
+                    from: from.value,
+                }),
         };
         const fn = actions[response.accion];
         if (typeof fn === 'function') {
@@ -40,6 +47,7 @@
     };
 
     const showDialogSelectSheet = async file => {
+        showLoader.value = true;
         const sheets = await getSheetNames(file.file);
         const result: SwalResult = await Swal.fire({
             title: '¿Está seguro de subir el archivo?',
@@ -80,9 +88,12 @@
                 }
             },
         });
+        showLoader.value = false;
         if (result.isConfirmed) {
             const sheet = result.value;
-            const data = await readXlsx(file.file, sheet);
+            const data = returnData.value
+                ? await readXlsx(file.file, sheet)
+                : [];
 
             let primeraLinea = false;
             const check = document.getElementById('checkPeraLinea');
@@ -90,7 +101,7 @@
                 primeraLinea = check.checked;
             }
 
-            if (data.length === 0) {
+            if (returnData.value && data.length === 0) {
                 Swal.fire({
                     title: 'Error',
                     text: 'No se encontraron datos en la hoja seleccionada',
@@ -105,6 +116,7 @@
                 primeraLinea,
                 hoja: sheet,
                 files: file,
+                from: from.value,
             });
             accion({ accion: 'closeModal' });
         }
@@ -114,8 +126,10 @@
     <modal idModal="uploadFile" :showModal="showModal">
         <template #modalTitle>
             <div class="flex justify-between">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                <h3
+                    class="text-lg font-medium text-gray-900 dark:text-white flex gap-2">
                     Importar Archivo
+                    <loader v-if="showLoader" />
                 </h3>
 
                 <div class="float-left">

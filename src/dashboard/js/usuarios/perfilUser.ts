@@ -15,7 +15,9 @@ if ($buttonResetPassword instanceof HTMLButtonElement) {
         if ($formResetPass.getAttribute('data-locked') === 'true') return;
 
         const __data = {};
-        serializeToArray($formResetPass).forEach(x => (__data[x.name] = x.value));
+        serializeToArray($formResetPass).forEach(
+            x => (__data[x.name] = x.value),
+        );
         blockedForm($formResetPass, 'true');
 
         const response = await versaFetch({

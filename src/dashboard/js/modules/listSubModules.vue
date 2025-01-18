@@ -4,8 +4,9 @@
     import { versaFetch, VersaToast } from '@/dashboard/js/functions';
     import subModulesForm from '@/dashboard/js/modules/subModulesForm.vue';
     import Swal from 'sweetalert2';
-    import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
     import { computed, inject, provide, reactive, ref } from 'vue';
+
+    import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
 
     const emit = defineEmits(['accion']);
 
@@ -30,7 +31,7 @@
     provide('ShowModalSubForm', ShowModalSubForm);
     provide('id_menu', idModule);
 
-    const csrf_token = inject('csrf_token');
+    const csrf_token = inject<string>('csrf_token');
     const refreshTable = ref(false);
 
     const changeStatus = async (/** @type {Object} */ item) => {
@@ -74,7 +75,7 @@
     };
 
     const changePosition = async (/** @type {Object} */ item) => {
-        const { value: position } = await Swal.fire({
+        const { value } = await Swal.fire({
             title: 'Cambiar posición',
             icon: 'question',
             input: 'number',
@@ -94,14 +95,14 @@
                 }
             },
         });
-        if (position) {
+        if (value) {
             const params = {
                 url: '/admin/submodules/changePositionSubModule',
                 method: 'PATCH',
                 data: JSON.stringify({
                     id: item.id,
                     id_menu: item.id_menu,
-                    position,
+                    value,
                     csrf_token,
                 }),
                 headers: { 'Content-Type': 'application/json' },

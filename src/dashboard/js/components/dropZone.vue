@@ -53,7 +53,8 @@
     const ArrayFilesErrors = ref([]);
 
     const files = computed(() => {
-        if (props.files !== undefined) return props.files;
+        if (props.files !== undefined && props.files !== null)
+            return props.files;
         return [];
     });
 
@@ -116,6 +117,12 @@
                 isValid: false,
             };
         }
+
+        if (files.value === null)
+            return {
+                name: file.name,
+                isValid: true,
+            };
 
         const indexFile = files.value.findIndex(
             (item: { archivo: string }) => item?.archivo === file.name,

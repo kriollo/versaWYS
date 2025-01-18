@@ -1,9 +1,10 @@
 <script setup lang="ts">
-    import customTable from '@/dashboard/js/components/customTable.vue';
     import { versaFetch, VersaToast } from '@/dashboard/js/functions';
-    import modalUpdatePass from '@/dashboard/js/usuarios/dashUsers/modalUpdatePass.vue';
     import Swal from 'sweetalert2';
     import { ref } from 'vue';
+
+    import customTable from '@/dashboard/js/components/customTable.vue';
+    import modalUpdatePass from '@/dashboard/js/usuarios/dashUsers/modalUpdatePass.vue';
 
     import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
 

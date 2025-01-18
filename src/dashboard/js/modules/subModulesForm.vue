@@ -2,8 +2,9 @@
     import modal from '@/dashboard/js/components/modal.vue';
     import { versaAlert, versaFetch } from '@/dashboard/js/functions';
     import { html } from 'P@/vendor/code-tag/code-tag-esm';
-    import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
     import { inject, onWatcherCleanup, ref, watch } from 'vue';
+
+    import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
 
     type ShowModalSubForm = {
         ShowModalSubForm: boolean;

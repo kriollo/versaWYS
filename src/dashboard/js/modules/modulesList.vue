@@ -1,12 +1,12 @@
 <script setup lang="ts">
+    import customTable from '@/dashboard/js/components/customTable.vue';
     import { versaFetch, VersaToast } from '@/dashboard/js/functions';
+    import listSubModules from '@/dashboard/js/modules/listSubModules.vue';
     import Swal from 'sweetalert2';
-    import type { Reactive } from 'vue';
     import { inject, ref } from 'vue';
 
-    import customTable from '@/dashboard/js/components/customTable.vue';
-    import listSubModules from '@/dashboard/js/modules/listSubModules.vue';
     import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
+    import type { Reactive } from 'vue';
 
     const externalFilters = ref('');
     const buttonSelected = ref('Todos');

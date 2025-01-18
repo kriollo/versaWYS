@@ -7,9 +7,8 @@
         VersaToast,
     } from '@/dashboard/js/functions';
     import { html } from 'P@/vendor/code-tag/code-tag-esm';
-    import { computed, inject } from 'vue';
-
     import type { VersaParamsFetch } from 'versaTypes';
+    import { computed, inject } from 'vue';
 
     const props = defineProps({
         showModal: Boolean,
@@ -22,7 +21,7 @@
     const showModalLocal = computed(() => props.showModal);
     const tokenId = computed(() => props.tokenId);
     const origen = computed(() => props.origen);
-    const csrf_token = inject('csrf_token');
+    const csrf_token = inject<string>('csrf_token');
 
     const tooglePassword = (
         /** @type {String} */ idInput,

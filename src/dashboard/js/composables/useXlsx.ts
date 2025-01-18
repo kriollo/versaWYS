@@ -10,7 +10,7 @@ export const getSheetNames = async (file: File): Promise<string[]> => {
     const f = await file.arrayBuffer();
     const w = new Uint8Array(f);
 
-    const workbook = read(w, { type: 'array' });
+    const workbook = await read(w, { type: 'array' });
 
     return workbook.SheetNames;
 };
@@ -26,7 +26,7 @@ export const readXlsx = async (file: File, hoja: number = 0): Promise<{}[]> => {
     const f = await file.arrayBuffer();
     const w = new Uint8Array(f);
 
-    const workbook = read(w, { type: 'array' });
+    const workbook = await read(w, { type: 'array' });
 
     const sheet = workbook.Sheets[workbook.SheetNames[hoja]];
 

@@ -34,9 +34,9 @@
 
     interface Props {
         id?: string;
-        tablaTitle: string;
+        tablaTitle?: string;
         columns: Array<string>;
-        dataInput: Array<any>;
+        dataInput: any[];
         fieldOrder?: string;
         perPage: number;
         showPerPage?: boolean;
@@ -45,6 +45,7 @@
         itemSelected?: ItemSelected;
         smallLine?: boolean;
         colspan?: Colspan[];
+        reloadData?: boolean;
     }
 
     const props = withDefaults(defineProps<Props>(), {
@@ -56,6 +57,7 @@
         showExportExcel: true,
         showSearch: true,
         smallLine: false,
+        reloadData: false,
     });
     const emit = defineEmits(['accion', 'update:totalRegisters']);
 
@@ -78,6 +80,7 @@
         columns,
         dataInput,
         colspan,
+        reloadData,
     } = toRefs(props);
 
     const showPerPages = [1, 5, 10, 25, 50, 100];
@@ -121,7 +124,7 @@
         if (data.meta.filter !== '') {
             const filter = data.meta.filter.toLowerCase();
             dataTemp.value = dataInput.value.filter(item => {
-                return Object.values(item).some(value =>
+                return Object.values(item).some((value: string) =>
                     value.toString().toLowerCase().includes(filter),
                 );
             });
@@ -162,6 +165,13 @@
         () => data.meta.per_page,
         () => {
             setPerPage(data.meta.per_page);
+        },
+    );
+
+    watch(
+        () => props.reloadData,
+        () => {
+            refreshData();
         },
     );
 
@@ -266,12 +276,10 @@
 
 <template>
     <div class="flex flex-col">
-        <div class="px-2 py-2">
-            <slot name="buttons"></slot>
-        </div>
+        <slot name="buttons"></slot>
         <div
             v-if="showPerPage || showExportExcel || showSearch"
-            class="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0 py-2 px-2">
+            class="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0 py-2">
             <dropDown
                 v-if="showPerPage"
                 v-model="data.meta.per_page"
@@ -327,7 +335,7 @@
                     v-model="data.meta.filter" />
             </div>
         </div>
-        <div class="px-2 overflow-x-auto">
+        <div class="overflow-x-auto">
             <table
                 class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <caption
@@ -360,48 +368,11 @@
                 <thead
                     class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
-                        <!--TODO: descartar columnas atributo visible: false-->
                         <th
                             :class="smallLine ? 'py-1 px-2' : 'py-4 px-3'"
                             scope="col"
                             v-for="col in data.columns">
                             {{ col }}
-                            <button
-                                class="inline-flex items-center justify-center w-6 h-6 ms-1 text-gray-500 dark:text-gray-400"
-                                @click="
-                                    setOrder(
-                                        col,
-                                        data.meta.order[1] === 'asc'
-                                            ? 'desc'
-                                            : 'asc',
-                                    )
-                                "
-                                title="Ordenar">
-                                <svg
-                                    class="w-6 h-6"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        :d="
-                                            data.meta.order[0] === col &&
-                                            data.meta.order[1] === 'asc'
-                                                ? 'M12 14l-4-4-4 4M12 10v8'
-                                                : 'M12 10l4 4 4-4M12 14v-8'
-                                        "
-                                        :fill="
-                                            data.meta.order[0] === col
-                                                ? 'currentColor'
-                                                : 'currentColor'
-                                        "
-                                        :stroke="
-                                            data.meta.order[0] === col
-                                                ? 'currentColor'
-                                                : 'currentColor'
-                                        "
-                                        stroke-width="1" />
-                                </svg>
-                            </button>
                         </th>
                     </tr>
                 </thead>
@@ -415,7 +386,13 @@
                         <td
                             v-for="(col, key) in data.columns"
                             :class="smallLine ? 'py-1 px-2' : 'py-4 px-3'">
-                            {{ row[key] }}
+                            <div
+                                v-if="col === 'acciones'"
+                                class="flex justify-end gap-2"
+                                v-html="row[key]"></div>
+                            <div v-else>
+                                {{ row[key] }}
+                            </div>
                         </td>
                     </tr>
                 </tbody>

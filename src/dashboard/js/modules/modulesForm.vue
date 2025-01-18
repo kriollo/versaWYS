@@ -8,9 +8,10 @@
     } from '@/dashboard/js/functions';
     import { html } from 'P@/vendor/code-tag/code-tag-esm';
     import Swal from 'sweetalert2';
+    import { inject, onWatcherCleanup, ref, watch } from 'vue';
+
     import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
     import type { Reactive } from 'vue';
-    import { inject, onWatcherCleanup, ref, watch } from 'vue';
 
     type ShowModalForm = {
         showModalForm: boolean;
@@ -18,7 +19,7 @@
     };
 
     const showModalForm = inject('showModalForm') as Reactive<ShowModalForm>;
-    const csrf_token = inject('csrf_token');
+    const csrf_token = inject<string>('csrf_token');
     const showModal = ref(false);
     const newModule = {
         action: 'create',

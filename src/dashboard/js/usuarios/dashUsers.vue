@@ -2,7 +2,7 @@
     import tableUsers from '@/dashboard/js/usuarios/dashUsers/tableUsers.vue';
 </script>
 <template>
-    <div class="flex flex-col max-h-screen overflow-y-auto">
+    <div class="flex flex-col overflow-y-auto">
         <div
             class="mx-4 my-4 lg:flex lg:justify-between max-sm:flex-col max-sm:flex-wrap">
             <div class="flex gap-2 items-center">

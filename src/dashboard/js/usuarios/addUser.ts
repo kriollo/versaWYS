@@ -1,7 +1,6 @@
 import { $dom, validateFormRequired } from '@/dashboard/js/composables/dom.js';
 import { versaAlert, versaFetch } from '@/dashboard/js/functions';
 import { html } from 'P@/vendor/code-tag/code-tag-esm.js';
-
 import type { VersaParamsFetch } from 'versaTypes';
 
 const btnAddUser = $dom('#btnAddUser');

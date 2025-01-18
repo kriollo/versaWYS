@@ -2,15 +2,17 @@
     import check from '@/dashboard/js/components/check.vue';
     import inputEditable from '@/dashboard/js/components/inputEditable.vue';
     import { removeScape, versaFetch } from '@/dashboard/js/functions';
-    import type { Perfil } from 'perfilTypes';
     import Swal from 'sweetalert2';
+    import { inject, ref, watch } from 'vue';
+
+    import type { Perfil } from 'perfilTypes';
     import type { AccionData, actionsType } from 'versaTypes';
     import type { Ref } from 'vue';
-    import { inject, ref, watch } from 'vue';
+
     const emit = defineEmits(['accion']);
 
     const perfil = inject('perfil') as Ref<Perfil>;
-    const csrf_token = inject('csrf_token');
+    const csrf_token = inject<string>('csrf_token');
 
     type PerfilData = {
         [key: string]: {

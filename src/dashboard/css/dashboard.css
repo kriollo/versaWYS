@@ -147,3 +147,25 @@ html {
 .colored-toast .swal2-html-container {
     color: white;
 }
+
+
+/* scroll */
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    border-radius: 5px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(41 51 55 / var(--tw-bg-opacity));
+}

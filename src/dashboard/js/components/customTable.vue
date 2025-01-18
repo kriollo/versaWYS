@@ -18,64 +18,40 @@
 
     import { createXlsxFromJson } from '@/dashboard/js/composables/useXlsx';
     import { removeScape, versaFetch } from '@/dashboard/js/functions';
-    import type { actionsType } from 'versaTypes';
     import { computed, reactive, ref, toRefs, watch, watchEffect } from 'vue';
 
-    const props = defineProps({
-        id: {
-            type: String,
-            default: 'table',
-        },
-        tablaTitle: {
-            type: String,
-            default: '',
-        },
-        urlData: {
-            type: String,
-            required: true,
-        },
-        refreshData: {
-            type: Boolean,
-            default: false,
-        },
-        externalFilters: {
-            type: String,
-            required: false,
-            default: '',
-        },
-        fieldOrder: {
-            type: String,
-            required: false,
-            default: 'id',
-        },
-        perPage: {
-            type: Number,
-            default: 25,
-        },
-        showPerPage: {
-            type: Boolean,
-            default: true,
-        },
-        showExportExcel: {
-            type: Boolean,
-            default: true,
-        },
-        showSearch: {
-            type: Boolean,
-            default: true,
-        },
-        itemSelected: {
-            type: Object,
-            default: () => ({}),
-        },
-        smallLine: {
-            type: Boolean,
-            default: false,
-        },
-        multipleSelected: {
-            type: Boolean,
-            default: false,
-        },
+    import type { actionsType } from 'versaTypes';
+
+    interface Props {
+        id?: string;
+        tablaTitle?: string;
+        urlData: string;
+        refreshData?: boolean;
+        totalRegisters?: number;
+        externalFilters?: string;
+        fieldOrder?: string;
+        PerPage?: number;
+        showPerPage?: boolean;
+        showExportExcel?: boolean;
+        showSearch?: boolean;
+        itemSelected?: any;
+        smallLine?: boolean;
+        multipleSelected?: boolean;
+        perPage?: number;
+    }
+
+    const props = withDefaults(defineProps<Props>(), {
+        id: 'table',
+        tablaTitle: '',
+        refreshData: false,
+        externalFilters: '',
+        fieldOrder: 'id',
+        perPage: 25,
+        showPerPage: true,
+        showExportExcel: true,
+        showSearch: true,
+        smallLine: false,
+        multipleSelected: false,
     });
     const tablaTitle = computed(() => props.tablaTitle);
     const emit = defineEmits(['accion', 'update:totalRegisters']);
@@ -385,12 +361,10 @@
 
 <template>
     <div class="flex flex-col">
-        <div class="px-2 py-2">
-            <slot name="buttons"></slot>
-        </div>
+        <slot name="buttons"></slot>
         <div
             v-if="showPerPage || showExportExcel || showSearch"
-            class="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0 py-2 px-2">
+            class="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0 py-2">
             <!-- Dropdown por Pagina -->
             <dropDown
                 v-if="showPerPage"
@@ -456,7 +430,7 @@
                     v-model="data.meta.filter" />
             </div>
         </div>
-        <div class="px-2 overflow-x-auto">
+        <div class="overflow-x-auto">
             <table
                 :id="'table_' + idTable"
                 class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">

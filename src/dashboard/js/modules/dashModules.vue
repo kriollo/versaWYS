@@ -1,8 +1,8 @@
 <script setup lang="ts">
-    import { provide, reactive } from 'vue';
-
     import modulesForm from '@/dashboard/js/modules/modulesForm.vue';
     import modulesList from '@/dashboard/js/modules/modulesList.vue';
+    import { provide, reactive } from 'vue';
+
     import type { AccionData, actionsType } from 'versaTypes';
 
     const showModalForm = reactive({
@@ -11,6 +11,10 @@
         action: '',
     });
     provide('showModalForm', showModalForm);
+
+    setinterval(() => {
+        console.log('Modules');
+    }, 1000);
 
     const accion = (accion: AccionData) => {
         const actions: actionsType = {
