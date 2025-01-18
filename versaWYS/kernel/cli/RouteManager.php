@@ -75,13 +75,20 @@ EOT;
         echo "Ruta $routesFile eliminada.\n";
     }
 
-    public static function listRoutes(): void
+    public static function getRoutes(): array
     {
         $routes = scandir(self::$path);
         $routes = array_filter($routes, function ($route) {
             return !in_array($route, ['.', '..']);
         });
         $routes = array_values($routes);
+
+        return $routes;
+    }
+
+    public static function listRoutes(): void
+    {
+        $routes = self::getRoutes();
 
         echo "Rutas:\n";
         $n = 1;
@@ -108,7 +115,7 @@ EOT;
         self::listarRutasFromRoute($route);
     }
 
-    public static function listarRutasFromRoute($routeFile): void
+    public static function getRoutesFromRouteFile($routeFile): array
     {
         $routeFile = self::$path . $routeFile;
         if (!file_exists($routeFile)) {
@@ -119,7 +126,111 @@ EOT;
 
         $pattern =
             '/Router::(\w+)\(\s*[\'"]([^\'"]+)[\'"](?:[^;]*\[\s*([^]]+),\s*([^]]+)])?(?:[^;]*\[\s*([^]]+),\s*([^]]+)])?\s*\)/s';
+        $routeContent = preg_replace('/\s+/', ' ', $routeContent); // Eliminar saltos de línea y espacios en blanco adicionales
         preg_match_all($pattern, $routeContent, $matches, PREG_SET_ORDER);
+
+        return $matches;
+    }
+
+    public static function extractRouteData(string $routeFile): array
+    {
+        $routeFile = self::$path . $routeFile;
+        if (!file_exists($routeFile)) {
+            echo "La ruta $routeFile no existe.\n";
+            exit();
+        }
+        $routeContent = file_get_contents($routeFile);
+
+        $allRoutesData = [];
+
+        // Expresión regular corregida (captura la descripción correctamente)
+        $pattern =
+            '/(?:(?:\/\/\s*description:\s*(.*?)\n)?(?:(?:\/\/\s*request-body\s+name:(.+?)\s+type:(.+?)\s+description:(.+?)\n)+)?(?:(?:\/\/\s*query-param\s+name:(.+?)\s+type:(.+?)\s+description:(.+?)\n)+)?)*Router::(post|get|put|patch|delete)\(\'([^\']+)\',\s*\[([^\]]+)\]\)(?:\-\>middleware\(([^)]+)\))?;/s';
+
+        if (preg_match_all($pattern, $routeContent, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $route = $match[9];
+                $method = strtoupper($match[8]);
+                preg_match_all('/\{([^\}]+)\}/', $route, $routeParamsMatches);
+                $routeParams = [];
+                foreach ($routeParamsMatches[1] as $param) {
+                    $routeParams[] = $param;
+                }
+                $data = [
+                    'route' => $route,
+                    'method' => $method,
+                    'routeParams' => $routeParams,
+                    'description' => trim($match[1] ?? ''), // Extracción de la descripción
+                    'requestBody' => [],
+                    'queryParams' => [],
+                    'class' => null,
+                    'class_method' => null,
+                    'middleware' => [],
+                ];
+                if (isset($match[10])) {
+                    $classMethod = explode(',', str_replace(['[', ']', ' ', "'"], '', $match[10]));
+                    $data['class'] = $classMethod[0] ?? null;
+                    $data['class_method'] = $classMethod[1] ?? null;
+                }
+                // Extrae request bodies
+                preg_match_all(
+                    '/\/\/\s*request-body\s+name:(.+?)\s+type:(.+?)\s+description:(.+?)\n/',
+                    $match[0],
+                    $requestBodyMatches,
+                    PREG_SET_ORDER
+                );
+                foreach ($requestBodyMatches as $requestBodyMatch) {
+                    $data['requestBody'][] = [
+                        'name' => trim($requestBodyMatch[1]),
+                        'type' => trim($requestBodyMatch[2]),
+                        'description' => trim($requestBodyMatch[3]),
+                    ];
+                }
+
+                // Extrae query params
+                preg_match_all(
+                    '/\/\/\s*query-param\s+name:(.+?)\s+type:(.+?)\s+description:(.+?)\n/',
+                    $match[0],
+                    $queryParamsMatches,
+                    PREG_SET_ORDER
+                );
+                foreach ($queryParamsMatches as $queryParamMatch) {
+                    $data['queryParams'][] = [
+                        'name' => trim($queryParamMatch[1]),
+                        'type' => trim($queryParamMatch[2]),
+                        'description' => trim($queryParamMatch[3]),
+                    ];
+                }
+                if (isset($match[11])) {
+                    $middlewareString = trim($match[11]);
+                    if (strpos($middlewareString, '[[') === 0) {
+                        $middlewareString = substr($middlewareString, 1, -1);
+                    }
+                    $middlewareItems = explode('],', $middlewareString);
+                    foreach ($middlewareItems as $item) {
+                        $item = str_replace(['[', ']', ' ', "'"], '', $item);
+                        $middlewareParts = explode(',', $item);
+                        if (count($middlewareParts) === 2) {
+                            $data['middleware'][] = [
+                                'class' => $middlewareParts[0],
+                                'class_method' => $middlewareParts[1],
+                            ];
+                        }
+                    }
+                }
+
+                $allRoutesData[] = $data;
+            }
+        }
+
+        // dump($allRoutesData);
+
+        return $allRoutesData;
+    }
+
+    public static function listarRutasFromRoute($routeFile): void
+    {
+        $matches = self::getRoutesFromRouteFile($routeFile);
 
         // Encabezados
         echo str_pad('Method', 10) . '|';
