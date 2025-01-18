@@ -208,4 +208,13 @@ class GlobalMiddleWare
 
         return $message;
     }
+
+    public function onlyDebug(): void
+    {
+        global $debug;
+        if (!$debug) {
+            Response::redirect('/admin/dashboard');
+            exit();
+        }
+    }
 }
