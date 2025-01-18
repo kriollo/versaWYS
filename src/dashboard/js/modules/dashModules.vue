@@ -12,10 +12,6 @@
     });
     provide('showModalForm', showModalForm);
 
-    setinterval(() => {
-        console.log('Modules');
-    }, 1000);
-
     const accion = (accion: AccionData) => {
         const actions: actionsType = {
             openModal: () => {
