@@ -118,6 +118,21 @@
 							Módulos
 						</span>
 					</li>
+					{% if config['build']['debug'] == '1' %}
+						<li id="liDropDownModulos" class="group/liDropDownUser hover:ml-4 hover:bg-gray-100 text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg w-full transform ease-in-out duration-300 flex">
+							<a href="/doc" class="flex p-2 w-full">
+								<svg class="flex-shrink-0 w-6 h-6 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewbox="0 0 24 24" strokewidth="{1.5}">
+									<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.03v13m0-13c-2.819-.831-4.715-1.076-8.029-1.023A.99.99 0 0 0 3 6v11c0 .563.466 1.014 1.03 1.007 3.122-.043 5.018.212 7.97 1.023m0-13c2.819-.831 4.715-1.076 8.029-1.023A.99.99 0 0 1 21 6v11c0 .563-.466 1.014-1.03 1.007-3.122-.043-5.018.212-7.97 1.023"/>
+								</svg>
+
+
+								<span class="ml-3 hidden" sidebar-toggle-item>Documentación</span>
+							</a>
+							<span class="hidden text-dark dark:text-white group-hover/liDropDownUser:flex left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2">
+								Documentación
+							</span>
+						</li>
+					{% endif %}
 				</ul>
 			{% endif %}
 		</div>
