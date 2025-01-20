@@ -8,5 +8,5 @@ use app\middleware\AuthMiddleware;
 use versaWYS\kernel\Router;
 use versaWYS\kernel\versaController;
 
-// description: Define the route for the versa documentation.
+// description: Define la ruta para la documentación de Versa.
 Router::get('/doc', [versaController::class, 'versaRoute'])->middleware([[AuthMiddleware::class, 'onlyDebug']]);
