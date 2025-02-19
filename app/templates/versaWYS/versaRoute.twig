@@ -60,7 +60,7 @@
 								<span class="rounded px-4 py-1 text-sm font-bold text-white w-20 text-center {{route.method == 'GET' ? 'bg-green-500' :route.method == 'POST' ? 'bg-blue-500' :route.method == 'PUT' ? 'bg-yellow-500' :route.method == 'DELETE' ? 'bg-red-500' :'bg-gray-500'}}">
 									{{route.method|upper }}
 								</span>
-								<span class="w-64 text-sm text-gray-900 dark:text-gray-200">{{route.route}}</span>
+								<span class="w-80 text-sm text-gray-900 dark:text-gray-200">{{route.route}}</span>
 								<span class="text-lg text-gray-900 dark:text-gray-400 w-full block mb-2">
 									{{ route.description|capitalize }}
 								</span>
@@ -131,91 +131,91 @@
 {% block appScript %}
 <script>
 	const routesFromRouteFile = JSON.parse(document.querySelector('#routes').value);
-	function toggleMiddleware(element) {
-		const middleware = element.querySelector('.acordeon');
-		middleware.classList.toggle('hidden');
-	}
-
-	function filterRoutes() {
-		const searchInput = document.getElementById('searchInput').value.toLowerCase();
-		const filteredRoutes = routesFromRouteFile.filter(route =>
-			route.route.toLowerCase().includes(searchInput) ||
-			route.description.toLowerCase().includes(searchInput)
-		);
-
-		const routesList = document.getElementById('routesList');
-		routesList.innerHTML = '';
-
-		filteredRoutes.forEach(route => {
-			const routeItem = document.createElement('div');
-			routeItem.className = 'route-item mb-4 p-4 bg-gray-50 dark:bg-gray-800 cursor-pointer';
-			routeItem.onclick = () => toggleMiddleware(routeItem);
-			routeItem.innerHTML = `
-				<div class="flex items-center gap-4">
-					<span class="rounded px-4 py-1 text-sm font-bold text-white w-20 text-center ${route.method == 'GET' ? 'bg-green-500' : route.method == 'POST' ? 'bg-blue-500' : route.method == 'PUT' ? 'bg-yellow-500' : route.method == 'DELETE' ? 'bg-red-500' : 'bg-gray-500'}">
-						${route.method.toUpperCase()}
-					</span>
-					<span class="w-64 text-sm text-gray-900 dark:text-gray-200">${route.route}</span>
-					<span class="text-lg text-gray-900 dark:text-gray-400 w-full block mb-2">
-						${route.description.charAt(0).toUpperCase() + route.description.slice(1)}
-					</span>
-				</div>
-				<div class="acordeon hidden mt-4 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex-col">
-					<div class="mb-2">
-						<span class="font-bold text-gray-900 dark:text-gray-400">Clase:</span>
-						<span class="text-gray-900 dark:text-gray-400">${route.class}</span>
-					</div>
-					<div class="mb-2">
-						<span class="font-bold text-gray-900 dark:text-gray-400">Método:</span>
-						<span class="text-gray-900 dark:text-gray-400">${route.class_method.trim()}</span>
-					</div>
-					${route.requestBody.length > 0 ? `
-						<div class="mt-4">
-							<span class="font-bold text-sm text-gray-900 dark:text-gray-200">Request Body:</span>
-							${route.requestBody.map(requestBody => `
-								<div class="text-sm text-gray-600 dark:text-gray-400">
-									<span>
-										<strong>${requestBody.name}</strong>
-										(${requestBody.type}):
-										${requestBody.description}
-									</span>
-								</div>
-							`).join('')}
+			function toggleMiddleware(element) {
+				const middleware = element.querySelector('.acordeon');
+				middleware.classList.toggle('hidden');
+			}
+	
+			function filterRoutes() {
+				const searchInput = document.getElementById('searchInput').value.toLowerCase();
+				const filteredRoutes = routesFromRouteFile.filter(route =>
+					route.route.toLowerCase().includes(searchInput) ||
+					route.description.toLowerCase().includes(searchInput)
+				);
+	
+				const routesList = document.getElementById('routesList');
+				routesList.innerHTML = '';
+	
+				filteredRoutes.forEach(route => {
+					const routeItem = document.createElement('div');
+					routeItem.className = 'route-item mb-4 p-4 bg-gray-50 dark:bg-gray-800 cursor-pointer';
+					routeItem.onclick = () => toggleMiddleware(routeItem);
+					routeItem.innerHTML = `
+						<div class="flex items-center gap-4">
+							<span class="rounded px-4 py-1 text-sm font-bold text-white w-20 text-center ${route.method == 'GET' ? 'bg-green-500' : route.method == 'POST' ? 'bg-blue-500' : route.method == 'PUT' ? 'bg-yellow-500' : route.method == 'DELETE' ? 'bg-red-500' : 'bg-gray-500'}">
+								${route.method.toUpperCase()}
+							</span>
+							<span class="w-64 text-sm text-gray-900 dark:text-gray-200">${route.route}</span>
+							<span class="text-lg text-gray-900 dark:text-gray-400 w-full block mb-2">
+								${route.description.charAt(0).toUpperCase() + route.description.slice(1)}
+							</span>
 						</div>
-					` : ''}
-					${route.queryParams.length > 0 ? `
-						<div class="mt-4">
-							<span class="font-bold text-sm text-gray-900 dark:text-gray-200">Query Params:</span>
-							${route.queryParams.map(param => `
-								<div class="text-sm text-gray-600 dark:text-gray-400">
-									<span>
-										<strong>${param.name}</strong>
-										(${param.type}):
-										${param.description}
-									</span>
+						<div class="acordeon hidden mt-4 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex-col">
+							<div class="mb-2">
+								<span class="font-bold text-gray-900 dark:text-gray-400">Clase:</span>
+								<span class="text-gray-900 dark:text-gray-400">${route.class}</span>
+							</div>
+							<div class="mb-2">
+								<span class="font-bold text-gray-900 dark:text-gray-400">Método:</span>
+								<span class="text-gray-900 dark:text-gray-400">${route.class_method.trim()}</span>
+							</div>
+							${route.requestBody.length > 0 ? `
+								<div class="mt-4">
+									<span class="font-bold text-sm text-gray-900 dark:text-gray-200">Request Body:</span>
+									${route.requestBody.map(requestBody => `
+										<div class="text-sm text-gray-600 dark:text-gray-400">
+											<span>
+												<strong>${requestBody.name}</strong>
+												(${requestBody.type}):
+												${requestBody.description}
+											</span>
+										</div>
+									`).join('')}
 								</div>
-							`).join('')}
-						</div>
-					` : ''}
-					${route.middleware.length > 0 ? `
-						<div class="mt-4">
-							<span class="font-bold text-sm text-gray-900 dark:text-gray-200">Middlewares:</span>
-							${route.middleware.map(middleware => `
-								<div class="text-sm text-gray-600 dark:text-gray-400">
-									<span>
-										<strong>${middleware.class}</strong>
-									</span>
-									<span>Método:
-										${middleware.class_method}
-									</span>
+							` : ''}
+							${route.queryParams.length > 0 ? `
+								<div class="mt-4">
+									<span class="font-bold text-sm text-gray-900 dark:text-gray-200">Query Params:</span>
+									${route.queryParams.map(param => `
+										<div class="text-sm text-gray-600 dark:text-gray-400">
+											<span>
+												<strong>${param.name}</strong>
+												(${param.type}):
+												${param.description}
+											</span>
+										</div>
+									`).join('')}
 								</div>
-							`).join('')}
+							` : ''}
+							${route.middleware.length > 0 ? `
+								<div class="mt-4">
+									<span class="font-bold text-sm text-gray-900 dark:text-gray-200">Middlewares:</span>
+									${route.middleware.map(middleware => `
+										<div class="text-sm text-gray-600 dark:text-gray-400">
+											<span>
+												<strong>${middleware.class}</strong>
+											</span>
+											<span>Método:
+												${middleware.class_method}
+											</span>
+										</div>
+									`).join('')}
+								</div>
+							` : ''}
 						</div>
-					` : ''}
-				</div>
-			`;
-			routesList.appendChild(routeItem);
-		});
-	}
-</script>
-{% endblock %}
+					`;
+					routesList.appendChild(routeItem);
+				});
+			}
+		</script>
+		{% endblock %}
