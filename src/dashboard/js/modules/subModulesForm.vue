@@ -6,11 +6,7 @@
 
     import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
 
-    type ShowModalSubForm = {
-        ShowModalSubForm: boolean;
-        itemSelected: any;
-    };
-    const ShowModalSubForm = inject<ShowModalSubForm>('ShowModalSubForm');
+    const showModalSubForm = inject<ShowModalSubForm>('ShowModalSubForm');
     const csrf_token = inject<string>('csrf_token');
     const id_menu = inject<string>('id_menu');
 
@@ -28,7 +24,7 @@
     const localFormData = ref(JSON.parse(JSON.stringify(newModule)));
 
     watch(
-        () => ShowModalSubForm,
+        () => showModalSubForm,
         value => {
             if (value.ShowModalSubForm) {
                 showModal.value = value.ShowModalSubForm;

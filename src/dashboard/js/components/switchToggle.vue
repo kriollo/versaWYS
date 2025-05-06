@@ -53,6 +53,7 @@
             ]"
             :aria-disabled="disabled"
             @click="!disabled && (estado = !estado)">
+            <input :id="id" type="checkbox" class="hidden" v-model="estado" />
             <!-- Fondo del switch -->
             <span
                 :class="[

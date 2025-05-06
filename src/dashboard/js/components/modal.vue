@@ -12,25 +12,26 @@
  * @event {Object} accion - Emits an object with the action to be performed.
  */
 </docs>
-<script setup>
-    import { computed, ref, watch } from 'vue';
-    const props = defineProps({
-        idModal: {
-            type: String,
-            required: true,
-        },
-        showModal: {
-            type: Boolean,
-            required: true,
-        },
-        size: {
-            type: String,
-            default: 'max-w-md',
-        },
-        showFooter: {
-            type: Boolean,
-            default: true,
-        },
+<script setup lang="ts">
+    import { computed, ref } from 'vue';
+
+    type Props = {
+        idModal: string;
+        showModal: boolean;
+        size?:
+            | 'max-w-md'
+            | 'max-w-lg'
+            | 'max-w-2xl'
+            | 'max-w-4xl'
+            | 'max-w-7xl'
+            | string;
+        showFooter?: boolean;
+    };
+
+    const props = withDefaults(defineProps<Props>(), {
+        showModal: true,
+        size: 'max-w-md',
+        showFooter: true,
     });
 
     const emit = defineEmits(['accion']);
@@ -40,24 +41,12 @@
     const size = computed(() => props.size);
     const showFooter = computed(() => props.showFooter);
     const modal = ref(null);
-
-    watch(showModal, (/** @type {Boolean} */ val) => {
-        if (val) {
-            modal.value.classList.remove('hidden');
-            modal.value.classList.add('flex');
-            modal.value.removeAttribute('inert');
-        } else {
-            modal.value.classList.remove('flex');
-            modal.value.classList.add('hidden');
-            modal.value.setAttribute('inert', '');
-        }
-    });
 </script>
 <template>
     <Transition>
         <div
-            v-show="showModal"
-            class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full backdrop-blur drop-shadow-versaWYS"
+            v-if="showModal"
+            class="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full backdrop-blur drop-shadow-versaWYS"
             :id="idModal"
             ref="modal"
             tabindex="-1">

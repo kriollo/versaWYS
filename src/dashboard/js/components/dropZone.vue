@@ -7,8 +7,7 @@
     } from '@/dashboard/js/composables/useValidFile';
     import { html } from 'P@/vendor/code-tag/code-tag-esm';
     import Swal from 'sweetalert2';
-    import type { Ref } from 'vue';
-    import { computed, ref } from 'vue';
+    import { type Ref, computed, ref } from 'vue';
 
     const emit = defineEmits(['accion']);
     const props = defineProps({

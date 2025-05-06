@@ -40,7 +40,7 @@
         primary = 'text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-500',
     }
 
-    const estado = defineModel();
+    const estado = defineModel<boolean>();
     const checkType = computed(() => CheckTypes[type.value]);
 </script>
 <template>

@@ -35,7 +35,7 @@ export const existeCookieBuild = () => {
     return cookie !== undefined;
 };
 
-const validateResponeStatus = (/** @type {number} */ status) => {
+const _validateResponeStatus = (/** @type {number} */ status) => {
     if (errorMap.has(status)) {
         Swal.fire({
             title: 'Error!',
@@ -237,7 +237,7 @@ export const diffDias = (
  * @param {function} [Params.callback] - The callback function to be executed when the alert is closed.
  * @param {Object} [Params.customClass={}] - The custom classes to apply to the alert.
  */
-export const versaAlert = Params => {
+export const versaAlert = async Params => {
     const {
         title = '¡Éxito!',
         message = '',
@@ -248,7 +248,7 @@ export const versaAlert = Params => {
         customClass = {},
     } = Params;
 
-    Swal.fire({
+    const result = Swal.fire({
         title: title,
         text: message,
         html: html,
@@ -259,13 +259,12 @@ export const versaAlert = Params => {
         allowEnterKey: true,
         timer: AutoClose ? 3000 : null,
         customClass: customClass,
-    }).then(result => {
-        if (result) {
-            if (callback) {
-                callback();
-            }
-        }
     });
+    if (result) {
+        if (callback) {
+            callback();
+        }
+    }
 };
 
 export const log = console.log.bind(console);

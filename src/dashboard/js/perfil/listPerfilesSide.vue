@@ -1,10 +1,9 @@
 <script setup lang="ts">
     import { versaFetch, VersaToast } from '@/dashboard/js/functions';
     import Swal from 'sweetalert2';
-    import { computed, inject, ref, watch } from 'vue';
+    import { computed, inject, ref, watch, type Ref } from 'vue';
 
     import type { Perfil } from 'perfilTypes';
-    import type { Ref } from 'vue';
 
     const props = defineProps({
         refreshData: {

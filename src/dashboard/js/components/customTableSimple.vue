@@ -123,11 +123,11 @@
 
         if (data.meta.filter !== '') {
             const filter = data.meta.filter.toLowerCase();
-            dataTemp.value = dataInput.value.filter(item => {
-                return Object.values(item).some((value: string) =>
+            dataTemp.value = dataInput.value.filter(item =>
+                Object.values(item).some((value: string) =>
                     value.toString().toLowerCase().includes(filter),
-                );
-            });
+                ),
+            );
         } else {
             dataTemp.value = dataInput.value;
         }
@@ -282,18 +282,18 @@
             class="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0 py-2">
             <dropDown
                 v-if="showPerPage"
-                v-model="data.meta.per_page"
                 key="per_page"
+                v-model="data.meta.per_page"
                 title="Mostrar"
                 from="per_page"
                 :list="showPerPages" />
 
             <!-- input buscar -->
-            <div class="relative" v-if="showSearch">
+            <div v-if="showSearch" class="relative">
                 <button
                     class="absolute inset-y-0 rtl:inset-r-0 end-0 flex items-center pe-3 cursor-pointer"
-                    @click="setFilter"
-                    title="Click para buscar">
+                    title="Click para buscar"
+                    @click="setFilter">
                     <svg
                         class="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                         fill="none"
@@ -311,8 +311,8 @@
                 <button
                     v-if="data.meta.filter"
                     class="absolute inset-y-0 rtl:inset-r-0 end-5 flex items-center pe-3 cursor-pointer"
-                    @click="clearFiler"
-                    title="Limpiar filtro">
+                    title="Limpiar filtro"
+                    @click="clearFiler">
                     <svg
                         class="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-orange-900 dark:hover:text-orange-900"
                         fill="none"
@@ -327,12 +327,12 @@
                     </svg>
                 </button>
                 <input
+                    :id="id + '_table-search-users'"
+                    v-model="data.meta.filter"
                     type="text"
                     class="block p-2 ps-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    :id="id + '_table-search-users'"
-                    @keyup.enter="setFilter"
                     placeholder="Ingrese y presione 'Enter' para buscar"
-                    v-model="data.meta.filter" />
+                    @keyup.enter="setFilter" />
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -347,8 +347,8 @@
                         </div>
                         <div>
                             <loader
-                                key="loadingData"
-                                v-if="loadingData"></loader>
+                                v-if="loadingData"
+                                key="loadingData"></loader>
                         </div>
                     </div>
                 </caption>
@@ -356,7 +356,8 @@
                     class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                         <th
-                            v-for="cols in colspan"
+                            v-for="(cols, index) in colspan"
+                            :key="index + '_colspan'"
                             scope="colspan"
                             :colspan="cols.colspan">
                             <div class="flex justify-center">
@@ -369,22 +370,27 @@
                     class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                         <th
+                            v-for="(col, index) in data.columns"
+                            :key="index + '_col'"
                             :class="smallLine ? 'py-1 px-2' : 'py-4 px-3'"
-                            scope="col"
-                            v-for="col in data.columns">
+                            scope="col">
                             {{ col }}
                         </th>
                     </tr>
                 </thead>
                 <tbody class="overflow-y-auto max-h-72">
-                    <tr class="text-center" v-if="data.data.length === 0">
+                    <tr v-if="data.data.length === 0" class="text-center">
                         <td :colspan="data.columns.length">
                             <span class="text-xl" v-html="msg"></span>
                         </td>
                     </tr>
-                    <tr v-for="row in data.data" :class="classLineTable(row)">
+                    <tr
+                        v-for="(row, index) in data.data"
+                        :key="index + '_row'"
+                        :class="classLineTable(row)">
                         <td
                             v-for="(col, key) in data.columns"
+                            :key="key + '_col'"
                             :class="smallLine ? 'py-1 px-2' : 'py-4 px-3'">
                             <div
                                 v-if="col === 'acciones'"
@@ -442,18 +448,20 @@
                     </a>
                 </li>
 
-                <li v-for="page in getLimitPages">
+                <li
+                    v-for="(page, index) in getLimitPages"
+                    :key="index + '_page'">
                     <a
+                        v-if="data.meta.page == page"
                         class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white cursor-pointer"
-                        @click="changePage(page)"
                         aria-current="page"
-                        v-if="data.meta.page == page">
+                        @click="changePage(page)">
                         {{ page }}
                     </a>
                     <a
+                        v-else
                         class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white cursor-pointer"
-                        @click="changePage(page)"
-                        v-else>
+                        @click="changePage(page)">
                         {{ page }}
                     </a>
                 </li>

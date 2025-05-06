@@ -3,11 +3,10 @@
     import inputEditable from '@/dashboard/js/components/inputEditable.vue';
     import { removeScape, versaFetch } from '@/dashboard/js/functions';
     import Swal from 'sweetalert2';
-    import { inject, ref, watch } from 'vue';
+    import { inject, ref, watch, type Ref } from 'vue';
 
     import type { Perfil } from 'perfilTypes';
     import type { AccionData, actionsType } from 'versaTypes';
-    import type { Ref } from 'vue';
 
     const emit = defineEmits(['accion']);
 
@@ -105,8 +104,8 @@
     <div class="w-full mx-auto rounded-lg shadow-md overflow-hidden">
         <div class="px-4 py-2">
             <inputEditable
-                v-model="perfil.nombre"
                 id="nombre"
+                v-model="perfil.nombre"
                 field="nombre"
                 type="text"
                 placeholder="Nombre del perfil"
@@ -117,8 +116,8 @@
             <div class="flex justify-between">
                 <h2 class="text-lg font-semibold">Pagina de Inicio:</h2>
                 <select
-                    class="w-[80%] p-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-800"
-                    v-model="perfil.pagina_inicio">
+                    v-model="perfil.pagina_inicio"
+                    class="w-[80%] p-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-800">
                     <option
                         v-for="(url, key) in urls"
                         :key="key"

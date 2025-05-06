@@ -8,10 +8,9 @@
     } from '@/dashboard/js/functions';
     import { html } from 'P@/vendor/code-tag/code-tag-esm';
     import Swal from 'sweetalert2';
-    import { inject, onWatcherCleanup, ref, watch } from 'vue';
+    import { inject, onWatcherCleanup, ref, watch, type Reactive } from 'vue';
 
     import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
-    import type { Reactive } from 'vue';
 
     type ShowModalForm = {
         showModalForm: boolean;

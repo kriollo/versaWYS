@@ -36,8 +36,6 @@ class versaController extends GlobalControllers
             ];
 
             $routesFromRouteFile = RouteManager::extractRouteData($params['route']);
-
-            // dump($routesFromRouteFile);
         } else {
             $routesFiles = RouteManager::getRoutes();
         }

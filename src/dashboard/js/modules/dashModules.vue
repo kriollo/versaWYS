@@ -47,7 +47,7 @@
                 </svg>
                 <h1
                     class="text-2xl font-semibold text-gray-900 dark:text-white">
-                    Modulos
+                    Módulos
                 </h1>
             </div>
 

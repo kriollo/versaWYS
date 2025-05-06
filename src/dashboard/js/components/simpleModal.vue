@@ -12,54 +12,37 @@
  * @event {Object} accion - Emits an object with the action to be performed.
  */
 </docs>
-<script setup>
-    import { computed, ref, watch } from 'vue';
-    const props = defineProps({
-        idModal: {
-            type: String,
-            required: true,
-        },
-        showModal: {
-            type: Boolean,
-            required: true,
-        },
-        size: {
-            type: String,
-            default: 'max-w-md',
-        },
-    });
+<script setup lang="ts">
+    import { computed, ref } from 'vue';
+    type Props = {
+        idModal: string;
+        showModal: boolean;
+        size?:
+            | 'max-w-md'
+            | 'max-w-lg'
+            | 'max-w-2xl'
+            | 'max-w-4xl'
+            | 'max-w-7xl'
+            | string;
+    };
 
-    const emit = defineEmits(['accion']);
+    const props = withDefaults(defineProps<Props>(), {
+        showModal: true,
+        size: 'max-w-md',
+        showFooter: true,
+    });
 
     const showModal = computed(() => props.showModal);
     const idModal = computed(() => props.idModal);
     const size = computed(() => props.size);
     const modal = ref(null);
-
-    watch(showModal, (/** @type {Boolean} */ val) => {
-        if (val) {
-            modal.value.classList.remove('hidden');
-            modal.value.classList.add('flex');
-            modal.value.removeAttribute('inert');
-        } else {
-            modal.value.classList.remove('flex');
-            modal.value.classList.add('hidden');
-            modal.value.setAttribute('inert', '');
-        }
-    });
-
-    const closeModal = () => {
-        emit('accion', {
-            accion: 'closeModal',
-        });
-    };
 </script>
 <template>
     <div
-        v-show="showModal"
-        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full backdrop-blur drop-shadow-versaWYS"
+        v-if="showModal"
         :id="idModal"
         ref="modal"
+        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full backdrop-blur drop-shadow-versaWYS"
         tabindex="-1">
         <div class="relative p-4 w-full max-h-full" :class="size">
             <!-- Modal content -->

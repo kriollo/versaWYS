@@ -7,7 +7,6 @@ namespace versaWYS\kernel;
 use Exception;
 use Throwable;
 use versaWYS\kernel\helpers\Functions;
-use versaWYS\kernel\Response;
 
 
 class Request
@@ -66,8 +65,8 @@ class Request
         if ($this->contentType != '' && strtolower($this->contentType) === 'application/json') {
             $this->params =
                 $params === '' || $params === null || !Functions::validateJson($params)
-                    ? []
-                    : json_decode($params, true);
+                ? []
+                : json_decode($params, true);
         } else {
             if (str_contains($this->contentType, 'multipart/form-data')) {
                 $this->params = $this->procesaFormData($params);

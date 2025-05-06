@@ -1,6 +1,5 @@
 <script setup lang="ts">
-    import { ref } from 'vue';
-    import type { Ref } from 'vue';
+    import { type Ref, ref } from 'vue';
     const title = ref('Hello World');
     const count: Ref<number> = ref(0);
 </script>

@@ -72,7 +72,7 @@ class File extends SplFileInfo
      */
     public function getName(): string
     {
-        return $this->sanitizeFileName($this->file['name']);
+        return $this->file['name'] ? $this->sanitizeFileName($this->file['name']) : '';
     }
 
     /**

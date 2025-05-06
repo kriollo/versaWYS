@@ -11,6 +11,7 @@
     }
 
     const props = withDefaults(defineProps<Props>(), {
+        label: '',
         id: 'radio',
         direction: 'row',
         type: 'success',
@@ -47,15 +48,18 @@
         <div
             class="gap-2"
             :class="direction === 'row' ? 'flex' : 'flex flex-col'">
-            <div v-for="option in options" class="flex gap-2">
+            <div
+                v-for="(option, index) in options"
+                :key="index + '_radio'"
+                class="flex gap-2">
                 <input
                     :id="id + '_' + option.id"
+                    v-model="value"
                     :name="id"
                     type="radio"
                     class="h-5 w-5"
                     :class="typeOption"
                     :value="option?.value"
-                    v-model="value"
                     :disabled="disabled" />
                 <label
                     class="block text-sm font-medium text-gray-900 dark:text-white"

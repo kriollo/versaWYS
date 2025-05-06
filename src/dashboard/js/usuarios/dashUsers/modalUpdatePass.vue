@@ -10,10 +10,16 @@
     import type { VersaParamsFetch } from 'versaTypes';
     import { computed, inject } from 'vue';
 
-    const props = defineProps({
-        showModal: Boolean,
-        tokenId: String,
-        origen: String,
+    interface Props {
+        showModal: boolean;
+        tokenId: string;
+        origen: string;
+    }
+
+    const props = withDefaults(defineProps<Props>(), {
+        showModal: false,
+        tokenId: '',
+        origen: '',
     });
 
     const emit = defineEmits(['accion']);
@@ -115,10 +121,10 @@
 </script>
 <template>
     <modal
-        :idModal="origen + 'resetPass'"
-        :showModal="showModalLocal"
+        :id-modal="origen + 'resetPass'"
+        :show-modal="showModalLocal"
         @accion="accion">
-        <template v-slot:modalTitle>
+        <template #modalTitle>
             <div class="flex justify-between">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">
                     Actualizar Contraseña
@@ -145,7 +151,7 @@
                 </div>
             </div>
         </template>
-        <template v-slot:modalBody>
+        <template #modalBody>
             <form id="formChangePass" class="space-y-4">
                 <input type="hidden" :value="csrf_token" name="csrf_token" />
                 <input type="hidden" :value="tokenId" name="tokenid" />
@@ -260,7 +266,7 @@
                 </div>
             </form>
         </template>
-        <template v-slot:modalFooter>
+        <template #modalFooter>
             <button
                 type="button"
                 class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"

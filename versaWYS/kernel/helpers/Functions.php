@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel\helpers;
 
-use DateException;
 use DateTime;
 use Exception;
 use IntlDateFormatter;
@@ -135,7 +134,7 @@ class Functions
                         $valid = explode(',', $param);
                         return !in_array($value, $valid)
                             ? "El campo $field debe ser numerico y debe ser uno de los siguientes valores " .
-                                    implode(',', $valid)
+                            implode(',', $valid)
                             : null;
                     }
                     return null;
@@ -155,7 +154,7 @@ class Functions
                 },
                 'array' => function ($field, $value) {
 
-                    if(is_array($value)) {
+                    if (is_array($value)) {
                         return null;
                     }
 
@@ -363,7 +362,6 @@ class Functions
         $file = str_starts_with($pathFile, '/') ? substr($pathFile, 1) : $pathFile;
 
         $pathSource = 'dist';
-
         return ($addURL ? $request->getBaseUrl() . '/' : '') .
             $config['assets'][$module][$type][$pathSource] .
             '/' .

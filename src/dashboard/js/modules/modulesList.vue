@@ -3,10 +3,9 @@
     import { versaFetch, VersaToast } from '@/dashboard/js/functions';
     import listSubModules from '@/dashboard/js/modules/listSubModules.vue';
     import Swal from 'sweetalert2';
-    import { inject, ref } from 'vue';
+    import { inject, ref, type Reactive } from 'vue';
 
     import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
-    import type { Reactive } from 'vue';
 
     const externalFilters = ref('');
     const buttonSelected = ref('Todos');
