@@ -34,7 +34,8 @@
     },
     "versaCompile": {
         "proxyConfig": {
-            "proxyUrl": "http://localhost:8000"
+            "proxyUrl": "http://localhost:8000",
+            "assetsOmit": true
         }
     }
 }
