@@ -5,7 +5,6 @@
             "label": "npm: tailwindcss - versaCompileJS",
             "type": "npm",
             "script": "dashboard",
-            "path": "versaCompileJS",
             "detail": "compiler tailwindcss",
             "problemMatcher": ["$go"]
         },
@@ -13,7 +12,6 @@
             "label": "npm: watch - versaCompileJS",
             "type": "npm",
             "script": "watch",
-            "path": "versaCompileJS",
             "detail": "node watch.js"
         },
         {
