@@ -18,6 +18,9 @@ class Request
     protected array $files;
     protected mixed $ip;
     protected mixed $accept;
+    protected mixed $rawBody;
+    protected mixed $rawBodyLength;
+
 
     public function __construct()
     {
@@ -31,6 +34,9 @@ class Request
             $this->accept = $_SERVER['HTTP_ACCEPT'] ?? '*/*';
             $this->prepareFiles();
             $this->prepareParams();
+
+            $this->rawBody = file_get_contents('php://input') ?? null;
+            $this->rawBodyLength = strlen($this->rawBody) ?? 0;
 
             if (isset($this->params['_method'])) {
                 $this->method = strtoupper($this->params['_method']);
@@ -200,15 +206,45 @@ class Request
     {
         $files = [];
 
+        if (!isset($this->files[$fileName]) || !isset($this->files[$fileName]['name'])) {
+            return []; // No hay archivos para este nombre de campo
+        }
+
+        // Si 'name' no es un array, es un solo archivo.
+        if (!is_array($this->files[$fileName]['name'])) {
+            // Verificar si es un archivo válido antes de procesarlo
+            if (isset($this->files[$fileName]['tmp_name']) && $this->files[$fileName]['tmp_name'] !== '') {
+                try {
+                    return [new File($this->files[$fileName])];
+                } catch (Exception $e) {
+                    // Registrar el error o manejarlo según sea necesario
+                    return [];
+                }
+            }
+            return [];
+        }
+
         $fileCount = count($this->files[$fileName]['name']);
 
         for ($i = 0; $i < $fileCount; $i++) {
-            $file = [];
+            $currentFile = [];
             foreach ($this->files[$fileName] as $key => $value) {
-                $file[$key] = $this->files[$fileName][$key][$i];
+                if (isset($value[$i])) {
+                    $currentFile[$key] = $value[$i];
+                } else {
+                    // Dato faltante para este archivo en particular, podría invalidar el archivo.
+                    $currentFile[$key] = null;
+                }
             }
 
-            $files[] = new File($file);
+            // Solo procesar si tmp_name está presente y no está vacío
+            if (isset($currentFile['tmp_name']) && $currentFile['tmp_name'] !== '') {
+                try {
+                    $files[] = new File($currentFile);
+                } catch (Exception $e) {
+                    // Registrar el error o manejarlo, opcionalmente continuar con otros archivos
+                }
+            }
         }
         return $files;
     }
@@ -239,6 +275,15 @@ class Request
         return $this->accept;
     }
 
+    public function getRawBody(): mixed
+    {
+        return $this->rawBody;
+    }
+    public function getRawBodyLength(): mixed
+    {
+        return $this->rawBodyLength;
+    }
+
     /**
      * Returns the base URL of the current request.
      *
@@ -260,6 +305,7 @@ class Request
     public function getHeader(string $headerName): ?string
     {
         $headers = getallheaders();
+        $headerName = strtolower($headerName);
         return $headers[$headerName] ?? null;
     }
 
@@ -271,31 +317,38 @@ class Request
     public function isApiCall(): bool
     {
         $url = strtolower($this->getUrl());
-        $contentType = $this->getHeader('Content-Type');
-        $accept = $this->getAccept();
+        $contentType = $this->getHeader('Content-Type'); // Puede ser null
+        $acceptHeader = strtolower($this->getHeader('Accept') ?? '');
 
-        if (str_contains($url, 'api')) {
+        // Comprobación prioritaria por URL
+        if (str_contains($url, '/api/')) {
             return true;
         }
 
-        if ($contentType === null) {
-            return false;
+        // Comprobación por encabezado Accept, común para APIs RESTful
+        if (str_contains($acceptHeader, 'application/json') || str_contains($acceptHeader, 'application/xml')) {
+            return true;
         }
 
-        $apiContentTypes = [
-            'application/json',
-            'multipart/form-data',
-            'application/x-www-form-urlencoded',
-            'text/plain',
-        ];
+        // Comprobación por Content-Type para solicitudes con cuerpo (POST, PUT, PATCH)
+        if ($contentType !== null) {
+            $apiContentTypes = [
+                'application/json',
+                'application/xml',
+                'multipart/form-data', // A menudo usado por APIs para subida de archivos
+                'application/x-www-form-urlencoded', // A veces usado por APIs
+                // 'text/plain' es muy genérico, podría eliminarse si causa falsos positivos
+            ];
 
-        foreach ($apiContentTypes as $type) {
-            if (str_starts_with($contentType, $type)) {
-                return true;
+            foreach ($apiContentTypes as $type) {
+                if (str_starts_with(strtolower($contentType), $type)) {
+                    return true;
+                }
             }
         }
 
-        if (str_starts_with($accept, 'text/css')) {
+        // Si un cliente XHR (como fetch o XMLHttpRequest) establece X-Requested-With
+        if (strtolower($this->getHeader('X-Requested-With') ?? '') === 'xmlhttprequest') {
             return true;
         }
 

@@ -122,7 +122,7 @@ class GlobalMiddleWare
 
         $iduser = (int) $session->get('id_user');
         $user = (new Users())->find($iduser);
-        if ($user === []) {
+        if (!$user) {
             Response::redirect('/admin/login');
             exit();
         }
