@@ -17,8 +17,9 @@ class Router
     protected static array $putRoutes = [];
     protected static array $patchRoutes = [];
     protected static array $deleteRoutes = [];
-    protected static array $middlewares = [];
+    protected static array $middlewares = []; // Estructura: $middlewares[method][route][]
     protected string $lastRoute = '';
+    protected string $lastRouteMethod = '';
 
     /**
      * Normalizes a URL by removing leading and trailing slashes and extracting the path.
@@ -45,6 +46,7 @@ class Router
         self::$getRoutes[$route] = $callback;
         $instance = new static();
         $instance->lastRoute = $route;
+        $instance->lastRouteMethod = 'get'; // Establecer el método
         return $instance;
     }
 
@@ -60,6 +62,7 @@ class Router
         self::$postRoutes[$route] = $callback;
         $instance = new static();
         $instance->lastRoute = $route;
+        $instance->lastRouteMethod = 'post'; // Establecer el método
         return $instance;
     }
 
@@ -75,6 +78,7 @@ class Router
         self::$putRoutes[$route] = $callback;
         $instance = new static();
         $instance->lastRoute = $route;
+        $instance->lastRouteMethod = 'put'; // Establecer el método
         return $instance;
     }
 
@@ -90,6 +94,7 @@ class Router
         self::$patchRoutes[$route] = $callback;
         $instance = new static();
         $instance->lastRoute = $route;
+        $instance->lastRouteMethod = 'patch'; // Establecer el método
         return $instance;
     }
 
@@ -105,6 +110,7 @@ class Router
         self::$deleteRoutes[$route] = $callback;
         $instance = new static();
         $instance->lastRoute = $route;
+        $instance->lastRouteMethod = 'delete'; // Establecer el método
         return $instance;
     }
 
@@ -116,8 +122,14 @@ class Router
      */
     public function middleware(array $middlewares): static
     {
+        if (empty($this->lastRouteMethod) || empty($this->lastRoute)) {
+            // Considerar lanzar una excepción si se llama a middleware() sin una ruta previa
+            // Por ejemplo: throw new \LogicException("Cannot assign middleware without a preceding route definition.");
+            return $this; // O retornar sin hacer nada si se prefiere
+        }
+        $methodKey = strtolower($this->lastRouteMethod);
         foreach ($middlewares as $middleware) {
-            self::$middlewares[$this->lastRoute][] = $middleware;
+            self::$middlewares[$methodKey][$this->lastRoute][] = $middleware;
         }
         return $this;
     }
@@ -168,7 +180,7 @@ class Router
 
             // Si es un archivo no se ejecuta el router
             if (
-                preg_match('/\.(js|css|jpg|jpeg|png|gif|svg|pdf|json|csv|xlsx)$/', $url) ||
+                preg_match('/\.(js|css|jpg|jpeg|png|gif|svg|pdf|json|csv|xlsx|ico|woff|woff2|ttf|otf|webp|avif)$/', $url) ||
                 str_starts_with($url, 'blob:') ||
                 str_starts_with($url, 'data:')
             ) {
@@ -185,10 +197,10 @@ class Router
                 if (preg_match("#^$route$#", $url, $matches)) {
                     $slug = array_slice($matches, 1);
 
-                    if (isset(self::$middlewares[$originalRoute])) {
-                        foreach (self::$middlewares[$originalRoute] as $middleware) {
-                            [$middlewareClass, $method] = $middleware;
-                            $response = (new $middlewareClass())->$method(...$slug);
+                    if (isset(self::$middlewares[$method][$originalRoute])) {
+                        foreach (self::$middlewares[$method][$originalRoute] as $middleware) {
+                            [$middlewareClass, $middlewareMethodName] = $middleware; // Renombrar para evitar conflicto con $method
+                            $response = (new $middlewareClass())->$middlewareMethodName(...$slug);
 
                             if (is_array($response) || is_object($response)) {
                                 return Response::json($response, $response['code'] ?? 200);
@@ -196,8 +208,8 @@ class Router
                         }
                     }
 
-                    [$controllerClass, $method] = $callback;
-                    $response = (new $controllerClass())->$method(...$slug);
+                    [$controllerClass, $controllerMethodName] = $callback; // Renombrar para evitar conflicto con $method
+                    $response = (new $controllerClass())->$controllerMethodName(...$slug);
 
                     if (is_array($response) || is_object($response)) {
                         return Response::json($response);

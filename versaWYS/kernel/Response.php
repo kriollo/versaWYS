@@ -45,6 +45,25 @@ class Response
         exit();
     }
 
+    public static function textPlain(string $data, int $code = 200): bool|string
+    {
+        if (error_get_last() !== null) {
+            $data = [
+                'success' => 0,
+                'message' => 'Error en la petición',
+                'errors' => error_get_last(),
+                'code' => 500,
+            ];
+            $code = 500;
+            self::jsonError($data, $code);
+            return false;
+        }
+        header('Content-Type: text/plain');
+        http_response_code($code);
+        print $data;
+        return true;
+    }
+
     /**
      * Redirects the user to the specified route.
      *
