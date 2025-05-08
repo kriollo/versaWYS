@@ -55,6 +55,8 @@ Router::patch('/admin/modules/movePosition', [ModulesController::class, 'movePos
 ]);
 
 // description: Obtiene los submódulos de un módulo.
+// request-body name:id type:int description:ID del módulo
+// request-body name:estado type:string description:Estado del módulo
 Router::get('/admin/modules/getSubModules', [ModulesController::class, 'getSubModules'])->middleware([
     [AuthMiddleware::class, 'checkSession'],
     [AuthMiddleware::class, 'onlyAdmin'],
