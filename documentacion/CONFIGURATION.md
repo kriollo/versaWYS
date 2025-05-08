@@ -1,6 +1,21 @@
 # Archivo de Configuración `versaWYS/kernel/config/config.json`
 
-El archivo `config.json` es fundamental para el funcionamiento de versaWYS-PHP, ya que centraliza todas las configuraciones esenciales del framework y de la aplicación. A continuación, se detalla cada sección y sus parámetros.
+El archivo `config.json` es fundamental para el funcionamiento de versaWYS-PHP, ya que centraliza todas las configuraciones esenciales del framework y de la aplicación.
+
+**¡IMPORTANTE!**
+
+- Antes de iniciar el desarrollo o la ejecución de cualquier comando, debes asegurarte de que el archivo de configuración exista.
+- Si es tu primer uso, simplemente ejecuta en la terminal:
+
+```bash
+php versaCLI config:init
+```
+
+Esto creará automáticamente el archivo `config.json` con una plantilla base en la ruta `versaWYS/kernel/config/config.json`. Si el archivo ya existe, el comando te avisará y no lo sobrescribirá.
+
+Este archivo es cargado automáticamente al inicio de la aplicación.
+
+> **Recomendación:** No subas (no "versiones") este archivo con información sensible real a ningún repositorio público o compartido. Consulta la sección de **Consideraciones de Seguridad** al final de este documento.
 
 ## Tabla de Contenidos
 
