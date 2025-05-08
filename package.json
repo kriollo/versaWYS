@@ -4,7 +4,6 @@
     "description": "versaWYS-PHP es un framework PHP versátil, simple, ligero, rápido y fácil de usar, diseñado para desarrolladores que buscan eficiencia y flexibilidad en sus proyectos web. Ofrece un enfoque moderno para la gestión de rutas, tanto para aplicaciones web tradicionales como para APIs REST, integrando poderosas herramientas como RedBean para ORM y Twig para la gestión de plantillas.",
     "scripts": {
         "watch": "npx versacompiler",
-        "dev": "node --watch ./versaCompileJS/compile.js",
         "dashboard": "tailwindcss --max-old-space-size=800 -i ./src/dashboard/css/dashboard.css -o ./public/dashboard/css/dashboard.css --watch --minify",
         "web": "tailwindcss -i ./src/web/css/web.css -o ./public/web/css/web.css --watch --minify",
         "versaCompileJS": "npx versacompiler --all --prod",
