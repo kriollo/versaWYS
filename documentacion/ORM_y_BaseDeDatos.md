@@ -6,7 +6,7 @@ Esta guía explica cómo versaWYS-PHP gestiona la interacción con la base de da
 
 ## 1. Configuración de la Conexión
 
-La conexión a la base de datos se configura en el archivo `versaWYS/kernel/config/config.json`, en la sección `DB`:
+La conexión a la base de datos se configura en el archivo `versaWYS/kernel/config/config.json`, en la sección `DB`. Para más detalles sobre la configuración, consulta la [Guía de Configuración](./CONFIGURATION.md):
 
 ```json
 "DB": {
@@ -23,7 +23,7 @@ El framework utiliza la clase `versaWYS\kernel\RedBeanCnn` para gestionar la con
 
 ## 2. Modelos y Operaciones Básicas con RedBeanPHP
 
-Los modelos en `app/models/` extienden `RedBeanCnn` y encapsulan la lógica de acceso a datos. RedBeanPHP permite trabajar con la base de datos de forma orientada a objetos, sin escribir SQL para operaciones CRUD básicas.
+Los modelos en `app/models/` extienden `RedBeanCnn` y encapsulan la lógica de acceso a datos. RedBeanPHP permite trabajar con la base de datos de forma orientada a objetos, sin escribir SQL para operaciones CRUD básicas. Puedes generar modelos usando [versaCLI](./Guia_versaCLI.md).
 
 ### Ejemplo básico de uso en un modelo:
 
@@ -51,7 +51,7 @@ Puedes ver ejemplos reales en los modelos `app/models/Users.php`, `Modules.php`,
 
 ## 3. Migraciones: Control de Esquema
 
-Las migraciones te permiten versionar y modificar el esquema de la base de datos de forma controlada y reproducible.
+Las migraciones te permiten versionar y modificar el esquema de la base de datos de forma controlada y reproducible. Puedes crearlas y ejecutarlas fácilmente con [versaCLI](./Guia_versaCLI.md).
 
 ### Crear una migración
 
@@ -96,7 +96,7 @@ php versaCLI migrate:refresh
 
 ## 4. Seeders: Poblado de Datos
 
-Los seeders permiten poblar la base de datos con datos iniciales o de prueba.
+Los seeders permiten poblar la base de datos con datos iniciales o de prueba. Puedes crearlos y ejecutarlos usando [versaCLI](./Guia_versaCLI.md).
 
 ### Crear un seeder
 
@@ -160,11 +160,9 @@ $results = R::getAll('SELECT * FROM users WHERE status = ?', ['active']);
 
 ## 6. Buenas Prácticas
 
-- Usa migraciones para cualquier cambio de esquema.
-- Usa seeders para poblar datos de prueba o iniciales.
-- Encapsula la lógica de acceso a datos en modelos dentro de `app/models/`.
+- Usa migraciones para cualquier cambio de esquema ([ver sección de migraciones](#3-migraciones-control-de-esquema)).
+- Usa seeders para poblar datos de prueba o iniciales ([ver sección de seeders](#4-seeders-poblado-de-datos)).
+- Encapsula la lógica de acceso a datos en modelos dentro de `app/models/` ([ver estructura de carpetas](./EstructuraDeDirectorios.md)).
 - Para operaciones CRUD simples, usa las funciones ORM de RedBeanPHP. Para consultas complejas, puedes usar SQL directo con `R::getAll()`.
 
----
-
-¿Dudas? Consulta la documentación de RedBeanPHP o revisa los modelos y migraciones de ejemplo en tu proyecto.
+¿Dudas? Consulta la [Guía de ORM y Base de Datos](./ORM_y_BaseDeDatos.md), la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md) o abre un issue en el repositorio.

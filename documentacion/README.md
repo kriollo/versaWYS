@@ -81,11 +81,11 @@ Gestión integrada y simplificada de la subida de archivos.
 
 ### Interfaz de Línea de Comandos (CLI) - `versaCLI`
 
--   **Generación de Código:** Crea rápidamente controladores, modelos, middlewares, migraciones y archivos de rutas.
--   **Servidor de Desarrollo Incorporado:** Inicia un servidor PHP local con `php versaCLI serve`.
--   **Gestión de Migraciones:** Controla la evolución del esquema de tu base de datos (`migrate:up`, `migrate:down`, `migrate:create`).
+-   **Generación de Código:** Crea rápidamente controladores, modelos, middlewares, migraciones y archivos de rutas usando la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md).
+-   **Servidor de Desarrollo Incorporado:** Inicia un servidor PHP local con `php versaCLI serve` ([ver detalles](./Guia_versaCLI.md#servidor-de-desarrollo)).
+-   **Gestión de Migraciones:** Controla la evolución del esquema de tu base de datos (`migrate:up`, `migrate:down`, `migrate:create`). Consulta la [sección de migraciones](./ORM_y_BaseDeDatos.md#migraciones-control-de-esquema).
 
-*(Consulta la [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md) para más detalles)*
+*(Consulta la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md) para más detalles y ejemplos de uso de versaCLI)*
 
 ### Gestión de Sesiones y Cookies
 
@@ -153,19 +153,21 @@ A medida que profundices en versaWYS-PHP, las siguientes guías te serán de gra
 
 -   [Enrutamiento](./Enrutamiento.md)
 -   [ORM y Base de Datos (RedBeanPHP)](./ORM_y_BaseDeDatos.md)
--   [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md)
--   [Seguridad del Framework](./Seguridad.md)
+-   [Interfaz de Línea de Comandos (CLI)](./Guia_versaCLI.md)
+-   [Seguridad del Framework](./Seguridad_Principios_Basicos.md)
 -   [Documentación de Rutas Interactiva](./RutasInteractivas.md)
 -   [Estructura de Directorios](./EstructuraDeDirectorios.md)
 -   *(Más guías se añadirán aquí)*
 
 ## Compilación de Assets (CSS/JS)
 
-Para instrucciones sobre cómo compilar tus archivos CSS (ej. TailwindCSS) y JavaScript, consulta la sección correspondiente en la [Guía de Instalación Detallada](./INSTALL.md#minificación-y-ofuscación-de-archivos-css-y-js).
+Para instrucciones sobre cómo compilar tus archivos CSS (ej. TailwindCSS) y JavaScript, consulta la sección correspondiente en la [Guía de Instalación Detallada](./INSTALL.md#compilación-de-assets-para-producción).
 
 ## Archivo de Configuración
 
 Para una descripción detallada de todas las opciones disponibles en el archivo `versaWYS/kernel/config/config.json`, por favor revisa nuestra [Guía de Configuración](./CONFIGURATION.md).
+
+¿Quieres contribuir? Consulta la [Guía de Contribución](./Guia_Contribucion.md).
 
 ## Licencia
 

@@ -2,9 +2,13 @@
 
 El archivo `config.json` es fundamental para el funcionamiento de versaWYS-PHP, ya que centraliza todas las configuraciones esenciales del framework y de la aplicación.
 
+## ¿Qué es este archivo?
+
+Este archivo contiene toda la configuración centralizada del framework versaWYS-PHP. Si tienes dudas sobre cómo crearlo o modificarlo, consulta la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md) y la [Guía de Instalación](./INSTALL.md).
+
 **¡IMPORTANTE!**
 
-- Antes de iniciar el desarrollo o la ejecución de cualquier comando, debes asegurarte de que el archivo de configuración exista.
+- Antes de iniciar el desarrollo o la ejecución de cualquier comando, debes asegurarte de que el archivo de configuración exista. Puedes crearlo fácilmente con [versaCLI](./Guia_versaCLI.md).
 - Si es tu primer uso, simplemente ejecuta en la terminal:
 
 ```bash
@@ -15,7 +19,7 @@ Esto creará automáticamente el archivo `config.json` con una plantilla base en
 
 Este archivo es cargado automáticamente al inicio de la aplicación.
 
-> **Recomendación:** No subas (no "versiones") este archivo con información sensible real a ningún repositorio público o compartido. Consulta la sección de **Consideraciones de Seguridad** al final de este documento.
+> **Recomendación:** No subas (no "versiones") este archivo con información sensible real a ningún repositorio público o compartido. Consulta la sección de **Consideraciones de Seguridad** al final de este documento o la [Guía de Seguridad](./Seguridad_Principios_Basicos.md).
 
 ## Tabla de Contenidos
 
@@ -32,6 +36,7 @@ Este archivo es cargado automáticamente al inicio de la aplicación.
   - [`assets`](#assets-object)
 - [Uso de la Configuración en la Aplicación](#uso-de-la-configuración-en-la-aplicación)
 - [¡Importante! Consideraciones de Seguridad](#importante-consideraciones-de-seguridad)
+- [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md)
 
 ## Estructura General del Archivo
 
@@ -233,6 +238,8 @@ Los valores definidos en `config.json` son cargados por el framework al inicio y
 
 -   **Desde la Línea de Comandos (CLI)**: La utilidad `ConfigManager` (`versaWYS/kernel/cli/ConfigManager.php`) también proporciona métodos para leer (y en algunos casos modificar) la configuración, como `ConfigManager::getConfig()`.
 
+Para más detalles sobre cómo acceder a la configuración desde PHP, Twig o la CLI, revisa la [Guía de Configuración](./CONFIGURATION.md) y la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md).
+
 ## ¡Importante! Consideraciones de Seguridad
 
 El archivo `config.json` puede contener información sensible, como credenciales de base de datos, claves de API, etc.
@@ -245,5 +252,7 @@ Prácticas recomendadas:
 2.  **Archivo de Ejemplo**: Mantén una copia del archivo `config.json` con valores de ejemplo o placeholders en tu repositorio (ej. `config.example.json` o `config.dist.json`). Los desarrolladores pueden copiar este archivo a `config.json` (que estará ignorado) y rellenar sus propios valores.
 3.  **Variables de Entorno (Recomendado para Producción)**: Para entornos de producción, es una práctica mucho más segura cargar configuraciones sensibles desde variables de entorno del servidor en lugar de un archivo versionado. El framework podría necesitar adaptarse para leer estas variables y usarlas como override o fuente principal para ciertos parámetros.
 4.  **Acceso Restringido**: Asegúrate de que el archivo `config.json` en el servidor de producción no sea accesible directamente desde la web y tenga permisos de archivo restrictivos.
+
+¿Dudas? Consulta la [Guía de Configuración](./CONFIGURATION.md), la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md) o abre un issue en el repositorio.
 
 Proteger esta información es vital para la seguridad de tu aplicación.

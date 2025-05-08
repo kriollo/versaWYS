@@ -13,7 +13,7 @@ Esta guía te ayudará a instalar y configurar versaWYS-PHP en tu entorno de des
 
 ## Requisitos Previos
 
-Asegúrate de tener los siguientes componentes instalados en tu sistema:
+Asegúrate de tener los siguientes componentes instalados en tu sistema. Si tienes dudas sobre cómo instalar dependencias, consulta la [Guía de Configuración](./CONFIGURATION.md) y la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md).
 
 - **PHP 8.3 o superior** (incluye la extensión `php-intl`)
 - **Composer** (manejador de dependencias para PHP)
@@ -54,7 +54,7 @@ Antes de continuar, debes crear el archivo de configuración principal del frame
 php versaCLI config:init
 ```
 
-Esto generará el archivo `versaWYS/kernel/config/config.json` con una plantilla base. **No continúes hasta que este archivo exista.**
+Esto generará el archivo `versaWYS/kernel/config/config.json` con una plantilla base. **No continúes hasta que este archivo exista.** Para más detalles, revisa la [Guía de Configuración](./CONFIGURATION.md) y la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md).
 
 ### 4. Configurar la Base de Datos
 
@@ -78,11 +78,11 @@ Desde la raíz del proyecto, ejecuta:
 php versaCLI migrate:up
 ```
 
-Esto creará las tablas necesarias en tu base de datos.
+Esto creará las tablas necesarias en tu base de datos. Consulta la [sección de migraciones](./ORM_y_BaseDeDatos.md#migraciones-control-de-esquema) para más información.
 
 ### 6. Instalar Dependencias Frontend y Compilar Assets
 
-Si vas a trabajar con el frontend (panel de administración, dashboard, etc.):
+Si vas a trabajar con el frontend (panel de administración, dashboard, etc.), revisa también la [Estructura de Directorios](./EstructuraDeDirectorios.md) para entender dónde se ubican los archivos fuente y compilados.
 
 - **Instala las dependencias de Node.js:**
     ```bash
@@ -102,10 +102,10 @@ Si vas a trabajar con el frontend (panel de administración, dashboard, etc.):
 
 ### 7. Iniciar el Servidor de Desarrollo
 
-Puedes usar el servidor incorporado de PHP a través de la CLI de versaWYS:
+Puedes usar el servidor incorporado de PHP a través de la CLI de versaWYS ([ver detalles](./Guia_versaCLI.md#servidor-de-desarrollo)):
 
 ```bash
-node --run watch
+php versaCLI serve
 ```
 
 Por defecto, tu aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
@@ -173,7 +173,7 @@ Ajusta `tu_dominio.com`, la ruta al proyecto (`root`) y la configuración de `fa
 
 ## Compilación de Assets para Producción
 
-Cuando estés listo para desplegar tu aplicación, compila y minifica tus archivos CSS y JS:
+Cuando estés listo para desplegar tu aplicación, compila y minifica tus archivos CSS y JS. Consulta la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md) para ver los scripts disponibles y la [Estructura de Directorios](./EstructuraDeDirectorios.md) para la ubicación de los assets.
 
 - Para CSS:
     ```bash
@@ -192,10 +192,9 @@ Si estás utilizando tareas preconfiguradas de VSCode que ejecutan estos scripts
 ---
 
 **¡Listo!**
-Tu entorno versaWYS-PHP debería estar funcionando. Si tienes dudas, revisa la documentación incluida en la carpeta `documentacion/` o ejecuta `php versaCLI help` para ver todos los comandos disponibles.
-
+Tu entorno versaWYS-PHP debería estar funcionando. Si tienes dudas, revisa la documentación incluida en la carpeta `documentacion/` o ejecuta `php versaCLI help` para ver todos los comandos disponibles. También puedes consultar la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md) y la [Guía de Contribución](./Guia_Contribucion.md).
 
 **NOTA**
 **versaCompiler:** El comando `npm run watch` o `npx versacompiler` compila y transpila los archivos JS/CSS de `src/` hacia los directorios públicos, facilitando el flujo de trabajo frontend.
 
-para más información sobre versaCompiler, consulta su [repositorio oficial](https://github.com/versaCompiler)
+Para más información sobre versaCompiler, consulta su [repositorio oficial](https://github.com/versaCompiler)

@@ -77,7 +77,7 @@ Si un usuario navega a `/blog/tecnologia/mi-primer-post`, el método `showPost` 
 
 ## Organización de Archivos de Rutas
 
-A medida que una aplicación crece, el número de rutas puede aumentar considerablemente. Para mantener el código organizado y manejable, es una buena práctica dividir las definiciones de rutas en múltiples archivos. Estos archivos suelen residir en el directorio `app/routes/`.
+A medida que una aplicación crece, el número de rutas puede aumentar considerablemente. Para mantener el código organizado y manejable, es una buena práctica dividir las definiciones de rutas en múltiples archivos. Estos archivos suelen residir en el directorio `app/routes/`. Consulta la [Guía de Estructura de Directorios](./EstructuraDeDirectorios.md) para más detalles.
 
 Por ejemplo, podrías tener:
 - `web.php`: Para rutas relacionadas con la interfaz web principal.
@@ -93,7 +93,7 @@ Estos archivos de rutas son luego cargados por el framework, usualmente en un pu
 
 ## Organización Avanzada de Rutas (Prefijos, Agrupación de Middlewares, Nombres)
 
-Muchos frameworks modernos ofrecen características para organizar rutas de manera más avanzada, como la agrupación de rutas bajo un prefijo común (ej. todas las rutas de administración bajo `/admin/...`), la aplicación de un conjunto de middlewares a un grupo entero de rutas, o la asignación de nombres únicos a las rutas para facilitar la generación de URLs.
+Muchos frameworks modernos ofrecen características para organizar rutas de manera más avanzada, como la agrupación de rutas bajo un prefijo común (ej. todas las rutas de administración bajo `/admin/...`), la aplicación de un conjunto de middlewares a un grupo entero de rutas, o la asignación de nombres únicos a las rutas para facilitar la generación de URLs. Para más información sobre middlewares, consulta la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md) y la [Guía de Seguridad](./Seguridad_Principios_Basicos.md).
 
 En la versión actual del `Router` de versaWYS-PHP:
 
@@ -456,7 +456,7 @@ Estos métodos de la clase `Response` son herramientas esenciales para controlar
 
 ## Ejemplos Prácticos del Framework (`app/routes/DashboardRoutes.php`)
 
-Para ilustrar mejor cómo se definen las rutas y se aplican los middlewares en un contexto real dentro de versaWYS-PHP, veamos algunos ejemplos tomados directamente del archivo `app/routes/DashboardRoutes.php` (o archivos similares en tu aplicación).
+Para ilustrar mejor cómo se definen las rutas y se aplican los middlewares en un contexto real dentro de versaWYS-PHP, veamos algunos ejemplos tomados directamente del archivo `app/routes/DashboardRoutes.php` (o archivos similares en tu aplicación). Puedes generar estos archivos y middlewares usando [versaCLI](./Guia_versaCLI.md).
 
 **1. Ruta GET Protegida por Middleware de Sesión:**
 
@@ -506,3 +506,5 @@ Router::post('/admin/login/autentication', [DashBoardController::class, 'autenti
 ```
 
 Estos ejemplos demuestran el uso práctico del sistema de enrutamiento y middlewares, mostrando cómo se estructuran las definiciones de rutas en archivos específicos dentro del directorio `app/routes/` y cómo se integran los middlewares para la seguridad, validación y otras lógicas transversales de la aplicación.
+
+¿Dudas? Consulta la [Guía de Enrutamiento](./Enrutamiento.md), la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md) o abre un issue en el repositorio.
