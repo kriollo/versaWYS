@@ -7,7 +7,81 @@ require_once 'versaWYS/kernel/autoload.php';
 
 use versaWYS\kernel\cli\CommandLineInterface;
 
-$config = json_decode(file_get_contents(__DIR__ . '/versaWYS/kernel/config/config.json'), true);
+// Ruta absoluta al archivo de configuración
+$absolutePathConfig = __DIR__ . '/versaWYS/kernel/config/config.json';
+$config = null; // Inicializar $config a null
+
+// Obtener el comando principal (ej: 'config:init', 'migrate:up')
+// $argv[0] es el nombre del script, $argv[1] es el primer argumento (comando)
+$command = $argv[1] ?? null;
+
+if (!file_exists($absolutePathConfig)) {
+    // El archivo de configuración no existe.
+    if ($command !== 'config:init') {
+        // Y el comando no es para inicializar la configuración.
+        echo "Advertencia: El archivo de configuración ('{$absolutePathConfig}') no existe.\n";
+        echo "Puede crearlo ejecutando: php versaCLI config:init\n\n";
+        echo "¿Desea intentar crear el archivo de configuración ahora? (s/n): ";
+
+        $handle = fopen("php://stdin", "r");
+        if ($handle === false) {
+            echo "Error: No se pudo leer la entrada del usuario.\n";
+            exit(1);
+        }
+        $responseLine = fgets($handle);
+        fclose($handle);
+
+        if ($responseLine === false) {
+            echo "Error: No se pudo leer la respuesta del usuario.\n";
+            exit(1);
+        }
+        $response = strtolower(trim($responseLine));
+
+        if ($response === 's') {
+            // Modificar $argv para que CommandLineInterface ejecute config:init
+            $originalArgv0 = $argv[0]; // Guardar el nombre del script original
+            $argv = [$originalArgv0, 'config:init'];
+            $command = 'config:init'; // Actualizar la variable de comando actual
+            echo "\nRedirigiendo para ejecutar 'config:init'...\n";
+            // $config permanecerá null, CommandLineInterface se encargará de la creación.
+        } else {
+            echo "Operación cancelada. El archivo de configuración es necesario para la mayoría de las operaciones.\n";
+            exit(1);
+        }
+    }
+    // Si el comando original era 'config:init' o se cambió a 'config:init',
+    // $config permanece null y se procede a CommandLineInterface.
+    // CommandLineInterface y ConfigManager::initConfig() manejarán la creación.
+}
+
+// En este punto:
+// 1. Si el archivo existía originalmente, se intentará cargar a continuación.
+// 2. Si no existía y el comando es/se cambió a 'config:init', $config es null y el archivo aún no existe.
+// 3. Si no existía y el usuario no quiso crearlo, el script ya salió.
+
+if (file_exists($absolutePathConfig)) {
+    $configContent = file_get_contents($absolutePathConfig);
+    if ($configContent === false) {
+        echo "Error: No se pudo leer el archivo de configuración existente en '{$absolutePathConfig}'.\n";
+        exit(1);
+    }
+    $config = json_decode($configContent, true);
+    if ($config === null && json_last_error() !== JSON_ERROR_NONE) {
+        echo "Error: El archivo de configuración JSON en '{$absolutePathConfig}' está corrupto: " . json_last_error_msg() . "\n";
+        echo "Considere eliminarlo y ejecutar 'php versaCLI config:init' para generar uno nuevo.\n";
+        exit(1);
+    }
+} elseif ($command !== 'config:init') {
+    // Esta condición se alcanza si se intentó redirigir a config:init (usuario dijo 's'),
+    // pero por alguna razón el archivo aún no existe (ej. fallo en ConfigManager::initConfig).
+    // ConfigManager::initConfig() ya debería haber mostrado un error específico.
+    echo "Error: El archivo de configuración no se pudo crear o no se encontró después del intento.\n";
+    echo "Por favor, ejecute 'php versaCLI config:init' manualmente y verifique los errores reportados.\n";
+    exit(1);
+}
+
+// La variable $config (potencialmente null si es config:init y el archivo no existía inicialmente)
+// es cargada aquí. El framework debería idealmente usar ConfigManager::getConfig() internamente.
 
 $cli = new CommandLineInterface($argv);
 $cli->run();

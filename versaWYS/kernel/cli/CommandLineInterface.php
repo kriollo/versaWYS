@@ -103,7 +103,7 @@ class CommandLineInterface
             exit();
         }
 
-        if (!in_array($params[0], ['debug', 'templateCache', 'ClearCache'])) {
+        if (!in_array($params[0], ['debug', 'templateCache', 'ClearCache', 'init'])) {
             $this->printHelp();
             exit();
         }
@@ -122,6 +122,7 @@ class CommandLineInterface
             'debug' => ConfigManager::setDebug($params[1]),
             'templateCache' => ConfigManager::setTemplateCache($params[1]),
             'ClearCache' => ConfigManager::clearCache(),
+            'init' => ConfigManager::initConfig(),
             default => $this->printHelp(),
         };
     }
@@ -306,6 +307,7 @@ class CommandLineInterface
         echo "{$bold}{$green}-serve{$reset} Inicia el servidor de desarrollo\n";
 
         echo "{$bold}{$green}-config{$reset}\n";
+        echo "  {$yellow}config:init{$reset} Crea el archivo de configuración 'config.json' desde una plantilla si no existe\n";
         echo "  {$yellow}config:debug:[true/false]{$reset} Activa o desactiva el modo debug\n";
         echo "  {$yellow}config:templateCache:[true/false]{$reset} Activa o desactiva el cache de templates twig\n";
         echo "  {$yellow}config:ClearCache{$reset} Limpia el cache de templates twig\n";
