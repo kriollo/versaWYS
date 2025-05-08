@@ -27,6 +27,7 @@ Inspirado en la necesidad de un arranque rápido de proyectos y una curva de apr
 - [Documentación de Rutas Interactiva](./RutasInteractivas.md)
 - [Estructura de Directorios](./EstructuraDeDirectorios.md)
 - [Guía de Contribución](./Guia_Contribucion.md)
+- [Preguntas Frecuentes (FAQ)](./FAQ.md)
 
 ## Licencia
 
