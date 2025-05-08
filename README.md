@@ -8,13 +8,13 @@ Toda la documentación detallada del framework, incluyendo guías de instalació
 
 Te recomendamos empezar por:
 
-*   **[Guía de Inicio Rápido](./documentacion/README.md)**: Para una visión general del framework.
+*   **[Guía de Inicio Rápido](./documentacion/Inicio_Rapido.md)**: Para una visión general del framework.
 *   **[Instalación](./documentacion/INSTALL.md)**: Para configurar tu entorno de desarrollo.
 *   **[Configuración](./documentacion/CONFIGURATION.md)**: Para aprender a configurar el framework según tus necesidades.
 
 ## Contribuciones
 
-Si estás interesado en contribuir al desarrollo de versaWYS-PHP, por favor revisa nuestra guía de contribución (próximamente en la carpeta de documentación).
+Si estás interesado en contribuir al desarrollo de versaWYS-PHP, por favor revisa nuestra guía de contribución en la carpeta [/documentacion](./documentacion/Guia_Contribucion.md). Apreciamos cualquier tipo de contribución, ya sea reportando errores, sugiriendo mejoras o enviando pull requests.
 
 ## Licencia
 
