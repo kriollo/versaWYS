@@ -4,11 +4,11 @@ El archivo `config.json` es fundamental para el funcionamiento de versaWYS-PHP, 
 
 ## ¿Qué es este archivo?
 
-Este archivo contiene toda la configuración centralizada del framework versaWYS-PHP. Si tienes dudas sobre cómo crearlo o modificarlo, consulta la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md) y la [Guía de Instalación](./INSTALL.md).
+Este archivo contiene toda la configuración centralizada del framework versaWYS-PHP. Si tienes dudas sobre cómo crearlo o modificarlo, consulta la [Guía de Línea de Comandos (CLI)](./LineaDeComandos.md) y la [Guía de Instalación](./INSTALL.md).
 
 **¡IMPORTANTE!**
 
-- Antes de iniciar el desarrollo o la ejecución de cualquier comando, debes asegurarte de que el archivo de configuración exista. Puedes crearlo fácilmente con [versaCLI](./Guia_versaCLI.md).
+- Antes de iniciar el desarrollo o la ejecución de cualquier comando, debes asegurarte de que el archivo de configuración exista. Puedes crearlo fácilmente con [versaCLI](./LineaDeComandos.md).
 - Si es tu primer uso, simplemente ejecuta en la terminal:
 
 ```bash
@@ -36,7 +36,7 @@ Este archivo es cargado automáticamente al inicio de la aplicación.
   - [`assets`](#assets-object)
 - [Uso de la Configuración en la Aplicación](#uso-de-la-configuración-en-la-aplicación)
 - [¡Importante! Consideraciones de Seguridad](#importante-consideraciones-de-seguridad)
-- [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md)
+- [Guía de Línea de Comandos (CLI)](./LineaDeComandos.md)
 
 ## Estructura General del Archivo
 
@@ -238,7 +238,7 @@ Los valores definidos en `config.json` son cargados por el framework al inicio y
 
 -   **Desde la Línea de Comandos (CLI)**: La utilidad `ConfigManager` (`versaWYS/kernel/cli/ConfigManager.php`) también proporciona métodos para leer (y en algunos casos modificar) la configuración, como `ConfigManager::getConfig()`.
 
-Para más detalles sobre cómo acceder a la configuración desde PHP, Twig o la CLI, revisa la [Guía de Configuración](./CONFIGURATION.md) y la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md).
+Para más detalles sobre cómo acceder a la configuración desde PHP, Twig o la CLI, revisa la [Guía de Configuración](./CONFIGURATION.md) y la [Guía de Línea de Comandos (CLI)](./LineaDeComandos.md).
 
 ## ¡Importante! Consideraciones de Seguridad
 
@@ -253,6 +253,6 @@ Prácticas recomendadas:
 3.  **Variables de Entorno (Recomendado para Producción)**: Para entornos de producción, es una práctica mucho más segura cargar configuraciones sensibles desde variables de entorno del servidor en lugar de un archivo versionado. El framework podría necesitar adaptarse para leer estas variables y usarlas como override o fuente principal para ciertos parámetros.
 4.  **Acceso Restringido**: Asegúrate de que el archivo `config.json` en el servidor de producción no sea accesible directamente desde la web y tenga permisos de archivo restrictivos.
 
-¿Dudas? Consulta la [Guía de Configuración](./CONFIGURATION.md), la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md) o abre un issue en el repositorio.
+¿Dudas? Consulta la [Guía de Configuración](./CONFIGURATION.md), la [Guía de Línea de Comandos (CLI)](./LineaDeComandos.md) o abre un issue en el repositorio.
 
 Proteger esta información es vital para la seguridad de tu aplicación.

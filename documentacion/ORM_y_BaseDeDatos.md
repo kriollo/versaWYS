@@ -51,11 +51,9 @@ Puedes ver ejemplos reales en los modelos `app/models/Users.php`, `Modules.php`,
 
 ## 3. Migraciones: Control de Esquema
 
-Las migraciones te permiten versionar y modificar el esquema de la base de datos de forma controlada y reproducible. Puedes crearlas y ejecutarlas fácilmente con [versaCLI](./Guia_versaCLI.md).
+Las migraciones te permiten versionar y modificar el esquema de la base de datos de forma controlada y reproducible. Puedes crearlas y ejecutarlas fácilmente con la [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md).
 
 ### Crear una migración
-
-Usa versaCLI para generar una migración:
 
 ```bash
 php versaCLI migrate:make:NombreDeLaMigracion
@@ -90,13 +88,11 @@ Si quieres borrar todo y volver a ejecutar las migraciones, puedes usar:
 php versaCLI migrate:refresh
 ```
 
-#### para más información consulta la documentación de [versaCLI](./LineaDeComandos.md)
-
 ---
 
 ## 4. Seeders: Poblado de Datos
 
-Los seeders permiten poblar la base de datos con datos iniciales o de prueba. Puedes crearlos y ejecutarlos usando [versaCLI](./Guia_versaCLI.md).
+Los seeders permiten poblar la base de datos con datos iniciales o de prueba. Puedes crearlos y ejecutarlos usando la [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md).
 
 ### Crear un seeder
 
@@ -133,8 +129,6 @@ class ProductsSeeder {
 
 Si necesitar poblar datos de prueba, puedes usar `php versaCLI migrate:refresh:seeder`, que revertirá todas las migraciones y ejecutará todos los seeders.
 
-#### para más información consulta la documentación de [versaCLI](./LineaDeComandos.md)
-
 ---
 
 ## 5. Relaciones y Consultas Avanzadas
@@ -165,4 +159,4 @@ $results = R::getAll('SELECT * FROM users WHERE status = ?', ['active']);
 - Encapsula la lógica de acceso a datos en modelos dentro de `app/models/` ([ver estructura de carpetas](./EstructuraDeDirectorios.md)).
 - Para operaciones CRUD simples, usa las funciones ORM de RedBeanPHP. Para consultas complejas, puedes usar SQL directo con `R::getAll()`.
 
-¿Dudas? Consulta la [Guía de ORM y Base de Datos](./ORM_y_BaseDeDatos.md), la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md) o abre un issue en el repositorio.
+¿Dudas? Consulta la [Guía de ORM y Base de Datos](./ORM_y_BaseDeDatos.md), la [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md) o abre un issue en el repositorio.
