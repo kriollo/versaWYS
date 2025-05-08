@@ -6,11 +6,16 @@ Comprender la estructura de directorios de un framework es fundamental para trab
 
 Estos son los directorios principales que encontrarás en la raíz de un proyecto versaWYS-PHP:
 
-* **`index.php`**: Este es el archivo de entrada de la aplicación. Es el único punto de entrada para todas las solicitudes HTTP a tu aplicación (front controller).
+* **`index.php`**: (Archivo) Este es el archivo de entrada de la aplicación. Es el único punto de entrada para todas las solicitudes HTTP a tu aplicación (front controller).
 
 *   **`app/`**: Este es el corazón de tu aplicación. Contiene la lógica específica de tu proyecto, incluyendo modelos, vistas, controladores, rutas, middleware, migraciones y seeders. La mayoría del trabajo de desarrollo se realiza dentro de esta carpeta.
 
 *   **`public/`**: Esta carpeta contiene todos los assets y archivos de la interfaz de usuario, como imágenes, hojas de estilo CSS compiladas, y archivos JavaScript del lado del cliente. Es el único directorio que debería ser accesible directamente desde el navegador web.
+
+*   **`src/`**: Carpeta dedicada al desarrollo del frontend de la aplicación. Aquí se organiza el código fuente de los módulos de interfaz de usuario, estilos y scripts modernos. Actualmente, esta carpeta está preparada para trabajar con **Vue.js 3** (framework progresivo para interfaces de usuario) y se integra con **versaCompiler**, una herramienta de compilación y empaquetado desarrollada para proyectos versaWYS. Puedes encontrar más información sobre versaCompiler en su [repositorio oficial](https://github.com/kriollo/versaCompiler).
+    *   Ejemplo: `src/dashboard/js/`, `src/dashboard/css/`, `src/dashboard/types/`.
+    *   **Vue.js**: El framework Vue está disponible como dependencia principal (`vue` en `package.json`), permitiendo el desarrollo de componentes SPA o widgets modernos.
+    *   **versaCompiler**: El comando `npm run watch` o `npx versacompiler` compila y transpila los archivos JS/CSS de `src/` hacia los directorios públicos, facilitando el flujo de trabajo frontend.
 
 *   **`versaWYS/`**: Contiene el código fuente del núcleo del framework versaWYS-PHP. Generalmente, no necesitarás modificar archivos dentro de esta carpeta a menos que estés contribuyendo al desarrollo del propio framework. Incluye subdirectorios como `kernel/` que aloja los componentes centrales del framework y `vendor/` que es gestionada por Composer, el manejador de dependencias para PHP. Contiene todas las bibliotecas y paquetes de terceros de los que depende tu proyecto y el framework versaWYS-PHP. No debes modificar directamente los archivos en esta carpeta, ya que se sobrescribirán con las actualizaciones de Composer.
 
@@ -25,20 +30,20 @@ El directorio `app/` es donde reside la mayor parte de tu código de aplicación
 
 *   **`.htaccess`**: (Archivo) Un archivo de configuración específico para el servidor web Apache. Puede contener directivas para controlar el acceso al directorio `app/` o reglas de reescritura, aunque la reescritura principal generalmente se maneja en `public/.htaccess`.
 
-*   **`controllers/`**: Contiene las clases de tus controladores. Los controladores son responsables de recibir las solicitudes, interactuar con los modelos para obtener o modificar datos, y luego pasar esos datos a las plantillas para generar la respuesta HTTP.
-    *   Ejemplo: `UsuarioController.php`, `ProductoController.php`.
+*   **`routes/`**: En esta carpeta se definen los archivos que contienen las rutas de tu aplicación. Estos archivos mapean las URIs (endpoints) y los métodos HTTP (GET, POST, etc.) a acciones específicas de los controladores.
+    *   Ejemplo: `web.php`, `api.php`, o archivos más específicos como `usuariosRoutes.php`.
 
 *   **`middleware/`**: Almacena las clases de middleware. El middleware proporciona un mecanismo para filtrar las solicitudes HTTP que ingresan a tu aplicación. Cada capa de middleware puede inspeccionar o modificar la solicitud antes de que llegue al controlador, o la respuesta antes de que se envíe al cliente.
     *   Ejemplo: `AuthMiddleware.php`, `AdminMiddleware.php`.
+
+*   **`controllers/`**: Contiene las clases de tus controladores. Los controladores son responsables de recibir las solicitudes, interactuar con los modelos para obtener o modificar datos, y luego pasar esos datos a las plantillas para generar la respuesta HTTP.
+    *   Ejemplo: `UsuarioController.php`, `ProductoController.php`.
 
 *   **`migrations/`**: Aquí se guardan todos los archivos de migración de la base de datos. Cada archivo de migración contiene métodos para aplicar (`up`) y revertir (`down`) cambios en el esquema de tu base de datos, permitiendo un control de versiones del mismo.
     *   Ejemplo: `2023_10_27_100000_create_users_table.php`.
 
 *   **`models/`**: Contiene las clases de tus modelos. Los modelos representan la lógica de negocio y la interacción con la base de datos. En versaWYS-PHP, estos modelos a menudo extienden o interactúan con las funcionalidades ORM proporcionadas (por ejemplo, RedBeanPHP).
     *   Ejemplo: `Usuario.php`, `Producto.php`.
-
-*   **`routes/`**: En esta carpeta se definen los archivos que contienen las rutas de tu aplicación. Estos archivos mapean las URIs (endpoints) y los métodos HTTP (GET, POST, etc.) a acciones específicas de los controladores.
-    *   Ejemplo: `web.php`, `api.php`, o archivos más específicos como `usuariosRoutes.php`.
 
 *   **`seeders/`**: Contiene las clases de seeders. Los seeders se utilizan para poblar la base de datos con datos iniciales o de prueba, lo cual es útil para el desarrollo y las pruebas.
     *   Ejemplo: `DatabaseSeeder.php`, `UsuariosTableSeeder.php`.
