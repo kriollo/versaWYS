@@ -6,21 +6,18 @@ Comprender la estructura de directorios de un framework es fundamental para trab
 
 Estos son los directorios principales que encontrarás en la raíz de un proyecto versaWYS-PHP:
 
+* **`index.php`**: Este es el archivo de entrada de la aplicación. Es el único punto de entrada para todas las solicitudes HTTP a tu aplicación (front controller).
+
 *   **`app/`**: Este es el corazón de tu aplicación. Contiene la lógica específica de tu proyecto, incluyendo modelos, vistas, controladores, rutas, middleware, migraciones y seeders. La mayoría del trabajo de desarrollo se realiza dentro de esta carpeta.
 
-*   **`public/`**: Esta carpeta contiene el archivo `index.php`, que es el único punto de entrada para todas las solicitudes HTTP a tu aplicación (front controller). También es el lugar donde se almacenan los assets públicos como imágenes, hojas de estilo CSS compiladas, y archivos JavaScript del lado del cliente. Es el único directorio que debería ser accesible directamente desde el navegador web.
+*   **`public/`**: Esta carpeta contiene todos los assets y archivos de la interfaz de usuario, como imágenes, hojas de estilo CSS compiladas, y archivos JavaScript del lado del cliente. Es el único directorio que debería ser accesible directamente desde el navegador web.
 
-*   **`versaWYS/`**: Contiene el código fuente del núcleo del framework versaWYS-PHP. Generalmente, no necesitarás modificar archivos dentro de esta carpeta a menos que estés contribuyendo al desarrollo del propio framework. Incluye subdirectorios como `kernel/` que aloja los componentes centrales.
-
-*   **`vendor/`**: Esta carpeta es gestionada por Composer, el manejador de dependencias para PHP. Contiene todas las bibliotecas y paquetes de terceros de los que depende tu proyecto y el framework versaWYS-PHP. No debes modificar directamente los archivos en esta carpeta, ya que se sobrescribirán con las actualizaciones de Composer.
+*   **`versaWYS/`**: Contiene el código fuente del núcleo del framework versaWYS-PHP. Generalmente, no necesitarás modificar archivos dentro de esta carpeta a menos que estés contribuyendo al desarrollo del propio framework. Incluye subdirectorios como `kernel/` que aloja los componentes centrales del framework y `vendor/` que es gestionada por Composer, el manejador de dependencias para PHP. Contiene todas las bibliotecas y paquetes de terceros de los que depende tu proyecto y el framework versaWYS-PHP. No debes modificar directamente los archivos en esta carpeta, ya que se sobrescribirán con las actualizaciones de Composer.
 
 *   **`documentacion/`**: Aquí es donde reside toda la documentación del proyecto, incluyendo la que estás leyendo ahora. Contiene archivos Markdown que explican cómo usar el framework, su API, y otros aspectos relevantes.
 
 *   **`versaCLI`**: (Archivo) Es el script ejecutable para la interfaz de línea de comandos de versaWYS-PHP. Se utiliza para tareas como generar código, ejecutar migraciones, etc.
 
-*   **`composer.json`**: (Archivo) Define las dependencias del proyecto para Composer, así como otra metainformación del proyecto.
-
-*   **`composer.lock`**: (Archivo) Registra las versiones exactas de las dependencias que están instaladas. Asegura que todos los desarrolladores y entornos utilicen las mismas versiones de los paquetes.
 
 ## Detalle del Directorio `app/`
 
