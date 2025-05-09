@@ -91,23 +91,75 @@ Por ejemplo, podrías tener:
 
 Estos archivos de rutas son luego cargados por el framework, usualmente en un punto central de la aplicación (como en el `index.php` o un archivo de bootstrap) para que el `Router` conozca todas las rutas disponibles.
 
-## Organización Avanzada de Rutas (Prefijos, Agrupación de Middlewares, Nombres)
+## Agrupación de Rutas con `Router::group`
 
-Muchos frameworks modernos ofrecen características para organizar rutas de manera más avanzada, como la agrupación de rutas bajo un prefijo común (ej. todas las rutas de administración bajo `/admin/...`), la aplicación de un conjunto de middlewares a un grupo entero de rutas, o la asignación de nombres únicos a las rutas para facilitar la generación de URLs. Para más información sobre middlewares, consulta la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md) y la [Guía de Seguridad](./Seguridad_Principios_Basicos.md).
+A partir de la versión 2025.05, versaWYS-PHP soporta la agrupación de rutas mediante el método `Router::group`. Esta funcionalidad permite definir un conjunto de rutas bajo un mismo prefijo y/o aplicar un conjunto de middlewares a todas ellas de forma sencilla y centralizada.
 
-En la versión actual del `Router` de versaWYS-PHP:
+### ¿Para qué sirve?
+- **Prefijos comunes:** Agrupa rutas bajo un segmento de URL compartido (por ejemplo, `/admin`, `/api`, `/bot`).
+- **Middlewares compartidos:** Aplica uno o varios middlewares a todas las rutas del grupo, evitando repeticiones.
+- **Organización:** Mejora la legibilidad y el mantenimiento de tus archivos de rutas.
 
-*   **Agrupación de Rutas (Prefijos)**: No existe un método nativo como `Router::group(['prefix' => 'admin'], function() { ... })`. Si deseas organizar tus rutas con prefijos, deberás incluirlos manualmente en cada definición de ruta:
-    ```php
-    Router::get('/admin/users', [AdminUsersController::class, 'index']);
-    Router::get('/admin/posts', [AdminPostsController::class, 'index']);
-    ```
+### Sintaxis básica
+```php
+Router::group('/prefijo', function() {
+    // Aquí defines las rutas del grupo
+    Router::get('/ruta1', ...);
+    Router::post('/ruta2', ...);
+    // ...
+}, [
+    [Middleware1::class, 'metodo'],
+    [Middleware2::class, 'metodo'],
+]);
+```
+- El primer argumento es el prefijo de ruta (se antepone a todas las rutas del grupo).
+- El segundo argumento es una función anónima donde defines las rutas.
+- El tercer argumento (opcional) es un array de middlewares que se aplicarán a todas las rutas del grupo.
 
-*   **Agrupación de Middlewares**: De forma similar, no hay una forma nativa de aplicar un middleware a un grupo de rutas con una sola declaración. Los middlewares deben aplicarse a cada ruta individualmente usando el método `->middleware()` encadenado (ver sección de Middlewares). Si varias rutas comparten el mismo conjunto de middlewares, tendrás que repetir esta llamada.
+### Ejemplo práctico: Agrupando rutas de un bot
+Supongamos que tienes un bot de WhatsApp y quieres agrupar todas sus rutas bajo `/bot`, aplicando un middleware de autenticación a todas ellas:
 
-*   **Nombrado de Rutas y Generación de URLs**: El sistema de enrutamiento actual no incluye una funcionalidad para asignar nombres a las rutas (ej. `->name('profile.show')`) ni para generar URLs a partir de dichos nombres. Cuando necesites generar una URL para una ruta específica en tu aplicación (por ejemplo, en plantillas Twig o en redirecciones desde un controlador), deberás construir la URL manualmente utilizando el path completo de la ruta.
+```php
+<?php
+use versaWYS\kernel\Router;
+use app\controllers\AppBotController;
+use app\middleware\AuthMiddleware;
 
-Aunque estas características de agrupación y nombrado no estén automatizadas, puedes mantener tus archivos de rutas organizados utilizando comentarios, una estructura de archivos lógica y convenciones de nombrado para simular agrupaciones y facilitar la comprensión y el mantenimiento.
+Router::group('/bot', function() {
+    // Ruta para recibir webhooks de WhatsApp
+    Router::post('/webhook', [AppBotController::class, 'handleWebhook']);
+    // Ruta para consultar el estado del bot
+    Router::get('/status', [AppBotController::class, 'status']);
+    // Ruta para enviar un mensaje desde el panel
+    Router::post('/send', [AppBotController::class, 'sendMessage']);
+}, [
+    [AuthMiddleware::class, 'protectedRoute'] // Todas las rutas requieren autenticación
+]);
+```
+
+En este ejemplo:
+- Todas las rutas tendrán el prefijo `/bot` (por ejemplo, `/bot/webhook`, `/bot/status`).
+- Todas las rutas estarán protegidas por el middleware `AuthMiddleware::protectedRoute`.
+- Puedes seguir usando middlewares adicionales en rutas individuales si lo necesitas.
+
+### Middlewares adicionales por ruta
+Si necesitas aplicar un middleware extra a una ruta específica dentro del grupo, simplemente pásalo como argumento en la definición de la ruta:
+
+```php
+Router::get('/status', [WhatsAppBotController::class, 'status'], [
+    [OtroMiddleware::class, 'soloAdmins']
+]);
+```
+O
+```php
+Router::get('/status', [WhatsAppBotController::class, 'status'])
+    ->middleware([[OtroMiddleware::class, 'soloAdmins']]);
+```
+
+
+En este caso, la ruta `/bot/status` ejecutará primero los middlewares del grupo y luego el middleware adicional `soloAdmins`.
+
+---
 
 ## La Clase `Request` (`versaWYS\kernel\Request`)
 
