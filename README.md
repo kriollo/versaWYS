@@ -1,6 +1,18 @@
 # versaWYS-PHP
 
-Bienvenido a versaWYS-PHP, un framework PHP moderno, ligero y robusto para el desarrollo ágil de aplicaciones web y APIs.
+**Framework PHP moderno, ligero y robusto para desarrollo ágil de aplicaciones web y APIs.**
+
+## ¿Qué ofrece versaWYS-PHP?
+
+- **Arquitectura MVC** clara y flexible para proyectos de cualquier tamaño.
+- **Enrutamiento avanzado** con soporte para agrupación de rutas, middlewares y parámetros dinámicos.
+- **ORM integrado (RedBeanPHP)** para trabajar con bases de datos de forma sencilla y segura.
+- **Sistema de plantillas Twig** para vistas elegantes y seguras.
+- **CLI potente (versaCLI)** para generación de código, migraciones, seeders y automatización de tareas.
+- **Seguridad integrada**: protección CSRF, XSS, control de sesiones y middlewares personalizables.
+- **Frontend moderno** listo para Vue.js, TailwindCSS y assets compilados automáticamente.
+- **Estructura modular** y documentación completa para crecer y mantener tu proyecto fácilmente.
+- **Curva de aprendizaje suave**: ideal para quienes buscan productividad sin sacrificar buenas prácticas.
 
 ## Documentación
 
