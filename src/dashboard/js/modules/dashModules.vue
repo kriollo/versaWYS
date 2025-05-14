@@ -1,16 +1,20 @@
 <script setup lang="ts">
     import modulesForm from '@/dashboard/js/modules/modulesForm.vue';
     import modulesList from '@/dashboard/js/modules/modulesList.vue';
-    import { provide, reactive } from 'vue';
+    import { reactive } from 'vue';
 
+    import {
+        type ShowModalForm,
+        ShowModalFormInjection,
+    } from '@/dashboard/js/modules/InjectKeys';
     import type { AccionData, actionsType } from 'versaTypes';
 
-    const showModalForm = reactive({
+    const showModalForm = reactive<ShowModalForm>({
         showModalForm: false,
         itemSelected: null,
         action: '',
     });
-    provide('showModalForm', showModalForm);
+    ShowModalFormInjection.provide(showModalForm);
 
     const accion = (accion: AccionData) => {
         const actions: actionsType = {

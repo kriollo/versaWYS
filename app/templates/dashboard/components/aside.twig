@@ -83,7 +83,8 @@
 		</ul>
 
 		<div class="pt-2">
-			{% if current_user.role =='admin' %}
+			{% if current_user.role =='admin' or current_user.role =='superadmin'	 %}
+
 				<ul>
 					<li id="liDropDownUser" class="group/liDropDownUser hover:ml-4 hover:bg-gray-100 text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg w-full transform ease-in-out duration-300 flex">
 						<a href="/admin/usuarios" class="flex p-2 w-full">
@@ -107,18 +108,19 @@
 							Perfiles
 						</span>
 					</li>
-					<li id="liDropDownModulos" class="group/liDropDownUser hover:ml-4 hover:bg-gray-100 text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg w-full transform ease-in-out duration-300 flex">
-						<a href="/admin/modulesRoutes" class="flex p-2 w-full">
-							<svg class="flex-shrink-0 w-6 h-6 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24" strokewidth="{1.5}">
-								<path fill-rule="evenodd" d="M4.857 3A1.857 1.857 0 0 0 3 4.857v4.286C3 10.169 3.831 11 4.857 11h4.286A1.857 1.857 0 0 0 11 9.143V4.857A1.857 1.857 0 0 0 9.143 3H4.857Zm10 0A1.857 1.857 0 0 0 13 4.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 21 9.143V4.857A1.857 1.857 0 0 0 19.143 3h-4.286Zm-10 10A1.857 1.857 0 0 0 3 14.857v4.286C3 20.169 3.831 21 4.857 21h4.286A1.857 1.857 0 0 0 11 19.143v-4.286A1.857 1.857 0 0 0 9.143 13H4.857Zm10 0A1.857 1.857 0 0 0 13 14.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 21 19.143v-4.286A1.857 1.857 0 0 0 19.143 13h-4.286Z" clip-rule="evenodd"/>
-							</svg>
-							<span class="ml-3 hidden" sidebar-toggle-item>Módulos</span>
-						</a>
-						<span class="hidden text-dark dark:text-white group-hover/liDropDownUser:flex left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2">
-							Módulos
-						</span>
-					</li>
-					{% if config['build']['debug'] == '1' %}
+					{% if config['build']['debug'] == '1' and current_user.role =='superadmin' %}
+
+						<li id="liDropDownModulos" class="group/liDropDownUser hover:ml-4 hover:bg-gray-100 text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg w-full transform ease-in-out duration-300 flex">
+							<a href="/admin/modulesRoutes" class="flex p-2 w-full">
+								<svg class="flex-shrink-0 w-6 h-6 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24" strokewidth="{1.5}">
+									<path fill-rule="evenodd" d="M4.857 3A1.857 1.857 0 0 0 3 4.857v4.286C3 10.169 3.831 11 4.857 11h4.286A1.857 1.857 0 0 0 11 9.143V4.857A1.857 1.857 0 0 0 9.143 3H4.857Zm10 0A1.857 1.857 0 0 0 13 4.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 21 9.143V4.857A1.857 1.857 0 0 0 19.143 3h-4.286Zm-10 10A1.857 1.857 0 0 0 3 14.857v4.286C3 20.169 3.831 21 4.857 21h4.286A1.857 1.857 0 0 0 11 19.143v-4.286A1.857 1.857 0 0 0 9.143 13H4.857Zm10 0A1.857 1.857 0 0 0 13 14.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 21 19.143v-4.286A1.857 1.857 0 0 0 19.143 13h-4.286Z" clip-rule="evenodd"/>
+								</svg>
+								<span class="ml-3 hidden" sidebar-toggle-item>Módulos</span>
+							</a>
+							<span class="hidden text-dark dark:text-white group-hover/liDropDownUser:flex left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2">
+								Módulos
+							</span>
+						</li>
 						<li id="liDropDownModulos" class="group/liDropDownUser hover:ml-4 hover:bg-gray-100 text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg w-full transform ease-in-out duration-300 flex">
 							<a href="/doc" class="flex p-2 w-full">
 								<svg class="flex-shrink-0 w-6 h-6 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewbox="0 0 24 24" strokewidth="{1.5}">

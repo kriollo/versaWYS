@@ -326,7 +326,7 @@ class Request
         }
 
         // Comprobación por encabezado Accept, común para APIs RESTful
-        if (str_contains($acceptHeader, 'application/json') || str_contains($acceptHeader, 'application/xml')) {
+        if (str_contains($acceptHeader, 'application/json')) {
             return true;
         }
 

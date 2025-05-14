@@ -104,7 +104,7 @@ class ModulesController extends GlobalControllers
                         'class' => [
                             'condition_field' => 'submenu',
                             'condition_value' => '1',
-                            'active' => 'bg-gray-500 hover:bg-gray-600 dark:bg-gray-500 dark:hover:bg-gray-600',
+                            'active' => 'bg-gray-200 hover:bg-gray-600 dark:bg-gray-500 dark:hover:bg-gray-600',
                             'inactive' => 'text-gray-400 dark:text-gray-400',
                         ],
                         'action' => 'viewSubmenus',

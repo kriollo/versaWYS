@@ -380,3 +380,21 @@ export const showTimingForHumans = timing => {
         return `${timing / 3600000} h`;
     }
 };
+
+/**
+ * Sanitize the module path to prevent directory traversal attacks.
+ * @param {string} module - The module path to sanitize.
+ * @returns {string} - The sanitized module path.
+ */
+export const sanitizeModulePath = (module: string): string => {
+    return module
+        .replace(/\.\.\//g, '') // Eliminar ".."
+        .replace(/\/+/g, '/') // Normalizar barras
+        .replace(/[^a-zA-Z0-9/_-]/g, ''); // Eliminar caracteres no permitidos
+};
+
+type ModuleName = string & { __brand: 'ModuleName' };
+export function isValidModuleName(module: string): module is ModuleName {
+    const MODULE_NAME_REGEX = /^(?:@\/)?[a-zA-Z0-9][a-zA-Z0-9/_-]*[a-zA-Z0-9]$/;
+    return MODULE_NAME_REGEX.test(module);
+}

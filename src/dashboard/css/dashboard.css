@@ -1,23 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* feed styles */
+/* Define los colores de fondo base para tus temas claro y oscuro. */
+:root {
+    --page-background-light: #ffffff;
+    /* Ejemplo: color de fondo para el tema claro */
+    --page-background-dark: #111827;
+    /* Ejemplo: color de fondo para el tema oscuro (Tailwind bg-gray-900) */
+}
 
+/* Aplica el color de fondo base y el esquema de color */
+html {
+    background-color: var(--page-background-light);
+    color-scheme: light;
+}
+
+html.dark {
+    background-color: var(--page-background-dark);
+    color-scheme: dark;
+}
+
+/* --- Transiciones de Vista --- */
+
+/* Habilitar transiciones automáticas para navegación SPA (si aplica) o MPA */
 @view-transition {
     navigation: auto;
 }
 
-::view-transition-old(root) {
-    animation-name: fadeOut;
-    animation-duration: 0.5s;
-}
-
-::view-transition-new(root) {
-    animation-name: fadeIn;
-    animation-duration: 0.5s;
-}
-
+/* Keyframes (sin cambios) */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -36,6 +49,42 @@
     to {
         opacity: 0;
     }
+}
+
+@keyframes reveal-from-top {
+    from {
+        clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+    }
+
+    to {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+}
+
+/* Transiciones de NAVEGACIÓN (fundido por defecto) */
+/* Estas se aplicarán si no hay una clase .theme-transition en el html */
+::view-transition-old(root) {
+    animation: fadeOut 0.25s ease-out forwards; /* Duración más corta y mantener estado final */
+}
+
+::view-transition-new(root) {
+    animation: fadeIn 0.4s ease-in; /* Un poco más largo para la entrada */
+}
+
+/* Transiciones de CAMBIO DE TEMA (barrido) */
+html.theme-transition::view-transition-old(root) {
+    animation: none;
+    /* Sin animación de salida para el tema antiguo */
+}
+
+html.theme-transition::view-transition-new(root) {
+    animation: 0.5s ease-in-out reveal-from-top;
+    /* Barrido para el nuevo tema */
+}
+
+/* Importante: Asegura que el grupo de transición tenga un fondo coherente */
+::view-transition-group(root) {
+    background: inherit;
 }
 
 body {
@@ -63,11 +112,7 @@ body {
 /* Otros navegadores (Firefox) */
 html {
     scrollbar-color: rgb(31 41 55 / var(--tw-bg-opacity)) #f1f1f19f;
-}
-
-/* Otra forma de personalizar en Firefox */
-html {
-    scrollbar-color: rgb(31 41 55 / var(--tw-bg-opacity)) transparent;
+    /* thumb-color track-color */
 }
 
 @media (min-width: 1280px) {
@@ -147,7 +192,6 @@ html {
 .colored-toast .swal2-html-container {
     color: white;
 }
-
 
 /* scroll */
 /* width */

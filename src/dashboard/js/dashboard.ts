@@ -20,31 +20,44 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
     const $themeToggleBtn = $dom('#theme-toggle');
     if ($themeToggleBtn) {
         const event = new Event('dark-mode');
-        $themeToggleBtn.addEventListener('click', function () {
-            // toggle icons
-            $themeToggleDarkIcon.classList.toggle('hidden');
-            $themeToggleLightIcon.classList.toggle('hidden');
 
-            // if set via local storage previously
-            if (localStorage.getItem('color-theme')) {
-                if (localStorage.getItem('color-theme') === 'light') {
-                    document.documentElement.classList.add('dark');
-                    localStorage.setItem('color-theme', 'dark');
-                } else {
+        $themeToggleBtn.addEventListener('click', function () {
+            const updateThemeState = () => {
+                const isCurrentlyDark =
+                    document.documentElement.classList.contains('dark');
+
+                if (isCurrentlyDark) {
                     document.documentElement.classList.remove('dark');
                     localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
                 }
 
-                // if NOT set via local storage previously
-            } else if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('color-theme', 'light');
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('color-theme', 'dark');
-            }
+                // Alternar iconos
+                $themeToggleDarkIcon.classList.toggle('hidden');
+                $themeToggleLightIcon.classList.toggle('hidden');
 
-            document.dispatchEvent(event);
+                document.dispatchEvent(event);
+            };
+
+            if (!document.startViewTransition) {
+                updateThemeState();
+            } else {
+                // Añadir una clase para indicar que es una transición de tema
+                document.documentElement.classList.add('theme-transition');
+
+                const transition = document.startViewTransition(() => {
+                    updateThemeState();
+                });
+
+                // Limpiar la clase después de que la transición termine
+                transition.finished.finally(() => {
+                    document.documentElement.classList.remove(
+                        'theme-transition',
+                    );
+                });
+            }
         });
     }
 }

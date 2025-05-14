@@ -1,10 +1,12 @@
 <script setup lang="ts">
     import customTable from '@/dashboard/js/components/customTable.vue';
-    import { versaFetch, VersaToast } from '@/dashboard/js/functions';
-    import listSubModules from '@/dashboard/js/modules/listSubModules.vue';
-    import Swal from 'sweetalert2';
-    import { inject, ref, type Reactive } from 'vue';
+    import subModulesList from '@/dashboard/js/modules/subModulesList.vue';
 
+    import { versaFetch, VersaToast } from '@/dashboard/js/functions';
+    import Swal from 'sweetalert2';
+    import { inject, ref } from 'vue';
+
+    import { ShowModalFormInjection } from '@/dashboard/js/modules/InjectKeys';
     import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
 
     const externalFilters = ref('');
@@ -12,12 +14,7 @@
     const refreshTable = ref(false);
     const showModalSubMenu = ref(false);
 
-    type ShowModalForm = {
-        showModalForm: boolean;
-        itemSelected: any;
-        action: string;
-    };
-    const showModalForm = inject('showModalForm') as Reactive<ShowModalForm>;
+    const showModalForm = ShowModalFormInjection.inject();
 
     const csrf_token = inject<string>('csrf_token');
 
@@ -121,6 +118,7 @@
     <div>
         <customTable
             id="modulesTable"
+            key="modulesTable"
             :externalFilters="externalFilters"
             :refreshData="refreshTable"
             @accion="accion"
@@ -174,7 +172,7 @@
                 </div>
             </template>
         </customTable>
-        <listSubModules
+        <subModulesList
             :showModal="showModalSubMenu"
             @accion="accion"
             :idModule="Number(idModuleSelected)" />

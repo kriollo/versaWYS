@@ -8,16 +8,12 @@
     } from '@/dashboard/js/functions';
     import { html } from 'P@/vendor/code-tag/code-tag-esm';
     import Swal from 'sweetalert2';
-    import { inject, onWatcherCleanup, ref, watch, type Reactive } from 'vue';
+    import { inject, onWatcherCleanup, ref, watchEffect } from 'vue';
 
+    import { ShowModalFormInjection } from '@/dashboard/js/modules/InjectKeys';
     import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
 
-    type ShowModalForm = {
-        showModalForm: boolean;
-        itemSelected: any;
-    };
-
-    const showModalForm = inject('showModalForm') as Reactive<ShowModalForm>;
+    const showModalForm = ShowModalFormInjection.inject();
     const csrf_token = inject<string>('csrf_token');
     const showModal = ref(false);
     const newModule = {
@@ -34,35 +30,34 @@
 
     const localFormData = ref(JSON.parse(JSON.stringify(newModule)));
 
-    watch(
-        () => showModalForm,
-        value => {
-            if (value.showModalForm) {
-                showModal.value = value.showModalForm;
-                localFormData.value = JSON.parse(
-                    JSON.stringify(
-                        value.itemSelected ? value.itemSelected : newModule,
-                    ),
+    watchEffect(() => {
+        if (showModalForm.showModalForm) {
+            showModal.value = showModalForm.showModalForm;
+            localFormData.value = JSON.parse(
+                JSON.stringify(
+                    showModalForm.itemSelected
+                        ? showModalForm.itemSelected
+                        : newModule,
+                ),
+            );
+            if (showModalForm.itemSelected) {
+                localFormData.value.action = 'edit';
+                localFormData.value.icono = removeScape(
+                    showModalForm.itemSelected.icono,
                 );
-                if (value.itemSelected) {
-                    localFormData.value.action = 'edit';
-                    localFormData.value.icono = removeScape(
-                        value.itemSelected.icono,
-                    );
-                    localFormData.value.fill = value.itemSelected.fill === '1';
-                    localFormData.value.estado =
-                        value.itemSelected?.estado === '1';
-                    localFormData.value.csrf_token = csrf_token;
-                }
+                localFormData.value.fill =
+                    showModalForm.itemSelected.fill === '1';
+                localFormData.value.estado =
+                    showModalForm.itemSelected?.estado === '1';
+                localFormData.value.csrf_token = csrf_token;
             }
+        }
 
-            onWatcherCleanup(() => {
-                showModal.value = false;
-                localFormData.value = JSON.parse(JSON.stringify(newModule));
-            });
-        },
-        { deep: true },
-    );
+        onWatcherCleanup(() => {
+            showModal.value = false;
+            localFormData.value = JSON.parse(JSON.stringify(newModule));
+        });
+    });
 
     const saveModule = async () => {
         const params = {
@@ -135,7 +130,7 @@
         <template v-slot:modalTitle>
             <div class="flex justify-between">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                    Modulo
+                    Módulo
                 </h3>
 
                 <div class="float-left">

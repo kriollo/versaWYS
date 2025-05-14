@@ -1,9 +1,16 @@
-import { type InjectionKey, inject } from 'vue';
-
-export const injectStrict = <T>(key: InjectionKey<T>, _fallback?: T): T => {
-    const resolved = inject(key);
-    if (!resolved) {
-        throw new Error(`injection "${String(key)}" not found`);
-    }
-    return resolved;
-};
+import { type InjectionKey, inject, provide } from 'vue';
+export function createInjection<T>(keyDesc: string) {
+    const key: InjectionKey<T> = Symbol(keyDesc);
+    return {
+        key,
+        provide: (value: T) => provide(key, value),
+        inject: () => {
+            const injected = inject(key);
+            if (!injected) {
+                throw new Error(`[Injection] "${keyDesc}" not provided`);
+            }
+            return injected;
+        },
+        tryInject: () => inject(key), // versión opcional que puede ser null
+    };
+}

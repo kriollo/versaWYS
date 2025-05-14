@@ -71,7 +71,7 @@
 							</g>
 						</svg>
 					</span>
-					<input type="password" name="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900  sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required/>
+					<input type="password" name="password" id="password" placeholder="••••••••" autocomplete="off" class="bg-gray-50 border border-gray-300 text-gray-900  sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required/>
 				</div>
 				<div>
 					<label for="perfil" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -83,15 +83,16 @@
 						{% endfor %}
 					</select>
 				</div>
-				<div class="flex items-start">
-					<div class="flex items-center h-5">
-						<input id="rol" aria-describedby="rol" name="rol" type="checkbox" class="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600" required {{ user['role'] == 'admin' ? 'checked' : '' }}/>
-					</div>
-					<div class="ml-3 text-sm">
-						<label for="rol" class="font-medium text-gray-900 dark:text-white">
-							Administrador
-						</label>
-					</div>
+				<div>
+					<label for="rol" class="block mb-2 font-medium text-gray-900 dark:text-white">
+						rol
+					</label>
+					<select name="rol" id="rol" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+						<option value="user" {{ user['role'] == 'user' ? 'selected' : '' }}>Usuario</option>
+						<option value="admin" {{ user['role'] == 'admin' ? 'selected' : '' }}>Administrador</option>
+						<option value="superadmin" {{ user['role'] == 'superadmin' ? 'selected' : '' }}>Super Administrador</option>
+					</select>
+
 				</div>
 				<button type="button" id="btnAddUser" class="w-full px-5 py-3 text-base font-medium text-center text-white bg-primary-700 rounded-lg hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
 					Guardar Usuario

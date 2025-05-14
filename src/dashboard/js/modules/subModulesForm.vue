@@ -2,11 +2,13 @@
     import modal from '@/dashboard/js/components/modal.vue';
     import { versaAlert, versaFetch } from '@/dashboard/js/functions';
     import { html } from 'P@/vendor/code-tag/code-tag-esm';
-    import { inject, onWatcherCleanup, ref, watch } from 'vue';
+    import { inject, onWatcherCleanup, ref, watchEffect } from 'vue';
 
+    import { ShowModalSubFormInjection } from '@/dashboard/js/modules/InjectKeys';
     import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
 
-    const showModalSubForm = inject<ShowModalSubForm>('ShowModalSubForm');
+
+    const showModalSubForm = ShowModalSubFormInjection.inject();
     const csrf_token = inject<string>('csrf_token');
     const id_menu = inject<string>('id_menu');
 
@@ -23,32 +25,30 @@
 
     const localFormData = ref(JSON.parse(JSON.stringify(newModule)));
 
-    watch(
-        () => showModalSubForm,
-        value => {
-            if (value.ShowModalSubForm) {
-                showModal.value = value.ShowModalSubForm;
-                localFormData.value = JSON.parse(
-                    JSON.stringify(
-                        value.itemSelected ? value.itemSelected : newModule,
-                    ),
-                );
-                localFormData.value.id_menu = id_menu;
-                if (value.itemSelected) {
-                    localFormData.value.action = 'edit';
-                    localFormData.value.estado =
-                        value.itemSelected?.estado === '1';
-                    localFormData.value.csrf_token = csrf_token;
-                }
+    watchEffect(() => {
+        if (showModalSubForm.showModalSubForm) {
+            showModal.value = showModalSubForm.showModalSubForm;
+            localFormData.value = JSON.parse(
+                JSON.stringify(
+                    showModalSubForm.itemSelected
+                        ? showModalSubForm.itemSelected
+                        : newModule,
+                ),
+            );
+            localFormData.value.id_menu = id_menu;
+            if (showModalSubForm.itemSelected) {
+                localFormData.value.action = 'edit';
+                localFormData.value.estado =
+                    showModalSubForm.itemSelected?.estado === '1';
+                localFormData.value.csrf_token = csrf_token;
             }
+        }
 
-            onWatcherCleanup(() => {
-                showModal.value = false;
-                localFormData.value = JSON.parse(JSON.stringify(newModule));
-            });
-        },
-        { deep: true },
-    );
+        onWatcherCleanup(() => {
+            showModal.value = false;
+            localFormData.value = JSON.parse(JSON.stringify(newModule));
+        });
+    });
 
     const saveModule = async () => {
         const params = {
@@ -91,8 +91,8 @@
     const accion = (accion: AccionData) => {
         const actions: actionsType = {
             closeModal: () => {
-                ShowModalSubForm.ShowModalSubForm = false;
-                ShowModalSubForm.itemSelected = null;
+                showModalSubForm.showModalSubForm = false;
+                showModalSubForm.itemSelected = null;
             },
             default: () => console.log('Accion no encontrada'),
         };
@@ -106,12 +106,12 @@
     <modal
         :showModal="showModal"
         @accion="accion"
-        idModal="modalFormModule"
+        idModal="modalFormSubModules"
         size="max-w-xl">
         <template v-slot:modalTitle>
             <div class="flex justify-between">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                    Sub Modulo
+                    Sub Módulo
                 </h3>
 
                 <div class="float-left">
