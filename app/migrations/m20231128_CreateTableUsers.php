@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace app\migrations;
 
-use RedBeanPHP\R;
+use versaWYS\kernel\RedBeanCnn;
 
-class m20231128_CreateTableUsers
+class m20231128_CreateTableUsers extends RedBeanCnn
 {
-    public static function up(): array
+    public function up(): array
     {
         try {
-            R::exec("CREATE TABLE `versausers` (
+            $this->exec("CREATE TABLE `versausers` (
                 `id` int(11) NOT NULL AUTO_INCREMENT,
                 `tokenid` varchar(255) NOT NULL,
                 `name` varchar(255) NOT NULL,
@@ -36,10 +36,10 @@ class m20231128_CreateTableUsers
         }
     }
 
-    public static function down(): array
+    public function down(): array
     {
         try {
-            R::exec('DROP TABLE `versausers`;');
+            $this->exec('DROP TABLE `versausers`;');
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
         } catch (\Exception $e) {

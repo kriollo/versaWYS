@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace app\migrations;
 
-use RedBeanPHP\R;
+use versaWYS\kernel\RedBeanCnn;
 
-class m20240128160458_submenu
+class m20240128160458_submenu extends RedBeanCnn
 {
-    public static function up()
+    public function up()
     {
         try {
-            R::exec("CREATE TABLE IF NOT EXISTS `versasubmenu` (
+            $this->exec("CREATE TABLE IF NOT EXISTS `versasubmenu` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
                 `id_menu` INT(11) NOT NULL,
                 `nombre` VARCHAR(255) NOT NULL,
@@ -37,10 +37,10 @@ class m20240128160458_submenu
         }
     }
 
-    public static function down()
+    public function down()
     {
         try {
-            R::exec('DROP TABLE IF EXISTS `versasubmenu`;');
+            $this->exec('DROP TABLE IF EXISTS `versasubmenu`;');
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
         } catch (\Exception $e) {

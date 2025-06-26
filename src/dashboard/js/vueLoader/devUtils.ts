@@ -1,28 +1,24 @@
-import { $dom } from '@/dashboard/js/composables/dom';
 import { html } from 'code-tag';
+
+import { $dom } from '@/dashboard/js/composables/dom';
 
 /**
  * Manejar errores durante la carga del módulo.
  * @param {any} error - El error ocurrido.
  * @param {string} module - El módulo que causó el error.
  */
-export function handleError(
-    error: any,
+const handleError = (
+    error: unknown,
     module: string,
     container: HTMLElement,
-): void {
+): void => {
     const errorMessage =
         error instanceof Error ? error.message : 'Error desconocido';
     const moduleInfo = module ? `Módulo: ${module}` : 'Módulo no especificado';
     const safeMessage = `${moduleInfo}<br>${errorMessage}`
-        .replace(/</g, '<')
-        .replace(/>/g, '>');
-    let finalContent: HTMLElement;
-    if (!container) {
-        finalContent = $dom('body') as HTMLElement;
-    } else {
-        finalContent = container;
-    }
+        .replaceAll('<', '<')
+        .replaceAll('>', '>');
+    const finalContent: HTMLElement = container || ($dom('body') as HTMLElement);
 
     // Mostrar mensaje de error en el contenedor
     finalContent.textContent = ''; // Limpiar contenido previo
@@ -45,13 +41,15 @@ export function handleError(
     );
 
     console.error('[Module Loader]', error);
-}
-export function handleHMRError(errorMessage: string, trace: any): void {
+};
+const handleHMRError = (errorMessage: string, trace: unknown): void => {
     const safeMessage = `${errorMessage}`
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
     // Escapa también la variable 'trace'
-    const safeTrace = `${trace}`.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const safeTrace = `${trace}`
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
 
     let ErrorContainer = $dom('#error-container');
     if (!ErrorContainer) {
@@ -64,7 +62,7 @@ export function handleHMRError(errorMessage: string, trace: any): void {
             'right-0',
             'z-50',
         );
-        document.body.appendChild(ErrorContainer);
+        document.body.append(ErrorContainer);
 
         ErrorContainer.insertAdjacentHTML(
             'beforeend',
@@ -73,12 +71,20 @@ export function handleHMRError(errorMessage: string, trace: any): void {
                     class="p-4 bg-orange-400 dark:bg-orange-500 text-orange-900 dark:text-orange-100">
                     <h2 class="text-xl font-bold">VERSA ERROR</h2>
                 </div>
-                <div id="error-container"></div>
+                <div
+                    id="error-container"
+                    style="overflow: auto; max-height: 600px;"></div>
             `,
         );
     }
     const error = $dom('#error-container');
-    if (ErrorContainer.hasAttribute('hidden')) error.innerHTML = '';
+    if (!error) {
+        console.error('Error container not found');
+        return;
+    }
+    if (ErrorContainer.hasAttribute('hidden')) {
+        error.innerHTML = '';
+    }
 
     // Mostrar mensaje de error en el contenedor (o área de notificación)
     error.insertAdjacentHTML(
@@ -90,4 +96,6 @@ export function handleHMRError(errorMessage: string, trace: any): void {
             </div>
         `,
     );
-}
+};
+
+export { handleError, handleHMRError };

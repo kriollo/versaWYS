@@ -1,16 +1,24 @@
 <script setup lang="ts">
-    import modal from '@/dashboard/js/components/modal.vue';
-    import { versaAlert, versaFetch } from '@/dashboard/js/functions';
-    import { html } from 'P@/vendor/code-tag/code-tag-esm';
+    import { html } from 'code-tag';
     import { inject, onWatcherCleanup, ref, watchEffect } from 'vue';
 
+    import modal from '@/dashboard/js/components/modal.vue';
+    import { versaAlert, versaFetch } from '@/dashboard/js/functions';
     import { ShowModalSubFormInjection } from '@/dashboard/js/modules/InjectKeys';
-    import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
+    import type {
+        AccionData,
+        actionsType,
+        VersaParamsFetch,
+    } from '@/dashboard/types/versaTypes';
 
+    import {
+        API_RESPONSE_CODES,
+        GLOBAL_CONSTANTS,
+    } from '@/dashboard/js/constants';
 
     const showModalSubForm = ShowModalSubFormInjection.inject();
     const csrf_token = inject<string>('csrf_token');
-    const id_menu = inject<string>('id_menu');
+    const id_menu = inject<number>('id_menu');
 
     const showModal = ref(false);
     const newModule = {
@@ -23,30 +31,29 @@
         csrf_token,
     };
 
-    const localFormData = ref(JSON.parse(JSON.stringify(newModule)));
+    const localFormData = ref({ ...newModule });
 
     watchEffect(() => {
         if (showModalSubForm.showModalSubForm) {
             showModal.value = showModalSubForm.showModalSubForm;
-            localFormData.value = JSON.parse(
-                JSON.stringify(
-                    showModalSubForm.itemSelected
-                        ? showModalSubForm.itemSelected
-                        : newModule,
-                ),
-            );
-            localFormData.value.id_menu = id_menu;
+            localFormData.value = {
+                ...(showModalSubForm.itemSelected &&
+                'object' === typeof showModalSubForm.itemSelected
+                    ? { ...newModule, ...showModalSubForm.itemSelected }
+                    : newModule),
+            };
+            localFormData.value.id_menu = id_menu ?? GLOBAL_CONSTANTS.ZERO;
             if (showModalSubForm.itemSelected) {
                 localFormData.value.action = 'edit';
                 localFormData.value.estado =
-                    showModalSubForm.itemSelected?.estado === '1';
+                    showModalSubForm.itemSelected.estado;
                 localFormData.value.csrf_token = csrf_token;
             }
         }
 
         onWatcherCleanup(() => {
             showModal.value = false;
-            localFormData.value = JSON.parse(JSON.stringify(newModule));
+            localFormData.value = { ...newModule };
         });
     });
 
@@ -58,7 +65,7 @@
         } as VersaParamsFetch;
 
         const response = await versaFetch(params);
-        if (response.success === 0) {
+        if (API_RESPONSE_CODES.ERROR === response.success) {
             const errores = html`
                 <ul
                     class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
@@ -97,7 +104,7 @@
             default: () => console.log('Accion no encontrada'),
         };
         const selectedAction = actions[accion.accion] || actions['default'];
-        if (typeof selectedAction === 'function') {
+        if ('function' === typeof selectedAction) {
             selectedAction();
         }
     };

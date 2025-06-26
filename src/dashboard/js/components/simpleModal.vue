@@ -14,7 +14,8 @@
 </docs>
 <script setup lang="ts">
     import { computed, ref } from 'vue';
-    type Props = {
+
+    interface Props {
         idModal: string;
         showModal: boolean;
         size?:
@@ -24,7 +25,7 @@
             | 'max-w-4xl'
             | 'max-w-7xl'
             | string;
-    };
+    }
 
     const props = withDefaults(defineProps<Props>(), {
         showModal: true,
@@ -35,7 +36,7 @@
     const showModal = computed(() => props.showModal);
     const idModal = computed(() => props.idModal);
     const size = computed(() => props.size);
-    const modal = ref(null);
+    const modal = ref(undefined);
 </script>
 <template>
     <div

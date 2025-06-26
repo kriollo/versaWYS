@@ -1,21 +1,97 @@
-import { html } from 'P@/vendor/code-tag/code-tag-esm.js';
+import { html } from 'code-tag';
 import Swal from 'sweetalert2';
-import type { VersaFetchResponse, VersaParamsFetch } from 'versaTypes';
+
+import {
+    DATE_FORMAT,
+    HTTP_STATUS,
+    MYSQL_BOOLEAN,
+    PAGINATION,
+    TIME_CONVERSIONS,
+    TIMEOUTS,
+} from '@/dashboard/js/constants';
+import type { VersaFetchResponse, VersaParamsFetch } from '@/dashboard/types/versaTypes.d';
+
+// Tipos para la conversión de datos
+type ConversionType = 'boolean' | 'number' | 'date' | 'string';
+
+interface FieldConversion {
+    key: string;
+    type: ConversionType;
+}
+
+/**
+ * Convierte los tipos de datos de un objeto según la configuración especificada
+ * @param data - El objeto con los datos crudos (ej. de MySQL)
+ * @param conversions - Array con las conversiones a aplicar [{ key: 'campo', type: 'boolean' }]
+ * @returns El objeto con los tipos convertidos
+ */
+export const convertDataTypes = <T = any>(data: any, conversions: FieldConversion[]): T => {
+    if (!data || typeof data !== 'object') {
+        return data as T;
+    }
+
+    // Si es un array, aplicar conversión a cada elemento
+    if (Array.isArray(data)) {
+        return data.map(item => convertDataTypes(item, conversions)) as T;
+    }
+
+    // Clonar el objeto para no mutar el original
+    const result = { ...data }; // Aplicar cada conversión
+    conversions.forEach(({ key, type }) => {
+        if (key in result) {
+            const value = result[key];
+            switch (type) {
+                case 'boolean':
+                    if (value === MYSQL_BOOLEAN.TRUE_STRING || value === MYSQL_BOOLEAN.TRUE_NUMBER) {
+                        result[key] = true;
+                    } else if (value === MYSQL_BOOLEAN.FALSE_STRING || value === MYSQL_BOOLEAN.FALSE_NUMBER) {
+                        result[key] = false;
+                    } else if (typeof value === 'string') {
+                        result[key] = value.toLowerCase() === 'true';
+                    }
+                    break;
+
+                case 'number': {
+                    const numValue = typeof value === 'string' ? Number.parseFloat(value) : Number(value);
+                    result[key] = Number.isNaN(numValue) ? value : numValue;
+                    break;
+                }
+
+                case 'date':
+                    if (value && typeof value === 'string') {
+                        const dateValue = new Date(value);
+                        result[key] = Number.isNaN(dateValue.getTime()) ? value : dateValue;
+                    }
+                    break;
+
+                case 'string':
+                    result[key] = String(value);
+                    break;
+
+                default:
+                    // No hacer nada si el tipo no es reconocido
+                    break;
+            }
+        }
+    });
+
+    return result as T;
+};
+
 const loadSwallCss = () => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = 'P@/vendor/sweetalert2/sweetalert2.dark.min.css';
-    document.head.appendChild(link);
+    document.head.append(link);
 };
-
 loadSwallCss();
 
-const errorMap = new Map([
+const errorMap = new Map<number, string>([
     // [400, 'El Servidor no pudo procesar la solicitud'],
     // [401, 'No está autorizado para acceder a este recurso'],
     // [403, 'No tiene permisos para realizar esta acción'],
-    [404, 'Recurso no encontrado'],
-    [500, 'Error interno del servidor'],
+    [HTTP_STATUS.NOT_FOUND, 'Recurso no encontrado'],
+    [HTTP_STATUS.INTERNAL_SERVER_ERROR, 'Error interno del servidor'],
     // [503, 'Servicio no disponible'],
     // [422, 'No se pudo procesar la solicitud'],
     // [429, 'Demasiadas solicitudes, intente de nuevo más tarde'],
@@ -29,9 +105,7 @@ const errorMap = new Map([
  * @returns {boolean} True si la cookie existe, de lo contrario False.
  */
 export const existeCookieBuild = () => {
-    const cookie = document.cookie
-        .split(';')
-        .find(cookie => cookie.trim().startsWith('debug'));
+    const cookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('debug'));
     return cookie !== undefined;
 };
 
@@ -60,31 +134,26 @@ const _validateResponeStatus = (/** @type {number} */ status) => {
  * @property {'omit' | 'same-origin' | 'include'} [credentials='same-origin'] - The credentials policy to use for the request.
  * @returns {Promise<VersaFetchResponse>} The response from the fetch request.
  */
-export const versaFetch = async (
-    params: VersaParamsFetch,
-): Promise<VersaFetchResponse> => {
+export const versaFetch = async (params: VersaParamsFetch): Promise<VersaFetchResponse> => {
     const { url, method, headers, data, credentials = 'same-origin' } = params;
-
-    const init = {
+    const init: RequestInit = {
         method: method,
         headers: headers || {},
         credentials: credentials,
         body: null,
     };
 
-    if (
-        typeof data === 'object' &&
-        !(data instanceof FormData) &&
-        (headers === null || headers === undefined)
-    ) {
+    if (typeof data === 'object' && !(data instanceof FormData) && (headers === null || headers === undefined)) {
         // traspasar data a formdata
         const formData = new FormData();
         for (const key in data) {
-            formData.append(key, data[key]);
+            if (Object.hasOwn(data, key)) {
+                formData.append(key, data[key]);
+            }
         }
         init.body = formData;
     } else if (data) {
-        init.body = data;
+        init.body = data as BodyInit;
     }
 
     try {
@@ -96,21 +165,16 @@ export const versaFetch = async (
         if (errorMap.has(response.status)) {
             if (isJson) {
                 throw new Error(JSON.stringify(body));
-            } else if (
-                contentType?.includes('text/html') ||
-                contentType === null
-            ) {
+            } else if (contentType?.includes('text/html') || contentType === null) {
                 const message = errorMap.get(response.status);
-                throw new Error(
-                    JSON.stringify({ success: 0, message: message }),
-                );
+                throw new Error(JSON.stringify({ success: 0, message: message }));
             }
         }
 
         return body;
-    } catch (e) {
+    } catch (error: Error | any) {
         //devolver json para que se pueda utilizar con wait res.json()
-        return JSON.parse(e.message);
+        return JSON.parse(error.message);
     }
 };
 
@@ -122,8 +186,11 @@ export const versaFetch = async (
 export const getDateToday = () => {
     const fecha = new Date();
     const año = fecha.getFullYear();
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const dia = String(fecha.getDate()).padStart(2, '0');
+    const mes = String(fecha.getMonth() + DATE_FORMAT.MONTH_OFFSET).padStart(
+        DATE_FORMAT.PAD_LENGTH,
+        DATE_FORMAT.PAD_CHAR,
+    );
+    const dia = String(fecha.getDate()).padStart(DATE_FORMAT.PAD_LENGTH, DATE_FORMAT.PAD_CHAR);
     return `${año}-${mes}-${dia}`;
 };
 
@@ -136,7 +203,10 @@ export const getDateToday = () => {
 export const getAnnoMes = () => {
     const fecha = new Date();
     const año = fecha.getFullYear();
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const mes = String(fecha.getMonth() + DATE_FORMAT.MONTH_OFFSET).padStart(
+        DATE_FORMAT.PAD_LENGTH,
+        DATE_FORMAT.PAD_CHAR,
+    );
     const fechaFormateada = `${año}-${mes}`;
     return fechaFormateada;
 };
@@ -161,11 +231,14 @@ export const getAnno = () => {
 export const getDateTimeToday = () => {
     const fecha = new Date();
     const año = fecha.getFullYear();
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    const hora = String(fecha.getHours()).padStart(2, '0');
-    const minuto = String(fecha.getMinutes()).padStart(2, '0');
-    const segundo = String(fecha.getSeconds()).padStart(2, '0');
+    const mes = String(fecha.getMonth() + DATE_FORMAT.MONTH_OFFSET).padStart(
+        DATE_FORMAT.PAD_LENGTH,
+        DATE_FORMAT.PAD_CHAR,
+    );
+    const dia = String(fecha.getDate()).padStart(DATE_FORMAT.PAD_LENGTH, DATE_FORMAT.PAD_CHAR);
+    const hora = String(fecha.getHours()).padStart(DATE_FORMAT.PAD_LENGTH, DATE_FORMAT.PAD_CHAR);
+    const minuto = String(fecha.getMinutes()).padStart(DATE_FORMAT.PAD_LENGTH, DATE_FORMAT.PAD_CHAR);
+    const segundo = String(fecha.getSeconds()).padStart(DATE_FORMAT.PAD_LENGTH, DATE_FORMAT.PAD_CHAR);
     return `${año}-${mes}-${dia} ${hora}:${minuto}:${segundo}`;
 };
 
@@ -176,9 +249,9 @@ export const getDateTimeToday = () => {
  */
 export const getTime = () => {
     const fecha = new Date();
-    const hora = String(fecha.getHours()).padStart(2, '0');
-    const minuto = String(fecha.getMinutes()).padStart(2, '0');
-    const segundo = String(fecha.getSeconds()).padStart(2, '0');
+    const hora = String(fecha.getHours()).padStart(DATE_FORMAT.PAD_LENGTH, DATE_FORMAT.PAD_CHAR);
+    const minuto = String(fecha.getMinutes()).padStart(DATE_FORMAT.PAD_LENGTH, DATE_FORMAT.PAD_CHAR);
+    const segundo = String(fecha.getSeconds()).padStart(DATE_FORMAT.PAD_LENGTH, DATE_FORMAT.PAD_CHAR);
     return `${hora}:${minuto}:${segundo}`;
 };
 
@@ -193,10 +266,8 @@ export const getTime = () => {
  */
 export const addDias = (fecha, dias) => {
     // Verificar que los parámetros sean válidos
-    if (!fecha || !dias || isNaN(dias)) {
-        throw new Error(
-            'Los parámetros de fecha y días son obligatorios y deben ser válidos.',
-        );
+    if (!fecha || !dias || Number.isNaN(dias)) {
+        throw new Error('Los parámetros de fecha y días son obligatorios y deben ser válidos.');
     }
 
     const fechaActual = new Date(fecha);
@@ -205,8 +276,11 @@ export const addDias = (fecha, dias) => {
     // Obtener los valores de año, mes y día
     const { year, month, day } = {
         year: fechaActual.getFullYear(),
-        month: String(fechaActual.getMonth() + 1).padStart(2, '0'),
-        day: String(fechaActual.getDate()).padStart(2, '0'),
+        month: String(fechaActual.getMonth() + DATE_FORMAT.MONTH_OFFSET).padStart(
+            DATE_FORMAT.PAD_LENGTH,
+            DATE_FORMAT.PAD_CHAR,
+        ),
+        day: String(fechaActual.getDate()).padStart(DATE_FORMAT.PAD_LENGTH, DATE_FORMAT.PAD_CHAR),
     };
 
     // Formatear la fecha en formato YYYY-MM-DD
@@ -214,14 +288,17 @@ export const addDias = (fecha, dias) => {
     return fechaFormateada;
 };
 
-export const diffDias = (
-    /** @type {string} */ fecha1,
-    /** @type {string} */ fecha2,
-) => {
+export const diffDias = (/** @type {string} */ fecha1, /** @type {string} */ fecha2) => {
     const fecha1Date = new Date(fecha1);
     const fecha2Date = new Date(fecha2);
-    const diffTime = Math.abs(fecha2Date.getTime() - fecha1Date.getTime()) + 1;
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffTime = Math.abs(fecha2Date.getTime() - fecha1Date.getTime()) + PAGINATION.DEFAULT_PAGE;
+    return Math.ceil(
+        diffTime /
+            (TIME_CONVERSIONS.MS_TO_SECONDS *
+                TIME_CONVERSIONS.SECONDS_TO_MINUTES *
+                TIME_CONVERSIONS.MINUTES_TO_HOURS *
+                TIME_CONVERSIONS.HOURS_TO_DAY),
+    );
 };
 
 /**
@@ -237,7 +314,17 @@ export const diffDias = (
  * @param {function} [Params.callback] - The callback function to be executed when the alert is closed.
  * @param {Object} [Params.customClass={}] - The custom classes to apply to the alert.
  */
-export const versaAlert = async Params => {
+interface VersaAlertParams {
+    title?: string;
+    message?: string;
+    html?: string;
+    type?: 'success' | 'error' | 'warning' | 'info' | 'question';
+    AutoClose?: boolean;
+    callback?: () => void;
+    customClass?: { [key: string]: string };
+}
+
+export const versaAlert = async (Params: VersaAlertParams): Promise<void> => {
     const {
         title = '¡Éxito!',
         message = '',
@@ -248,7 +335,7 @@ export const versaAlert = async Params => {
         customClass = {},
     } = Params;
 
-    const result = Swal.fire({
+    const result = await Swal.fire({
         title: title,
         text: message,
         html: html,
@@ -257,7 +344,7 @@ export const versaAlert = async Params => {
         allowOutsideClick: true,
         allowEscapeKey: true,
         allowEnterKey: true,
-        timer: AutoClose ? 3000 : null,
+        timer: AutoClose ? TIMEOUTS.TOAST_AUTO_CLOSE : PAGINATION.ARRAY_FIRST_INDEX,
         customClass: customClass,
     });
     if (result) {
@@ -276,8 +363,7 @@ export const log = console.log.bind(console);
  * @param {string} str - The string from which to remove backslashes.
  * @returns {string} The resulting string with all backslashes removed.
  */
-export const removeScape = (/** @type {string} */ str) =>
-    str.replace(/\\/g, '');
+export const removeScape = (/** @type {string} */ str) => str.replaceAll(String.raw`/\/`, '');
 
 /**
  * @preserve
@@ -306,7 +392,7 @@ export const VersaToast = Swal.mixin({
  */
 export const getFechaUnix = () => {
     const fecha = new Date();
-    return Math.floor(fecha.getTime() / 1000);
+    return Math.floor(fecha.getTime() / TIME_CONVERSIONS.MS_TO_SECONDS);
 };
 
 /**
@@ -318,10 +404,7 @@ export const getFechaUnix = () => {
  * @param {string} response.message - A general error message.
  * @param {string} [type='alert'] - The type of notification to display ('alert' or 'toast').
  */
-export const showErrorResponse = (
-    /** @type {object} */ response,
-    type = 'alert',
-) => {
+export const showErrorResponse = (/** @type {object} */ response, type = 'alert') => {
     if (response?.errors === undefined) {
         if (type === 'toast') {
             VersaToast.fire({
@@ -338,8 +421,7 @@ export const showErrorResponse = (
         return;
     }
     const errores = html`
-        <ul
-            class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
+        <ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
             ${Object.keys(response.errors)
                 .map(
                     key => html`
@@ -370,15 +452,16 @@ export const showErrorResponse = (
  * @returns {string} the timing in ms, seconds, minutes or hours.
  */
 export const showTimingForHumans = timing => {
-    if (timing < 1000) {
+    if (timing < TIME_CONVERSIONS.MS_TO_SECONDS) {
         return `${timing} ms`;
-    } else if (timing < 60000) {
-        return `${timing / 1000} s`;
-    } else if (timing < 3600000) {
-        return `${timing / 60000} min`;
-    } else {
-        return `${timing / 3600000} h`;
     }
+    if (timing < TIME_CONVERSIONS.MS_TO_MINUTES) {
+        return `${timing / TIME_CONVERSIONS.MS_TO_SECONDS} s`;
+    }
+    if (timing < TIME_CONVERSIONS.MS_TO_HOURS) {
+        return `${timing / TIME_CONVERSIONS.MS_TO_MINUTES} min`;
+    }
+    return `${timing / TIME_CONVERSIONS.MS_TO_HOURS} h`;
 };
 
 /**
@@ -388,9 +471,9 @@ export const showTimingForHumans = timing => {
  */
 export const sanitizeModulePath = (module: string): string => {
     return module
-        .replace(/\.\.\//g, '') // Eliminar ".."
-        .replace(/\/+/g, '/') // Normalizar barras
-        .replace(/[^a-zA-Z0-9/_-]/g, ''); // Eliminar caracteres no permitidos
+        .replaceAll(String.raw`\.\.\/`, '') // Eliminar ".."
+        .replaceAll(/\/+/g, '/') // Normalizar barras
+        .replaceAll(/[^a-zA-Z0-9/_-]/g, ''); // Eliminar caracteres no permitidos
 };
 
 type ModuleName = string & { __brand: 'ModuleName' };

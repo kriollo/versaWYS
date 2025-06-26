@@ -1,5 +1,7 @@
 import { read, utils, writeFile } from 'P@/vendor/xlsx/xlsx.full.min.esm.js';
 
+import { GLOBAL_CONSTANTS } from '@/dashboard/js/constants';
+
 /**
  * @preserve
  * Retrieves the names of all sheets in the Excel file.
@@ -22,7 +24,10 @@ export const getSheetNames = async (file: File): Promise<string[]> => {
  * @param {number} [hoja=0] - The index of the sheet to read (default is 0).
  * @returns { Promise<Array> } - A promise that resolves to an array of arrays, where each array represents a row of the sheet.
  */
-export const readXlsx = async (file: File, hoja: number = 0): Promise<{}[]> => {
+export const readXlsx = async (
+    file: File,
+    hoja: number = GLOBAL_CONSTANTS.ZERO,
+): Promise<{}[]> => {
     const f = await file.arrayBuffer();
     const w = new Uint8Array(f);
 
@@ -45,7 +50,7 @@ export const createXlsxFromJson = async (
     sheetName: string = 'Sheet1',
 ): Promise<void> => {
     const wb = utils.book_new();
-    const ws = utils.json_to_sheet(data);
-    utils.book_append_sheet(wb, ws, sheetName);
-    writeFile(wb, `${sheetName}.xlsx`);
+    const ws = await utils.json_to_sheet(data);
+    await utils.book_append_sheet(wb, ws, sheetName);
+    await writeFile(wb, `${sheetName}.xlsx`);
 };

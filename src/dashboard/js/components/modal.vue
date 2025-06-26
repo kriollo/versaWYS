@@ -15,18 +15,14 @@
 <script setup lang="ts">
     import { computed, ref } from 'vue';
 
-    type Props = {
+    import { GLOBAL_CONSTANTS } from '@/dashboard/js/constants';
+
+    interface Props {
         idModal: string;
         showModal: boolean;
-        size?:
-            | 'max-w-md'
-            | 'max-w-lg'
-            | 'max-w-2xl'
-            | 'max-w-4xl'
-            | 'max-w-7xl'
-            | string;
+        size?: 'max-w-md' | 'max-w-lg' | 'max-w-2xl' | 'max-w-4xl' | 'max-w-7xl' | string;
         showFooter?: boolean;
-    };
+    }
 
     const props = withDefaults(defineProps<Props>(), {
         showModal: true,
@@ -35,13 +31,13 @@
     });
 
     const emit = defineEmits(['accion']);
-    const componentKey = ref(0);
+    const componentKey = ref(GLOBAL_CONSTANTS.ZERO);
 
     const showModal = computed(() => props.showModal);
     const idModal = computed(() => props.idModal);
     const size = computed(() => props.size);
     const showFooter = computed(() => props.showFooter);
-    const modal = ref(null);
+    const modal = ref(undefined);
 </script>
 <template>
     <Transition mode="in-out">
@@ -53,11 +49,9 @@
             tabindex="-1">
             <div class="relative p-4 w-full max-h-full" :class="size">
                 <!-- Modal content -->
-                <div
-                    class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
                     <!-- Modal header -->
-                    <div
-                        class="p-4 md:p-3 border-b rounded-t dark:border-gray-600">
+                    <div class="p-4 md:p-3 border-b rounded-t dark:border-gray-600">
                         <slot name="modalTitle"></slot>
                     </div>
                     <!-- Modal body -->

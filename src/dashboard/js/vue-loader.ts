@@ -1,67 +1,71 @@
-import { $dom } from '@/dashboard/js/composables/dom';
-import { handleError, handleHMRError } from '@/dashboard/js/vueLoader/devUtils';
-
-import {
-    isValidModuleName,
-    sanitizeModulePath,
-} from '@/dashboard/js/functions';
+import { html } from 'code-tag';
 import { createApp, provide, ref } from 'vue';
 
-interface PublicProvider {
-    debug: typeof debug;
-    csrf_token: string;
-    current_user: Record<string, any>;
-}
+import { $dom } from '@/dashboard/js/composables/dom';
+import { GLOBAL_CONSTANTS } from '@/dashboard/js/constants';
+import { isValidModuleName, sanitizeModulePath } from '@/dashboard/js/functions';
+import { handleError, handleHMRError } from '@/dashboard/js/vueLoader/devUtils';
 
-export const debug = ref($dom('#debug') ? true : false);
-export let app: ReturnType<typeof createApp>;
-const public_provider: PublicProvider = {
-    debug,
-    csrf_token: '',
-    current_user: {},
-};
+const debug = ref(!!$dom('#debug')); // Default to false if the element is not found
 
-const $contenedor = $dom('#main-content') as HTMLElement;
+const loadModule = async (): Promise<void> => {
+    const $contenedor = $dom('#main-content') as HTMLElement;
+    const $csrfToken = $dom('#csrf_token') as HTMLInputElement;
+    const $current_user = $dom('#current_user') as HTMLInputElement;
 
-const url = new URL(import.meta.url);
-const urlParams = url.search;
-const searchParams = new URLSearchParams(urlParams);
-let module = searchParams.get('m');
-
-async function loadModule() {
+    const url = new URL(import.meta.url);
+    const urlParams = url.search;
+    const searchParams = new URLSearchParams(urlParams);
+    let module = searchParams.get('m');
+    let validatedModule = 'unknown';
     try {
-        if (!$contenedor) {
-            throw new Error(
-                'No se encontró el contenedor para montar la aplicación Vue.',
-            );
+        interface PublicProvider {
+            debug: typeof debug;
+            csrf_token: string;
+            current_user: { [key: string]: unknown };
         }
-        if (!module) {
+
+        const public_provider: PublicProvider = {
+            debug,
+            csrf_token: $csrfToken.value || '',
+            current_user: JSON.parse($current_user.value) || {},
+        };
+
+        if (!$contenedor) {
+            throw new Error('No se encontró el contenedor para montar la aplicación Vue.');
+        }
+        if (!module || '' === module.trim() || 'undefined' === module || 'null' === module) {
             throw new Error('No se ha especificado un módulo para cargar.');
         }
-        module = sanitizeModulePath(module);
-        module = module.startsWith('/') ? module.slice(1) : module;
+        validatedModule = module;
+        validatedModule = sanitizeModulePath(validatedModule);
+        validatedModule = validatedModule.startsWith('/')
+            ? validatedModule.slice(GLOBAL_CONSTANTS.ONE)
+            : validatedModule;
         // Validar el parámetro del módulo
-        if (!isValidModuleName(module)) {
-            throw new Error(
-                'El parámetro del módulo contiene caracteres no permitidos.',
-            );
+        if (!isValidModuleName(validatedModule)) {
+            throw new Error('El parámetro del módulo contiene caracteres no permitidos.');
         }
 
-        const component = module.split('/').pop();
-        // Importar dinámicamente el módulo
-        const moduleResponse = await import(`@/${module}.js?v=${Date.now()}`);
+        const component = validatedModule.split('/').pop() as string;
+        if (!component) {
+            throw new Error('No se ha especificado un componente para cargar.');
+        } // Importar dinámicamente el módulo
+        const moduleResponse = await import(`@/${validatedModule}.js?v=${Date.now()}`);
         if (moduleResponse) {
             // Montar el módulo en el contenedor
             const app = createApp({
                 components: { [component]: moduleResponse.default },
-                setup() {
+                setup(): unknown {
                     // Configuración de la aplicación según el modo de depuración
                     if (debug.value) {
                         console.log('Debug mode is enabled');
                     }
                     const componentKey = ref(Date.now());
                     for (const key in public_provider) {
-                        provide(key, public_provider[key]);
+                        if (Object.hasOwn(public_provider, key)) {
+                            provide(key, public_provider[key as keyof PublicProvider]);
+                        }
                     }
 
                     return {
@@ -69,23 +73,20 @@ async function loadModule() {
                     };
                 },
                 name: 'App',
-                template: `<${component} :key="componentKey" />`,
+                template: html`
+                    <${component} :key="componentKey" />
+                `,
             });
 
             // Configuración de la aplicación según el modo de depuración
             if (debug) {
-                app.config.warnHandler = function (msg, vm, trace) {
+                app.config.warnHandler = function warnHandler(msg, vm, trace): void {
                     // console.warn(msg, vm, trace);
                     handleHMRError(msg, trace);
                 };
-                app.config.errorHandler = function (err, vm, info) {
+                app.config.errorHandler = function errorHandler(err, vm, info): void {
                     // console.error(err, vm, info);
-                    handleHMRError(
-                        err instanceof Error
-                            ? err.stack || 'Unknown stack'
-                            : 'Unknown error',
-                        info,
-                    );
+                    handleHMRError(err instanceof Error ? err.stack || 'Unknown stack' : 'Unknown error', info);
                 };
                 app.config.compilerOptions.comments = true;
             } else {
@@ -95,18 +96,10 @@ async function loadModule() {
             app.config.compilerOptions.whitespace = 'condense';
 
             app.mount($contenedor, true);
-
-            // --- FRAGMENTO CLAVE PARA HMR Y ACCESO GLOBAL ---
-            if (typeof window !== 'undefined') {
-                // Exponemos la instancia de la app para HMR y depuración
-                (window as any).__VUE_APP__ = app;
-                // Exponemos el proxy raíz, útil para acceder a métodos, $forceUpdate, etc.
-                (window as any).__VUE_APP_PROXY__ = app._instance?.proxy;
-            }
         }
-    } catch (e) {
-        handleError(e, module, $contenedor);
+    } catch (error) {
+        handleError(error, validatedModule, $contenedor);
     }
-}
+};
 
 loadModule();

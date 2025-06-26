@@ -1,9 +1,10 @@
 <script setup lang="ts">
-    import { versaFetch, VersaToast } from '@/dashboard/js/functions';
-    import Swal from 'sweetalert2';
-    import { computed, inject, ref, watch, type Ref } from 'vue';
-
     import type { Perfil } from 'perfilTypes';
+    import Swal from 'sweetalert2';
+    import { computed, inject, type Ref, ref, watch } from 'vue';
+
+    import { versaFetch, VersaToast } from '@/dashboard/js/functions';
+import { API_RESPONSE_CODES } from '../constants';
 
     const props = defineProps({
         refreshData: {
@@ -16,7 +17,11 @@
 
     const refreshData = computed(() => props.refreshData);
 
-    const data = ref([]);
+    interface PerfilExtended extends Perfil {
+        estado: string;
+    }
+
+    const data = ref<PerfilExtended[]>([]);
 
     const listPerfilesSide = async () => {
         const response = await versaFetch({
@@ -48,7 +53,7 @@
                 data: { id: perfil.id },
             });
 
-            if (response.success === 1) {
+            if (API_RESPONSE_CODES.SUCCESS === response.success) {
                 listPerfilesSide();
                 VersaToast.fire({
                     icon: 'success',
@@ -76,7 +81,7 @@
                 :key="item.id"
                 class="flex justify-between items-center"
                 :class="
-                    key === item.length - 1
+                    key === data.length - 1
                         ? 'rounded-b-lg'
                         : 'w-full px-4 py-2 border-b border-gray-200 rounded-t-lg dark:border-gray-600'
                 ">
@@ -86,10 +91,7 @@
                     </span>
                 </div>
                 <div class="flex gap-2">
-                    <button
-                        type="button"
-                        class="text-xs text-blue-500 dark:text-blue-400"
-                        @click="editPerfil(item)">
+                    <button type="button" class="text-xs text-blue-500 dark:text-blue-400" @click="editPerfil(item)">
                         Editar
                     </button>
                     <button

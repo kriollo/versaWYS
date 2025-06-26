@@ -1,5 +1,15 @@
-export default {
-    data() {
+interface FileTypeData {
+    fileTypes: {
+        ext: string;
+        icon: string;
+        color: string;
+        type: string;
+    }[];
+    path_file_evento: string;
+}
+
+const data = {
+    data(): FileTypeData {
         return {
             fileTypes: [
                 {
@@ -115,11 +125,12 @@ export default {
         };
     },
     methods: {
-        setPathFileEvento(path) {
+        setPathFileEvento(this: FileTypeData, path: string): void {
             this.path_file_evento = path;
         },
-        getPathFileEvento() {
+        getPathFileEvento(this: FileTypeData): string {
             return this.path_file_evento;
         },
     },
 };
+export default data;

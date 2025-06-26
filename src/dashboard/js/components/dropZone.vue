@@ -1,13 +1,14 @@
 <script setup lang="ts">
+    import { html } from 'code-tag';
+    import Swal from 'sweetalert2';
+    import { computed, type Ref, ref } from 'vue';
+
     import loader from '@/dashboard/js/components/loader.vue';
     import { $dom } from '@/dashboard/js/composables/dom';
     import {
         useFileZise,
         useValidFile,
     } from '@/dashboard/js/composables/useValidFile';
-    import { html } from 'P@/vendor/code-tag/code-tag-esm';
-    import Swal from 'sweetalert2';
-    import { type Ref, computed, ref } from 'vue';
 
     const emit = defineEmits(['accion']);
     const props = defineProps({
@@ -49,11 +50,18 @@
     >;
     const msgTiposArchivos = computed(() => props.msgTiposArchivos);
     const maxSizeFile = computed(() => props.maxSizeFileMB);
-    const ArrayFilesErrors = ref([]);
+    interface FileError {
+        name: string;
+        error_msg: string;
+        isValid?: boolean;
+    }
+
+    const ArrayFilesErrors = ref<FileError[]>([]);
 
     const files = computed(() => {
-        if (props.files !== undefined && props.files !== null)
+        if (props.files !== undefined && null !== props.files) {
             return props.files;
+        }
         return [];
     });
 
@@ -101,7 +109,9 @@
         });
     };
 
-    const validaFiles = file => {
+    const validaFiles = (
+        file: File,
+    ): FileError | { name: string; isValid: true } => {
         if (!useValidFile(fileTypeValid.value, file)) {
             return {
                 name: file.name,
@@ -117,16 +127,17 @@
             };
         }
 
-        if (files.value === null)
+        if (null === files.value) {
             return {
                 name: file.name,
                 isValid: true,
             };
+        }
 
         const indexFile = files.value.findIndex(
-            (item: { archivo: string }) => item?.archivo === file.name,
+            (item: any) => item?.archivo === file.name,
         );
-        if (indexFile >= 0) {
+        if (-1 !== indexFile) {
             return {
                 name: file.name,
                 error_msg: 'Archivo ya existe en la lista',
@@ -138,10 +149,9 @@
             isValid: true,
         };
     };
-
-    const setFilesLocal = filesInput => {
+    const setFilesLocal = (filesInput: FileList | null) => {
         ArrayFilesErrors.value = [];
-        if (filesInput.length <= 0) {
+        if (!filesInput || filesInput.length <= 0) {
             loading.value = false;
             return;
         }
@@ -161,14 +171,16 @@
 
         for (const file of filesInput) {
             const result = validaFiles(file);
-            if (result.isValid)
+            if (result.isValid) {
                 files.value.push({
                     archivo: file.name,
                     type: file.type,
                     size: file.size,
                     file: file,
                 });
-            else ArrayFilesErrors.value.push(result);
+            } else {
+                ArrayFilesErrors.value.push(result);
+            }
         }
         const inputFile = $dom('#file');
         if (inputFile && inputFile instanceof HTMLInputElement) {
@@ -186,33 +198,28 @@
             });
         }
     };
-
-    const DesdeInputChange = e => {
+    const DesdeInputChange = (e: Event) => {
         e.preventDefault();
-        setFilesLocal(e.target.files);
+        const target = e.target as HTMLInputElement;
+        if (target.files) {
+            setFilesLocal(target.files);
+        }
     };
-    const drag = (
-        /** @type {{ preventDefault: () => void; }} */ e: {
-            preventDefault: () => void;
-        },
-    ) => {
+    const drag = (e: DragEvent) => {
         e.preventDefault();
         classActive.value = true;
         mensaje.value = 'Suelta para Subir';
     };
-    const drop = (
-        /** @type {{ preventDefault: () => void; dataTransfer: { files: any; }; }} */ e: {
-            preventDefault: () => void;
-            dataTransfer: { files: any };
-        },
-    ) => {
+    const drop = (e: DragEvent) => {
         loading.value = true;
         e.preventDefault();
         classActive.value = false;
         mensaje.value = 'Arrastra y Suelta Archivos';
-        setFilesLocal(e.dataTransfer.files);
+        if (e.dataTransfer?.files) {
+            setFilesLocal(e.dataTransfer.files);
+        }
     };
-    const dragleave = e => {
+    const dragleave = (e: DragEvent) => {
         e.preventDefault();
         classActive.value = false;
         mensaje.value = 'Arrastra y Suelta Archivos';
@@ -237,7 +244,7 @@
                         <loader v-if="loading"></loader>
                     </h4>
                 </div>
-                <span class="font-bold text-xs text-center" for="file">
+                <span class="font-bold text-xs text-center">
                     {{ msgTiposArchivos }}
                 </span>
             </div>

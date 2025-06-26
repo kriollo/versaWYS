@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace app\models;
 
 use RedBeanPHP\Cursor;
-use RedBeanPHP\R;
 use versaWYS\kernel\RedBeanCnn;
 
 class Dashboard extends RedBeanCnn
 {
     public function getMenuAdmin(): Cursor|array|int|null
     {
-        return R::getAll(
+        return $this->getAll(
             "SELECT
                         vm.seccion,
                         vm.id AS id_menu,
@@ -34,7 +33,7 @@ class Dashboard extends RedBeanCnn
 
     public function getMenuUser(int $idUser, $idPerfil = 0): Cursor|array|int|null
     {
-        return R::getAll(
+        return $this->getAll(
             "SELECT * FROM
                 (
                     SELECT

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Error - VersaWYS</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+		<link href="{{ getAssets('dashboard', 'css', '/dashboard.css') }}" rel="stylesheet"/>
+
+
+		<style>
+			body {
+				font-family: Arial;
+				padding: 20px;
+				background: #f5f5f5;
+			}
+			.container {
+				background: white;
+				padding: 20px;
+				border-radius: 8px;
+				max-width: 800px;
+				margin: 0 auto;
+			}
+			.header {
+				background: #dc2626;
+				color: white;
+				padding: 15px;
+				margin: -20px -20px 20px;
+			}
+			.section {
+				margin: 15px 0;
+				padding: 10px;
+				background: #f8f9fa;
+				border-left: 4px solid #dc2626;
+			}
+			.code {
+				background: #1a1a1a;
+				color: #fff;
+				padding: 10px;
+				font-family: monospace;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h1>VersaWYS Error</h1>
+			</div>
+
+			<div class="section">
+				<h3>Message:</h3>
+				<div class="code">{{ data.message }}</div>
+			</div>
+
+			<div class="section">
+				<h3>Type:</h3>
+				<p>{{ data.type }}</p>
+			</div>
+
+			<div class="section">
+				<h3>Location:</h3>
+				<p>
+					File:
+					{{ data.real_file ?? data.template_file ?? 'Unknown' }}<br>
+					Line:
+					{{ data.real_line ?? data.template_line ?? 'Unknown' }}
+				</p>
+			</div>
+
+			<div class="section">
+				<h3>Time:</h3>
+				<p>{{ data.timestamp }}</p>
+			</div>
+		</div>
+	</body>
+</html>

@@ -64,11 +64,13 @@ html.dark {
 /* Transiciones de NAVEGACIÓN (fundido por defecto) */
 /* Estas se aplicarán si no hay una clase .theme-transition en el html */
 ::view-transition-old(root) {
-    animation: fadeOut 0.25s ease-out forwards; /* Duración más corta y mantener estado final */
+    animation: fadeOut 0.25s ease-out forwards;
+    /* Duración más corta y mantener estado final */
 }
 
 ::view-transition-new(root) {
-    animation: fadeIn 0.4s ease-in; /* Un poco más largo para la entrada */
+    animation: fadeIn 0.4s ease-in;
+    /* Un poco más largo para la entrada */
 }
 
 /* Transiciones de CAMBIO DE TEMA (barrido) */
@@ -212,4 +214,139 @@ html {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
     background: rgb(41 51 55 / var(--tw-bg-opacity));
+}
+
+/* --- Tooltips del Sidebar --- */
+/* Tooltips del sidebar se muestran solo cuando el sidebar está contraído (w-16) */
+.tooltip-sidebar {
+    @apply opacity-0 invisible pointer-events-none transition-all duration-200;
+}
+
+/* Mostrar tooltips solo cuando el sidebar padre tiene w-16 (contraído) */
+.w-16 .tooltip-sidebar {
+    @apply opacity-100 visible pointer-events-auto;
+}
+
+/* Asegurar que los tooltips estén ocultos cuando el sidebar está expandido (w-56) */
+.w-56 .tooltip-sidebar {
+    @apply opacity-0 invisible pointer-events-none;
+}
+
+/* --- Textos del Sidebar --- */
+/* Asegurar que los textos se oculten completamente cuando el sidebar está contraído en DESKTOP */
+@media (min-width: 1024px) {
+    .w-16 [sidebar-toggle-item] {
+        @apply !hidden;
+    }
+
+    .w-56 [sidebar-toggle-item] {
+        @apply lg:block;
+    }
+}
+
+/* En móvil, cuando el sidebar está visible (no .hidden), siempre mostrar textos */
+@media (max-width: 1023px) {
+    #sidebar:not(.hidden) [sidebar-toggle-item] {
+        @apply !block;
+    }
+}
+
+/* --- Layout para Dashboard y Footer Sticky --- */
+/* Asegurar que el contenedor principal use flex y tenga altura completa */
+.flex.min-h-screen {
+    min-height: 100vh;
+}
+
+/* El área de contenido principal debe expandirse para empujar el footer hacia abajo */
+#main-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Los componentes Vue deben usar toda la altura disponible sin forzar scroll */
+#main-content>div {
+    flex: 1;
+}
+
+/* Asegurar que no haya espacios en blanco innecesarios */
+body,
+html {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* Prevenir espacios vacíos causados por elementos Vue */
+#main-content .w-full.h-full {
+    height: 100%;
+    min-height: 0;
+}
+
+/* --- Responsividad del Layout --- */
+@media (max-width: 1023px) {
+
+    /* En móvil, asegurar que el layout funcione correctamente */
+    .flex-1.lg\:ml-56 {
+        min-height: calc(100vh - 4rem);
+        /* Viewport menos navbar */
+    }
+
+    /* Prevenir scroll horizontal innecesario en móvil */
+    body {
+        overflow-x: hidden;
+    }
+}
+
+/* --- Submenús del Sidebar --- */
+/* Permitir que los submenús se muestren en hover cuando no están explícitamente ocultos */
+.group\/lisDropDown:hover ul[id^="dropdown-"]:not(.hidden) {
+    @apply flex flex-col;
+}
+
+/* Cuando un submenú tiene la clase 'hidden', forzar que se oculte incluso con hover */
+.hidden.group-hover\/lisDropDown\:flex {
+    @apply !hidden;
+}
+
+/* Cuando un submenú NO tiene 'hidden', permitir que se muestre */
+ul[id^="dropdown-"]:not(.hidden) {
+    @apply flex flex-col;
+}
+
+/* --- Responsividad de Submenús --- */
+/* Contenedor padre debe ser relativo para posicionamiento absoluto de submenús */
+.sidebar-item {
+    @apply relative;
+}
+
+/* Submenús siempre flotantes como tooltips/popups */
+ul[id^="dropdown-"] {
+    @apply absolute z-50 min-w-max shadow-lg border border-gray-300 dark:border-gray-600 p-2;
+}
+
+/* En desktop, submenús a la derecha */
+@media (min-width: 1024px) {
+    ul[id^="dropdown-"] {
+        @apply left-full top-0 ml-2;
+    }
+}
+
+/* En móvil, verificar si hay espacio a la derecha, sino mostrar a la izquierda */
+@media (max-width: 1023px) {
+    ul[id^="dropdown-"] {
+        @apply right-full top-0 mr-2;
+    }
+
+    /* Si el sidebar está en el lado izquierdo, mostrar submenús a la derecha */
+    #sidebar ul[id^="dropdown-"] {
+        @apply left-full right-auto ml-2 mr-0;
+    }
+}
+
+/* --- Prioridad de tooltips vs submenús --- */
+/* Cuando un submenú está abierto, ocultar el tooltip del menú principal */
+.sidebar-item:has(ul[id^="dropdown-"]:not(.hidden)) .tooltip-sidebar {
+    @apply !hidden;
 }

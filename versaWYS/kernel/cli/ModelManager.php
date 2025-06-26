@@ -32,7 +32,6 @@ declare(strict_types=1);
 
 namespace app\models;
 
-use RedBeanPHP\R;
 use versaWYS\kernel\RedBeanCnn;
 
 class $modelName extends RedBeanCnn
@@ -48,7 +47,7 @@ class $modelName extends RedBeanCnn
      */
     public function all()
     {
-        return R::getAll('SELECT * FROM self::$table');
+        return $this->getAll('SELECT * FROM ' . self::$table);
     }
 
     public function __construct()

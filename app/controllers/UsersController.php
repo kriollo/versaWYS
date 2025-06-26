@@ -28,9 +28,12 @@ class UsersController extends GlobalControllers
      */
     public function index(): string
     {
-        return $this->template->render('dashboard/usuarios/dashUsers', [
-            'menu_op' => ['id_menu' => 0],
+        return $this->template->render('dashboard/loader', [
+            'm' => '/dashboard/js/usuarios/dashUsers',
         ]);
+        // return $this->template->render('dashboard/usuarios/dashUsers', [
+        //     'menu_op' => ['id_menu' => 0],
+        // ]);
     }
 
     /**
@@ -46,7 +49,7 @@ class UsersController extends GlobalControllers
     }
     public function editUserTemplate($slug = null): string
     {
-        $user = (new models\Users())->find($slug, 'tokenid');
+        $user = (new models\Users())->find($slug, 'u.tokenid');
         $perfiles = (new models\Perfil())->all(1);
         return $this->template->render('dashboard/usuarios/editUser', [
             'user' => $user,
@@ -65,11 +68,12 @@ class UsersController extends GlobalControllers
             'status',
             'vu.pagina_inicio',
             'vp.nombre',
+            'e.nombre'
         ]);
         $filter = $params['filter'] ? $params['filter'] : '';
         $order = $params['order'] ? "ORDER BY $params[order]" : 'ORDER BY id DESC';
         $result = (new Models\Users())->getUsersPaginate(
-            ['vu.id', 'name', 'email', 'role', 'status', 'tokenid', 'vu.pagina_inicio', 'vp.nombre as perfil'],
+            ['vu.id', 'name', 'vu.email', 'role', 'status', 'tokenid', 'vu.pagina_inicio', 'vp.nombre as perfil'],
             $filter,
             $order,
             $params['limit']
@@ -174,7 +178,7 @@ class UsersController extends GlobalControllers
         $expiration_days_password = $config['auth']['expiration_days_password'] ?? 30;
         $params['expiration_pass'] = date('Y-m-d', strtotime("+$expiration_days_password days"));
         $params['password'] = Functions::hash($params['password']);
-        $params['role'] = isset($params['rol']) && $params['rol'] === 'on' ? 'admin' : 'user';
+        $params['role'] = isset($params['rol']) ? $params['rol'] : 'user';
         $params['status'] = isset($params['status']) ? 0 : 1;
 
         $result = (new models\Users())->create($params);
@@ -223,7 +227,7 @@ class UsersController extends GlobalControllers
         $params['expiration_pass'] = date('Y-m-d', strtotime("+$expiration_days_password days"));
 
         $params['password'] = Functions::hash($params['password']);
-        $params['role'] = isset($params['rol']) && $params['rol'] === 'on' ? 'admin' : 'user';
+        $params['role'] = isset($params['rol']) ? $params['rol'] : 'user';
         $params['status'] = isset($params['status']) ? 0 : 1;
 
         $result = (new models\Users())->update($params);

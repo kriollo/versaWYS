@@ -4,12 +4,19 @@ declare(strict_types=1);
 
 namespace app\seeders;
 
-use RedBeanPHP\R;
+use versaWYS\kernel\RedBeanCnn;
 
-class PerfilDefaultSeeder
+class PerfilDefaultSeeder extends RedBeanCnn
 {
     public static function run()
     {
+        $instance = new self();
+        return $instance->execute();
+    }
+
+    private function execute()
+    {
+        $this->connet();
         try {
             $perfiles = [
                 [
@@ -36,18 +43,20 @@ class PerfilDefaultSeeder
             ];
 
             foreach ($perfiles as $currentPerfil) {
-                $perfil = R::dispense('versaperfil');
+                $perfil = $this->dispense('versaperfil');
                 $perfil->nombre = $currentPerfil['nombre'];
                 $perfil->pagina_inicio = $currentPerfil['pagina_inicio'];
                 $perfil->estado = $currentPerfil['estado'];
                 $perfil->created_at = $currentPerfil['created_at'];
                 $perfil->updated_at = $currentPerfil['updated_at'];
-                R::store($perfil);
+                $this->store($perfil);
             }
 
             return ['message' => 'Seeder ejecutado con éxito.', 'success' => true];
         } catch (\Exception $e) {
             return ['message' => $e->getMessage(), 'success' => false];
+        } finally {
+            $this->closeDB();
         }
     }
 }

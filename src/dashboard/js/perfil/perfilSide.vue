@@ -1,19 +1,19 @@
 <script setup lang="ts">
+    import type { Perfil } from 'perfilTypes';
+    import Swal from 'sweetalert2';
+    import { inject, type Ref, ref, watch } from 'vue';
+
     import check from '@/dashboard/js/components/check.vue';
     import inputEditable from '@/dashboard/js/components/inputEditable.vue';
     import { removeScape, versaFetch } from '@/dashboard/js/functions';
-    import Swal from 'sweetalert2';
-    import { inject, ref, watch, type Ref } from 'vue';
-
-    import type { Perfil } from 'perfilTypes';
-    import type { AccionData, actionsType } from 'versaTypes';
+    import type { AccionData, actionsType } from '@/dashboard/types/versaTypes';
 
     const emit = defineEmits(['accion']);
 
     const perfil = inject('perfil') as Ref<Perfil>;
     const csrf_token = inject<string>('csrf_token');
 
-    type PerfilData = {
+    interface PerfilData {
         [key: string]: {
             [key: string]: {
                 id_menu: string;
@@ -28,10 +28,15 @@
                 fill_menu: string;
             };
         };
-    };
+    }
+
+    interface UrlData {
+        nombre: string;
+        url: string;
+    }
 
     const perfilData = ref<PerfilData>({});
-    const urls = ref([]);
+    const urls = ref<UrlData[]>([]);
 
     const removeScapeLocal = (str: string) => removeScape(str);
     const getPerfil = async () => {
@@ -95,7 +100,7 @@
         };
 
         const selectedAction = actions[accion.accion] || actions['default'];
-        if (typeof selectedAction === 'function') {
+        if ('function' === typeof selectedAction) {
             selectedAction();
         }
     };
@@ -118,10 +123,7 @@
                 <select
                     v-model="perfil.pagina_inicio"
                     class="w-[80%] p-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-800">
-                    <option
-                        v-for="(url, key) in urls"
-                        :key="key"
-                        :value="url.url">
+                    <option v-for="(url, key) in urls" :key="key" :value="url.url">
                         <ruby>
                             <rt>{{ url.nombre }}&nbsp;</rt>
                             <rp>(</rp>
@@ -138,53 +140,29 @@
                 <div v-for="(seccion, key) in perfilData" :key="key">
                     <span class="">{{ key }}</span>
                     <ul class="ml-4">
-                        <li
-                            v-for="(menu, index) in seccion"
-                            :key="index"
-                            class="py-2 flex gap-2">
+                        <li v-for="(menu, index) in seccion" :key="index" class="py-2 flex gap-2">
                             <svg
                                 class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="24"
                                 height="24"
-                                :fill="
-                                    menu.fill_menu === '1'
-                                        ? 'currentColor'
-                                        : 'none'
-                                "
-                                viewbox="0 0 24 24"
+                                :fill="menu.fill_menu === '1' ? 'currentColor' : 'none'"
                                 v-html="removeScapeLocal(menu.icon)"></svg>
                             <div v-if="menu.submenu.length > 0" class="w-full">
                                 <span>{{ index }}</span>
                                 <ul class="ml-2">
-                                    <li
-                                        v-for="(submenu, i) in menu.submenu"
-                                        :key="i"
-                                        class="flex gap-2">
+                                    <li v-for="(submenu, i) in menu.submenu" :key="i" class="flex gap-2">
                                         <i class="bi bi-circle"></i>
-                                        <div
-                                            class="flex justify-between gap-2 w-full">
+                                        <div class="flex justify-between gap-2 w-full">
                                             <label
                                                 class="block text-sm font-medium text-gray-900 dark:text-white"
-                                                :for="
-                                                    submenu.id_menu +
-                                                    '_' +
-                                                    submenu.id_submenu
-                                                ">
+                                                :for="submenu.id_menu + '_' + submenu.id_submenu">
                                                 {{ submenu.submenu }}
                                             </label>
                                             <check
-                                                :id="
-                                                    submenu.id_menu +
-                                                    '_' +
-                                                    submenu.id_submenu
-                                                "
-                                                :key="
-                                                    submenu.id_menu +
-                                                    '_' +
-                                                    submenu.id_submenu
-                                                "
+                                                :id="submenu.id_menu + '_' + submenu.id_submenu"
+                                                :key="submenu.id_menu + '_' + submenu.id_submenu"
                                                 v-model="submenu.checked" />
                                         </div>
                                     </li>
@@ -197,10 +175,7 @@
                                         :for="menu.id_menu">
                                         {{ index }}
                                     </label>
-                                    <check
-                                        :id="menu.id_menu"
-                                        :key="menu.id_menu"
-                                        v-model="menu.checked" />
+                                    <check :id="menu.id_menu" :key="menu.id_menu" v-model="menu.checked" />
                                 </div>
                             </div>
                         </li>

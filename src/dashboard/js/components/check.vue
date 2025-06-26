@@ -22,7 +22,7 @@
         label?: string;
         type?: 'success' | 'danger' | 'warning' | 'info' | 'primary';
         disabled?: boolean;
-    };
+    }
 
     const props = withDefaults(defineProps<Props>(), {
         label: '',
@@ -40,8 +40,13 @@
         primary = 'text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-500',
     }
 
-    const estado = defineModel<boolean>();
-    const checkType = computed(() => CheckTypes[type.value]);
+    const estado = defineModel('modelValue', {
+        type: Boolean,
+        required: true,
+    });
+    const checkType = computed(
+        () => CheckTypes[type.value as keyof typeof CheckTypes],
+    );
 </script>
 <template>
     <div class="flex gap-2">

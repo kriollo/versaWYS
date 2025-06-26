@@ -13,14 +13,65 @@
 </docs>
 
 <script setup lang="ts">
+    import {
+        computed,
+        onMounted,
+        reactive,
+        ref,
+        toRefs,
+        watch,
+        watchEffect,
+    } from 'vue';
+
     import dropDown from '@/dashboard/js/components/dropDown.vue';
     import loader from '@/dashboard/js/components/loader.vue';
-
     import { createXlsxFromJson } from '@/dashboard/js/composables/useXlsx';
+    import {
+        API_RESPONSE_CODES,
+        GLOBAL_CONSTANTS,
+        PAGINATION,
+    } from '@/dashboard/js/constants';
     import { removeScape, versaFetch } from '@/dashboard/js/functions';
-    import { computed, reactive, ref, toRefs, watch, watchEffect } from 'vue';
+    import type { AccionData, actionsType } from '@/dashboard/types/versaTypes';
 
-    import type { actionsType } from 'versaTypes';
+    // Tipos para las columnas de la tabla
+    interface ActionButton {
+        id: string;
+        title: string;
+        action: string;
+        icon: string;
+        class: string;
+        condition?: string;
+        condition_value?: string;
+        type?: 'up' | 'down'; // Para posición
+    }
+
+    interface TableColumn {
+        field: string;
+        title: string;
+        type:
+            | 'status'
+            | 'affirmative'
+            | 'svg'
+            | 'actions'
+            | 'position'
+            | 'file'
+            | 'text';
+        buttons?: ActionButton[];
+        visible?: boolean;
+        export?: boolean; // Para exportación Excel
+    }
+
+    interface ColspanColumn {
+        col: number;
+        title: string;
+    }
+
+    // Tipo para las filas de datos
+    interface RowData {
+        id: string | number;
+        [key: string]: any;
+    }
 
     interface Props {
         id?: string;
@@ -78,12 +129,11 @@
     const loading = ref(false);
     const loadingData = ref(false);
 
-    const showPerPages = [1, 5, 10, 25, 50, 100];
-
+    const showPerPages = [...PAGINATION.PER_PAGE_OPTIONS];
     const data = reactive({
-        data: [],
-        columns: [],
-        colspan: [],
+        data: [] as RowData[],
+        columns: [] as TableColumn[],
+        colspan: [] as ColspanColumn[],
         meta: {
             total: 0,
             per_page: perPage.value,
@@ -102,12 +152,11 @@
             setPerPage(data.meta.per_page);
         },
     );
-
-    type ResponseData = {
+    interface ResponseData {
         success: number;
-        data: any[];
-        columns: any[];
-        colspan: any[];
+        data: RowData[];
+        columns: TableColumn[];
+        colspan: ColspanColumn[];
         meta: {
             total: number;
             total_pages: number;
@@ -116,7 +165,7 @@
             filter: string;
         };
         message: string;
-    };
+    }
 
     const getRefreshData = async () => {
         loadingData.value = true;
@@ -137,7 +186,7 @@
 
         data.data = [];
         data.columns = [];
-        if (response.success === 1) {
+        if (API_RESPONSE_CODES.SUCCESS === response.success) {
             data.data = response.data;
             data.columns = response.columns;
             data.colspan = response.colspan ?? [];
@@ -148,7 +197,7 @@
             data.meta.to = response.meta.to;
             data.meta.filter = response.meta.filter;
 
-            if (data.data.length === 0) {
+            if (data.data.length === GLOBAL_CONSTANTS.ZERO) {
                 msg.value = 'No hay registros para mostrar';
             }
         } else {
@@ -166,8 +215,11 @@
         () => {
             getRefreshData();
         },
-        { immediate: true },
     );
+
+    onMounted(() => {
+        getRefreshData();
+    });
 
     const model = defineModel();
 
@@ -177,12 +229,11 @@
 
     const exportExcelPage = async () => {
         loading.value = true;
-
-        const newDataExport = data.data.map(item => {
-            const newItem = {};
-            data.columns.forEach(col => {
-                if (col?.export) {
-                    newItem[col.field] = item[col.field];
+        const newDataExport = data.data.map((item: any) => {
+            const newItem: { [key: string]: any } = {};
+            data.columns.forEach((col: TableColumn) => {
+                if ((col as any)?.export) {
+                    newItem[col.field] = (item as any)[col.field];
                 }
             });
             return newItem;
@@ -198,12 +249,11 @@
             url: `${url.value}?page=1&per_page=${data.meta.total}&filter=${data.meta.filter}&order=${data.meta.order}&externalFilters=${externalFilters.value}`,
             method: 'GET',
         });
-
-        const newData = response.data.map(item => {
-            const newItem = {};
-            data.columns.forEach(col => {
-                if (col?.export) {
-                    newItem[col.field] = item[col.field];
+        const newData = response.data.map((item: any) => {
+            const newItem: { [key: string]: any } = {};
+            data.columns.forEach((col: TableColumn) => {
+                if ((col as any)?.export) {
+                    newItem[col.field] = (item as any)[col.field];
                 }
             });
             return newItem;
@@ -213,14 +263,15 @@
         loading.value = false;
     };
 
-    const removeScapeLocal = str => removeScape(str);
+    const removeScapeLocal = (str: string) => removeScape(str);
 
     const modelExcel = ref('Excel');
-    const accion = ({ item, accion, from = 'local' }) => {
+    const accion = (accionData: AccionData) => {
+        const { item, from, accion } = accionData;
         const actions: actionsType = {
             setButtonValue: () => {
-                if (from === 'excel') {
-                    if (item === 'Exportar Página') {
+                if ('excel' === from) {
+                    if ('Exportar Página' === item) {
                         exportExcelPage();
                     } else {
                         exportExcelAll();
@@ -231,7 +282,7 @@
             default: () => emit('accion', { item, accion }),
         };
         const fn = actions[accion] || actions.default;
-        if (typeof fn === 'function') {
+        if ('function' === typeof fn) {
             fn();
         }
     };
@@ -240,7 +291,7 @@
         data.meta.filter = '';
         getRefreshData();
     };
-    const setPerPage = per_page => {
+    const setPerPage = (per_page: number) => {
         data.meta.page = 1;
         data.meta.per_page = per_page;
 
@@ -251,37 +302,37 @@
 
         getRefreshData();
     };
-    const setOrder = (field, order) => {
-        data.meta.page = 1;
+    const setOrder = (field: string, order: string) => {
+        data.meta.page = PAGINATION.DEFAULT_PAGE;
 
-        if (data.meta.order[0] !== field) {
+        if (data.meta.order[PAGINATION.ARRAY_FIRST_INDEX] !== field) {
             order = 'asc';
         }
 
         data.meta.order = [field, order];
         getRefreshData();
     };
-    const changePage = page => {
-        if (page === 'siguiente') {
+    const changePage = (page: number | string) => {
+        let goPage = 0;
+        if ('siguiente' === page) {
             if (data.meta.page < data.meta.total_pages) {
-                page = data.meta.page + 1;
+                goPage = data.meta.page + PAGINATION.DEFAULT_PAGE;
             } else {
                 return;
             }
         }
-        if (page === 'anterior') {
-            if (data.meta.page > 1) {
-                page = data.meta.page - 1;
+        if ('anterior' === page) {
+            if (PAGINATION.DEFAULT_PAGE < data.meta.page) {
+                goPage = data.meta.page - PAGINATION.DEFAULT_PAGE;
             } else {
                 return;
             }
         }
 
-        data.meta.page = page;
+        data.meta.page = goPage;
 
         getRefreshData();
     };
-
     const getLimitPages = computed(() => {
         const limit = 3;
         const total_pages = data.meta.total_pages;
@@ -289,39 +340,45 @@
         const from = page - limit;
         const to = page + limit;
 
-        if (from < 1) {
-            if (total_pages < limit * 2) {
+        if (PAGINATION.DEFAULT_PAGE > from) {
+            if (total_pages < limit * PAGINATION.PAGES_LIMIT_MULTIPLIER) {
                 const arr = Array.from(
                     { length: total_pages },
-                    (_, i) => i + 1,
-                );
-                return arr;
-            }
-            const arr = Array.from({ length: limit * 2 }, (_, i) => i + 1);
-            return arr;
-        }
-
-        if (to > total_pages) {
-            if (total_pages < limit * 2) {
-                const arr = Array.from(
-                    { length: total_pages },
-                    (_, i) => i + 1,
+                    (_, i) => i + PAGINATION.DEFAULT_PAGE,
                 );
                 return arr;
             }
             const arr = Array.from(
-                { length: limit * 2 },
+                { length: limit * PAGINATION.PAGES_LIMIT_MULTIPLIER },
+                (_, i) => i + PAGINATION.DEFAULT_PAGE,
+            );
+            return arr;
+        }
+
+        if (to > total_pages) {
+            if (total_pages < limit * PAGINATION.PAGES_LIMIT_MULTIPLIER) {
+                const arr = Array.from(
+                    { length: total_pages },
+                    (_, i) => i + PAGINATION.DEFAULT_PAGE,
+                );
+                return arr;
+            }
+            const arr = Array.from(
+                { length: limit * PAGINATION.PAGES_LIMIT_MULTIPLIER },
                 (_, i) => total_pages - i,
             );
             return arr.reverse();
         }
 
-        const arr = Array.from({ length: limit * 2 }, (_, i) => from + i);
+        const arr = Array.from(
+            { length: limit * PAGINATION.PAGES_LIMIT_MULTIPLIER },
+            (_, i) => from + i,
+        );
         return arr;
     });
 
     const computedActionClass = (action, row) => {
-        if (typeof action.class !== 'object') {
+        if ('object' !== typeof action.class) {
             return action.class;
         }
 
@@ -346,16 +403,15 @@
                 }
             }
             return 'bg-white border-b dark:bg-gray-800 dark:border-gray-700';
-        } else {
-            if (
-                itemSelected.value?.fieldCompare !== undefined &&
-                itemSelected.value[itemSelected.value?.fieldCompare] ===
-                    item[itemSelected.value?.fieldCompare]
-            ) {
-                return 'bg-blue-100 border border-blue-500 dark:bg-blue-800 dark:border-blue-700';
-            }
-            return 'bg-white border-b dark:bg-gray-800 dark:border-gray-700';
         }
+        if (
+            itemSelected.value?.fieldCompare !== undefined &&
+            itemSelected.value[itemSelected.value?.fieldCompare] ===
+                item[itemSelected.value?.fieldCompare]
+        ) {
+            return 'bg-blue-100 border border-blue-500 dark:bg-blue-800 dark:border-blue-700';
+        }
+        return 'bg-white border-b dark:bg-gray-800 dark:border-gray-700';
     };
 </script>
 
@@ -364,7 +420,7 @@
         <slot name="buttons"></slot>
         <div
             v-if="showPerPage || showExportExcel || showSearch"
-            class="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0 py-2">
+            class="flex items-center justify-between flex-column flex-wrap md:flex-row md:space-y-0 py-2 px-2">
             <!-- Dropdown por Pagina -->
             <dropDown
                 v-if="showPerPage"
@@ -601,8 +657,9 @@
                                             })
                                         "
                                         v-if="
+                                            action.condition &&
                                             action.condition_value ==
-                                            row[action.condition]
+                                                row[action.condition]
                                         ">
                                         <i :class="action.icon"></i>
                                     </button>

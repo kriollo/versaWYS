@@ -4,7 +4,7 @@
     interface Props {
         id: string;
         label?: string;
-        options: Array<{ id: string; name: string; value: string }>;
+        options: { id: string; name: string; value: string }[];
         direction?: string;
         type?: 'success' | 'danger' | 'warning' | 'info' | 'primary';
         disabled?: boolean;
@@ -20,11 +20,11 @@
 
     const { id, label, direction, type, disabled } = toRefs(props);
 
-    type Option = {
+    interface Option {
         id: string;
         name: string;
         value: string;
-    };
+    }
 
     enum Optiontypes {
         success = 'text-green-600 dark:text-green-400 focus:ring-green-500 dark:focus:ring-green-500',
@@ -36,7 +36,9 @@
     const options = computed(() => props.options) as unknown as Option[];
     const value = defineModel();
 
-    const typeOption = computed(() => Optiontypes[type.value]);
+    const typeOption = computed(
+        () => Optiontypes[type.value as keyof typeof Optiontypes],
+    );
 </script>
 <template>
     <div class="flex flex-col">

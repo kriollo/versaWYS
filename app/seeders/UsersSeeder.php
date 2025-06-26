@@ -4,13 +4,20 @@ declare(strict_types=1);
 
 namespace app\seeders;
 
-use RedBeanPHP\R;
 use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\RedBeanCnn;
 
-class UsersSeeder
+class UsersSeeder extends RedBeanCnn
 {
     public static function run()
     {
+        $instance = new self();
+        return $instance->execute();
+    }
+
+    private function execute()
+    {
+        $this->connet();
         try {
             $users = [
                 [
@@ -58,7 +65,7 @@ class UsersSeeder
             ];
 
             foreach ($users as $currentUser) {
-                $user = R::dispense('versausers');
+                $user = $this->dispense('versausers');
                 $user->name = $currentUser['name'];
                 $user->tokenid = $currentUser['tokenid'];
                 $user->email = $currentUser['email'];
@@ -71,12 +78,14 @@ class UsersSeeder
                 $user->created_at = $currentUser['created_at'];
                 $user->updated_at = $currentUser['updated_at'];
                 $user->last_login = $currentUser['last_login'];
-                R::store($user);
+                $this->store($user);
             }
 
             return ['message' => 'Seeder ejecutado con éxito.', 'success' => true];
         } catch (\Exception $e) {
             return ['message' => $e->getMessage(), 'success' => false];
+        } finally {
+            $this->closeDB();
         }
     }
 }

@@ -7,7 +7,6 @@ namespace versaWYS\kernel;
 use app\models as Models;
 use RedBeanPHP\Cursor;
 use Twig\Environment;
-use versaWYS\kernel\helpers\Functions;
 
 class GlobalControllers
 {
@@ -49,8 +48,8 @@ class GlobalControllers
             $this->id_user = (int) $session->get('id_user');
             $this->menu_user =
                 $this->user['role'] == 'admin'
-                    ? (new Models\Dashboard())->getMenuAdmin()
-                    : (new Models\Dashboard())->getMenuUser((int) $this->id_user, (int) $this->user['id_perfil']);
+                ? (new Models\Dashboard())->getMenuAdmin()
+                : (new Models\Dashboard())->getMenuUser((int) $this->id_user, (int) $this->user['id_perfil']);
 
             if (isset($config['auth']['inactive_account_days']) && $config['auth']['inactive_account_days'] > 0) {
                 $inactive_account_days = $config['auth']['inactive_account_days'];
@@ -106,11 +105,7 @@ class GlobalControllers
 
         $externalFilters = (string) ($http->get('externalFilters') ?? '');
 
-        if ($externalFilters != '') {
-            $externalFilters = "{$externalFilters}";
-        } else {
-            $externalFilters = '';
-        }
+        $externalFilters = ($externalFilters != '') ? "{$externalFilters}" : '';
 
         if ($page == '' && !is_numeric($page)) {
             $page = 1;
@@ -119,11 +114,7 @@ class GlobalControllers
             $per_page = 15;
         }
 
-        if ($page > 1) {
-            $page = (int) ($page - 1) * $per_page;
-        } else {
-            $page = 0;
-        }
+        $page = ($page > 1) ? (int) ($page - 1) * $per_page : 0;
 
         $limit = "LIMIT $page , $per_page";
 
@@ -138,11 +129,10 @@ class GlobalControllers
 
             $filter .= ' ( ';
             foreach ($filedsToFilters as $key => $value) {
-                if ($key == 0) {
-                    $filter .= " $value LIKE '%$fitro%' ";
-                } else {
-                    $filter .= " OR $value LIKE '%$fitro%' ";
-                }
+                $filter = match ($key) {
+                    0 => " $value LIKE '%$fitro%' ",
+                    default => " OR $value LIKE '%$fitro%' ",
+                };
             }
             $filter .= ' ) ';
         }

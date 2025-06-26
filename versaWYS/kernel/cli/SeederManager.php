@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel\cli;
 
-use Exception;
-use RedBeanPHP\R;
 use RedBeanPHP\RedException;
 use versaWYS\kernel\RedBeanCnn;
 
@@ -82,7 +80,7 @@ EOT;
 
         echo "Ejecutando... $seederName....:";
         $seeder = new $seederClass();
-        $result = $seeder::run();
+        $result = $seeder->run();
 
         if ($result['success']) {
             echo $result['message'] . "\n";

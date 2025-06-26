@@ -1,6 +1,7 @@
 <script setup lang="ts">
-    import type { AccionData, actionsType } from 'versaTypes';
     import { computed, nextTick, ref, watch } from 'vue';
+
+    import type { AccionData, actionsType } from '@/dashboard/types/versaTypes';
 
     const props = defineProps({
         id: {
@@ -24,28 +25,31 @@
         },
     });
     const emit = defineEmits(['accion']);
-    const dataProps = defineModel();
+    const dataProps = defineModel('modelValue', {
+        type: String,
+        required: true,
+    });
 
     // const dataProps = computed(() => props.data);
     const idProps = computed(() => props.id);
-    const newData = ref(null);
+    const newData = ref('');
     const field = computed(() => props.field);
     const type = computed(() => props.type);
     const placeholder = computed(() => props.placeholder);
     const showCancel = computed(() => props.showCancel);
 
-    const txtInput = ref(null);
+    const txtInput = ref<HTMLInputElement | null>(null);
 
-    newData.value = dataProps.value;
+    newData.value = dataProps.value ?? '';
     watch(
         () => dataProps.value,
         () => {
-            newData.value = dataProps.value;
+            newData.value = dataProps.value ?? '';
         },
     );
 
     nextTick(() => {
-        txtInput.value.focus();
+        txtInput.value?.focus();
     });
 
     const accion = (accion: AccionData) => {
@@ -54,13 +58,13 @@
                 emit('accion', accion);
             },
             cancelUpdate: () => {
-                newData.value = dataProps.value;
+                newData.value = dataProps.value ?? '';
                 emit('accion', accion);
             },
         };
 
         const selectedAction = actions[accion.accion] || actions['default'];
-        if (typeof selectedAction === 'function') {
+        if ('function' === typeof selectedAction) {
             selectedAction();
         }
     };

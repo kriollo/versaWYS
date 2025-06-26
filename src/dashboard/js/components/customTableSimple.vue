@@ -17,25 +17,26 @@
 </docs>
 
 <script setup lang="ts">
-    import dropDown from '@/dashboard/js/components/dropDown.vue';
-    import loader from '@/dashboard/js/components/loader.vue';
-
     import { computed, reactive, ref, toRefs, watch, watchEffect } from 'vue';
 
-    type ItemSelected = {
+    import dropDown from '@/dashboard/js/components/dropDown.vue';
+    import loader from '@/dashboard/js/components/loader.vue';
+    import { GLOBAL_CONSTANTS, PAGINATION } from '@/dashboard/js/constants';
+
+    interface ItemSelected {
         id: string;
         fieldCompare: string;
-    };
+    }
 
-    type Colspan = {
+    interface Colspan {
         title: string;
         colspan: number;
-    };
+    }
 
     interface Props {
         id?: string;
         tablaTitle?: string;
-        columns: Array<string>;
+        columns: string[];
         dataInput: any[];
         fieldOrder?: string;
         perPage: number;
@@ -83,12 +84,12 @@
         reloadData,
     } = toRefs(props);
 
-    const showPerPages = [1, 5, 10, 25, 50, 100];
+    const showPerPages = [...PAGINATION.PER_PAGE_OPTIONS];
 
-    type Data = {
-        data: Array<any>;
-        columns: Array<string>;
-        colspan: Array<string>;
+    interface Data {
+        data: any[];
+        columns: string[];
+        colspan: string[];
         meta: {
             total: number;
             per_page: number;
@@ -97,18 +98,18 @@
             filter: string;
             from: number;
             to: number;
-            order: Array<string>;
+            order: string[];
         };
-    };
+    }
 
     const data = reactive<Data>({
-        data: [],
-        columns: [],
-        colspan: [],
+        data: [] as any[],
+        columns: [] as string[],
+        colspan: [] as string[],
         meta: {
             total: 0,
             per_page: perPage.value,
-            page: 1,
+            page: PAGINATION.DEFAULT_PAGE,
             total_pages: 0,
             filter: '',
             from: 0,
@@ -117,31 +118,32 @@
         },
     });
 
-    const dataTemp = ref([]);
+    const dataTemp = ref<any[]>([]);
     const refreshData = () => {
         data.columns = columns.value;
 
-        if (data.meta.filter !== '') {
+        if ('' !== data.meta.filter) {
             const filter = data.meta.filter.toLowerCase();
             dataTemp.value = dataInput.value.filter(item =>
-                Object.values(item).some((value: string) =>
-                    value.toString().toLowerCase().includes(filter),
+                Object.values(item).some((value: unknown) =>
+                    value?.toString().toLowerCase().includes(filter),
                 ),
             );
         } else {
             dataTemp.value = dataInput.value;
         }
         // Paginación
-        const start = (data.meta.page - 1) * data.meta.per_page;
+        const start =
+            (data.meta.page - PAGINATION.DEFAULT_PAGE) * data.meta.per_page;
         const end = data.meta.page * data.meta.per_page;
         data.data = dataTemp.value.slice(start, end);
 
         data.meta.total = dataTemp.value.length;
         data.meta.total_pages = Math.ceil(data.meta.total / data.meta.per_page);
-        data.meta.from = start + 1;
+        data.meta.from = start + PAGINATION.DEFAULT_PAGE;
         data.meta.to = end > data.meta.total ? data.meta.total : end;
 
-        if (data.meta.total === 0) {
+        if (GLOBAL_CONSTANTS.ZERO === data.meta.total) {
             msg.value = 'No se encontraron registros';
         }
     };
@@ -176,50 +178,54 @@
     );
 
     watchEffect(() => {
-        emit('update:totalRegisters', data.meta?.total ?? 0);
+        emit(
+            'update:totalRegisters',
+            data.meta?.total ?? GLOBAL_CONSTANTS.ZERO,
+        );
     });
 
     const clearFiler = () => {
         data.meta.filter = '';
         refreshData();
     };
-    const setPerPage = per_page => {
-        data.meta.page = 1;
+    const setPerPage = (per_page: number) => {
+        data.meta.page = PAGINATION.DEFAULT_PAGE;
         data.meta.per_page = per_page;
 
         refreshData();
     };
     const setFilter = () => {
-        data.meta.page = 1;
+        data.meta.page = PAGINATION.DEFAULT_PAGE;
         refreshData();
     };
-    const setOrder = (field, order) => {
-        data.meta.page = 1;
+    const setOrder = (field: string, order: string) => {
+        data.meta.page = PAGINATION.DEFAULT_PAGE;
 
-        if (data.meta.order[0] !== field) {
+        if (data.meta.order[PAGINATION.ARRAY_FIRST_INDEX] !== field) {
             order = 'asc';
         }
 
         data.meta.order = [field, order];
         refreshData();
     };
-    const changePage = page => {
-        if (page === 'siguiente') {
+    const changePage = (page: number | string) => {
+        let goPage = GLOBAL_CONSTANTS.ZERO;
+        if ('siguiente' === page) {
             if (data.meta.page < data.meta.total_pages) {
-                page = data.meta.page + 1;
+                goPage = data.meta.page + PAGINATION.DEFAULT_PAGE;
             } else {
                 return;
             }
         }
-        if (page === 'anterior') {
-            if (data.meta.page > 1) {
-                page = data.meta.page - 1;
+        if ('anterior' === page) {
+            if (PAGINATION.DEFAULT_PAGE < data.meta.page) {
+                goPage = data.meta.page - PAGINATION.DEFAULT_PAGE;
             } else {
                 return;
             }
         }
 
-        data.meta.page = page;
+        data.meta.page = goPage;
 
         refreshData();
     };
@@ -231,39 +237,45 @@
         const from = page - limit;
         const to = page + limit;
 
-        if (from < 1) {
-            if (total_pages < limit * 2) {
+        if (PAGINATION.DEFAULT_PAGE > from) {
+            if (total_pages < limit * PAGINATION.PAGES_LIMIT_MULTIPLIER) {
                 const arr = Array.from(
                     { length: total_pages },
-                    (_, i) => i + 1,
-                );
-                return arr;
-            }
-            const arr = Array.from({ length: limit * 2 }, (_, i) => i + 1);
-            return arr;
-        }
-
-        if (to > total_pages) {
-            if (total_pages < limit * 2) {
-                const arr = Array.from(
-                    { length: total_pages },
-                    (_, i) => i + 1,
+                    (_, i) => i + PAGINATION.DEFAULT_PAGE,
                 );
                 return arr;
             }
             const arr = Array.from(
-                { length: limit * 2 },
+                { length: limit * PAGINATION.PAGES_LIMIT_MULTIPLIER },
+                (_, i) => i + PAGINATION.DEFAULT_PAGE,
+            );
+            return arr;
+        }
+
+        if (to > total_pages) {
+            if (total_pages < limit * PAGINATION.PAGES_LIMIT_MULTIPLIER) {
+                const arr = Array.from(
+                    { length: total_pages },
+                    (_, i) => i + PAGINATION.DEFAULT_PAGE,
+                );
+                return arr;
+            }
+            const arr = Array.from(
+                { length: limit * PAGINATION.PAGES_LIMIT_MULTIPLIER },
                 (_, i) => total_pages - i,
             );
             return arr.reverse();
         }
 
-        const arr = Array.from({ length: limit * 2 }, (_, i) => from + i);
+        const arr = Array.from(
+            { length: limit * PAGINATION.PAGES_LIMIT_MULTIPLIER },
+            (_, i) => from + i,
+        );
         return arr;
     });
 
     //detectar cambios en itemSelected y crear clase para linea de la tabla
-    const classLineTable = item => {
+    const classLineTable = (item: any): string => {
         if (
             itemSelected.value?.fieldCompare !== undefined &&
             itemSelected.value.id === item.id

@@ -1,22 +1,21 @@
 <script setup lang="ts">
-    import dropZone from '@/dashboard/js/components/dropZone.vue';
-    import loader from '@/dashboard/js/components/loader.vue';
-    import modal from '@/dashboard/js/components/modal.vue';
-    import {
-        getSheetNames,
-        readXlsx,
-    } from '@/dashboard/js/composables/useXlsx';
-    import { html } from 'P@/vendor/code-tag/code-tag-esm';
+    import { html } from 'code-tag';
     import Swal from 'sweetalert2';
     import { ref, toRefs } from 'vue';
 
-    import type { AccionData, actionsType, SwalResult } from 'versaTypes';
+    import dropZone from '@/dashboard/js/components/dropZone.vue';
+    import loader from '@/dashboard/js/components/loader.vue';
+    import modal from '@/dashboard/js/components/modal.vue';
+    import { getSheetNames, readXlsx } from '@/dashboard/js/composables/useXlsx';
+    import type { AccionData, actionsType, SwalResult } from '@/dashboard/types/versaTypes';
+
+    import { GLOBAL_CONSTANTS } from '@/dashboard/js/constants';
 
     const emit = defineEmits(['accion']);
 
     interface Props {
         from?: string;
-        files: any;
+        files: unknown[];
         showModal: boolean;
         returnData?: boolean;
     }
@@ -31,17 +30,17 @@
 
     const { files, showModal, from, returnData } = toRefs(props);
 
-    const accion = (response: AccionData) => {
+    const accion = (response: AccionData): void => {
         const actions: actionsType = {
-            addFiles: () => showDialogSelectSheet(response.files),
-            closeModal: () =>
+            addFiles: (): Promise<void> => showDialogSelectSheet(response.files),
+            closeModal: (): void =>
                 emit('accion', {
                     accion: 'closeModalUploadExcel',
                     from: from.value,
                 }),
         };
         const fn = actions[response.accion];
-        if (typeof fn === 'function') {
+        if ('function' === typeof fn) {
             fn();
         }
     };
@@ -55,10 +54,8 @@
             icon: 'warning',
             html: html`
                 <div class="flex flex-wrap content-start ">
-                    <label
-                        class="block text-sm font-medium text-gray-900 dark:text-white">
-                        Una vez subido el archivo: ${file.archivo}, no podrá ser
-                        revertido
+                    <label class="block text-sm font-medium text-gray-900 dark:text-white">
+                        Una vez subido el archivo: ${file.archivo}, no podrá ser revertido
                     </label>
                     <div class="flex gap-2">
                         <input
@@ -66,9 +63,7 @@
                             type="checkbox"
                             checked
                             class="h-5 w-5 text-green-600 dark:text-green-400 focus:ring-green-500 dark:focus:ring-green-500" />
-                        <label
-                            class="block text-sm font-medium text-gray-900 dark:text-white"
-                            for="checkPeraLinea">
+                        <label class="block text-sm font-medium text-gray-900 dark:text-white" for="checkPeraLinea">
                             Usar Primera línea como encabezado
                         </label>
                     </div>
@@ -91,17 +86,15 @@
         showLoader.value = false;
         if (result.isConfirmed) {
             const sheet = result.value;
-            const data = returnData.value
-                ? await readXlsx(file.file, sheet)
-                : [];
+            const data = returnData.value ? await readXlsx(file.file, sheet) : [];
 
             let primeraLinea = false;
-            const check = document.getElementById('checkPeraLinea');
+            const check = document.querySelector('#checkPeraLinea');
             if (check instanceof HTMLInputElement) {
                 primeraLinea = check.checked;
             }
 
-            if (returnData.value && data.length === 0) {
+            if (returnData.value && data.length === GLOBAL_CONSTANTS.ZERO) {
                 Swal.fire({
                     title: 'Error',
                     text: 'No se encontraron datos en la hoja seleccionada',
@@ -126,8 +119,7 @@
     <modal idModal="uploadFile" :showModal="showModal">
         <template #modalTitle>
             <div class="flex justify-between">
-                <h3
-                    class="text-lg font-medium text-gray-900 dark:text-white flex gap-2">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white flex gap-2">
                     Importar Archivo
                     <loader v-if="showLoader" />
                 </h3>
@@ -137,11 +129,7 @@
                         type="button"
                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
                         @click="accion({ accion: 'closeModal' })">
-                        <svg
-                            class="w-3 h-3"
-                            fill="none"
-                            viewBox="0 0 14 14"
-                            xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                 stroke="currentColor"
@@ -159,9 +147,7 @@
                     :fileTypeValid="fileTypes"
                     @accion="accion"
                     :files="files"
-                    :msgTiposArchivos="
-                        'Tipos Validos: ' + fileTypes.join(', ') + ' - < 10 MB'
-                    " />
+                    :msgTiposArchivos="'Tipos Validos: ' + fileTypes.join(', ') + ' - < 10 MB'" />
             </div>
         </template>
         <template #modalFooter>

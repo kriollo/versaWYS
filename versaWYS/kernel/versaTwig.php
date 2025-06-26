@@ -134,6 +134,13 @@ class versaTwig extends Environment
 
     public static function errorHandler($errno, $errstr, $errfile, $errline): void
     {
+        global $versawys_error_handling_in_progress;
+
+        // Si ya se está manejando un error, evitar duplicación
+        if ($versawys_error_handling_in_progress) {
+            return;
+        }
+
         Response::jsonError(
             [
                 'success' => 0,
@@ -164,9 +171,6 @@ class versaTwig extends Environment
 
         $dataNow = new \DateTime();
         $dataNow = $dataNow->format('Y-m-d H:i:s');
-
-        // console.log('%cHora Server: $dataNow', 'color: #fff; background-color: #f00; padding: 5px; border-radius: 5px; font-size: 1em;');
-        // console.log('%cHora Cliente: ' + new Date().toLocaleTimeString(), 'color: #fff; background-color: #f00; padding: 5px; border-radius: 5px; font-size: 1em;');
 
         return "<div class='flex justify-between w-full bottom-0 left-0 bg-red-900 text-white fixed z-50 p-2 animate-Debugfade' id='debug'><div class='flex items-center'>Modo Debug: Activado</div><div class='flex items-center gap-1'><img class='w-6 h-6' src='/public/dashboard/img/favicon.webp'></img>VersaWYS Framework </div><div id='tiempoCarga'></div></div><script type='module'>console.log('%c$version', 'color: #fff; background-color: #f00; padding: 5px; border-radius: 5px; font-size: 1em;');const antes=new Date('$dataNow').getTime(); function tdc(){ return (new Date().getTime() - antes) / 1e3 + 's';} window.onload=function (){ document.getElementById('tiempoCarga').innerHTML='CARGA: ' + tdc();}; </script>";
     }
@@ -235,26 +239,135 @@ class versaTwig extends Environment
 
     private function catch($e): void
     {
-        global $config;
-        if ($config['build']['debug']) {
-            Response::jsonError(
-                [
-                    'success' => 0,
-                    'message' => $e->getMessage(),
-                    'code' => $e->getCode(),
-                    'line' => $e->getLine(),
-                    'file' => $e->getFile(),
-                ],
-                500
-            );
-        } else {
-            Response::jsonError(
-                [
-                    'success' => 0,
-                    'message' => 'Internal Server Error',
-                ],
-                500
-            );
+        global $config, $versawys_error_handling_in_progress;
+
+        // Si ya se está manejando un error, evitar duplicación
+        if ($versawys_error_handling_in_progress) {
+            // Solo mostrar error simple para evitar loops
+            http_response_code(500);
+            echo "Twig template error occurred during error handling. Message: " . htmlspecialchars($e->getMessage());
+            exit();
         }
+
+        // Marcar que estamos manejando un error
+        $versawys_error_handling_in_progress = true;
+
+        // Protección contra loops infinitos
+        static $catchCount = 0;
+        $catchCount++;
+
+        if ($catchCount > 2) {
+            // Si ya hemos capturado demasiados errores, salir con error simple
+            http_response_code(500);
+            echo "Error loop detected in Twig rendering. Message: " . htmlspecialchars($e->getMessage());
+            exit();
+        }
+
+        // Obtener información detallada del error
+        $trace = $e->getTrace();
+        $realOrigin = $this->findUserCodeOrigin($trace);
+
+        $errorData = [
+            'success' => 0,
+            'type' => 'Twig Template Error',
+            'message' => $e->getMessage(),
+            'code' => $e->getCode(),
+            'template_file' => $e->getFile(),
+            'template_line' => $e->getLine(),
+            'real_origin' => $realOrigin,
+            'user_stack_trace' => $this->buildUserStackTrace($trace),
+            'timestamp' => date('Y-m-d H:i:s'),
+            // Agregar campos que espera la plantilla
+            'real_file' => $realOrigin['file'] ?? null,
+            'real_line' => $realOrigin['line'] ?? null,
+            'real_function' => $realOrigin['function'] ?? null,
+            'real_class' => $realOrigin['class'] ?? null
+        ];
+
+        if ($config['build']['debug']) {
+            $errorData['full_stack'] = $e->getTraceAsString();
+            $errorData['errors'] = error_get_last();
+            $errorData['context'] = [
+                'request_uri' => $_SERVER['REQUEST_URI'] ?? 'Unknown',
+                'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'Unknown'
+            ];
+        } else {
+            $errorData = [
+                'success' => 0,
+                'message' => 'Internal Server Error',
+                'timestamp' => date('Y-m-d H:i:s')
+            ];
+        }
+
+        Response::jsonError($errorData, 500);
+    }
+
+    /**
+     * Encuentra el origen real del error en el código del usuario
+     */
+    private function findUserCodeOrigin(array $trace): array
+    {
+        $skipPaths = [
+            '/vendor/',
+            '/twig/',
+            'versaTwig.php',
+            '/cache/',
+            '/compiled/'
+        ];
+
+        foreach ($trace as $frame) {
+            if (isset($frame['file'])) {
+                $shouldSkip = false;
+                foreach ($skipPaths as $skipPath) {
+                    if (strpos($frame['file'], $skipPath) !== false) {
+                        $shouldSkip = true;
+                        break;
+                    }
+                }
+
+                if (!$shouldSkip) {
+                    return [
+                        'file' => str_replace(getcwd(), '', $frame['file']),
+                        'line' => $frame['line'] ?? 'Unknown',
+                        'function' => $frame['function'] ?? 'Unknown',
+                        'class' => $frame['class'] ?? null
+                    ];
+                }
+            }
+        }
+
+        return ['file' => 'Unknown', 'line' => 'Unknown', 'function' => 'Unknown'];
+    }
+
+    /**
+     * Construye un stack trace enfocado en el código del usuario
+     */
+    private function buildUserStackTrace(array $trace): array
+    {
+        $userTrace = [];
+        $skipPaths = ['/vendor/', '/twig/', '/cache/', '/compiled/'];
+
+        foreach ($trace as $frame) {
+            if (isset($frame['file'])) {
+                $shouldSkip = false;
+                foreach ($skipPaths as $skipPath) {
+                    if (strpos($frame['file'], $skipPath) !== false) {
+                        $shouldSkip = true;
+                        break;
+                    }
+                }
+
+                if (!$shouldSkip) {
+                    $userTrace[] = [
+                        'file' => str_replace(getcwd(), '', $frame['file']),
+                        'line' => $frame['line'] ?? 'Unknown',
+                        'function' => $frame['function'] ?? 'Unknown',
+                        'class' => $frame['class'] ?? null
+                    ];
+                }
+            }
+        }
+
+        return $userTrace;
     }
 }

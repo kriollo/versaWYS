@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace app\models;
 
-use Random\RandomException;
-use RedBeanPHP\R;
 use RedBeanPHP\RedException\SQL;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\RedBeanCnn;
@@ -13,7 +11,15 @@ use versaWYS\kernel\RedBeanCnn;
 /**
  * Class versausers
  *
- * This class represents the Users model in the application.
+ * Thi    public function updatePassworById($params): int|string
+    {
+        $user = $this->findOne('versausers', 'id = ?', [$params['id']]);
+        $user->password = $params['password'];
+        $user->expiration_pass = $params['expiration_pass'];
+        $user->last_login = date('Y-m-d H:i:s');
+        $user->updated_at = date('Y-m-d H:i:s');
+        return $this->store($user);
+    }epresents the Users model in the application.
  * It provides methods to interact with the users table in the database.
  */
 class Users extends RedBeanCnn
@@ -48,12 +54,11 @@ class Users extends RedBeanCnn
         $filter = trim($where) != '' ? "WHERE $where" : '';
         $fields = $fields ? implode(',', $fields) : '*';
 
-        $result = R::getAll("SELECT SQL_CALC_FOUND_ROWS $fields
+        $result = $this->getAll("SELECT SQL_CALC_FOUND_ROWS $fields
         FROM versausers vu
-        LEFT JOIN versaperfil vp
-        ON vp.id = vu.id_perfil
+        LEFT JOIN versaperfil vp ON vp.id = vu.id_perfil
         $filter $order $limit");
-        $total = R::getCell('SELECT FOUND_ROWS()');
+        $total = $this->getCell('SELECT FOUND_ROWS()');
         return ['total' => $total, 'data' => $result];
     }
 
@@ -64,10 +69,10 @@ class Users extends RedBeanCnn
      * @param string $field The field to search in. Defaults to 'id'.
      * @return array The user data if found, an empty array otherwise.
      */
-    public function find(int|string $id, string $field = 'id'): array
+    public function find(int|string $id, string $field = 'u.id'): array
     {
-        $result = R::findOne('versausers', "$field = ?", [$id]);
-        return $result ? $result->export() : [];
+        $result = $this->getRow("SELECT u.* FROM versausers as u  WHERE $field = ?", [$id]);
+        return $result ? $result : [];
     }
 
     /**
@@ -80,7 +85,7 @@ class Users extends RedBeanCnn
      */
     public function findUserByEmail(string $email): array
     {
-        return $this->find($email, 'email');
+        return $this->find($email, 'u.email');
     }
 
     /**
@@ -94,9 +99,9 @@ class Users extends RedBeanCnn
      */
     public function saveTokenResetPass(string $email, string $token): void
     {
-        $user = R::findOne('versausers', 'email = ?', [$email]);
+        $user = $this->findOne('versausers', 'email = ?', [$email]);
         $user->restore_token = $token;
-        R::store($user);
+        $this->store($user);
     }
 
     /**
@@ -109,7 +114,7 @@ class Users extends RedBeanCnn
      */
     public function findUserByToken(string $token): array
     {
-        return $this->find($token, 'restore_token');
+        return $this->find($token, 'u.restore_token');
     }
 
     /**
@@ -124,11 +129,11 @@ class Users extends RedBeanCnn
      */
     public function updatePassword(string $email, string $password): void
     {
-        $user = R::findOne('versausers', 'email = ?', [$email]);
+        $user = $this->findOne('versausers', 'email = ?', [$email]);
         $user->password = $password;
         $user->last_login = date('Y-m-d H:i:s');
         $user->restore_token = null;
-        R::store($user);
+        $this->store($user);
     }
 
     /**
@@ -147,7 +152,7 @@ class Users extends RedBeanCnn
      */
     public function create($params): int|string
     {
-        $user = R::dispense('versausers');
+        $user = $this->dispense('versausers');
         $user->tokenid = Functions::generateCSRFToken();
         $user->name = $params['name'];
         $user->email = $params['email'];
@@ -159,7 +164,7 @@ class Users extends RedBeanCnn
         $user->id_perfil = $params['perfil'];
         $user->created_at = date('Y-m-d H:i:s');
         $user->updated_at = date('Y-m-d H:i:s');
-        $result = R::store($user);
+        $result = $this->store($user);
 
         if ($result) {
             $this->setPerfilUser($user->id, $params['perfil']);
@@ -173,14 +178,14 @@ class Users extends RedBeanCnn
      */
     public function update($params): int|string
     {
-        $user = R::findOne('versausers', 'tokenid = ?', [$params['tokenid']]);
+        $user = $this->findOne('versausers', 'tokenid = ?', [$params['tokenid']]);
         $user->name = $params['name'];
         $user->password = $params['password'];
         $user->expiration_pass = $params['expiration_pass'];
         $user->role = $params['role'];
         $user->id_perfil = $params['perfil'];
         $user->updated_at = date('Y-m-d H:i:s');
-        $result = R::store($user);
+        $result = $this->store($user);
 
         if ($result) {
             $this->setPerfilUser($user->id, $params['perfil']);
@@ -191,8 +196,8 @@ class Users extends RedBeanCnn
 
     private function setPerfilUser($idUser, $idPerfil): void
     {
-        R::exec('DELETE FROM versaperfildetalleuser WHERE id_user = ?', [$idUser]);
-        R::exec(
+        $this->exec('DELETE FROM versaperfildetalleuser WHERE id_user = ?', [$idUser]);
+        $this->exec(
             'INSERT INTO versaperfildetalleuser (id_user, menu_id, submenu_id) SELECT ?, menu_id, submenu_id FROM versaperfildetalle WHERE perfil_id = ?',
             [$idUser, $idPerfil]
         );
@@ -203,12 +208,12 @@ class Users extends RedBeanCnn
      */
     public function delete($id): int|string
     {
-        $user = R::findOne('versausers', 'tokenid = ?', [$id]);
+        $user = $this->findOne('versausers', 'tokenid = ?', [$id]);
         $user->status = $user->status === '1' ? '0' : '1';
         if ($user->status === '1') {
             $user->last_login = date('Y-m-d H:i:s');
         }
-        return R::store($user);
+        return $this->store($user);
     }
 
     /**
@@ -216,41 +221,41 @@ class Users extends RedBeanCnn
      */
     public function updatePassworByTokenId($params): int|string
     {
-        $user = R::findOne('versausers', 'tokenid = ?', [$params['tokenid']]);
+        $user = $this->findOne('versausers', 'tokenid = ?', [$params['tokenid']]);
         $user->password = $params['new_password'];
         $user->expiration_pass = $params['expiration_pass'];
         $user->updated_at = date('Y-m-d H:i:s');
-        return R::store($user);
+        return $this->store($user);
     }
 
     public function updatePassworById($params): int|string
     {
-        $user = R::findOne('versausers', 'id = ?', [$params['id']]);
+        $user = $this->findOne('versausers', 'id = ?', [$params['id']]);
         $user->password = $params['password'];
         $user->expiration_pass = $params['expiration_pass'];
         $user->last_login = date('Y-m-d H:i:s');
         $user->updated_at = date('Y-m-d H:i:s');
-        return R::store($user);
+        return $this->store($user);
     }
 
     public function updateAvatar($params): int|string
     {
-        $user = R::findOne('versausers', 'id = ?', [$params['id']]);
+        $user = $this->findOne('versausers', 'id = ?', [$params['id']]);
         $user->avatar = $params['avatar'];
         $user->updated_at = date('Y-m-d H:i:s');
-        return R::store($user);
+        return $this->store($user);
     }
 
     public function updateLastLogin($idUser): void
     {
-        $user = R::findOne('versausers', 'id = ?', [$idUser]);
+        $user = $this->findOne('versausers', 'id = ?', [$idUser]);
         $user->last_login = date('Y-m-d H:i:s');
-        R::store($user);
+        $this->store($user);
     }
 
     public function updateStatusInactiveAccount($daysInactive): void
     {
-        R::exec('UPDATE versausers SET status = 0 WHERE last_login < DATE_SUB(NOW(), INTERVAL ? DAY) AND status = 1', [
+        $this->exec('UPDATE versausers SET status = 0 WHERE last_login < DATE_SUB(NOW(), INTERVAL ? DAY) AND status = 1', [
             $daysInactive,
         ]);
     }

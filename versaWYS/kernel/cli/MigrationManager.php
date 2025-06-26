@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace versaWYS\kernel\cli;
 
 use Exception;
-use RedBeanPHP\R;
 use RedBeanPHP\RedException;
 use versaWYS\kernel\RedBeanCnn;
 
@@ -22,16 +21,16 @@ class MigrationManager extends RedBeanCnn
     public function __construct()
     {
         $this->connet();
-        R::freeze(false);
-        R::debug(true, 1);
+        $this->freeze(false);
+        $this->debug(true, 1);
     }
     public function __destruct()
     {
-        R::freeze();
+        $this->freeze();
         $this->closeDB();
     }
 
-    public static function runUP($close = true): void
+    public  function runUP($close = true): void
     {
         $className = '';
         try {
@@ -53,7 +52,7 @@ class MigrationManager extends RedBeanCnn
                 }
 
                 echo "Ejecutando... $className....:";
-                $result = $fullClassName::up();
+                $result = (new $fullClassName())->up();
                 echo "{$result['message']}\n";
                 $c++;
 
@@ -62,10 +61,10 @@ class MigrationManager extends RedBeanCnn
                     exit();
                 }
 
-                $manager = R::dispense('versamigrations');
+                $manager = $this->dispense('versamigrations');
                 $manager->name = $className;
                 $manager->created_at = date('Y-m-d H:i:s');
-                R::store($manager);
+                $this->store($manager);
             }
             if ($c == 0) {
                 echo "No hay migraciones pendientes.\n";
@@ -112,7 +111,7 @@ class MigrationManager extends RedBeanCnn
             exit();
         }
         try {
-            R::exec("DELETE FROM versamigrations WHERE name = '$className'");
+            $this->exec("DELETE FROM versamigrations WHERE name = '$className'");
 
             echo "Migración ejecutada con éxito.\n";
 
@@ -147,10 +146,10 @@ declare(strict_types=1);
 
 namespace app\migrations;
 
-use RedBeanPHP\R;
+use versaWYS\kernel\RedBeanCnn;
 
-class $migrationName {
-    public static function up() {
+class $migrationName extends RedBeanCnn{
+    public function up() {
         try {
             // Agrega tu lógica de migración aquí
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
@@ -159,7 +158,7 @@ class $migrationName {
         }
     }
 
-    public static function down() {
+    public function down() {
         try {
             // Agrega tu lógica para revertir la migración aquí
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
@@ -176,9 +175,9 @@ EOT;
         echo "Migración $migrationFile creada.\n";
     }
 
-    public static function checkIfExecuted($migration): bool
+    public  function checkIfExecuted($migration): bool
     {
-        $migrations = R::findAll('versamigrations');
+        $migrations = $this->findAll('versamigrations');
         foreach ($migrations as $m) {
             if ($m->name == $migration) {
                 return true;
@@ -189,20 +188,20 @@ EOT;
 
     public function rollbackAll(): void
     {
-        $migrations = R::getAll('SELECT * FROM versamigrations ORDER BY id DESC');
+        $migrations = $this->getAll('SELECT * FROM versamigrations ORDER BY id DESC');
         foreach ($migrations as $m) {
             echo "Ejecutando rollback... {$m['name']}... :";
 
             if (!file_exists(self::$path . $m['name'] . '.php')) {
                 echo 'No existe la migración ' . $m['name'] . ".php\n";
-                R::exec("DELETE FROM versamigrations WHERE name = '{$m['name']}'");
+                $this->exec("DELETE FROM versamigrations WHERE name = '{$m['name']}'");
                 continue;
             }
 
             $className = basename($m['name'], '.php');
             $fullClassName = self::$pathClass . $className;
 
-            $result = $fullClassName::down();
+            $result = (new $fullClassName())->down();
             echo "{$result['message']}\n";
 
             if (!$result['success']) {
@@ -214,7 +213,7 @@ EOT;
 
     public function rollback(): void
     {
-        $migrations = R::getAll('SELECT * FROM versamigrations');
+        $migrations = $this->getAll('SELECT * FROM versamigrations');
         $migrations = array_reverse($migrations);
         $this->runDown($migrations[0]['name']);
     }

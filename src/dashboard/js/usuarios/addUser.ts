@@ -1,19 +1,25 @@
+import { html } from 'code-tag';
+
 import { $dom, validateFormRequired } from '@/dashboard/js/composables/dom.js';
+import { API_RESPONSE_CODES } from '@/dashboard/js/constants';
 import { versaAlert, versaFetch } from '@/dashboard/js/functions';
-import { html } from 'P@/vendor/code-tag/code-tag-esm.js';
-import type { VersaParamsFetch } from 'versaTypes';
+import type { VersaParamsFetch } from '@/dashboard/types/versaTypes';
 
-const btnAddUser = $dom('#btnAddUser');
-if (btnAddUser !== null) {
+const btnAddUser = $dom('#btnAddUser') as HTMLButtonElement | null;
+if (btnAddUser) {
     btnAddUser.addEventListener('click', async () => {
-        const formNewUser = $dom('#formNewUser');
-        if (!(formNewUser instanceof HTMLFormElement)) return false;
+        const formNewUser = $dom('#formNewUser') as HTMLFormElement | null;
+        if (!formNewUser) {
+            return false;
+        }
 
-        if (validateFormRequired(formNewUser) === false) return false;
+        if (false === validateFormRequired(formNewUser)) {
+            return false;
+        }
 
         const formData = new FormData(formNewUser);
 
-        const existsId = formData.get('tokenid') !== null;
+        const existsId = null !== formData.get('tokenid');
 
         const objectData = Object.fromEntries(formData.entries());
 
@@ -27,14 +33,18 @@ if (btnAddUser !== null) {
         } as VersaParamsFetch;
 
         const alerta = $dom('#alert');
-        if (!(alerta instanceof HTMLDivElement)) return false;
+        if (!(alerta instanceof HTMLDivElement)) {
+            return false;
+        }
         alerta.innerHTML = '';
 
         const data = await versaFetch(paramsFetch);
-        if (data.success !== 1) {
+        if (API_RESPONSE_CODES.SUCCESS !== data.success) {
             let errores = `<ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">`;
             for (const key in data.errors) {
-                errores += `<li>${data.errors[key]}</li>`;
+                if (Object.hasOwn(data.errors, key)) {
+                    errores += `<li>${data.errors[key]}</li>`;
+                }
             }
             errores += `</ul>`;
 
@@ -62,11 +72,7 @@ if (btnAddUser !== null) {
                         aria-label="Close"
                         data-dismiss-target="#alert-4">
                         <span class="sr-only">Close</span>
-                        <svg
-                            class="w-3 h-3"
-                            fill="none"
-                            viewBox="0 0 14 14"
-                            xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                 stroke="currentColor"
@@ -84,22 +90,23 @@ if (btnAddUser !== null) {
             message: data.message,
             type: 'success',
             callback: () => {
-                window.location.href = '/admin/usuarios';
+                globalThis.location.href = '/admin/usuarios';
             },
         });
     });
     // Show Password
-    const showPass = $dom('#togglePassword');
-    const imgShowPass = $dom('#imgShowPass');
-    const imgHiddenPass = $dom('#imgHiddenPass');
-    const password = $dom('#password');
-
-    if (showPass != null) {
+    const showPass = $dom('#togglePassword') as HTMLSpanElement | null;
+    const imgShowPass = $dom('#imgShowPass') as HTMLImageElement;
+    const imgHiddenPass = $dom('#imgHiddenPass') as HTMLImageElement;
+    const password = $dom('#password') as HTMLInputElement;
+    if (showPass && imgShowPass && imgHiddenPass && password) {
         showPass.addEventListener('click', event => {
             event.preventDefault();
 
-            if (!(password instanceof HTMLInputElement)) return;
-            if (password.type == 'password') {
+            if (!(password instanceof HTMLInputElement)) {
+                return;
+            }
+            if ('password' === password.type) {
                 password.type = 'text';
                 imgShowPass.classList.remove('hidden');
                 imgHiddenPass.classList.add('hidden');

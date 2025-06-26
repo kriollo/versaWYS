@@ -1,4 +1,8 @@
 <script setup lang="ts">
+    import { html } from 'code-tag';
+    import Swal from 'sweetalert2';
+    import { inject, onWatcherCleanup, ref, watchEffect } from 'vue';
+
     import check from '@/dashboard/js/components/check.vue';
     import modal from '@/dashboard/js/components/modal.vue';
     import {
@@ -6,17 +10,23 @@
         versaAlert,
         versaFetch,
     } from '@/dashboard/js/functions';
-    import { html } from 'P@/vendor/code-tag/code-tag-esm';
-    import Swal from 'sweetalert2';
-    import { inject, onWatcherCleanup, ref, watchEffect } from 'vue';
+    import {
+        type itemSelectedType,
+        ShowModalFormInjection,
+    } from '@/dashboard/js/modules/InjectKeys';
+    import type {
+        AccionData,
+        actionsType,
+        VersaParamsFetch,
+    } from '@/dashboard/types/versaTypes';
 
-    import { ShowModalFormInjection } from '@/dashboard/js/modules/InjectKeys';
-    import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
+    import { API_RESPONSE_CODES } from '@/dashboard/js/constants';
 
     const showModalForm = ShowModalFormInjection.inject();
     const csrf_token = inject<string>('csrf_token');
     const showModal = ref(false);
-    const newModule = {
+    const newModule = <itemSelectedType>{
+        id: 0,
         action: 'create',
         seccion: '',
         nombre: '',
@@ -28,34 +38,30 @@
         csrf_token,
     };
 
-    const localFormData = ref(JSON.parse(JSON.stringify(newModule)));
+    const localFormData = ref<itemSelectedType>({ ...newModule });
 
     watchEffect(() => {
         if (showModalForm.showModalForm) {
             showModal.value = showModalForm.showModalForm;
-            localFormData.value = JSON.parse(
-                JSON.stringify(
-                    showModalForm.itemSelected
-                        ? showModalForm.itemSelected
-                        : newModule,
-                ),
-            );
+            localFormData.value = {
+                ...(showModalForm.itemSelected
+                    ? showModalForm.itemSelected
+                    : newModule),
+            };
             if (showModalForm.itemSelected) {
                 localFormData.value.action = 'edit';
                 localFormData.value.icono = removeScape(
                     showModalForm.itemSelected.icono,
                 );
-                localFormData.value.fill =
-                    showModalForm.itemSelected.fill === '1';
-                localFormData.value.estado =
-                    showModalForm.itemSelected?.estado === '1';
+                localFormData.value.fill = showModalForm.itemSelected.fill;
+                localFormData.value.estado = showModalForm.itemSelected.estado;
                 localFormData.value.csrf_token = csrf_token;
             }
         }
 
         onWatcherCleanup(() => {
             showModal.value = false;
-            localFormData.value = JSON.parse(JSON.stringify(newModule));
+            localFormData.value = { ...newModule };
         });
     });
 
@@ -67,7 +73,7 @@
         } as VersaParamsFetch;
 
         const response = await versaFetch(params);
-        if (response.success === 0) {
+        if (API_RESPONSE_CODES.ERROR === response.success) {
             const errores = html`
                 <ul
                     class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
@@ -99,8 +105,11 @@
                         confirmButtonText: 'Recargar',
                         cancelButtonText: 'Cancelar',
                     });
-                    if (result.isConfirmed) window.location.reload();
-                    else accion({ accion: 'closeModal' });
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    } else {
+                        accion({ accion: 'closeModal' });
+                    }
                 },
             });
         }
@@ -115,7 +124,7 @@
             default: () => console.log('Accion no encontrada'),
         };
         const selectedAction = actions[accion.accion] || actions['default'];
-        if (typeof selectedAction === 'function') {
+        if ('function' === typeof selectedAction) {
             selectedAction();
         }
     };
@@ -130,7 +139,7 @@
         <template v-slot:modalTitle>
             <div class="flex justify-between">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                    Módulo
+                    Configurar Módulo
                 </h3>
 
                 <div class="float-left">
@@ -231,7 +240,6 @@
                                     <svg
                                         class="w-full h-full text-gray-800 dark:text-white text-center"
                                         :fill="
-                                            localFormData.fill === '1' ||
                                             localFormData.fill === true
                                                 ? 'currentColor'
                                                 : 'none'

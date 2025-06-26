@@ -1,4 +1,5 @@
 import { type InjectionKey, inject, provide } from 'vue';
+
 export function createInjection<T>(keyDesc: string) {
     const key: InjectionKey<T> = Symbol(keyDesc);
     return {

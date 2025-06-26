@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace app\migrations;
 
-use RedBeanPHP\R;
+use versaWYS\kernel\RedBeanCnn;
 
-class m20241020025440_expirationpassuser
+class m20241020025440_expirationpassuser extends RedBeanCnn
 {
-    public static function up()
+    public function up()
     {
         try {
-            R::exec('ALTER TABLE versausers ADD COLUMN expiration_pass DATETIME NULL DEFAULT NULL AFTER password');
+            $this->exec('ALTER TABLE versausers ADD COLUMN expiration_pass DATETIME NULL DEFAULT NULL AFTER password');
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
         } catch (\Exception $e) {
             return ['message' => $e->getMessage(), 'success' => false];
         }
     }
 
-    public static function down()
+    public function down()
     {
         try {
-            R::exec('ALTER TABLE versausers DROP COLUMN expiration_pass');
+            $this->exec('ALTER TABLE versausers DROP COLUMN expiration_pass');
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
         } catch (\Exception $e) {
             return ['message' => $e->getMessage(), 'success' => false];

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace app\models;
 
-use RedBeanPHP\R;
 use versaWYS\kernel\RedBeanCnn;
 
 class Pagination extends RedBeanCnn
@@ -19,8 +18,8 @@ class Pagination extends RedBeanCnn
         $filter = trim($where) != '' ? "WHERE $where" : '';
         $fields = $fields ? implode(',', $fields) : '*';
 
-        $result = R::getAll("SELECT SQL_CALC_FOUND_ROWS $fields FROM $table $filter $order $limit");
-        $total = R::getCell('SELECT FOUND_ROWS()');
+        $result = $this->getAll("SELECT SQL_CALC_FOUND_ROWS $fields FROM $table $filter $order $limit");
+        $total = $this->getCell('SELECT FOUND_ROWS()');
         return ['total' => $total, 'data' => $result];
     }
 

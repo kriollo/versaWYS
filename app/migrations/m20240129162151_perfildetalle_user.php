@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace app\migrations;
 
-use RedBeanPHP\R;
+use versaWYS\kernel\RedBeanCnn;
 
-class m20240129162151_perfildetalle_user
+class m20240129162151_perfildetalle_user extends RedBeanCnn
 {
-    public static function up()
+    public function up()
     {
         try {
-            R::exec("CREATE TABLE `versaperfildetalleuser` (
+            $this->exec("CREATE TABLE `versaperfildetalleuser` (
                     `id` INT NOT NULL AUTO_INCREMENT,
                     `id_user` INT NOT NULL,
                     `menu_id` INT NOT NULL,
@@ -27,12 +27,12 @@ class m20240129162151_perfildetalle_user
         }
     }
 
-    public static function down()
+    public function down()
     {
         try {
             // Agrega tu lógica para revertir la migración aquí
 
-            R::exec('DROP TABLE `versaperfildetalleuser`;');
+            $this->exec('DROP TABLE `versaperfildetalleuser`;');
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
         } catch (\Exception $e) {

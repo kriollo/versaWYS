@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace app\models;
 
-use Exception;
-use RedBeanPHP\R;
 use versaWYS\kernel\RedBeanCnn;
 
 class Modules extends RedBeanCnn
@@ -21,22 +19,23 @@ class Modules extends RedBeanCnn
      */
     public function all()
     {
-        return R::getAll('SELECT * FROM versamenu');
+        return $this->getAll('SELECT * FROM versamenu');
     }
 
     public function getLastPositionBySeccion($seccion): int
     {
-        $module = R::findOne('versamenu', 'seccion = ? ORDER BY posicion DESC LIMIT 1', [$seccion]);
+        $module = $this->findOne('versamenu', 'seccion = ? ORDER BY posicion DESC LIMIT 1', [$seccion]);
         return $module ? $module->posicion + 1 : 1;
     }
 
     public function saveModule($data): int|string
     {
         if ($data['action'] === 'edit') {
-            $module = R::load('versamenu', $data['id']);
+            $module = $this->load('versamenu', $data['id']);
         } else {
-            $module = R::dispense('versamenu');
+            $module = $this->dispense('versamenu');
             $module->posicion = $this->getLastPositionBySeccion($data['seccion']);
+            $module->created_at = date('Y-m-d H:i:s');
         }
         $module->seccion = $data['seccion'];
         $module->nombre = $data['nombre'];
@@ -45,16 +44,15 @@ class Modules extends RedBeanCnn
         $module->fill = $data['fill'];
         $module->estado = $data['estado'];
         $module->url = $data['url'];
-        $module->created_at = date('Y-m-d H:i:s');
         $module->updated_at = date('Y-m-d H:i:s');
-        return R::store($module);
+        return $this->store($module);
     }
 
     public function changeStatus($params): mixed
     {
-        $module = R::load('versamenu', $params['id']);
+        $module = $this->load('versamenu', $params['id']);
         $module->estado = $params['estado'];
-        return R::store($module);
+        return $this->store($module);
     }
 
     public function movePosition($params): void
@@ -67,13 +65,11 @@ class Modules extends RedBeanCnn
         } else {
             $newPosition = $params['currentPosition'] + 1;
         }
-
-        // return R::store($module);
     }
 
     private function toggleSubMenuField($idMenu): void
     {
-        $subModules = R::find('versasubmenu', 'id_menu = ?', [$idMenu]);
+        $subModules = $this->findAll('versasubmenu', 'id_menu = ?', [$idMenu]);
         $allDisabled = true;
         foreach ($subModules as $subModule) {
             if ($subModule->estado === '1') {
@@ -82,21 +78,17 @@ class Modules extends RedBeanCnn
             }
         }
 
-        $mainModule = R::load('versamenu', $idMenu);
-        if ($allDisabled) {
-            $mainModule->submenu = '0';
-        } else {
-            $mainModule->submenu = '1';
-        }
-        R::store($mainModule);
+        $mainModule = $this->load('versamenu', $idMenu);
+        $mainModule->submenu = $allDisabled ? '0' : '1';
+        $this->store($mainModule);
     }
 
     //submodules
     public function changeStatusSubModule($params): mixed
     {
-        $module = R::load('versasubmenu', $params['id']);
+        $module = $this->load('versasubmenu', $params['id']);
         $module->estado = $params['estado'];
-        $result = R::store($module);
+        $result = $this->store($module);
 
         $this->toggleSubMenuField($module->id_menu);
 
@@ -106,18 +98,18 @@ class Modules extends RedBeanCnn
     public function saveSubModule($data): int|string
     {
         if ($data['action'] === 'edit') {
-            $module = R::load('versasubmenu', $data['id']);
+            $module = $this->load('versasubmenu', (int)$data['id']);
         } else {
-            $module = R::dispense('versasubmenu');
+            $module = $this->dispense('versasubmenu');
+            $module->created_at = date('Y-m-d H:i:s');
         }
         $module->id_menu = $data['id_menu'];
         $module->nombre = $data['nombre'];
         $module->descripcion = $data['descripcion'];
         $module->estado = $data['estado'];
         $module->url = $data['url'];
-        $module->created_at = date('Y-m-d H:i:s');
         $module->updated_at = date('Y-m-d H:i:s');
-        $result = R::store($module);
+        $result = $this->store($module);
 
         $this->toggleSubMenuField($data['id_menu']);
 
@@ -126,9 +118,9 @@ class Modules extends RedBeanCnn
 
     public function movePositionSubModule($params): mixed
     {
-        $subModule = R::load('versasubmenu', $params['id']);
+        $subModule = $this->load('versasubmenu', $params['id']);
         $subModule->posicion = $params['position'];
-        return R::store($subModule);
+        return $this->store($subModule);
     }
 
     public function __construct()

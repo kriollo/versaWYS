@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace app\models;
 
-use RedBeanPHP\R;
 use versaWYS\kernel\RedBeanCnn;
 
 class Perfil extends RedBeanCnn
@@ -21,29 +20,30 @@ class Perfil extends RedBeanCnn
     public function all($estado = 'all'): array
     {
         if ($estado === 'all') {
-            return R::findAll(self::$table);
+            // Usar getAll para compatibilidad con métodos seguros
+            return $this->getAll('SELECT * FROM versaperfil');
         }
-        return R::getAll('SELECT * FROM versaperfil WHERE estado = ?', [$estado]);
+        return $this->getAll('SELECT * FROM versaperfil WHERE estado = ?', [$estado]);
     }
 
     public function save(array $params): int
     {
-        $perfil = R::dispense(self::$table);
+        $perfil = $this->dispense(self::$table);
         $perfil->nombre = $params['nombre'];
         $perfil->estado = $params['estado'];
-        return R::store($perfil);
+        return $this->store($perfil);
     }
 
     public function changeState(array $params): int
     {
-        $perfil = R::load(self::$table, $params['id']);
+        $perfil = $this->load(self::$table, $params['id']);
         $perfil->estado = $perfil->estado === '1' ? '0' : '1';
-        return R::store($perfil);
+        return $this->store($perfil);
     }
 
     public function getPerfil(int $id): array
     {
-        return R::getRow('SELECT * FROM versaperfil WHERE id = ?', [$id]);
+        return $this->getRow('SELECT * FROM versaperfil WHERE id = ?', [$id]);
     }
 
     public function getPerfilPermisos(int $id): array
@@ -91,16 +91,16 @@ class Perfil extends RedBeanCnn
                 WHERE am.submenu = 0) AS op
                 ORDER BY op.seccion, op.menu_posicion, op.submenu_posicion";
 
-        return R::getAll($sql, [$id, $id]);
+        return $this->getAll($sql, [$id, $id]);
     }
 
     public function savePerfilPermisos(array $params)
     {
-        R::exec('DELETE FROM versaperfildetalle WHERE perfil_id = ?', [$params['id']]);
-        $perfil = R::load(self::$table, $params['id']);
+        $this->exec('DELETE FROM versaperfildetalle WHERE perfil_id = ?', [$params['id']]);
+        $perfil = $this->load(self::$table, $params['id']);
         $perfil->nombre = $params['nombre'];
         $perfil->pagina_inicio = $params['pagina_inicio'];
-        $result = R::store($perfil);
+        $result = $this->store($perfil);
 
         $permisos = $params['data'];
         if ($permisos === '[]' || $permisos === '') {
@@ -113,11 +113,11 @@ class Perfil extends RedBeanCnn
                 //menu
                 if (array_key_exists('checked', $value2)) {
                     if ($value2['checked'] === true) {
-                        $perfilDetalle = R::dispense('versaperfildetalle');
+                        $perfilDetalle = $this->dispense('versaperfildetalle');
                         $perfilDetalle->perfil_id = $params['id'];
                         $perfilDetalle->menu_id = $value2['id_menu'];
                         $perfilDetalle->submenu_id = 0;
-                        R::store($perfilDetalle);
+                        $this->store($perfilDetalle);
                     }
                 }
                 if (array_key_exists('submenu', $value2)) {
@@ -125,11 +125,11 @@ class Perfil extends RedBeanCnn
                         //submenu
                         if (array_key_exists('checked', $value3)) {
                             if ($value3['checked'] === true) {
-                                $perfilDetalle = R::dispense('versaperfildetalle');
+                                $perfilDetalle = $this->dispense('versaperfildetalle');
                                 $perfilDetalle->perfil_id = $params['id'];
                                 $perfilDetalle->menu_id = $value2['id_menu'];
                                 $perfilDetalle->submenu_id = $value3['id_submenu'];
-                                R::store($perfilDetalle);
+                                $this->store($perfilDetalle);
                             }
                         }
                     }
@@ -138,19 +138,19 @@ class Perfil extends RedBeanCnn
         }
 
         //actualizo todos los permisos de todos los usuarios asociados a este perfil
-        $userPerfil = R::getAll('SELECT id FROM versausers WHERE id_perfil = ?', [$params['id']]);
+        $userPerfil = $this->getAll('SELECT id FROM versausers WHERE id_perfil = ?', [$params['id']]);
         foreach ($userPerfil as $key => $value) {
-            R::exec('DELETE FROM versaperfildetalleuser WHERE id_user = ?', [$value['id']]);
-            R::exec(
+            $this->exec('DELETE FROM versaperfildetalleuser WHERE id_user = ?', [$value['id']]);
+            $this->exec(
                 'INSERT INTO versaperfildetalleuser (id_user, menu_id, submenu_id) SELECT ?, menu_id, submenu_id FROM versaperfildetalle WHERE perfil_id = ?',
                 [$value['id'], $params['id']]
             );
 
             //actualizo la pagina de inicio
             $id = (int)$value['id'];
-            $user = R::load('versausers', $id);
+            $user = $this->load('versausers', $id);
             $user->pagina_inicio = $params['pagina_inicio'];
-            R::store($user);
+            $this->store($user);
         }
         return $result;
     }

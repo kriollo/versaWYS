@@ -1,18 +1,30 @@
 <script setup lang="ts">
-    import customTable from '@/dashboard/js/components/customTable.vue';
-    import modal from '@/dashboard/js/components/modal.vue';
-    import subModulesForm from '@/dashboard/js/modules/subModulesForm.vue';
-
-    import { versaFetch, VersaToast } from '@/dashboard/js/functions';
     import Swal from 'sweetalert2';
     import { computed, inject, provide, reactive, ref } from 'vue';
 
+    import customTable from '@/dashboard/js/components/customTable.vue';
+    import modal from '@/dashboard/js/components/modal.vue';
     import {
+        convertDataTypes,
+        versaFetch,
+        VersaToast,
+    } from '@/dashboard/js/functions';
+    import {
+        type ItemSubModule,
         type ShowModalSubForm,
         ShowModalSubFormInjection,
     } from '@/dashboard/js/modules/InjectKeys';
+    import subModulesForm from '@/dashboard/js/modules/subModulesForm.vue';
+    import type {
+        AccionData,
+        actionsType,
+        VersaParamsFetch,
+    } from '@/dashboard/types/versaTypes';
 
-    import type { AccionData, actionsType, VersaParamsFetch } from 'versaTypes';
+    import {
+        API_RESPONSE_CODES,
+        GLOBAL_CONSTANTS,
+    } from '@/dashboard/js/constants';
 
     const emit = defineEmits(['accion']);
 
@@ -26,8 +38,8 @@
             default: 0,
         },
     });
-    const showModal = computed(() => props.showModal);
-    const idModule = computed(() => props.idModule);
+    const showModal = computed((): boolean => props.showModal);
+    const idModule = computed((): number => props.idModule);
 
     const showModalSubForm = reactive<ShowModalSubForm>({
         showModalSubForm: false,
@@ -41,7 +53,14 @@
     const csrf_token = inject<string>('csrf_token');
     const refreshTable = ref(false);
 
-    const changeStatus = async (/** @type {Object} */ item) => {
+    const changeStatus = async (
+        /** @type {Object} */ item: {
+            id: number;
+            id_menu: number;
+            estado: string;
+            nombre: string;
+        },
+    ) => {
         const result = await Swal.fire({
             title: '¿Estás seguro?',
             text: `Estás a punto de cambiar el estado del sub módulo ${item.nombre}`,
@@ -59,13 +78,13 @@
                 data: JSON.stringify({
                     id: item.id,
                     id_menu: item.id_menu,
-                    estado: item.estado === '1' ? '0' : '1',
+                    estado: '1' === item.estado ? '0' : '1',
                     csrf_token,
                 }),
                 headers: { 'Content-Type': 'application/json' },
             } as VersaParamsFetch;
             const response = await versaFetch(params);
-            if (response.success === 1) {
+            if (API_RESPONSE_CODES.SUCCESS === response.success) {
                 refreshTable.value = !refreshTable.value;
                 await VersaToast.fire({
                     icon: 'success',
@@ -81,17 +100,23 @@
         }
     };
 
-    const changePosition = async (/** @type {Object} */ item) => {
+    const changePosition = async (
+        /** @type {Object} */ item: {
+            id: number;
+            id_menu: number;
+            posicion: number;
+        },
+    ) => {
         const { value } = await Swal.fire({
             title: 'Cambiar posición',
             icon: 'question',
             input: 'number',
-            inputValue: item.posicion,
+            inputValue: item.posicion.toString(),
             inputOptions: {
-                min: 1,
+                min: '1',
             },
             inputAttributes: {
-                min: 1,
+                min: '1',
             },
             showCancelButton: true,
             confirmButtonText: 'Cambiar',
@@ -115,7 +140,7 @@
                 headers: { 'Content-Type': 'application/json' },
             } as VersaParamsFetch;
             const response = await versaFetch(params);
-            if (response.success === 1) {
+            if (API_RESPONSE_CODES.SUCCESS === response.success) {
                 refreshTable.value = !refreshTable.value;
                 await VersaToast.fire({
                     icon: 'success',
@@ -131,8 +156,7 @@
         }
     };
 
-    const accion = (payload: AccionData) => {
-        console.log(payload);
+    const accion = (payload: AccionData): void => {
         const actions: actionsType = {
             create: () => {
                 showModalSubForm.itemSelected = null;
@@ -140,7 +164,16 @@
                 showModalSubForm.showModalSubForm = true;
             },
             showEditSubModule: () => {
-                showModalSubForm.itemSelected = payload.item;
+                showModalSubForm.itemSelected =
+                    convertDataTypes<ItemSubModule>(
+                        [payload.item],
+                        [
+                            {
+                                key: 'estado',
+                                type: 'boolean',
+                            },
+                        ],
+                    )[GLOBAL_CONSTANTS.ZERO] ?? null;
                 showModalSubForm.action = 'edit';
                 showModalSubForm.showModalSubForm = true;
             },
@@ -151,7 +184,7 @@
         };
 
         const selectedAction = actions[payload.accion] || actions['default'];
-        if (typeof selectedAction === 'function') {
+        if ('function' === typeof selectedAction) {
             selectedAction();
         }
     };

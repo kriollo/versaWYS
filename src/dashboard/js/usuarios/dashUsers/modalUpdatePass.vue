@@ -1,14 +1,12 @@
 <script setup lang="ts">
+    import { html } from 'code-tag';
+    import { computed, inject } from 'vue';
+
     import modal from '@/dashboard/js/components/modal.vue';
     import { $dom } from '@/dashboard/js/composables/dom';
-    import {
-        versaAlert,
-        versaFetch,
-        VersaToast,
-    } from '@/dashboard/js/functions';
-    import { html } from 'P@/vendor/code-tag/code-tag-esm';
-    import type { VersaParamsFetch } from 'versaTypes';
-    import { computed, inject } from 'vue';
+    import { versaAlert, versaFetch, VersaToast } from '@/dashboard/js/functions';
+    import type { AccionData, VersaParamsFetch } from '@/dashboard/types/versaTypes';
+import { API_RESPONSE_CODES } from '../../constants';
 
     interface Props {
         showModal: boolean;
@@ -30,16 +28,18 @@
     const csrf_token = inject<string>('csrf_token');
 
     const tooglePassword = (
-        /** @type {String} */ idInput,
-        /** @type {String} */ idImgShow,
-        /** @type {String} */ idImgHidden,
+        /** @type {String} */ idInput: string,
+        /** @type {String} */ idImgShow: string,
+        /** @type {String} */ idImgHidden: string,
     ) => {
-        const togglePassword = $dom(`#${idInput}`);
-        const imgShowPass = $dom(`#${idImgShow}`);
-        const imgHiddenPass = $dom(`#${idImgHidden}`);
+        const togglePassword = $dom(`#${idInput}`) as HTMLInputElement;
+        const imgShowPass = $dom(`#${idImgShow}`) as HTMLImageElement;
+        const imgHiddenPass = $dom(`#${idImgHidden}`) as HTMLImageElement;
 
-        if (!(togglePassword instanceof HTMLInputElement)) return;
-        if (togglePassword.type == 'password') {
+        if (!togglePassword || !imgShowPass || !imgHiddenPass) {
+            return;
+        }
+        if ('password' === togglePassword.type) {
             togglePassword.type = 'text';
             imgShowPass.classList.remove('hidden');
             imgHiddenPass.classList.add('hidden');
@@ -50,19 +50,25 @@
         }
     };
 
-    const accion = (/** @type {Object} */ accion) => {
+    const accion = (/** @type {Object} */ accion: AccionData) => {
         emit('accion', accion);
     };
 
     const sendResetPass = async () => {
         const formChangePass = $dom('#formChangePass');
-        if (!(formChangePass instanceof HTMLFormElement)) return false;
+        if (!(formChangePass instanceof HTMLFormElement)) {
+            return false;
+        }
         const formData = new FormData(formChangePass);
-        const newPass = document.getElementById('new_password');
-        const confirmNewPass = document.getElementById('comfirm_new_password');
+        const newPass = document.querySelector('#new_password');
+        const confirmNewPass = document.querySelector('#comfirm_new_password');
 
-        if (!(newPass instanceof HTMLInputElement)) return;
-        if (!(confirmNewPass instanceof HTMLInputElement)) return;
+        if (!(newPass instanceof HTMLInputElement)) {
+            return;
+        }
+        if (!(confirmNewPass instanceof HTMLInputElement)) {
+            return;
+        }
 
         if (newPass.value !== confirmNewPass.value) {
             versaAlert({
@@ -83,7 +89,7 @@
             data: JSON.stringify(objectData),
         } as VersaParamsFetch;
         const response = await versaFetch(params);
-        if (response.success === 1) {
+        if (API_RESPONSE_CODES.SUCCESS === response.success) {
             await VersaToast.fire({
                 icon: 'success',
                 title: response.message,
@@ -93,8 +99,7 @@
             let errors = '';
             if (response?.errors) {
                 errors = html`
-                    <ul
-                        class="w-full text-left space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
+                    <ul class="w-full text-left space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
                         ${Object.keys(response.errors)
                             .map(
                                 key => html`
@@ -120,26 +125,17 @@
     };
 </script>
 <template>
-    <modal
-        :id-modal="origen + 'resetPass'"
-        :show-modal="showModalLocal"
-        @accion="accion">
+    <modal :id-modal="origen + 'resetPass'" :show-modal="showModalLocal" @accion="accion">
         <template #modalTitle>
             <div class="flex justify-between">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                    Actualizar Contraseña
-                </h3>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Actualizar Contraseña</h3>
 
                 <div class="float-left">
                     <button
                         type="button"
                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
                         @click="accion({ accion: 'closeModal' })">
-                        <svg
-                            class="w-3 h-3"
-                            fill="none"
-                            viewBox="0 0 14 14"
-                            xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                 stroke="currentColor"
@@ -156,26 +152,17 @@
                 <input type="hidden" :value="csrf_token" name="csrf_token" />
                 <input type="hidden" :value="tokenId" name="tokenid" />
                 <div class="relative">
-                    <label
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                        for="new_password">
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="new_password">
                         Contraseña
                     </label>
                     <span
                         id="togglePasswordNew"
                         class="absolute end-0 flex items-center cursor-pointer pr-2 top-[60%]"
-                        @click="
-                            tooglePassword(
-                                'new_password',
-                                'imgShowPassNew',
-                                'imgHiddenPassNew',
-                            )
-                        ">
+                        @click="tooglePassword('new_password', 'imgShowPassNew', 'imgHiddenPassNew')">
                         <svg
                             id="imgShowPassNew"
                             class="hidden w-6 h-6 text-gray-800 dark:text-slate-400"
                             fill="none"
-                            viewbox="0 0 20 18"
                             xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M1.933 10.909A4.357 4.357 0 0 1 1 9c0-1 4-6 9-6m7.6 3.8A5.068 5.068 0 0 1 19 9c0 1-3 6-9 6-.314 0-.62-.014-.918-.04M2 17 18 1m-5 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
@@ -188,16 +175,10 @@
                             id="imgHiddenPassNew"
                             class="show w-6 h-6 text-gray-800 dark:text-slate-400"
                             fill="none"
-                            viewbox="0 0 20 14"
                             xmlns="http://www.w3.org/2000/svg">
-                            <g
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2">
+                            <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
                                 <path d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-                                <path
-                                    d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z" />
+                                <path d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z" />
                             </g>
                         </svg>
                     </span>
@@ -221,17 +202,12 @@
                         id="togglePasswordConfirmNew"
                         class="absolute end-0 flex items-center cursor-pointer pr-2 top-[60%]"
                         @click="
-                            tooglePassword(
-                                'comfirm_new_password',
-                                'imgShowPassConfirmNew',
-                                'imgHiddenPassConfirmNew',
-                            )
+                            tooglePassword('comfirm_new_password', 'imgShowPassConfirmNew', 'imgHiddenPassConfirmNew')
                         ">
                         <svg
                             id="imgShowPassConfirmNew"
                             class="hidden w-6 h-6 text-gray-800 dark:text-slate-400"
                             fill="none"
-                            viewbox="0 0 20 14"
                             xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M1.933 10.909A4.357 4.357 0 0 1 1 9c0-1 4-6 9-6m7.6 3.8A5.068 5.068 0 0 1 19 9c0 1-3 6-9 6-.314 0-.62-.014-.918-.04M2 17 18 1m-5 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
@@ -244,16 +220,10 @@
                             id="imgHiddenPassConfirmNew"
                             class="show w-6 h-6 text-gray-800 dark:text-slate-400"
                             fill="none"
-                            viewbox="0 0 20 14"
                             xmlns="http://www.w3.org/2000/svg">
-                            <g
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2">
+                            <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
                                 <path d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-                                <path
-                                    d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z" />
+                                <path d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z" />
                             </g>
                         </svg>
                     </span>

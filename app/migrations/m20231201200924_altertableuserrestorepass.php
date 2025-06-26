@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace app\migrations;
 
-use RedBeanPHP\R;
+use versaWYS\kernel\RedBeanCnn;
 
-class m20231201200924_altertableuserrestorepass
+class m20231201200924_altertableuserrestorepass extends RedBeanCnn
 {
-    public static function up()
+    public function up()
     {
         try {
-            R::exec("ALTER TABLE `versausers`
+            $this->exec("ALTER TABLE `versausers`
             ADD COLUMN `restore_token` VARCHAR(255) NULL AFTER `status`;");
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
@@ -20,10 +20,10 @@ class m20231201200924_altertableuserrestorepass
         }
     }
 
-    public static function down()
+    public function down()
     {
         try {
-            R::exec("ALTER TABLE `users`
+            $this->exec("ALTER TABLE `versausers`
             DROP COLUMN `restore_token`;");
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];

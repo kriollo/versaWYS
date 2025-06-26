@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace app\seeders;
 
-use RedBeanPHP\R;
+use versaWYS\kernel\RedBeanCnn;
 
-
-class ModulesTestsSeeder
+class ModulesTestsSeeder  extends RedBeanCnn
 {
-    public static function run()
+    public function run()
     {
         try {
             $AllModule = [
@@ -18,7 +17,7 @@ class ModulesTestsSeeder
                     'nombre' => 'Opcion 1',
                     'descripcion' => 'Descripcion de la opcion 1',
                     'icono' =>
-                        '<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.556 8.5h8m-8 3.5H12m7.111-7H4.89a.896.896 0 0 0-.629.256.868.868 0 0 0-.26.619v9.25c0 .232.094.455.26.619A.896.896 0 0 0 4.89 16H9l3 4 3-4h4.111a.896.896 0 0 0 .629-.256.868.868 0 0 0 .26-.619v-9.25a.868.868 0 0 0-.26-.619.896.896 0 0 0-.63-.256Z"/>',
+                    '<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.556 8.5h8m-8 3.5H12m7.111-7H4.89a.896.896 0 0 0-.629.256.868.868 0 0 0-.26.619v9.25c0 .232.094.455.26.619A.896.896 0 0 0 4.89 16H9l3 4 3-4h4.111a.896.896 0 0 0 .629-.256.868.868 0 0 0 .26-.619v-9.25a.868.868 0 0 0-.26-.619.896.896 0 0 0-.63-.256Z"/>',
                     'fill' => 0,
                     'url' => 'urltest',
                     'submenu' => 0,
@@ -29,7 +28,7 @@ class ModulesTestsSeeder
                     'nombre' => 'Opcion 2',
                     'descripcion' => 'Descripcion de la opcion 2',
                     'icono' =>
-                        '<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7.171 12.906-2.153 6.411 2.672-.89 1.568 2.34 1.825-5.183m5.73-2.678 2.154 6.411-2.673-.89-1.568 2.34-1.825-5.183M9.165 4.3c.58.068 1.153-.17 1.515-.628a1.681 1.681 0 0 1 2.64 0 1.68 1.68 0 0 0 1.515.628 1.681 1.681 0 0 1 1.866 1.866c-.068.58.17 1.154.628 1.516a1.681 1.681 0 0 1 0 2.639 1.682 1.682 0 0 0-.628 1.515 1.681 1.681 0 0 1-1.866 1.866 1.681 1.681 0 0 0-1.516.628 1.681 1.681 0 0 1-2.639 0 1.681 1.681 0 0 0-1.515-.628 1.681 1.681 0 0 1-1.867-1.866 1.681 1.681 0 0 0-.627-1.515 1.681 1.681 0 0 1 0-2.64c.458-.361.696-.935.627-1.515A1.681 1.681 0 0 1 9.165 4.3ZM14 9a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/>',
+                    '<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7.171 12.906-2.153 6.411 2.672-.89 1.568 2.34 1.825-5.183m5.73-2.678 2.154 6.411-2.673-.89-1.568 2.34-1.825-5.183M9.165 4.3c.58.068 1.153-.17 1.515-.628a1.681 1.681 0 0 1 2.64 0 1.68 1.68 0 0 0 1.515.628 1.681 1.681 0 0 1 1.866 1.866c-.068.58.17 1.154.628 1.516a1.681 1.681 0 0 1 0 2.639 1.682 1.682 0 0 0-.628 1.515 1.681 1.681 0 0 1-1.866 1.866 1.681 1.681 0 0 0-1.516.628 1.681 1.681 0 0 1-2.639 0 1.681 1.681 0 0 0-1.515-.628 1.681 1.681 0 0 1-1.867-1.866 1.681 1.681 0 0 0-.627-1.515 1.681 1.681 0 0 1 0-2.64c.458-.361.696-.935.627-1.515A1.681 1.681 0 0 1 9.165 4.3ZM14 9a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/>',
                     'fill' => 0,
                     'url' => 'url2',
                     'submenu' => 0,
@@ -50,7 +49,7 @@ class ModulesTestsSeeder
 
             $moduleInsert = [];
             foreach ($AllModule as $module) {
-                $newModule = R::dispense(typeOrBeanArray: 'versamenu');
+                $newModule = $this->dispense('versamenu');
                 $newModule->seccion = $module['seccion'];
                 $newModule->nombre = $module['nombre'];
                 $newModule->descripcion = $module['descripcion'];
@@ -61,9 +60,9 @@ class ModulesTestsSeeder
                 $newModule->posicion = $module['posicion'];
                 $moduleInsert[] = $newModule;
             }
-            R::storeAll($moduleInsert);
+            $this->storeAll($moduleInsert);
 
-            $lastId = R::getCell('SELECT MAX(id) FROM versamenu');
+            $lastId = $this->getCell('SELECT MAX(id) FROM versamenu');
 
             $subMenu = [
                 [
@@ -87,12 +86,12 @@ class ModulesTestsSeeder
             ];
 
             foreach ($subMenu as $sub) {
-                $newSubMenu = R::dispense('versasubmenu');
+                $newSubMenu = $this->dispense('versasubmenu');
                 $newSubMenu->nombre = $sub['nombre'];
                 $newSubMenu->descripcion = $sub['descripcion'];
                 $newSubMenu->url = $sub['url'];
                 $newSubMenu->id_menu = $sub['id_menu'];
-                R::store($newSubMenu);
+                $this->store($newSubMenu);
             }
 
             return ['message' => 'Seeder ejecutado con éxito.', 'success' => true];

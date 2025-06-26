@@ -5,8 +5,7 @@
 		<!--sólo para que no de error de mixin con ngrok, se puede sacar en producción-->
 		{# <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> #}
 
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-		<meta charset="UTF-8"/>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/> <meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 		<link href="{{ assets_url('/public/vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet"/>
@@ -14,27 +13,24 @@
 		<link href="{{ assets_url('/public/vendor/flowbite/flowbite.min.css') }}" rel="stylesheet"/>
 		<link href="{{ getAssets('dashboard', 'css', '/dashboard.css') }}" rel="stylesheet"/>
 
-		<link href="{{ getAssets('dashboard', 'img', '/favicon.png') }}" rel="shortcut icon"/>
-
-		{% block appHead %}{% endblock %}
+		<link href="{{ getAssets('dashboard', 'img', '/favicon.png') }}" rel="shortcut icon"/> {% block appHead %}{% endblock %}
 
 		<title>{{ config.build.name }}</title>
 		{% block appHeader %}{% endblock %}
 	</head>
 
-	<body class="bg-gray-50 dark:bg-gray-800 min-h-screen flex flex-col">
-		{% block appBody %}{% endblock %}
+	<body class="bg-gray-50 dark:bg-gray-800 min-h-screen flex flex-col"> {% block appBody %}{% endblock %}
 		<script src="{{ assets_url('/public/vendor/flowbite/flowbite.min.js') }}"></script>
 		{% if config['build']['debug'] == '0' %}
 			{# modo producción #}
-			<script type="importmap">
-				{
-					"imports": {
-						"vue": "{{ assets_url('node_modules/vue/dist/vue.esm-browser.prod.js') }}",
-						"sweetalert2": "{{ assets_url('node_modules/sweetalert2/dist/sweetalert2.esm.all.min.js') }}"
+			{# <script type="importmap">
+					{
+						"imports": {
+							"vue": "{{ assets_url('node_modules/vue/dist/vue.esm-browser.prod.js') }}",
+							"sweetalert2": "{{ assets_url('node_modules/sweetalert2/dist/sweetalert2.esm.all.min.js') }}"
+						}
 					}
-				}
-			</script>
+			</script> #}
 		{% else %}
 			{# modo debug #}
 			<script type="importmap">

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace app\models;
 
-use RedBeanPHP\R;
 use versaWYS\kernel\RedBeanCnn;
 
 class UrlTest extends RedBeanCnn
@@ -20,7 +19,7 @@ class UrlTest extends RedBeanCnn
      */
     public function all()
     {
-        return R::getAll('SELECT * FROM self::$table');
+        return $this->getAll('SELECT * FROM self::$table');
     }
 
     public function __construct()

@@ -100,9 +100,14 @@ class GlobalMiddleWare
         return true;
     }
 
-    public function onlyAdmin(): void
+    public function onlyAdmin()
     {
-        global $session;
+        global $session, $debug;
+
+        if ($debug) {
+            return true;
+        }
+
         $iduser = (int) $session->get('id_user');
         $user = (new Users())->find($iduser);
         if ($user === []) {
@@ -110,7 +115,7 @@ class GlobalMiddleWare
             exit();
         }
 
-        if ($user['role'] !== 'admin') {
+        if ($user['role'] !== 'admin' && $user['role'] !== 'superadmin') {
             Response::redirect('/admin/dashboard');
             exit();
         }
@@ -127,7 +132,7 @@ class GlobalMiddleWare
             exit();
         }
 
-        if ($user['role'] === 'admin') {
+        if ($user['role'] === 'admin' && $user['role'] === 'superadmin') {
             return;
         }
 

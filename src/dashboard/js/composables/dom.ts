@@ -85,8 +85,10 @@ export const blockedForm = (
  */
 export const serializeToArray = ($form: HTMLFormElement) =>
     Array.from(new FormData($form), ([name, value]) => {
-        const element = $form.elements[name] as HTMLInputElement;
-        if (element && element.type === 'checkbox') {
+        const element = $form.elements.namedItem(
+            name as string,
+        ) as HTMLInputElement;
+        if (element && 'checkbox' === element.type) {
             value = element.checked ? value : '';
         }
         return { name, value };
@@ -99,11 +101,16 @@ export const serializeToArray = ($form: HTMLFormElement) =>
  * @param {HTMLFormElement} $form - The form element to serialize.
  * @returns {Object} - The serialized form data as an object.
  */
-export const serializeToObject = ($form: HTMLFormElement) =>
-    serializeToArray($form).reduce((acc, { name, value }) => {
-        acc[name] = value;
-        return acc;
-    }, {});
+export const serializeToObject = (
+    $form: HTMLFormElement,
+): { [key: string]: any } =>
+    serializeToArray($form).reduce(
+        (acc, { name, value }) => {
+            acc[name] = value;
+            return acc;
+        },
+        {} as { [key: string]: any },
+    );
 
 /**
  * @preserve
@@ -115,15 +122,17 @@ export const validateFormRequired = ($form: HTMLFormElement) => {
     const requiredFields = $domAll('[required]', $form);
     let isValid = true;
     requiredFields.forEach(field => {
-        field.parentElement.classList.remove(
+        field.parentElement?.classList.remove(
             'border',
             'border-red-500',
             'border-solid',
             'border-dashed',
         );
-        if (!(field instanceof HTMLInputElement)) return;
+        if (!(field instanceof HTMLInputElement)) {
+            return;
+        }
         if (!field.value) {
-            field.parentElement.classList.add(
+            field.parentElement?.classList.add(
                 'border',
                 'border-red-500',
                 'border-solid',

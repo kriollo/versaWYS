@@ -1,37 +1,37 @@
-import {
-    $dom,
-    blockedForm,
-    serializeToArray,
-} from '@/dashboard/js/composables/dom.js';
+import { html } from 'code-tag';
+
+import { $dom, blockedForm, serializeToArray } from '@/dashboard/js/composables/dom.js';
+import { API_RESPONSE_CODES } from '@/dashboard/js/constants';
 import { versaAlert, versaFetch } from '@/dashboard/js/functions';
-import { html } from 'P@/vendor/code-tag/code-tag-esm';
 
 const $buttonResetPassword = $dom('#resetPassword');
 if ($buttonResetPassword instanceof HTMLButtonElement) {
     $buttonResetPassword.addEventListener('click', async e => {
         e.preventDefault();
         const $formResetPass = $dom('#formResetPassword');
-        if (!($formResetPass instanceof HTMLFormElement)) return;
-        if ($formResetPass.getAttribute('data-locked') === 'true') return;
-
-        const __data = {};
-        serializeToArray($formResetPass).forEach(
-            x => (__data[x.name] = x.value),
-        );
+        if (!($formResetPass instanceof HTMLFormElement)) {
+            return;
+        }
+        if ('true' === $formResetPass.dataset.locked) {
+            return;
+        }
+        const __data: { [key: string]: unknown } = {};
+        for (const x of serializeToArray($formResetPass)) {
+            __data[x.name] = x.value;
+        }
         blockedForm($formResetPass, 'true');
 
         const response = await versaFetch({
-            url: $formResetPass.getAttribute('action'),
+            url: $formResetPass.getAttribute('action') || '',
             method: 'POST',
             data: JSON.stringify(__data),
             headers: {
                 'Content-Type': 'application/json',
             },
         });
-        if (response.success === 0) {
+        if (API_RESPONSE_CODES.ERROR === response.success) {
             const errores = html`
-                <ul
-                    class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
+                <ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
                     ${Object.keys(response.errors)
                         .map(key => `<li>${response.errors[key]}</li>`)
                         .join('')}
@@ -51,9 +51,7 @@ if ($buttonResetPassword instanceof HTMLButtonElement) {
                 callback: () => {
                     const expiratePass = document.cookie
                         .split(';')
-                        .find(cookie =>
-                            cookie.trim().startsWith('expiratePass'),
-                        );
+                        .find(cookie => cookie.trim().startsWith('expiratePass'));
                     if (expiratePass) {
                         location.reload();
                     }
@@ -70,17 +68,21 @@ if ($fileAvatar instanceof HTMLInputElement) {
     $fileAvatar.addEventListener('change', async e => {
         e.preventDefault();
         const $formAvatar = $dom('#formUpdateAvatar');
-        if (!($formAvatar instanceof HTMLFormElement)) return;
-        if ($formAvatar.getAttribute('data-locked') === 'true') return;
+        if (!($formAvatar instanceof HTMLFormElement)) {
+            return;
+        }
+        if ('true' === $formAvatar.dataset.locked) {
+            return;
+        }
 
         const formData = new FormData($formAvatar);
         blockedForm($formAvatar, 'true');
         const response = await versaFetch({
-            url: $formAvatar.getAttribute('action'),
+            url: $formAvatar.getAttribute('action') || '',
             method: 'POST',
             data: formData,
         });
-        if (response.success === 0) {
+        if (API_RESPONSE_CODES.ERROR === response.success) {
             versaAlert({
                 title: 'Error',
                 message: response.message,

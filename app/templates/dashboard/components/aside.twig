@@ -1,4 +1,4 @@
-<aside id="sidebar" class="fixed top-0 left-0 z-20 flex flex-col flex-shrink-0 w-16  h-full pt-16 font-normal duration-75 lg:flex transition-width bg-white dark:bg-gray-800 hidden" aria-label="Sidebar">
+<aside id="sidebar" class="fixed top-0 left-0 z-20 w-56 h-full pt-16 font-normal duration-75 transition-width bg-white dark:bg-gray-800 hidden lg:flex lg:flex-col lg:flex-shrink-0" aria-label="Sidebar">
 	<div class="relative flex flex-col flex-1 min-h-0 pt-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 transform ease-in-out duration-500">
 		<div class="flex flex-col flex-1 pb-4">
 			<div class="flex-1 space-y-1 bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700 pt-5">
@@ -8,9 +8,9 @@
 							<svg class="flex-shrink-0 w-6 h-6 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24" strokewidth="{1.5}">
 								<path fill-rule="evenodd" d="M11.293 3.293a1 1 0 0 1 1.414 0l6 6 2 2a1 1 0 0 1-1.414 1.414L19 12.414V19a2 2 0 0 1-2 2h-3a1 1 0 0 1-1-1v-3h-2v3a1 1 0 0 1-1 1H7a2 2 0 0 1-2-2v-6.586l-.293.293a1 1 0 0 1-1.414-1.414l2-2 6-6Z" clip-rule="evenodd"/>
 							</svg>
-							<span class="ml-3 hidden" sidebar-toggle-item>Home</span>
+							<span class="ml-3 lg:block hidden" sidebar-toggle-item>Home</span>
 						</a>
-						<span class="hidden text-dark dark:text-white group-hover/liDropDownHome:flex left-[100%] absolute block bg-gray-200 dark:bg-gray-800 bg-gray rounded-lg space-y-2 p-2">
+						<span class="!hidden text-dark dark:text-white left-[100%] absolute bg-gray-200 dark:bg-gray-800 bg-gray rounded-lg space-y-2 p-2 tooltip-sidebar">
 							Home
 						</span>
 					</li>
@@ -27,8 +27,8 @@
 						</li>
 					{% endif %}
 					{% if seccion != m.seccion %}
-						<li class="flex items-center p-2 text-base text-gray-900 rounded-lg group dark:text-gray-200 hidden" sidebar-toggle-item>
-							{{ m.seccion|raw|convert_encoding('UTF-8', 'ISO-8859-1')|upper }}
+						<li class="items-center p-2 text-base text-gray-900 rounded-lg group dark:text-gray-200 hidden lg:flex" sidebar-toggle-item>
+							{{ m.seccion|raw|upper }}
 						</li>
 					{% endif %}
 
@@ -39,10 +39,10 @@
 								<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="{{ m.fill_menu == 1 ? 'currentColor':'none' }}" viewbox="0 0 24 24">
 									{{ m.ico_menu | removeScape | raw }}
 								</svg>
-								<span class="ml-3 hidden" sidebar-toggle-item>
+								<span class="ml-3 lg:block hidden" sidebar-toggle-item>
 									{{ m.desc_menu|raw|capitalize }}
 								</span>
-								<span class="hidden text-dark dark:text-white group-hover/lisDropDown:flex left-[100%] absolute block bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2 text-nowrap">
+								<span class="!hidden text-dark dark:text-white left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2 text-nowrap tooltip-sidebar">
 									{{ m.desc_menu|raw|capitalize }}
 								</span>
 							</a>
@@ -53,7 +53,10 @@
 										{{ m.ico_menu | removeScape | raw }}
 									</svg>
 
-									<span class="ml-3 hidden" sidebar-toggle-item>
+									<span class="ml-3 lg:block hidden" sidebar-toggle-item>
+										{{ m.desc_menu|raw|capitalize }}
+									</span>
+									<span class="!hidden text-dark dark:text-white left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2 text-nowrap tooltip-sidebar">
 										{{ m.desc_menu|raw|capitalize }}
 									</span>
 								</div>
@@ -62,7 +65,7 @@
 						{% endif %}
 
 
-						<ul id="dropdown-{{ m.id_menu }}" class="hidden group-hover/lisDropDown:flex group-hover/lisDropDown:flex-col  rounded-lg space-y-2 absolute block left-[100%] z-30 bg-gray-200 dark:bg-gray-800">
+						<ul id="dropdown-{{ m.id_menu }}" class="hidden group-hover/lisDropDown:flex group-hover/lisDropDown:flex-col rounded-lg space-y-2 absolute left-[100%] z-30 bg-gray-200 dark:bg-gray-800">
 						{% endif %}
 						{% if m.desc_submenu != "" %}
 							<li>
@@ -83,57 +86,55 @@
 		</ul>
 
 		<div class="pt-2">
-			{% if current_user.role =='admin' or current_user.role =='superadmin'	 %}
-
+			{% if current_user.role =='admin' or current_user.role =='superadmin' %}
 				<ul>
 					<li id="liDropDownUser" class="group/liDropDownUser hover:ml-4 hover:bg-gray-100 text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg w-full transform ease-in-out duration-300 flex">
 						<a href="/admin/usuarios" class="flex p-2 w-full">
 							<svg class="flex-shrink-0 w-6 h-6 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24" strokewidth="{1.5}">
 								<path fill-rule="evenodd" d="M8 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4H6Zm7.25-2.095c.478-.86.75-1.85.75-2.905a5.973 5.973 0 0 0-.75-2.906 4 4 0 1 1 0 5.811ZM15.466 20c.34-.588.535-1.271.535-2v-1a5.978 5.978 0 0 0-1.528-4H18a4 4 0 0 1 4 4v1a2 2 0 0 1-2 2h-4.535Z" clip-rule="evenodd"/>
 							</svg>
-							<span class="ml-3 hidden" sidebar-toggle-item>Usuarios</span>
+							<span class="ml-3 lg:block hidden" sidebar-toggle-item>Usuarios</span>
 						</a>
-						<span class="hidden text-dark dark:text-white group-hover/liDropDownUser:flex left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2">
+						<span class="!hidden text-dark dark:text-white left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2 tooltip-sidebar">
 							Usuarios
 						</span>
 					</li>
-					<li id="liDropDownPerfiles" class="group/liDropDownUser hover:ml-4 hover:bg-gray-100 text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg w-full transform ease-in-out duration-300 flex">
+					<li id="liDropDownPerfiles" class="group/liDropDownPerfiles hover:ml-4 hover:bg-gray-100 text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg w-full transform ease-in-out duration-300 flex">
 						<a href="/admin/perfiles" class="flex p-2 w-full">
 							<svg class="flex-shrink-0 w-6 h-6 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24" strokewidth="{1.5}">
 								<path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
 							</svg>
-							<span class="ml-3 hidden" sidebar-toggle-item>Perfiles</span>
+							<span class="ml-3 lg:block hidden" sidebar-toggle-item>Perfiles</span>
 						</a>
-						<span class="hidden text-dark dark:text-white group-hover/liDropDownUser:flex left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2">
+						<span class="!hidden text-dark dark:text-white left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2 tooltip-sidebar">
 							Perfiles
 						</span>
 					</li>
-					{% if config['build']['debug'] == '1' and current_user.role =='superadmin' %}
-
-						<li id="liDropDownModulos" class="group/liDropDownUser hover:ml-4 hover:bg-gray-100 text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg w-full transform ease-in-out duration-300 flex">
+					{% if  current_user.role =='admin' or current_user.role =='superadmin' %}
+						<li id="liDropDownModulos" class="group/liDropDownModulos hover:ml-4 hover:bg-gray-100 text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg w-full transform ease-in-out duration-300 flex">
 							<a href="/admin/modulesRoutes" class="flex p-2 w-full">
 								<svg class="flex-shrink-0 w-6 h-6 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewbox="0 0 24 24" strokewidth="{1.5}">
 									<path fill-rule="evenodd" d="M4.857 3A1.857 1.857 0 0 0 3 4.857v4.286C3 10.169 3.831 11 4.857 11h4.286A1.857 1.857 0 0 0 11 9.143V4.857A1.857 1.857 0 0 0 9.143 3H4.857Zm10 0A1.857 1.857 0 0 0 13 4.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 21 9.143V4.857A1.857 1.857 0 0 0 19.143 3h-4.286Zm-10 10A1.857 1.857 0 0 0 3 14.857v4.286C3 20.169 3.831 21 4.857 21h4.286A1.857 1.857 0 0 0 11 19.143v-4.286A1.857 1.857 0 0 0 9.143 13H4.857Zm10 0A1.857 1.857 0 0 0 13 14.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 21 19.143v-4.286A1.857 1.857 0 0 0 19.143 13h-4.286Z" clip-rule="evenodd"/>
 								</svg>
-								<span class="ml-3 hidden" sidebar-toggle-item>Módulos</span>
+								<span class="ml-3 lg:block hidden" sidebar-toggle-item>Módulos</span>
 							</a>
-							<span class="hidden text-dark dark:text-white group-hover/liDropDownUser:flex left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2">
+							<span class="!hidden text-dark dark:text-white left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2 tooltip-sidebar">
 								Módulos
 							</span>
 						</li>
-						<li id="liDropDownModulos" class="group/liDropDownUser hover:ml-4 hover:bg-gray-100 text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg w-full transform ease-in-out duration-300 flex">
-							<a href="/doc" class="flex p-2 w-full">
-								<svg class="flex-shrink-0 w-6 h-6 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewbox="0 0 24 24" strokewidth="{1.5}">
-									<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.03v13m0-13c-2.819-.831-4.715-1.076-8.029-1.023A.99.99 0 0 0 3 6v11c0 .563.466 1.014 1.03 1.007 3.122-.043 5.018.212 7.97 1.023m0-13c2.819-.831 4.715-1.076 8.029-1.023A.99.99 0 0 1 21 6v11c0 .563-.466 1.014-1.03 1.007-3.122-.043-5.018.212-7.97 1.023"/>
-								</svg>
-
-
-								<span class="ml-3 hidden" sidebar-toggle-item>Documentación</span>
-							</a>
-							<span class="hidden text-dark dark:text-white group-hover/liDropDownUser:flex left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2">
-								Documentación
-							</span>
-						</li>
+						{% if config['build']['debug'] == '1'  %}
+							<li id="liDropDownDocumentacion" class="group/liDropDownDocumentacion hover:ml-4 hover:bg-gray-100 text-gray-900 dark:text-gray-200 dark:hover:bg-gray-700 rounded-lg w-full transform ease-in-out duration-300 flex">
+								<a href="/doc" class="flex p-2 w-full">
+									<svg class="flex-shrink-0 w-6 h-6 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewbox="0 0 24 24" strokewidth="{1.5}">
+										<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.03v13m0-13c-2.819-.831-4.715-1.076-8.029-1.023A.99.99 0 0 0 3 6v11c0 .563.466 1.014 1.03 1.007 3.122-.043 5.018.212 7.97 1.023m0-13c2.819-.831 4.715-1.076 8.029-1.023A.99.99 0 0 1 21 6v11c0 .563-.466 1.014-1.03 1.007-3.122-.043-5.018.212-7.97 1.023"/>
+									</svg>
+									<span class="ml-3 lg:block hidden" sidebar-toggle-item>Documentación</span>
+								</a>
+								<span class="!hidden text-dark dark:text-white left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2 tooltip-sidebar">
+									Documentación
+								</span>
+							</li>
+						{% endif %}
 					{% endif %}
 				</ul>
 			{% endif %}

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace app\migrations;
 
-use RedBeanPHP\R;
+use versaWYS\kernel\RedBeanCnn;
 
-class m20240129153807_perfil
+class m20240129153807_perfil extends RedBeanCnn
 {
-    public static function up()
+    public function up()
     {
         try {
-            R::exec("CREATE TABLE IF NOT EXISTS `versaperfil` (
+            $this->exec("CREATE TABLE IF NOT EXISTS `versaperfil` (
                 `id` INT(11) NOT NULL AUTO_INCREMENT,
                 `nombre` VARCHAR(255) NOT NULL,
                 `pagina_inicio` VARCHAR(255) DEFAULT 'dashboard',
@@ -27,10 +27,10 @@ class m20240129153807_perfil
         }
     }
 
-    public static function down()
+    public function down()
     {
         try {
-            R::exec('DROP TABLE IF EXISTS `versaperfil`;');
+            $this->exec('DROP TABLE IF EXISTS `versaperfil`;');
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
         } catch (\Exception $e) {

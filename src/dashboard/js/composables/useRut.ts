@@ -6,29 +6,33 @@
  * @returns {boolean} - Returns true if the RUT is valid, otherwise false.
  */
 export const validateRut = (rut: string): boolean => {
-    if (!rut) return false;
+    if (!rut) {
+        return false;
+    }
 
     // Eliminar caracteres no válidos
-    let rutValue = rut.replace(/[^0-9kK-]/g, '');
+    let rutValue = rut.replaceAll(/[^0-9kK-]/g, '');
     const [num, dv] = rutValue.split('-');
 
     // Verificar que num y dv estén definidos
-    if (!num || !dv) return false;
+    if (!num || !dv) {
+        return false;
+    }
 
     let suma = 0;
     let multiplo = 2;
 
     // Calcular la suma de los productos
-    for (let i = num.length - 1; i >= 0; i--) {
+    for (let i = num.length - 1; 0 <= i; i--) {
         suma += multiplo * Number(num.charAt(i));
-        multiplo = multiplo < 7 ? multiplo + 1 : 2;
+        multiplo = 7 > multiplo ? multiplo + 1 : 2;
     }
 
     type dvEspandoType = number | string;
     let dvEsperado: dvEspandoType = 11 - (suma % 11);
-    if (dvEsperado === 10) {
+    if (10 === dvEsperado) {
         dvEsperado = 'K';
-    } else if (dvEsperado === 11) {
+    } else if (11 === dvEsperado) {
         dvEsperado = '0';
     } else {
         dvEsperado = dvEsperado.toString();

@@ -1,17 +1,20 @@
-import { $dom } from '@/dashboard/js/composables/dom.js';
-import { versaAlert, versaFetch } from '@/dashboard/js/functions.js';
-import { html } from 'P@/vendor/code-tag/code-tag-esm.js';
+import { html } from 'code-tag';
 
-import type { VersaParamsFetch } from 'versaTypes';
+import { $dom } from '@/dashboard/js/composables/dom.js';
+import { API_RESPONSE_CODES, GLOBAL_CONSTANTS } from '@/dashboard/js/constants';
+import { versaAlert, versaFetch } from '@/dashboard/js/functions.js';
+import type { VersaParamsFetch } from '@/dashboard/types/versaTypes';
 
 // Login Form
 const login = $dom('#login');
-if (login != null) {
+if (login) {
     login.addEventListener('click', async event => {
         event.preventDefault();
 
         const formulario = $dom('#formulario');
-        if (!(formulario instanceof HTMLFormElement)) return;
+        if (!(formulario instanceof HTMLFormElement)) {
+            return;
+        }
         const datos = new FormData(formulario);
 
         const params = {
@@ -21,8 +24,11 @@ if (login != null) {
         } as VersaParamsFetch;
 
         const data = await versaFetch(params);
-        if (data.success == 0) {
-            const alerta = $dom('#alert');
+        if (API_RESPONSE_CODES.ERROR === data.success) {
+            const alerta = $dom('#alert') as HTMLDivElement;
+            if (!(alerta instanceof HTMLDivElement)) {
+                return false;
+            }
 
             const errores = html`
                 <ul
@@ -82,7 +88,7 @@ if (login != null) {
             message: data.message,
             type: 'success',
             callback: () => {
-                window.location.href = data.redirect;
+                globalThis.location.href = data.redirect || '/admin/dashboard';
             },
         });
     });
@@ -94,12 +100,14 @@ const imgShowPass = $dom('#imgShowPass');
 const imgHiddenPass = $dom('#imgHiddenPass');
 const password = $dom('#password');
 
-if (showPass != null) {
+if (showPass && imgShowPass && imgHiddenPass && password) {
     showPass.addEventListener('click', event => {
         event.preventDefault();
 
-        if (!(password instanceof HTMLInputElement)) return;
-        if (password.type == 'password') {
+        if (!(password instanceof HTMLInputElement)) {
+            return;
+        }
+        if ('password' === password.type) {
             password.type = 'text';
             imgShowPass.classList.remove('hidden');
             imgHiddenPass.classList.add('hidden');
@@ -111,9 +119,9 @@ if (showPass != null) {
     });
 }
 
-if (password != null) {
-    password.addEventListener('keypress', (event: KeyboardEvent) => {
-        if (event.key === 'Enter') {
+if (password) {
+    password.addEventListener('keypress', (event: Event) => {
+        if ('Enter' === (event as KeyboardEvent).key) {
             event.preventDefault();
             if (login instanceof HTMLButtonElement) {
                 login.click();
@@ -124,16 +132,24 @@ if (password != null) {
 
 // Lost Password
 const btnlostPass = $dom('#btnLostPass');
-if (btnlostPass != null) {
+if (btnlostPass) {
     btnlostPass.addEventListener('click', async event => {
         event.preventDefault();
         const alerta = $dom('#alert');
         const formLostPass = $dom('#formLostPass');
 
-        if (!(formLostPass instanceof HTMLFormElement)) return;
+        if (!(alerta instanceof HTMLDivElement)) {
+            return;
+        }
+
+        if (!(formLostPass instanceof HTMLFormElement)) {
+            return;
+        }
         const datos = new FormData(formLostPass);
 
-        if (!(btnlostPass instanceof HTMLButtonElement)) return;
+        if (!(btnlostPass instanceof HTMLButtonElement)) {
+            return;
+        }
         btnlostPass.disabled = true;
         btnlostPass.innerHTML = html`
             <div class="flex items-center" role="status">
@@ -165,7 +181,7 @@ if (btnlostPass != null) {
             data: JSON.stringify(objectData),
         } as VersaParamsFetch;
         const data = await versaFetch(params);
-        if (data.success == 0) {
+        if (API_RESPONSE_CODES.ERROR === data.success) {
             const errores = html`
                 <ul
                     class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
@@ -270,14 +286,19 @@ if (btnlostPass != null) {
 
 // Reset Password
 const btnResetPass = $dom('#btnResetPass');
-if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
+if (btnResetPass && btnResetPass instanceof HTMLButtonElement) {
     btnResetPass.addEventListener('click', async event => {
         event.preventDefault();
 
         const FormResetPass = $dom('#FormResetPass');
-        if (!(FormResetPass instanceof HTMLFormElement)) return;
+        if (!(FormResetPass instanceof HTMLFormElement)) {
+            return;
+        }
         const datos = new FormData(FormResetPass);
         const alerta = $dom('#alert');
+        if (!(alerta instanceof HTMLDivElement)) {
+            return;
+        }
         alerta.innerHTML = '';
 
         const params = {
@@ -286,10 +307,12 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
             data: datos,
         } as VersaParamsFetch;
 
-        if (!(btnResetPass instanceof HTMLButtonElement)) return;
+        if (!(btnResetPass instanceof HTMLButtonElement)) {
+            return;
+        }
         btnResetPass.disabled = true;
         const data = await versaFetch(params);
-        if (data.success == 0) {
+        if (API_RESPONSE_CODES.ERROR === data.success) {
             const errores = html`
                 <ul
                     class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
@@ -359,9 +382,9 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
 
         divProgress.classList.remove('hidden');
         let width = 0;
-        const id = setInterval(frame, 10);
-        function frame() {
-            if (width >= 100) {
+
+        const frame = () => {
+            if (GLOBAL_CONSTANTS.HUNDRED <= width) {
                 clearInterval(id);
 
                 alerta.innerHTML = html`
@@ -406,13 +429,14 @@ if (btnResetPass != null && btnResetPass instanceof HTMLButtonElement) {
                 `;
 
                 setTimeout(() => {
-                    window.location.href = '/admin/login';
-                }, 1000);
+                    globalThis.location.href = '/admin/login';
+                }, GLOBAL_CONSTANTS.THOUSAND);
             } else {
-                width++;
+                width += GLOBAL_CONSTANTS.ONE;
                 progress.style.width = `${width}%`;
             }
-        }
+        };
+        const id = setInterval(frame, GLOBAL_CONSTANTS.TEN);
     });
 }
 
@@ -422,12 +446,14 @@ const imgShowPassNew = $dom('#imgShowPassNew');
 const imgHiddenPassNew = $dom('#imgHiddenPassNew');
 const new_password = $dom('#new_password');
 
-if (togglePasswordNew != null) {
+if (togglePasswordNew && imgShowPassNew && imgHiddenPassNew && new_password) {
     togglePasswordNew.addEventListener('click', event => {
         event.preventDefault();
 
-        if (!(new_password instanceof HTMLInputElement)) return;
-        if (new_password.type == 'password') {
+        if (!(new_password instanceof HTMLInputElement)) {
+            return;
+        }
+        if ('password' === new_password.type) {
             new_password.type = 'text';
             imgShowPassNew.classList.remove('hidden');
             imgHiddenPassNew.classList.add('hidden');
@@ -444,12 +470,19 @@ const imgShowPassConfirmNew = $dom('#imgShowPassConfirmNew');
 const imgHiddenPassConfirmNew = $dom('#imgHiddenPassConfirmNew');
 const comfirm_new_password = $dom('#comfirm_new_password');
 
-if (togglePasswordConfirmNew != null) {
+if (
+    togglePasswordConfirmNew &&
+    imgShowPassConfirmNew &&
+    imgHiddenPassConfirmNew &&
+    comfirm_new_password
+) {
     togglePasswordConfirmNew.addEventListener('click', event => {
         event.preventDefault();
 
-        if (!(comfirm_new_password instanceof HTMLInputElement)) return;
-        if (comfirm_new_password.type == 'password') {
+        if (!(comfirm_new_password instanceof HTMLInputElement)) {
+            return;
+        }
+        if ('password' === comfirm_new_password.type) {
             comfirm_new_password.type = 'text';
             imgShowPassConfirmNew.classList.remove('hidden');
             imgHiddenPassConfirmNew.classList.add('hidden');

@@ -145,33 +145,33 @@ EOT;
             exit();
         }
         $routeContent = file_get_contents($routeFile);
-        
+
         // Dividir el contenido en líneas para procesar
         $lines = preg_split('/\r\n|\r|\n/', $routeContent);
-        
+
         // Estructura para almacenar rutas
         $allRoutesData = [];
-        
+
         // Estructura para manejar grupos y su anidamiento
         $groupStack = [];
         $currentPath = '';
         $currentMiddleware = [];
-        
+
         // Variables para almacenar documentación
         $currentDescription = '';
         $currentRequestBody = [];
         $currentQueryParams = [];
-        
+
         foreach ($lines as $line) {
             $line = trim($line);
             if (empty($line)) continue;
-            
+
             // Capturar documentación
             if (strpos($line, '// description:') === 0) {
                 $currentDescription = trim(substr($line, 15));
                 continue;
             }
-            
+
             // Capturar request-body
             if (strpos($line, '// request-body') === 0) {
                 if (preg_match('/\/\/\s*request-body\s+name:(.+?)\s+type:(.+?)\s+description:(.+)$/', $line, $matches)) {
@@ -183,7 +183,7 @@ EOT;
                 }
                 continue;
             }
-            
+
             // Capturar query-param
             if (strpos($line, '// query-param') === 0) {
                 if (preg_match('/\/\/\s*query-param\s+name:(.+?)\s+type:(.+?)\s+description:(.+)$/', $line, $matches)) {
@@ -195,11 +195,11 @@ EOT;
                 }
                 continue;
             }
-            
+
             // Detectar inicio de grupo
             if (preg_match('/Router::group\s*\(\s*[\'"](.*?)[\'"](.*?)function\s*\(\s*\)\s*\{/', $line, $matches)) {
                 $groupPrefix = $matches[1];
-                
+
                 // Detectar middleware del grupo
                 // Primero verificamos si hay middleware en la línea actual
                 $groupMiddleware = [];
@@ -222,38 +222,38 @@ EOT;
                         $nextLineIndex++;
                     }
                 }
-                
+
                 // Guardar estado actual del grupo
                 $groupStack[] = [
                     'prefix' => $groupPrefix,
                     'middleware' => $groupMiddleware,
                     'description' => $currentDescription
                 ];
-                
+
                 // Actualizar path actual con el prefijo del grupo
                 $currentPath = '';
                 foreach ($groupStack as $group) {
                     $currentPath .= $group['prefix'];
                 }
-                
+
                 // Actualizar middleware actual con el del grupo
                 $currentMiddleware = [];
                 foreach ($groupStack as $group) {
                     $currentMiddleware = array_merge($currentMiddleware, $group['middleware']);
                 }
-                
+
                 // Reiniciar descripción después de usarla
                 $currentDescription = '';
                 continue;
             }
-            
+
             // Detectar cierre de grupo
             if (strpos($line, '});') === 0 || strpos($line, '}, [') === 0) {
                 // Quitar el último grupo de la pila
                 if (!empty($groupStack)) {
                     array_pop($groupStack);
                 }
-                
+
                 // Recalcular path y middleware actuales
                 $currentPath = '';
                 $currentMiddleware = [];
@@ -263,47 +263,47 @@ EOT;
                 }
                 continue;
             }
-            
+
             // Detectar definición de ruta
             if (preg_match('/Router::(get|post|put|patch|delete)\s*\(\s*[\'"](.*?)[\'"](.*?)\[([^\]]+)\]\)/', $line, $matches)) {
                 $method = strtoupper($matches[1]);
                 $routePath = $matches[2];
                 $callback = $matches[4];
-                
+
                 // Manejar rutas vacías dentro de grupos (como '')
                 if (empty($routePath) && !empty($currentPath)) {
                     $routePath = '';
                 }
-                
+
                 // Path completo incluyendo prefijos de grupo
                 $fullPath = $currentPath . $routePath;
-                
+
                 // Extraer parámetros de ruta
                 preg_match_all('/\{([^\}]+)\}/', $fullPath, $routeParamsMatches);
                 $routeParams = $routeParamsMatches[1] ?? [];
-                
+
                 // Extraer clase y método del controlador
                 $callbackParts = explode(',', str_replace(['[', ']', ' ', "'"], '', $callback));
                 $class = $callbackParts[0] ?? null;
                 $class_method = $callbackParts[1] ?? null;
-                
+
                 // Detectar middleware de la ruta
                 $routeMiddleware = [];
                 if (preg_match('/->middleware\s*\(\s*\[(.*?)\]\s*\)/', $line, $mwMatches)) {
                     $middlewareStr = $mwMatches[1];
                     $routeMiddleware = self::parseMiddleware($middlewareStr);
                 }
-                
+
                 // Combinar middleware de grupos y ruta
                 $allMiddleware = array_merge($currentMiddleware, $routeMiddleware);
-                
+
                 // Usar descripción de la ruta o heredar del grupo más cercano si está vacía
                 $description = $currentDescription;
                 if (empty($description) && !empty($groupStack)) {
                     $lastGroup = end($groupStack);
                     $description = $lastGroup['description'];
                 }
-                
+
                 // Guardar datos de la ruta
                 $allRoutesData[] = [
                     'route' => $fullPath,
@@ -316,17 +316,17 @@ EOT;
                     'class_method' => $class_method,
                     'middleware' => $allMiddleware,
                 ];
-                
+
                 // Reiniciar documentación después de usarla
                 $currentDescription = '';
                 $currentRequestBody = [];
                 $currentQueryParams = [];
             }
         }
-        
+
         return $allRoutesData;
     }
-    
+
     /**
      * Analiza una cadena de middleware y la convierte en un array estructurado
      * @param string $middlewareStr Cadena de middleware
@@ -335,10 +335,10 @@ EOT;
     private static function parseMiddleware(string $middlewareStr): array
     {
         $middlewares = [];
-        
+
         // Limpiar espacios y caracteres innecesarios
         $middlewareStr = preg_replace('/\s+/', '', $middlewareStr);
-        
+
         // Manejar diferentes formatos de middleware
         if (strpos($middlewareStr, '[[') === 0) {
             // Formato [[Class,'method'],[Class,'method']]
@@ -350,23 +350,23 @@ EOT;
             // Otros formatos
             $items = explode('],[', $middlewareStr);
         }
-        
+
         foreach ($items as $item) {
             if (empty($item)) continue;
-            
+
             // Extraer clase y método
             $parts = explode(',', $item);
             if (count($parts) >= 2) {
                 $class = trim($parts[0], "'[]");
                 $method = trim($parts[1], "'[]");
-                
+
                 $middlewares[] = [
                     'class' => $class,
                     'class_method' => $method,
                 ];
             }
         }
-        
+
         return $middlewares;
     }
 
