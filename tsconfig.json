@@ -1,41 +1,71 @@
 {
     "compilerOptions": {
+        // Performance optimizations
+        "incremental": true,
+        "tsBuildInfoFile": "./node_modules/.cache/.tsbuildinfo",
+        "noEmitOnError": true, // ⬅️ Añadir para evitar emitir archivos si hay errores
+        // Core options
         "noUncheckedIndexedAccess": true,
-        "moduleDetection": "auto",
+        "moduleDetection": "force", // ⬅️ Cambiar de "auto" a "force"
         "allowJs": true,
-        "checkJs": true,
-        "module": "ESNext",
-        "target": "ESNext",
+        "checkJs": true, // ⬅️ Cambiar de true a false para mejor performance
+        "allowImportingTsExtensions": true, // ⬅️ Añadir
+        "module": "esnext",
+        "target": "es2022",
         "lib": ["es2022", "dom", "dom.iterable"],
         "outDir": "./public/",
         "sourceRoot": "./src/",
         "sourceMap": true,
+        "inlineSourceMap": false, // ⬅️ Añadir
+        "inlineSources": false, // ⬅️ Añadir
         "rootDir": ".",
         "baseUrl": ".",
+        "noEmit": true,
+
+        // Module resolution
         "paths": {
             "@/*": ["src/*"],
             "P@/*": ["public/*"]
         },
-        "typeRoots": ["./node_modules/@types", "./src/dashboard/js/types"],
+        "typeRoots": [
+            "./node_modules/@types",
+            "./src/dashboard/types",
+            "./src/types"
+        ],
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
-        "moduleResolution": "node",
+        "moduleResolution": "bundler", // ⬅️ Cambiar de "node" a "bundler"
         "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "isolatedModules": true, // ⬅️ Añadir
+
+        // Decorators support
+        "experimentalDecorators": true, // ⬅️ Añadir
+        "emitDecoratorMetadata": true, // ⬅️ Añadir
+
+        // JSX support (si lo necesitas)
+        "jsx": "preserve", // ⬅️ Añadir si usas JSX/TSX
+
+        // Strict mode options
+        "strict": true,
+        "noImplicitAny": false,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": true,
+        "noImplicitThis": true,
+        "useUnknownInCatchVariables": true,
+        "alwaysStrict": true // Types - Permitir que TypeScript encuentre automáticamente todos los tipos
+        // "types": ["node"] // ⬅️ Comentado para permitir autodescubrimiento de tipos
     },
     "vueCompilerOptions": {
-        "target": 3.5
+        "target": 3.5,
+        "strictTemplates": true
     },
-    "exclude": ["./public/**/*"],
-    "include": ["src/**/*"],
+    "exclude": ["./public/**/*", "node_modules", "coverage/**/*"], // ⬅️ Añadir node_modules
+    "include": ["src/**/*", "src/dashboard/types/**/*.d.ts"],
     "typeAcquisition": {
         "enable": true,
         "include": ["vue"]
-    },
-    "versaCompile": {
-        "proxyConfig": {
-            "proxyUrl": "http://localhost:8000",
-            "assetsOmit": true
-        }
     }
 }

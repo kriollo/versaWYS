@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "versaWYS-PHP es un framework PHP versátil, simple, ligero, rápido y fácil de usar, diseñado para desarrolladores que buscan eficiencia y flexibilidad en sus proyectos web. Ofrece un enfoque moderno para la gestión de rutas, tanto para aplicaciones web tradicionales como para APIs REST, integrando poderosas herramientas como RedBean para ORM y Twig para la gestión de plantillas.",
     "scripts": {
-        "watch": "npx versacompiler",
+        "watch": "npx versacompiler --watch --tailwind --verbose",
         "dashboard": "tailwindcss --max-old-space-size=800 -i ./src/dashboard/css/dashboard.css -o ./public/dashboard/css/dashboard.css --watch --minify",
         "web": "tailwindcss -i ./src/web/css/web.css -o ./public/web/css/web.css --watch --minify",
         "versaCompileJS": "npx versacompiler --all --prod",
@@ -13,15 +13,19 @@
     "author": "Jorge Jara H.(jjara@wys.cl)",
     "license": "MIT",
     "dependencies": {
-        "pinia": "^3.0.2",
-        "sweetalert2": "^11.21.0",
+        "pinia": "^3.0.3",
+        "sweetalert2": "^11.22.1",
         "vue": "3.5.17"
     },
     "devDependencies": {
         "@prettier/plugin-php": "^0.22.4",
         "@types/node": "^24.0.4",
+        "@vue/compiler-dom": "^3.5.17",
+        "@vue/reactivity": "^3.5.17",
+        "@vue/runtime-core": "^3.5.17",
+        "@vue/runtime-dom": "^3.5.17",
         "code-tag": "^1.2.0",
-        "globals": "^16.1.0",
+        "globals": "^16.2.0",
         "oxlint": "1.3.0",
         "prettier": "3.6.1",
         "tailwindcss": "3.4.17",

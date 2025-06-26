@@ -134,7 +134,7 @@
                 data: JSON.stringify({
                     id: item.id,
                     id_menu: item.id_menu,
-                    value,
+                    position: value,
                     csrf_token,
                 }),
                 headers: { 'Content-Type': 'application/json' },

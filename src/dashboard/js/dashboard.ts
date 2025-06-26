@@ -8,7 +8,8 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
     // Change the icons inside the button based on previous settings
     if (
         'dark' === localStorage.getItem('color-theme') ||
-        (!('color-theme' in localStorage) && globalThis.matchMedia('(prefers-color-scheme: dark)').matches)
+        (!('color-theme' in localStorage) &&
+            globalThis.matchMedia('(prefers-color-scheme: dark)').matches)
     ) {
         $themeToggleLightIcon.classList.remove('hidden');
         document.documentElement.classList.add('dark');
@@ -23,7 +24,8 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
 
         $themeToggleBtn.addEventListener('click', (): void => {
             const updateThemeState = (): void => {
-                const isCurrentlyDark = document.documentElement.classList.contains('dark');
+                const isCurrentlyDark =
+                    document.documentElement.classList.contains('dark');
 
                 if (isCurrentlyDark) {
                     document.documentElement.classList.remove('dark');
@@ -50,7 +52,9 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
 
                 // Limpiar la clase después de que la transición termine
                 transition.finished.finally((): void => {
-                    document.documentElement.classList.remove('theme-transition');
+                    document.documentElement.classList.remove(
+                        'theme-transition',
+                    );
                 });
             } else {
                 updateThemeState();
@@ -60,7 +64,11 @@ if ($themeToggleDarkIcon && $themeToggleLightIcon) {
 }
 
 // Función para configurar eventos de submenús
-const setupSubmenuEvents = (button: HTMLElement, dropdown: HTMLElement, caret: HTMLElement | null) => {
+const setupSubmenuEvents = (
+    button: HTMLElement,
+    dropdown: HTMLElement,
+    caret: HTMLElement | null,
+) => {
     let hoverTimeout: number | null = null;
 
     // Función para mostrar el submenú
@@ -147,7 +155,10 @@ const initializeSidebarSubmenus = () => {
         if (dropdownId) {
             const $dropdown = $dom(`#${dropdownId}`) as HTMLElement;
             if ($dropdown) {
-                const $caret = $dom('[sidebar-item-i]', buttonElement) as HTMLElement;
+                const $caret = $dom(
+                    '[sidebar-item-i]',
+                    buttonElement,
+                ) as HTMLElement;
                 setupSubmenuEvents(buttonElement, $dropdown, $caret);
             }
         }
@@ -161,9 +172,16 @@ if ($toggleAside instanceof HTMLElement && null !== $toggleAside) {
     const $toggleAsideHamburger = $dom('#toggleAsideHamburger');
     const $aside = $dom('#sidebar');
     const $maincontent = $dom('#main-content');
+    const $maincontentParent = $maincontent?.parentElement; // El div que contiene lg:ml-56
     const $sidebarBackdrop = $dom('#sidebarBackdrop');
 
-    if (!$toggleAsideHamburger || !$aside || !$maincontent || !$sidebarBackdrop) {
+    if (
+        !$toggleAsideHamburger ||
+        !$aside ||
+        !$maincontent ||
+        !$maincontentParent ||
+        !$sidebarBackdrop
+    ) {
         console.error('One or more elements are missing in the DOM.');
     } else {
         const toggleSidebarMobile = (): void => {
@@ -181,19 +199,25 @@ if ($toggleAside instanceof HTMLElement && null !== $toggleAside) {
                 if (!$aside.classList.contains('hidden')) {
                     $aside.classList.remove('w-16');
                     $aside.classList.add('w-56');
+                    // Restaurar margen en móvil cuando se muestra (aunque en móvil lg: no aplica, es por consistencia)
+                    $maincontentParent.classList.add('lg:ml-56');
+                    $maincontentParent.classList.remove('lg:ml-16');
+                } else {
+                    // Cuando se oculta en móvil, quitar todos los márgenes para que el contenido use todo el ancho
+                    $maincontentParent.classList.remove('lg:ml-56', 'lg:ml-16');
                 }
             } else if ($aside.classList.contains('w-56')) {
                 // Contraer sidebar en desktop
                 $aside.classList.remove('w-56');
                 $aside.classList.add('w-16');
-                $maincontent.classList.remove('lg:ml-56');
-                $maincontent.classList.add('lg:ml-16');
+                $maincontentParent.classList.remove('lg:ml-56');
+                $maincontentParent.classList.add('lg:ml-16');
             } else {
                 // Expandir sidebar en desktop
                 $aside.classList.remove('w-16');
                 $aside.classList.add('w-56');
-                $maincontent.classList.remove('lg:ml-16');
-                $maincontent.classList.add('lg:ml-56');
+                $maincontentParent.classList.remove('lg:ml-16');
+                $maincontentParent.classList.add('lg:ml-56');
             }
         };
 
