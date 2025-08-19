@@ -2,6 +2,10 @@
 
 **Framework PHP moderno, ligero y robusto para desarrollo ágil de aplicaciones web y APIs.**
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/kriollo/versaWYS)
+[![Status](https://img.shields.io/badge/status-stable-brightgreen.svg)](#)
+[![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4.svg)](#)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](#)
 ## ¿Qué ofrece versaWYS-PHP?
 
 - **Arquitectura MVC** clara y flexible para proyectos de cualquier tamaño.
