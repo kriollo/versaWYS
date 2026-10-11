@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel;
 
-use app\models as Models;
 use versaWYS\kernel\cli\RouteManager;
-use versaWYS\kernel\GlobalControllers;
-use versaWYS\kernel\helpers\Functions;
 
 class versaController extends GlobalControllers
 {
@@ -17,7 +14,7 @@ class versaController extends GlobalControllers
         parent::__construct($twig, $session);
     }
 
-    public function versaRoute()
+    public function versaRoute(): string
     {
         global $request;
 

@@ -6,7 +6,7 @@ namespace versaWYS\kernel\helpers;
 
 class FilesFunction
 {
-    public static function destroyAllDir($dirPath): void
+    public static function destroyAllDir(string $dirPath): void
     {
         if (!is_dir($dirPath)) {
             return;
@@ -17,13 +17,14 @@ class FilesFunction
         }
 
         $files = glob($dirPath . '*', GLOB_MARK);
-        foreach ($files as $file) {
+        foreach (is_array(value: $files) ? $files : [] as $file) {
             if (is_dir($file)) {
                 self::destroyAllDir($file);
             } else {
                 unlink($file);
             }
         }
+
         if (!file_exists($dirPath)) {
             rmdir($dirPath);
         }

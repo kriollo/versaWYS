@@ -5,22 +5,29 @@ declare(strict_types=1);
 namespace versaWYS\kernel;
 
 use Exception;
+use RuntimeException;
 use Throwable;
 use versaWYS\kernel\helpers\Functions;
-
 
 class Request
 {
     protected mixed $contentType;
-    protected string $method;
-    protected mixed $url;
-    protected array $params;
-    protected array $files;
-    protected mixed $ip;
-    protected mixed $accept;
-    protected mixed $rawBody;
-    protected mixed $rawBodyLength;
 
+    protected string $method;
+
+    protected mixed $url;
+
+    protected array $params;
+
+    protected array $files;
+
+    protected mixed $ip;
+
+    protected mixed $accept;
+
+    protected mixed $rawBody;
+
+    protected mixed $rawBodyLength;
 
     public function __construct()
     {
@@ -41,69 +48,46 @@ class Request
             if (isset($this->params['_method'])) {
                 $this->method = strtoupper($this->params['_method']);
             }
-        } catch (Throwable $e) {
-            throw new Exception('Error al inicializar la solicitud: ' . $e->getMessage());
-        }
-    }
+        } catch (Throwable $throwable) {
+            $error_message = 'Error al inicializar la solicitud: ' . $throwable->getMessage();
+            Loggin::error($error_message, 'request', [
+                'exception' => $throwable,
+            ]);
 
-    protected function prepareParams(): void
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $this->params = filter_var_array($_GET ?? [], FILTER_SANITIZE_SPECIAL_CHARS);
-        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if ($this->contentType != '' && strtolower($this->contentType) === 'application/json') {
-                $this->params = json_decode(file_get_contents('php://input'), true) ?? [];
-            } else {
-                $this->params = $_POST;
-                foreach ($this->params as $key => $value) {
-                    $this->processJsonValue($key);
+            // Handle error according to debug mode
+            global $config;
+            if (isset($config['build']['debug']) && $config['build']['debug']) {
+                // In debug mode, use ErrorHandler to show detailed error
+                if (class_exists('versaWYS\\kernel\\ErrorHandler')) {
+                    $errorHandler = new ErrorHandler();
+                    $errorHandler->handleException(new RuntimeException($error_message));
+                    exit();
                 }
+
+                // Fallback if ErrorHandler is not available yet
+                Loggin::error('ErrorHandler no disponible: ' . $error_message, 'request', [$throwable]);
+
+                throw new Exception($error_message, $throwable->getCode(), $throwable);
             }
-        } else {
-            $this->processNonPostParams();
-        }
-    }
 
-    protected function processNonPostParams(): void
-    {
-        $params = file_get_contents('php://input');
+            // In production mode, show clean error
+            Loggin::error('Request initialization error in production: ' . $error_message, 'request');
 
-        if ($this->contentType != '' && strtolower($this->contentType) === 'application/json') {
-            $this->params =
-                $params === '' || $params === null || !Functions::validateJson($params)
-                ? []
-                : json_decode($params, true);
-        } else {
-            if (str_contains($this->contentType, 'multipart/form-data')) {
-                $this->params = $this->procesaFormData($params);
-            } else {
-                parse_str($params, $this->params);
+            // Use our static method to determine if it's an API call
+            $isApi = $this->isStaticApiCall();
+
+            if ($isApi) {
+                Response::jsonError([
+                    'message' => 'Error interno del servidor',
+                    'code' => 500,
+                ], 500);
+                exit();
             }
+
+            http_response_code(500);
+            echo '<h1>Error del sistema</h1><p>Error de inicialización. Por favor, contacte al administrador.</p>';
+            exit();
         }
-
-        foreach ($this->params as $key => $value) {
-            $this->processJsonValue($key);
-        }
-
-        $this->params = filter_var_array($this->params, FILTER_SANITIZE_SPECIAL_CHARS);
-    }
-
-    protected function processJsonValue($key): void
-    {
-        $value = $this->params[$key];
-        if (
-            is_string($value) &&
-            is_array(json_decode($value, true)) &&
-            json_last_error() == JSON_ERROR_NONE &&
-            str_contains($value, '{')
-        ) {
-            $this->params[$key] = json_decode(html_entity_decode($value, ENT_QUOTES, 'UTF-8'), true);
-        }
-    }
-
-    protected function prepareFiles(): void
-    {
-        $this->files = filter_var_array($_FILES, FILTER_SANITIZE_SPECIAL_CHARS);
     }
 
     public function procesaFormData($params): array
@@ -114,93 +98,106 @@ class Request
         $files = [];
 
         foreach ($parts as $part) {
-            if (!empty($part) && str_contains($part, 'name=')) {
-                preg_match('/name="(.*?)"/', $part, $matches);
-                $fieldName = $matches[1];
-
-                if (strpos($part, 'filename=') && empty($_FILES)) {
-                    $file = $this->extractFilesFormData($part);
-                    $files[$fieldName] = $file;
-                    continue;
-                }
-
-                preg_match('/\r\n\r\n(.*?)\r\n/', $part, $matches);
-
-                $fieldValue = $matches[1];
-                $data[$fieldName] = $fieldValue;
+            if (!($part !== '' && $part !== '0' && str_contains($part, 'name='))) {
+                continue;
             }
+
+            preg_match('/name="(.*?)"/', $part, $matches);
+            $fieldName = $matches[1];
+
+            if (strpos($part, 'filename=') && $_FILES === []) {
+                $file = $this->extractFilesFormData($part);
+                $files[$fieldName] = $file;
+
+                continue;
+            }
+
+            preg_match('/\r\n\r\n(.*?)\r\n/', $part, $matches);
+
+            $fieldValue = $matches[1];
+            $data[$fieldName] = $fieldValue;
         }
-        if (!empty($files) && empty($_FILES)) {
+
+        if ($files !== [] && $_FILES === []) {
             $this->files = filter_var_array($files, FILTER_SANITIZE_SPECIAL_CHARS);
         }
 
         return $data;
     }
 
-    private function extractFilesFormData($part): array
+    public function setParam(string $fieldName, mixed $value): void
     {
-        $fileName = explode('filename=', $part)[1];
-        $fileName = explode("\r\n", $fileName)[0];
-        $fileName = str_replace('"', '', $fileName);
-
-        $fileType = explode("\r\n", explode('Content-Type: ', $part)[1])[0];
-
-        $fileTmpContent = explode("\r\n\r\n", $part)[1];
-        $fileTmpName = tempnam(sys_get_temp_dir(), 'uploaded_file_');
-
-        file_put_contents($fileTmpName, $fileTmpContent);
-
-        return [
-            'name' => $fileName,
-            'type' => $fileType,
-            'tmp_name' => $fileTmpName,
-            'error' => 0, // Puedes ajustar según necesidad
-            'size' => strlen($fileTmpContent), // Puedes ajustar según necesidad
-            'from' => 'formData',
-        ];
+        $this->params[$fieldName] = $value;
     }
 
     /**
      * Obtiene el valor de un campo de entrada de la solicitud.
      *
-     * @param string $fieldName El nombre del campo de entrada.
-     * @return mixed El valor del campo de entrada o null si no está presente.
+     * @param string $fieldName el nombre del campo de entrada
+     *
+     * @return mixed el valor del campo de entrada o null si no está presente
      */
-    public function get(string $fieldName): mixed
+    public function get(string $fieldName, mixed $default = null): mixed
     {
-        return $this->params[$fieldName] ?? null;
+        return $this->params[$fieldName] ?? $default;
     }
 
     /**
      * Returns the file with the given file name from the request.
      *
-     * @param string $fileName The name of the file to retrieve.
-     * @return File|null The file object if it exists, or null if it doesn't.
+     * @param string $fileName the name of the file to retrieve
+     *
      * @throws Exception
+     *
+     * @return File|null the file object if it exists, or null if it doesn't
      */
     public function file(string $fileName): ?File
     {
         if (isset($this->files[$fileName])) {
             return new File($this->files[$fileName]);
         }
+
         return null;
     }
 
     /**
      * Obtiene todos los parámetros de la solicitud.
+     * Ahora incluye sanitización de seguridad.
      *
-     * @return array Los parámetros de la solicitud.
+     * @return array los parámetros de la solicitud
      */
     public function getAllParams(): array
+    {
+        // Aplicar sanitización de seguridad a los parámetros
+        return SecurityUtils::sanitizeInputParams($this->params);
+    }
+
+    /**
+     * Obtiene los parámetros sin sanitizar (para casos especiales).
+     *
+     * @return array Los parámetros originales
+     */
+    public function getRawParams(): array
     {
         return $this->params;
     }
 
     /**
+     * Valida el token CSRF para la petición actual.
+     *
+     * @return bool True si es válido, false en caso contrario
+     */
+    public function validateCsrf(): bool
+    {
+        return SecurityUtils::validateCsrfForRequest($this->params);
+    }
+
+    /**
      * Obtiene todos los archivos adjuntos de la solicitud.
      *
-     * @return array Un array de objetos File que representan los archivos adjuntos.
      * @throws Exception
+     *
+     * @return array un array de objetos File que representan los archivos adjuntos
      */
     public function getAllFiles($fileName): array
     {
@@ -216,11 +213,12 @@ class Request
             if (isset($this->files[$fileName]['tmp_name']) && $this->files[$fileName]['tmp_name'] !== '') {
                 try {
                     return [new File($this->files[$fileName])];
-                } catch (Exception $e) {
+                } catch (Exception) {
                     // Registrar el error o manejarlo según sea necesario
                     return [];
                 }
             }
+
             return [];
         }
 
@@ -229,23 +227,19 @@ class Request
         for ($i = 0; $i < $fileCount; $i++) {
             $currentFile = [];
             foreach ($this->files[$fileName] as $key => $value) {
-                if (isset($value[$i])) {
-                    $currentFile[$key] = $value[$i];
-                } else {
-                    // Dato faltante para este archivo en particular, podría invalidar el archivo.
-                    $currentFile[$key] = null;
-                }
+                $currentFile[$key] = $value[$i] ?? null;
             }
 
             // Solo procesar si tmp_name está presente y no está vacío
             if (isset($currentFile['tmp_name']) && $currentFile['tmp_name'] !== '') {
                 try {
                     $files[] = new File($currentFile);
-                } catch (Exception $e) {
+                } catch (Exception) {
                     // Registrar el error o manejarlo, opcionalmente continuar con otros archivos
                 }
             }
         }
+
         return $files;
     }
 
@@ -253,10 +247,12 @@ class Request
     {
         return $this->contentType;
     }
+
     public function getMethod(): string
     {
         return strtoupper($this->method);
     }
+
     public function getUrl()
     {
         return $this->url;
@@ -266,10 +262,17 @@ class Request
     {
         return $this->files;
     }
+
     public function getIp(): string
     {
         return $this->ip;
     }
+
+    public function getClientIp(): string
+    {
+        return $this->ip;
+    }
+
     public function getAccept(): string
     {
         return $this->accept;
@@ -279,6 +282,7 @@ class Request
     {
         return $this->rawBody;
     }
+
     public function getRawBodyLength(): mixed
     {
         return $this->rawBodyLength;
@@ -287,38 +291,86 @@ class Request
     /**
      * Returns the base URL of the current request.
      *
-     * @return string The base URL of the current request.
+     * @return string the base URL of the current request
      */
     public function getBaseUrl(): string
     {
-        $protocol = !empty($_SERVER['HTTPS']) && 'on' == $_SERVER['HTTPS'] ? 'https://' : 'http://';
-        $host = $_SERVER['HTTP_HOST'];
+        if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+            $_SERVER['HTTPS'] = 'on';
+            // Opcional: ajustar puerto y host si es necesario
+            if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
+                $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
+            }
+        }
+
+        $protocol = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+
         return $protocol . $host;
     }
 
     /**
      * Obtiene el valor de una cabecera HTTP específica.
      *
-     * @param string $headerName El nombre de la cabecera.
-     * @return string|null El valor de la cabecera o null si no se encuentra.
+     * @param string $headerName el nombre de la cabecera
+     *
+     * @return string|null el valor de la cabecera o null si no se encuentra
      */
     public function getHeader(string $headerName): ?string
     {
         $headers = getallheaders();
         $headerName = strtolower($headerName);
-        return $headers[$headerName] ?? null;
+
+        foreach ($headers as $key => $headerValue) {
+            if (strtolower($key) !== $headerName) {
+                continue;
+            }
+
+            return $headerValue;
+        }
+
+        return null;
+    }
+
+    /**
+     * Determina si la petición actual es una navegación SPA (Single Page Application).
+     * Este es el método centralizado para detectar peticiones SPA en todo el framework.
+     * Debe usarse en lugar de verificaciones inline en Router, Response, versaTwig, etc.
+     */
+    public function isSPARequest(): bool
+    {
+        return (
+            isset($_SERVER['HTTP_X_SPA'])
+            || isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+            && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest'
+        );
+    }
+
+    /**
+     * Versión estática de isSPARequest() para contextos donde no hay instancia de Request.
+     * Útil en ErrorHandler, Response y otros contextos estáticos.
+     */
+    public static function isSPARequestStatic(): bool
+    {
+        return (
+            isset($_SERVER['HTTP_X_SPA'])
+            || isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+            && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest'
+        );
     }
 
     /**
      * Determina en base a los headers recibidos si es una llamada por API REST o navegador.
-     *
-     * @return boolean
      */
     public function isApiCall(): bool
     {
         $url = strtolower($this->getUrl());
         $contentType = $this->getHeader('Content-Type'); // Puede ser null
         $acceptHeader = strtolower($this->getHeader('Accept') ?? '');
+
+        if ($this->getHeader('X-Spa')) {
+            return false;
+        }
 
         // Comprobación prioritaria por URL
         if (str_contains($url, '/api/')) {
@@ -341,17 +393,148 @@ class Request
             ];
 
             foreach ($apiContentTypes as $type) {
-                if (str_starts_with(strtolower($contentType), $type)) {
-                    return true;
+                if (!str_starts_with(strtolower($contentType), $type)) {
+                    continue;
                 }
+
+                return true;
             }
         }
 
         // Si un cliente XHR (como fetch o XMLHttpRequest) establece X-Requested-With
-        if (strtolower($this->getHeader('X-Requested-With') ?? '') === 'xmlhttprequest') {
+        return strtolower($this->getHeader('X-Requested-With') ?? '') === 'xmlhttprequest';
+    }
+
+    protected function prepareParams(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            // Para GET, aplicar filtrado básico pero no agresivo
+            $this->params = $_GET ?? [];
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if ($this->contentType !== '' && str_starts_with(strtolower($this->contentType), 'application/json')) {
+                $this->params = json_decode(file_get_contents('php://input'), true) ?? [];
+            } else {
+                // Para POST multipart/form-data, no aplicar filtros agresivos
+                $this->params = $_POST;
+                foreach (array_keys($this->params) as $key) {
+                    $this->processJsonValue($key);
+                }
+            }
+        } else {
+            $this->processNonPostParams();
+        }
+    }
+
+    protected function processNonPostParams(): void
+    {
+        $params = file_get_contents('php://input');
+
+        if ($this->contentType !== '' && strtolower($this->contentType) === 'application/json') {
+            $this->params = $params === '' || $params === null || !Functions::validateJson($params)
+                ? []
+                : json_decode($params, true);
+        } elseif (str_contains($this->contentType, 'multipart/form-data')) {
+            $this->params = $this->procesaFormData($params);
+        } else {
+            parse_str($params, $this->params);
+        }
+
+        foreach (array_keys($this->params) as $key) {
+            $this->processJsonValue($key);
+        }
+    }
+
+    protected function processJsonValue($key): void
+    {
+        $value = $this->params[$key];
+
+        // Solo procesar como JSON si necesita decodificación de entidades HTML
+        // Para campos como 'data' que ya son JSON válido, mantenerlos como string
+        if (
+            is_string($value)
+            && str_contains($value, '{')
+            && (str_contains($value, '&lt;') || str_contains($value, '&gt;') || str_contains($value, '&quot;'))
+        ) {
+            // Solo decodificar entidades HTML, mantener como JSON string
+            $decodedValue = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+
+            // Verificar que sigue siendo JSON válido después de decodificar
+            if (json_decode($decodedValue, true) !== null && json_last_error() === JSON_ERROR_NONE) {
+                $this->params[$key] = $decodedValue; // Mantener como string JSON
+            }
+        }
+    }
+
+    protected function prepareFiles(): void
+    {
+        $this->files = filter_var_array($_FILES, FILTER_SANITIZE_SPECIAL_CHARS);
+    }
+
+    private function extractFilesFormData(string $part): array
+    {
+        $fileName = explode('filename=', $part)[1];
+        $fileName = explode("\r\n", $fileName)[0];
+        $fileName = str_replace('"', '', $fileName);
+
+        $fileType = explode("\r\n", explode('Content-Type: ', $part)[1])[0];
+
+        $fileTmpContent = explode("\r\n\r\n", $part)[1];
+        $fileTmpName = tempnam(sys_get_temp_dir(), 'uploaded_file_');
+
+        file_put_contents($fileTmpName, $fileTmpContent);
+        chmod($fileTmpName, 0o775);
+
+        return [
+            'name' => $fileName,
+            'type' => $fileType,
+            'tmp_name' => $fileTmpName,
+            'error' => 0, // Puedes ajustar según necesidad
+            'size' => strlen($fileTmpContent), // Puedes ajustar según necesidad
+            'from' => 'formData',
+        ];
+    }
+
+    /**
+     * Método estático para determinar si es una llamada API sin necesidad de instancia completa.
+     * Útil para usar en el constructor cuando la instancia no está completamente inicializada.
+     */
+    private function isStaticApiCall(): bool
+    {
+        $url = strtolower($_SERVER['REQUEST_URI'] ?? '');
+        $acceptHeader = strtolower($_SERVER['HTTP_ACCEPT'] ?? '');
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+
+        // Comprobación prioritaria por URL
+        if (str_contains($url, '/api/')) {
             return true;
         }
 
-        return false;
+        // Comprobación por encabezado Accept, común para APIs RESTful
+        if (str_contains($acceptHeader, 'application/json')) {
+            return true;
+        }
+
+        // Comprobación por Content-Type para solicitudes con cuerpo (POST, PUT, PATCH)
+        if ($contentType !== '') {
+            $apiContentTypes = [
+                'application/json',
+                'application/xml',
+                'multipart/form-data',
+                'application/x-www-form-urlencoded',
+            ];
+
+            foreach ($apiContentTypes as $type) {
+                if (!str_starts_with(strtolower($contentType), $type)) {
+                    continue;
+                }
+
+                return true;
+            }
+        }
+
+        // Si un cliente XHR (como fetch o XMLHttpRequest) establece X-Requested-With
+        $headers = getallheaders();
+
+        return isset($headers['X-Requested-With']) && strtolower($headers['X-Requested-With']) === 'xmlhttprequest';
     }
 }

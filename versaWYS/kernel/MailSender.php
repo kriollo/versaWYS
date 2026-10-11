@@ -27,19 +27,35 @@ class MailSender
     public function __construct()
     {
         global $config;
-        $user = $config['mail']['username'];
-        $pass = $config['mail']['password'];
-        $host = $config['mail']['host'];
-        $port = $config['mail']['port'];
-        $trasport = $config['mail']['transport'];
-        $secure = $config['mail']['secure']; // false, tls, ssl
+        $user = $config['mail']['username'] ?? '';
+        $pass = $config['mail']['password'] ?? '';
+        $host = $config['mail']['host'] ?? '';
+        $port = $config['mail']['port'] ?? 0;
+        $transportScheme = $config['mail']['transport'] ?? 'smtp';
+        $secure = $config['mail']['secure'] ?? false; // false, tls, ssl
 
-        $verify = '';
-        if ($secure !== false) {
-            $verify .= "&crypto=$secure&verify_peer=false&verify_peer_name=false&allow_self_signed=true";
+        if ($secure === 'ssl') {
+            $transportScheme = 'smtps';
         }
 
-        $transport = Transport::fromDsn("$trasport://$user:$pass@$host:$port?$verify");
+        $auth = '';
+        if ($user !== '') {
+            $auth = rawurlencode($user) . ':' . rawurlencode($pass) . '@';
+        }
+
+        $options = [];
+        if ($secure === false || $secure === 'false' || $secure === '') {
+            $options['auto_tls'] = false;
+        } else {
+            $options['verify_peer'] = false;
+            $options['verify_peer_name'] = false;
+            $options['allow_self_signed'] = true;
+        }
+
+        $query = http_build_query($options, '', '&', PHP_QUERY_RFC3986);
+        $dsn = sprintf('%s://%s%s:%s%s', $transportScheme, $auth, $host, $port, $query !== '' ? "?{$query}" : '');
+
+        $transport = Transport::fromDsn($dsn);
         $this->mailer = new Mailer($transport);
     }
 
@@ -53,7 +69,7 @@ class MailSender
         ContentType $type,
         array $context = [],
         array $imagesEmbed = [],
-        array $attachments = []
+        array $attachments = [],
     ): bool {
         global $config, $twig;
 
@@ -68,30 +84,50 @@ class MailSender
             ContentType::TWIG => $email->html($twig->render($body, $context)),
         };
 
-        $email = self::attachFile($email, $attachments);
-        $email = self::embedImage($email, $imagesEmbed);
+        $email = $this->attachFile($email, $attachments);
+        $email = $this->embedImage($email, $imagesEmbed);
 
         try {
             $this->mailer->send($email);
+
             return true;
-        } catch (Exception | TransportExceptionInterface $e) {
-            throw new Exception($e->getMessage());
+        } catch (Exception|TransportExceptionInterface $e) {
+            $error_message = 'Error al enviar email: ' . $e->getMessage();
+            Loggin::error($error_message, 'MailSender');
+
+            // Nunca romper el flujo principal por falla de SMTP.
+            return false;
         }
     }
 
-    private static function attachFile(Email $email, array $attachments): Email
+    private function attachFile(Email $email, array $attachments): Email
     {
         foreach ($attachments as $attachment) {
             $email->addPart(new DataPart(new File($attachment)));
         }
+
         return $email;
     }
 
-    private static function embedImage(Email $email, array $imagesEmbed): Email
+    private function embedImage(Email $email, array $imagesEmbed): Email
     {
         foreach ($imagesEmbed as $image) {
-            $email->addPart((new DataPart(new File($image['path']), $image['id'], $image['mime']))->asInline());
+            $cid = trim((string) ($image['id'] ?? ''));
+            if ($cid === '') {
+                $cid = bin2hex(random_bytes(8)) . '@symfony';
+            } elseif (!str_contains($cid, '@')) {
+                $cid .= '@symfony';
+            }
+
+            $part = (new DataPart(
+                new File($image['path']),
+                basename((string) $image['path']),
+                $image['mime'],
+            ))->asInline();
+            $part->setContentId($cid);
+            $email->addPart($part);
         }
+
         return $email;
     }
 }

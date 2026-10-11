@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Archivo de inicialización del manejo mejorado de errores para versaWYS
- * Incluir este archivo al inicio de tu aplicación (en index.php o autoload.php)
+ * Incluir este archivo al inicio de tu aplicación (en index.php o autoload.php).
  */
 
 use versaWYS\kernel\ErrorHandler;

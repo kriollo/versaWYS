@@ -4,136 +4,137 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel;
 
-use app\models as Models;
-use RedBeanPHP\Cursor;
 use Twig\Environment;
 
 class GlobalControllers
 {
+    public array $empresaSelected = [
+        'id' => 0,
+        'token_empresa' => '',
+    ];
+
     /**
-     * @var array $user
-     * This variable stores user information.
+     * @var array
+     *            This variable stores user information
      */
     protected array $user = [
         'name' => 'Guest',
         'email' => 'guest@localhost',
         'avatar' => 'default.png',
         'role' => 'guest',
+        'empresa' => 'VersaWYS',
     ];
 
-    protected array|int|null|Cursor $menu_user = [];
+    protected array|int|null $menu_user = [];
 
     /**
-     * @var int $id
-     * This variable stores user id.
+     * @var int
+     *          This variable stores user id
      */
     protected int $id_user = 0;
 
+    protected array $empresas = [];
+
     protected $expiratePass = null;
 
-    /**
-     * Obtiene el objeto del template
-     *
-     * @var Environment
-     */
-    protected Environment $template;
-
-    public function __construct(Environment $twig, $session)
-    {
+    public function __construct(
+        /**
+         * Obtiene el objeto del template.
+         */
+        protected Environment $template,
+        $session,
+    ) {
         global $request, $cookie, $config;
 
-        $this->template = $twig;
-        if ($session->get('id_user') !== null) {
-            $this->user = (new Models\Users())->find($session->get('id_user'));
-            $this->id_user = (int) $session->get('id_user');
-            $this->menu_user =
-                $this->user['role'] == 'admin'
-                ? (new Models\Dashboard())->getMenuAdmin()
-                : (new Models\Dashboard())->getMenuUser((int) $this->id_user, (int) $this->user['id_perfil']);
-
-            if (isset($config['auth']['inactive_account_days']) && $config['auth']['inactive_account_days'] > 0) {
-                $inactive_account_days = $config['auth']['inactive_account_days'];
-                (new Models\Users())->updateStatusInactiveAccount($inactive_account_days);
-            }
-
-            $this->expiratePass = $this->expiratePass($this->user['expiration_pass']);
-            if ($request->getUrl() !== '/admin/perfiluser' && $this->expiratePass) {
-                Response::redirect('perfiluser');
-            }
+        $userData = GlobalMiddleware::getLoadedUserData();
+        if ($userData !== null) {
+            $this->user = $userData['user'];
+            $this->menu_user = $userData['menu_user'];
+            $this->empresas = $userData['empresas'];
+            $this->empresaSelected = $userData['empresaSelected'] ?? [];
+            $this->id_user = (int) $userData['id_user'];
+            $this->expiratePass = $userData['password_expired'];
         }
+
+        // El resto de la lógica para pasar las variables a Twig permanece igual.
         $cookie->set(
             'expiratePass',
             $this->expiratePass ? 'true' : 'false',
             0,
             $config['session']['user_cookie']['domain'],
-            false,
-            false
+            $config['session']['user_cookie']['secure'],
+            $config['session']['user_cookie']['http_only'],
         );
-        $twig->addGlobal('expiratePass', $this->expiratePass);
-        $twig->addGlobal('current_user', $this->user);
-        $twig->addGlobal('menu_user', $this->menu_user);
-        $twig->addGlobal('url_actual', $request->getUrl());
-    }
 
-    public function expiratePass($dateExpiration): bool
-    {
-        $expiration = strtotime($dateExpiration);
-        $today = strtotime(date('Y-m-d H:i:s'));
-        if ($expiration < $today) {
-            return true;
-        }
-        return false;
+        $hasActiveSession = $session->get('id_user') !== null;
+
+        $this->template->addGlobal('expiratePass', $this->expiratePass);
+        $this->template->addGlobal('current_user', $this->user);
+        $this->template->addGlobal('menu_user', $this->menu_user);
+        $this->template->addGlobal('url_actual', $request->getUrl());
+        $this->template->addGlobal('empresaSelected', $this->empresaSelected);
+        $this->template->addGlobal('empresas', $this->empresas);
+        $this->template->addGlobal('hasActiveSession', $hasActiveSession);
+        $this->template->addGlobal('ws_url', $config['websocket_service']['ws_url'] ?? '');
+        $this->template->addGlobal('config', $config);
     }
 
     /**
      * Retrieves the parameters for pagination.
      *
-     * @param Request $http The HTTP request object.
-     * @param array $filedsToFilters An array of fields to filter.
-     * @return array The pagination parameters.
+     * @param Request $http the HTTP request object
+     * @param array $filedsToFilters an array of fields to filter
+     *
+     * @return array the pagination parameters
      */
     public function getParamsPaginate(
         Request $http,
         array $filedsToFilters,
-        bool $inmediateExternalFilter = true
+        bool $inmediateExternalFilter = true,
+        string $orderDefault = 'id,asc',
     ): array {
         $page = (int) ($http->get('page') ?? 1);
         $per_page = (float) ($http->get('per_page') ?? 15);
         $fitro = (string) ($http->get('filter') ?? '');
-        $order = (string) ($http->get('order') ?? 'id,asc');
+        $order = (string) ($http->get('order') ?? $orderDefault);
         $order = str_replace(',', ' ', $order);
 
         $externalFilters = (string) ($http->get('externalFilters') ?? '');
 
-        $externalFilters = ($externalFilters != '') ? "{$externalFilters}" : '';
+        // $externalFilters = $externalFilters;
 
-        if ($page == '' && !is_numeric($page)) {
+        if ($page === 0 && !is_numeric($page)) {
             $page = 1;
         }
-        if ($per_page == '' && !is_numeric($per_page)) {
+
+        if ($per_page === 0.0 && !is_numeric($per_page)) {
             $per_page = 15;
         }
 
-        $page = ($page > 1) ? (int) ($page - 1) * $per_page : 0;
+        $page = $page > 1 ? (int) ($page - 1) * $per_page : 0;
 
-        $limit = "LIMIT $page , $per_page";
+        $limit = sprintf('LIMIT %s , %s', $page, $per_page);
+        $limitNumber = (int) $per_page;
+        $offset = (int) $page;
 
         $filter = '';
         if ($inmediateExternalFilter) {
-            $filter = " {$externalFilters} ";
+            $filter = sprintf(' %s ', $externalFilters);
         }
-        if (trim($fitro) != '') {
-            if (trim($filter) != '') {
+
+        if (trim($fitro) !== '') {
+            if (trim($filter) !== '') {
                 $filter .= ' AND ';
             }
 
             $filter .= ' ( ';
             foreach ($filedsToFilters as $key => $value) {
-                $filter = match ($key) {
-                    0 => " $value LIKE '%$fitro%' ",
-                    default => " OR $value LIKE '%$fitro%' ",
+                $filter .= match ($key) {
+                    0 => sprintf(" %s LIKE '%%%s%%' ", $value, $fitro),
+                    default => sprintf(" OR %s LIKE '%%%s%%' ", $value, $fitro),
                 };
             }
+
             $filter .= ' ) ';
         }
 
@@ -146,6 +147,8 @@ class GlobalControllers
             'limit' => $limit,
             'filter' => $filter,
             'allParams' => $http->getAllParams(),
+            'offset' => $offset,
+            'limitNumber' => $limitNumber,
         ];
     }
 }

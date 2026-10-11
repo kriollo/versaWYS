@@ -6,42 +6,59 @@ namespace versaWYS\kernel;
 
 class Cookie
 {
-    public static function set(
+    public function set(
         string $key,
         $value,
         int $time = 3600,
         string $domain = '',
         bool $secure = false,
-        bool $httpOnly = true
+        bool $httpOnly = true,
+        string $sameSite = 'Strict', // Opciones: 'Lax', 'Strict', 'None'
+        bool $strict_mode = true, // Habilitar modo estricto para prevenir ataques de fijación de sesión
     ): void {
-        setcookie($key, $value, $time, '/', $domain, $secure, $httpOnly);
+        // Si $time es menor que time(), se considera un timestamp absoluto
+        // Si no, se considera un tiempo relativo y se suma a time()
+        $expires = $time > time() || $time === 0 ? $time : time() + $time;
+
+        setcookie($key, $value, [
+            'expires' => $expires,
+            'path' => '/',
+            'domain' => $domain,
+            'secure' => $secure,
+            'httponly' => $httpOnly,
+            'samesite' => $sameSite,
+        ]);
     }
 
-    public static function has($key): bool
+    public function has($key): bool
     {
         return isset($_COOKIE[$key]);
     }
 
-    public static function get(string $key, $default = null)
+    public function get(string $key, $default = null)
     {
         return $_COOKIE[$key] ?? $default;
     }
 
-    public static function delete(string $key): void
+    public function delete(string $key): void
     {
         global $config;
-        if (self::has($key)) {
+        if ($this->has($key)) {
             unset($_COOKIE[$key]);
-            setcookie($key, '', -1, '/', $config['session']['user_cookie']['domain']);
+            setcookie($key, '', [
+                'expires' => -1,
+                'path' => '/',
+                'domain' => $config['session']['user_cookie']['domain'],
+            ]);
         }
     }
 
     /**
      * Obtiene todas las cookies disponibles.
      *
-     * @return array Un array con todas las cookies disponibles.
+     * @return array un array con todas las cookies disponibles
      */
-    public static function getAll(): array
+    public function getAll(): array
     {
         return $_COOKIE;
     }
@@ -49,10 +66,10 @@ class Cookie
     /**
      * Clears all cookies.
      */
-    public static function clear(): void
+    public function clear(): void
     {
-        foreach ($_COOKIE as $key => $value) {
-            self::delete($key);
+        foreach (array_keys($_COOKIE) as $key) {
+            $this->delete($key);
         }
     }
 }
