@@ -49,6 +49,7 @@ class GlobalControllers
         $userData = GlobalMiddleware::getLoadedUserData();
         if ($userData !== null) {
             $this->user = $userData['user'];
+            unset($this->user['password'], $this->user['restore_token']);
             $this->menu_user = $userData['menu_user'];
             $this->empresas = $userData['empresas'];
             $this->empresaSelected = $userData['empresaSelected'] ?? [];

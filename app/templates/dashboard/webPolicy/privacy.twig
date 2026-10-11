@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>
+            Política de Privacidad - versaBOT
+        </title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+        <style>
+            :root { --primary-color: #041830; --text-color: #334155; --heading-color: #0f172a; --bg-color: #fafafa;
+            --card-bg: #ffffff; --border-color: #e2e8f0; }
+
+            body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; margin: 0; padding: 2rem
+            1rem; }
+
+            .container { max-width: 800px; margin: 0 auto; background: var(--card-bg); padding: 3rem; border-radius:
+            12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); border: 1px solid
+            var(--border-color); }
+
+            header { text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid
+            var(--border-color); }
+
+            .logo { font-size: 2rem; font-weight: 700; color: var(--primary-color); text-decoration: none;
+            letter-spacing: -0.025em; display: flex; flex-direction: column; align-items: center;}
+
+            h1 { color: var(--heading-color); font-size: 2.25rem; font-weight: 700; margin-top: 0; margin-bottom:
+            1.5rem; letter-spacing: -0.025em; }
+
+            h2 { color: var(--primary-color); font-size: 1.5rem; font-weight: 600; margin-top: 2.5rem; margin-bottom:
+            1rem; border-left: 4px solid var(--primary-color); padding-left: 1rem; }
+
+            p { margin-bottom: 1.25rem; }
+
+            strong { color: var(--heading-color); font-weight: 600; }
+
+            a { color: var(--primary-color); text-decoration: none; font-weight: 500; transition: opacity 0.2s; }
+
+            a:hover { opacity: 0.8; text-decoration: underline; }
+
+            .footer-info { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color); font-size:
+            0.875rem; color: #64748b; text-align: center; }
+
+            @media (max-width: 640px) { .container { padding: 1.5rem; } h1 { font-size: 1.75rem; } h2 { font-size:
+            1.25rem; } }
+
+            .logoImg { width: 100px;}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <div class="logo">
+                    <img
+                        src="{{ assets_url('/public/dashboard/img/favicon.png') }}"
+                        alt="VersaBOT Logo"
+                        class="logoImg" />
+                    {{ config.build.name }}
+                </div>
+            </header>
+
+            <h1>Política de Privacidad</h1>
+            <p>
+                En <strong>{{ config.build.name }}</strong> respetamos tu privacidad y nos comprometemos a proteger tu información
+                personal de acuerdo con los más altos estándares de seguridad y ética.
+            </p>
+
+            <h2>Información que recopilamos</h2>
+            <p>
+                Podemos recopilar datos básicos como nombre, correo electrónico y número de teléfono, únicamente cuando
+                interactúas con nuestra aplicación a través de los canales oficiales de WhatsApp, Messenger o Instagram.
+            </p>
+
+            <h2>Uso de la información</h2>
+            <p>
+                La información recopilada se utiliza exclusivamente para brindar el servicio de mensajería,
+                personalización y automatización solicitado por el usuario, permitiendo una experiencia fluida y
+                eficiente.
+            </p>
+
+            <h2>Compartir datos</h2>
+            <p>
+                No compartimos, vendemos ni cedemos tu información personal a terceros bajo ninguna circunstancia, salvo
+                que exista un requerimiento legal explícito por las autoridades competentes.
+            </p>
+
+            <h2>Seguridad</h2>
+            <p>
+                Implementamos medidas técnicas y organizativas de vanguardia para proteger tu información contra accesos
+                no autorizados, pérdida o alteración de datos, garantizando la integridad de tu comunicación.
+            </p>
+
+            <h2>Contacto</h2>
+            <p>
+                Si tienes preguntas sobre esta política o el tratamiento de tus datos, puedes escribirnos directamente a
+                nuestro equipo de soporte: <a href="mailto:soporte@wys.cl">soporte@wys.cl</a>
+            </p>
+
+            <div class="footer-info">
+                &copy; {{ 'now'|date('Y') }} versaBOT. Todos los derechos reservados.
+            </div>
+        </div>
+    </body>
+</html>

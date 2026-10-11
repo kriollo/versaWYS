@@ -17,14 +17,15 @@ class PerfilMiddleware
         $result = Functions::validateParams($params, [
             'nombre' => 'required',
         ]);
-        if (count($result) > 0) {
+        if ($result !== []) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401,
+                'code' => 422,
             ];
         }
+
         return true;
     }
 
@@ -37,14 +38,15 @@ class PerfilMiddleware
         $result = Functions::validateParams($params, [
             'id' => 'required',
         ]);
-        if (count($result) > 0) {
+        if ($result !== []) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401,
+                'code' => 422,
             ];
         }
+
         return true;
     }
 
@@ -54,19 +56,25 @@ class PerfilMiddleware
 
         $params = $request->getAllParams();
 
+        // return [
+        //     'params' => $params,
+        //     'params_data' => json_decode($params['data'] ?? [], true),
+        // ];
+
         $result = Functions::validateParams($params, [
             'id' => 'required',
             'nombre' => 'required',
             'pagina_inicio' => 'required',
         ]);
-        if (count($result) > 0) {
+        if ($result !== []) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401,
+                'code' => 422,
             ];
         }
+
         return true;
     }
 }

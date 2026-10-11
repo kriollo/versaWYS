@@ -15,32 +15,36 @@ class UsersMiddleware extends AuthMiddleware
         $params = $request->getAllParams();
 
         $result = Functions::validateParams($params, [
+            'empresa' => 'required',
             'name' => 'required',
             'email' => 'required|email',
             'password' => 'required',
+            'id_perfil' => 'required|integer',
         ]);
 
-        if ($this->validatePolicyPassword($params['password']) === false) {
+        if (!$this->validatePolicyPassword($params['password'])) {
             return [
                 'success' => 0,
                 'message' => 'La contraseña no cumple con las politicas de seguridad',
                 'errors' => [
                     'error' => $this->getMessagePolicyPassword(),
                 ],
-                'code' => 401,
+                'code' => 422,
             ];
         }
 
-        if (count($result) > 0) {
+        if ($result !== []) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401,
+                'code' => 422,
             ];
         }
+
         return true;
     }
+
     public function validateEditParams(): true|array
     {
         global $request;
@@ -49,32 +53,36 @@ class UsersMiddleware extends AuthMiddleware
 
         $result = Functions::validateParams($params, [
             'tokenid' => 'required',
+            'empresa' => 'required',
             'name' => 'required',
             'email' => 'required|email',
-            'password' => 'required',
+            'id_perfil' => 'required|integer',
         ]);
 
-        if ($this->validatePolicyPassword($params['password']) === false) {
+        // Al editar, la contraseña es opcional: vacía significa conservar la actual
+        if (($params['password'] ?? '') !== '' && !$this->validatePolicyPassword($params['password'])) {
             return [
                 'success' => 0,
                 'message' => 'La contraseña no cumple con las politicas de seguridad',
                 'errors' => [
                     'error' => $this->getMessagePolicyPassword(),
                 ],
-                'code' => 401,
+                'code' => 422,
             ];
         }
 
-        if (count($result) > 0) {
+        if ($result !== []) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401,
+                'code' => 422,
             ];
         }
+
         return true;
     }
+
     public function validateChangePasswordParams(): true|array
     {
         global $request;
@@ -86,25 +94,26 @@ class UsersMiddleware extends AuthMiddleware
             'new_password' => 'required',
         ]);
 
-        if ($this->validatePolicyPassword($params['new_password']) === false) {
+        if (!$this->validatePolicyPassword($params['new_password'])) {
             return [
                 'success' => 0,
                 'message' => 'La contraseña no cumple con las politicas de seguridad',
                 'errors' => [
                     'error' => $this->getMessagePolicyPassword(),
                 ],
-                'code' => 401,
+                'code' => 422,
             ];
         }
 
-        if (count($result) > 0) {
+        if ($result !== []) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401,
+                'code' => 422,
             ];
         }
+
         return true;
     }
 
@@ -115,34 +124,33 @@ class UsersMiddleware extends AuthMiddleware
         $params = $request->getAllParams();
 
         $result = Functions::validateParams($params, [
-            'id' => 'required',
             'password' => 'required',
             'password_confirmation' => 'required',
         ]);
 
-        if ($params['password'] !== $params['password_confirmation']) {
+        if (!hash_equals((string) ($params['password'] ?? ''), (string) ($params['password_confirmation'] ?? ''))) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => [
                     'error' => 'Las contraseñas no coinciden',
                 ],
-                'code' => 401,
+                'code' => 422,
             ];
         }
 
-        if (count($result) > 0) {
+        if ($result !== []) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401,
+                'code' => 422,
             ];
         }
 
         if (
-            $this->validatePolicyPassword($params['password']) === false ||
-            $this->validatePolicyPassword($params['password_confirmation']) === false
+            !$this->validatePolicyPassword($params['password'])
+            || !$this->validatePolicyPassword($params['password_confirmation'])
         ) {
             return [
                 'success' => 0,
@@ -150,7 +158,7 @@ class UsersMiddleware extends AuthMiddleware
                 'errors' => [
                     'error' => $this->getMessagePolicyPassword(),
                 ],
-                'code' => 401,
+                'code' => 422,
             ];
         }
 
@@ -162,29 +170,29 @@ class UsersMiddleware extends AuthMiddleware
         global $request;
         $params = $request->getAllParams();
         $fileAvatar = $request->file('fileAvatar');
-        if (empty($fileAvatar)) {
+        if ($fileAvatar === null) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => [
                     'error' => 'No se ha enviado el archivo',
                 ],
-                'code' => 401,
+                'code' => 422,
             ];
         }
+
         $params['avatar'] = $fileAvatar->getName();
 
         $result = Functions::validateParams($params, [
-            'id' => 'required',
             'avatar' => 'required',
         ]);
 
-        if (count($result) > 0) {
+        if ($result !== []) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401,
+                'code' => 422,
             ];
         }
 

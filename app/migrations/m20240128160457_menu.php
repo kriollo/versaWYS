@@ -4,43 +4,43 @@ declare(strict_types=1);
 
 namespace app\migrations;
 
-use versaWYS\kernel\RedBeanCnn;
+use VersaORM\Schema\Blueprint;
+use VersaORM\VersaORMException;
+use versaWYS\kernel\model\VersaORMModel;
 
-class m20240128160457_menu extends RedBeanCnn
+class m20240128160457_menu extends VersaORMModel
 {
-    public function up()
+    public function up(): array
     {
         try {
-            $this->exec("CREATE TABLE IF NOT EXISTS `versamenu` (
-                `id` INT(11) NOT NULL AUTO_INCREMENT,
-                `nombre` VARCHAR(255) NOT NULL,
-                `seccion` VARCHAR(255) NOT NULL,
-                `descripcion` VARCHAR(255) NOT NULL,
-                `icono` LONGTEXT NULL,
-                `fill` TINYINT(1) NOT NULL DEFAULT '0',
-                `posicion` INT(11) NOT NULL DEFAULT '0',
-                `estado` TINYINT(1) NOT NULL DEFAULT '1',
-                `submenu` TINYINT(1) NOT NULL DEFAULT '0',
-                `url` VARCHAR(255) NULL,
-                `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (`id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+            $this->orm()->schemaBuilder()->create('versa_menu', static function (Blueprint $table): void {
+                $table->id();
+                $table->string('nombre', 255);
+                $table->string('seccion', 255);
+                $table->string('descripcion', 255);
+                $table->text('icono')->nullable();
+                $table->boolean('fill')->default(false);
+                $table->integer('posicion')->default(0);
+                $table->boolean('estado')->default(true);
+                $table->boolean('submenu')->default(false);
+                $table->string('url', 255)->nullable();
+                $table->timestamps();
+            });
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
-        } catch (\Exception $e) {
-            return ['message' => $e->getMessage(), 'success' => false];
+        } catch (VersaORMException $versaormException) {
+            return ['message' => $versaormException->getMessage(), 'success' => false];
         }
     }
 
-    public function down()
+    public function down(): array
     {
         try {
-            $this->exec('DROP TABLE IF EXISTS `versamenu`;');
+            $this->orm()->schemaBuilder()->dropIfExists('versa_menu');
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
-        } catch (\Exception $e) {
-            return ['message' => $e->getMessage(), 'success' => false];
+        } catch (VersaORMException $versaormException) {
+            return ['message' => $versaormException->getMessage(), 'success' => false];
         }
     }
 }

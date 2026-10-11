@@ -4,75 +4,98 @@ declare(strict_types=1);
 
 namespace app\models;
 
-use RedBeanPHP\RedException\SQL;
+use DateTime;
+use Override;
+use SensitiveParameter;
+use VersaORM\VersaModel;
 use versaWYS\kernel\helpers\Functions;
-use versaWYS\kernel\RedBeanCnn;
+use versaWYS\kernel\model\VersaORMModel;
 
-/**
- * Class versausers
- *
- * Thi    public function updatePassworById($params): int|string
-    {
-        $user = $this->findOne('versausers', 'id = ?', [$params['id']]);
-        $user->password = $params['password'];
-        $user->expiration_pass = $params['expiration_pass'];
-        $user->last_login = date('Y-m-d H:i:s');
-        $user->updated_at = date('Y-m-d H:i:s');
-        return $this->store($user);
-    }epresents the Users model in the application.
- * It provides methods to interact with the users table in the database.
- */
-class Users extends RedBeanCnn
+class Users extends VersaORMModel
 {
-    /**
-     * Users constructor.
-     *
-     * Initializes a new instance of the Users class.
-     * Sets up the RedBeanPHP connection.
-     */
-    public function __construct()
-    {
-        $this->connet();
-    }
+    protected string $table = 'versa_users'; // Example table name
 
-    /**
-     * Users destructor.
-     *
-     * Closes the RedBeanPHP connection.
-     */
-    public function __destruct()
+    protected array $fillable = ['name', 'email', 'password']; // Example fillable fields
+
+    protected array $guarded = [];
+
+    protected array $rules = [
+        'name' => ['required', 'min:2', 'max:100'],
+        'email' => ['required', 'email'],
+        'password' => ['required', 'min:8'],
+        'status' => ['required'], // se marca como requerido explícitamente
+    ];
+
+    #[Override]
+    public static function definePropertyTypes(): array
     {
-        $this->closeDB();
+        return [
+            'id' => ['type' => 'int', 'nullable' => false, 'auto_increment' => true],
+            'id_empresa' => ['type' => 'int', 'nullable' => false],
+            'tokenid' => ['type' => 'string', 'max_length' => 255, 'nullable' => false],
+            'name' => ['type' => 'string', 'max_length' => 100, 'nullable' => false],
+            'password' => ['type' => 'string', 'max_length' => 255, 'nullable' => false],
+            'expiration_pass' => ['type' => 'varchar', 'nullable' => true],
+            'last_login' => ['type' => 'varchar', 'nullable' => true],
+            'role' => ['type' => 'string', 'max_length' => 50, 'nullable' => false],
+            'status' => ['type' => 'bool', 'nullable' => false],
+            'restore_token' => ['type' => 'string', 'max_length' => 255, 'nullable' => true],
+            'avatar' => ['type' => 'string', 'max_length' => 255, 'nullable' => true],
+            'id_perfil' => ['type' => 'int', 'nullable' => false],
+            'pagina_inicio' => ['type' => 'string', 'max_length' => 255, 'nullable' => true],
+            'created_at' => ['type' => 'varchar', 'nullable' => false],
+            'updated_at' => ['type' => 'varchar', 'nullable' => false],
+        ];
     }
 
     public function getUsersPaginate(
+        int $id_empresa = 0,
         array $fields = [],
         string $where = '',
-        string $order = 'ORDER BY id ASC',
-        string $limit = 'LIMIT 0, 15'
+        string $order = 'id ASC',
+        int $limit = 15,
+        int $offset = 0,
     ): array {
-        $filter = trim($where) != '' ? "WHERE $where" : '';
-        $fields = $fields ? implode(',', $fields) : '*';
+        $filter = trim($where) !== ''
+            ? sprintf(' versa_users.id_empresa = %d AND %s', $id_empresa, $where)
+            : 'versa_users.id_empresa = ' . $id_empresa;
 
-        $result = $this->getAll("SELECT SQL_CALC_FOUND_ROWS $fields
-        FROM versausers vu
-        LEFT JOIN versaperfil vp ON vp.id = vu.id_perfil
-        $filter $order $limit");
-        $total = $this->getCell('SELECT FOUND_ROWS()');
-        return ['total' => $total, 'data' => $result];
+        $result = $this
+            ->qb()
+            ->lazy()
+            ->select($fields)
+            ->selectRaw('COUNT(*) OVER() AS total_count')
+            ->leftJoin('versa_perfil as vp', 'vp.id', '=', 'versa_users.id_perfil')
+            ->leftJoin('empresas as e', 'e.id', '=', 'versa_users.id_empresa')
+            ->whereRaw($filter)
+            ->orderByRaw($order)
+            ->limit($limit)
+            ->offset($offset)
+            ->collect();
+
+        return [
+            'total' => isset($result[0]['total_count']) ? (int) $result[0]['total_count'] : 0,
+            'data' => $result,
+        ];
     }
 
     /**
      * Find a user by ID or a specific field.
      *
-     * @param int|string $id The ID or value of the field to search for.
-     * @param string $field The field to search in. Defaults to 'id'.
-     * @return array The user data if found, an empty array otherwise.
+     * @param  int|string  $id  the ID or value of the field to search for
+     * @param  string  $field  The field to search in. Defaults to 'id'.
+     * @return array the user data if found, an empty array otherwise
      */
-    public function find(int|string $id, string $field = 'u.id'): array
+    public function findWithCompany(int|string $id, string $field = 'versa_users.id'): array
     {
-        $result = $this->getRow("SELECT u.* FROM versausers as u  WHERE $field = ?", [$id]);
-        return $result ? $result : [];
+        $result = $this
+            ->qb()
+            ->select(['versa_users.*', 'e.nombre as empresa', 'e.token_empresa'])
+            ->join('empresas as e', 'e.id', '=', 'versa_users.id_empresa')
+            ->where($field, '=', $id)
+            ->first();
+
+        return $result instanceof VersaModel ? $result->export() : [];
     }
 
     /**
@@ -80,12 +103,14 @@ class Users extends RedBeanCnn
      *
      * Retrieves a user from the database based on the specified email.
      *
-     * @param string $email The email of the user to find.
-     * @return array The user record if found, an empty array otherwise.
+     * @param  string  $email  the email of the user to find
+     * @return array the user record if found, an empty array otherwise
      */
     public function findUserByEmail(string $email): array
     {
-        return $this->find($email, 'u.email');
+        $usuario = $this->findOne($this->table, $email, 'email');
+
+        return $usuario instanceof VersaModel ? $usuario->export() : [];
     }
 
     /**
@@ -93,15 +118,14 @@ class Users extends RedBeanCnn
      *
      * Updates the restore_token field of a user in the database with the specified token.
      *
-     * @param string $email The email of the user.
-     * @param string $token The reset password token.
-     * @return void
+     * @param  string  $email  the email of the user
+     * @param  string  $token  the reset password token
      */
-    public function saveTokenResetPass(string $email, string $token): void
+    public function saveTokenResetPass(string $email, #[SensitiveParameter] string $token): void
     {
-        $user = $this->findOne('versausers', 'email = ?', [$email]);
+        $user = $this->findOne('versa_users', $email, 'email');
         $user->restore_token = $token;
-        $this->store($user);
+        $user->store();
     }
 
     /**
@@ -109,12 +133,26 @@ class Users extends RedBeanCnn
      *
      * Retrieves a user from the database based on the specified reset password token.
      *
-     * @param string $token The reset password token.
-     * @return array The user record if found, an empty array otherwise.
+     * @param  string  $token  the reset password token
+     * @return array the user record if found, an empty array otherwise
      */
-    public function findUserByToken(string $token): array
+    public function findUserByToken(#[SensitiveParameter] string $token): array
     {
-        return $this->find($token, 'u.restore_token');
+        // El token lleva su expiración como sufijo (ver newResetToken); al buscarse completo no es manipulable
+        $expires = (int) substr((string) strrchr($token, '.'), 1);
+        if ($token === '' || $expires < time()) {
+            return [];
+        }
+
+        return $this->findWithCompany($token, 'versa_users.restore_token');
+    }
+
+    /**
+     * Token de recuperación de contraseña de un solo uso, válido por una hora.
+     */
+    public static function newResetToken(): string
+    {
+        return bin2hex(random_bytes(32)) . '.' . (time() + 3600);
     }
 
     /**
@@ -123,36 +161,35 @@ class Users extends RedBeanCnn
      * Updates the password field of a user in the database with the specified password.
      * Resets the restore_token field to null.
      *
-     * @param string $email The email of the user.
-     * @param string $password The new password.
-     * @return void
+     * @param  string  $email  the email of the user
+     * @param  string  $password  the new password
      */
-    public function updatePassword(string $email, string $password): void
+    public function updatePassword(string $email, #[SensitiveParameter] string $password): void
     {
-        $user = $this->findOne('versausers', 'email = ?', [$email]);
-        $user->password = $password;
-        $user->last_login = date('Y-m-d H:i:s');
+        $user = $this->load('versa_users', $email, 'email');
+        $newParams = $this->setUpdatePassword($password);
+        $user->password = $newParams['password'];
+        $user->expiration_pass = $newParams['expiration_pass'];
         $user->restore_token = null;
-        $this->store($user);
+        $user->store();
     }
 
     /**
      * Creates a new user record in the database.
      *
-     * @param array $params An associative array containing user details:
-     *                      - 'name' (string): The name of the user.
-     *                      - 'email' (string): The email address of the user.
-     *                      - 'password' (string): The password for the user.
-     *                      - 'expiration_pass' (string): The password expiration date.
-     *                      - 'role' (string): The role assigned to the user.
-     *                      - 'status' (string): The status of the user.
-     *                      - 'perfil' (int): The profile ID associated with the user.
-     *
-     * @return int|string The ID of the newly created user record, or an error message.
+     * @param  array  $params  An associative array containing user details:
+     *                         - 'name' (string): The name of the user.
+     *                         - 'email' (string): The email address of the user.
+     *                         - 'password' (string): The password for the user.
+     *                         - 'expiration_pass' (string): The password expiration date.
+     *                         - 'role' (string): The role assigned to the user.
+     *                         - 'status' (string): The status of the user.
+     *                         - 'perfil' (int): The profile ID associated with the user.
+     * @return int|string the ID of the newly created user record, or an error message
      */
-    public function create($params): int|string
+    public function createUser(array $params): int|string
     {
-        $user = $this->dispense('versausers');
+        $user = $this->dispense('versa_users');
         $user->tokenid = Functions::generateCSRFToken();
         $user->name = $params['name'];
         $user->email = $params['email'];
@@ -161,102 +198,140 @@ class Users extends RedBeanCnn
         $user->last_login = date('Y-m-d H:i:s');
         $user->role = $params['role'];
         $user->status = $params['status'];
-        $user->id_perfil = $params['perfil'];
+        $user->id_perfil = $params['id_perfil'];
+        $user->id_empresa = $params['empresa'] ?? null;
         $user->created_at = date('Y-m-d H:i:s');
         $user->updated_at = date('Y-m-d H:i:s');
-        $result = $this->store($user);
+        $user->store();
 
-        if ($result) {
-            $this->setPerfilUser($user->id, $params['perfil']);
+        if ($user->id) {
+            $this->setPerfilUser($user->id, (int) $params['id_perfil']);
         }
 
-        return $result;
+        return $user->id;
     }
 
-    /**
-     * @throws SQL
-     */
-    public function update($params): int|string
+    public function updateUser(array $params): int|string
     {
-        $user = $this->findOne('versausers', 'tokenid = ?', [$params['tokenid']]);
+        $user = $this->findOne('versa_users', $params['tokenid'], 'tokenid');
         $user->name = $params['name'];
-        $user->password = $params['password'];
-        $user->expiration_pass = $params['expiration_pass'];
+        // La contraseña solo cambia si se envió una nueva
+        if (($params['password'] ?? '') !== '') {
+            $newParams = $this->setUpdatePassword($params['password']);
+            $user->password = $newParams['password'];
+            $user->expiration_pass = $newParams['expiration_pass'];
+        }
         $user->role = $params['role'];
-        $user->id_perfil = $params['perfil'];
+        $user->id_perfil = $params['id_perfil'];
         $user->updated_at = date('Y-m-d H:i:s');
-        $result = $this->store($user);
+        $user->id_empresa = $params['empresa'] ?? null;
+        $user->store();
 
-        if ($result) {
-            $this->setPerfilUser($user->id, $params['perfil']);
+        if ($user->id) {
+            $this->setPerfilUser($user->id, (int) $params['id_perfil']);
         }
 
-        return $result;
+        return $user->id;
     }
 
-    private function setPerfilUser($idUser, $idPerfil): void
+    public function delete(string $id): int|string
     {
-        $this->exec('DELETE FROM versaperfildetalleuser WHERE id_user = ?', [$idUser]);
-        $this->exec(
-            'INSERT INTO versaperfildetalleuser (id_user, menu_id, submenu_id) SELECT ?, menu_id, submenu_id FROM versaperfildetalle WHERE perfil_id = ?',
-            [$idUser, $idPerfil]
-        );
-    }
+        $user = $this->load('versa_users', $id, 'tokenid');
 
-    /**
-     * @throws SQL
-     */
-    public function delete($id): int|string
-    {
-        $user = $this->findOne('versausers', 'tokenid = ?', [$id]);
-        $user->status = $user->status === '1' ? '0' : '1';
-        if ($user->status === '1') {
+        $user->status = !$user->status;
+        if ($user->status) {
             $user->last_login = date('Y-m-d H:i:s');
         }
-        return $this->store($user);
-    }
 
-    /**
-     * @throws SQL
-     */
-    public function updatePassworByTokenId($params): int|string
-    {
-        $user = $this->findOne('versausers', 'tokenid = ?', [$params['tokenid']]);
-        $user->password = $params['new_password'];
-        $user->expiration_pass = $params['expiration_pass'];
         $user->updated_at = date('Y-m-d H:i:s');
-        return $this->store($user);
+        $this->executeWithErrorHandling($user->store(...), [
+            'operation' => 'deleteUser',
+            'params' => ['id' => $id],
+            'table' => static::tableName(),
+        ]);
+
+        return $user->id;
     }
 
-    public function updatePassworById($params): int|string
+    public function updatePasswordByTokenId(array $params): int|string
     {
-        $user = $this->findOne('versausers', 'id = ?', [$params['id']]);
-        $user->password = $params['password'];
-        $user->expiration_pass = $params['expiration_pass'];
-        $user->last_login = date('Y-m-d H:i:s');
-        $user->updated_at = date('Y-m-d H:i:s');
-        return $this->store($user);
+        $user = $this->load('versa_users', $params['tokenid'], 'tokenid');
+        $newParams = $this->setUpdatePassword($params['new_password']);
+        $user->password = $newParams['password'];
+        $user->expiration_pass = $newParams['expiration_pass'];
+        $user->store();
+
+        return $user->id;
     }
 
-    public function updateAvatar($params): int|string
+    public function updatePassworById(array $params): int|string
     {
-        $user = $this->findOne('versausers', 'id = ?', [$params['id']]);
+        $user = $this->load('versa_users', $params['id'], 'id');
+        $newParams = $this->setUpdatePassword($params['password']);
+        $user->password = $newParams['password'];
+        $user->expiration_pass = $newParams['expiration_pass'];
+        $user->store();
+
+        return $user->id;
+    }
+
+    public function updateAvatar(array $params): int|string
+    {
+        $user = $this->load('versa_users', $params['id'], 'id');
         $user->avatar = $params['avatar'];
         $user->updated_at = date('Y-m-d H:i:s');
-        return $this->store($user);
-    }
-
-    public function updateLastLogin($idUser): void
-    {
-        $user = $this->findOne('versausers', 'id = ?', [$idUser]);
-        $user->last_login = date('Y-m-d H:i:s');
-        $this->store($user);
-    }
-
-    public function updateStatusInactiveAccount($daysInactive): void
-    {
-        $this->exec('UPDATE versausers SET status = 0 WHERE last_login < DATE_SUB(NOW(), INTERVAL ? DAY) AND status = 1', [
-            $daysInactive,
+        $this->executeWithErrorHandling($user->store(...), [
+            'operation' => 'updateAvatar',
+            'params' => $params,
         ]);
+
+        return $user->id;
+    }
+
+    public function updateLastLogin(int $idUser): void
+    {
+        $user = $this->load('versa_users', $idUser, 'id');
+        $user->last_login = date('Y-m-d H:i:s');
+        $user->store();
+    }
+
+    public function updateStatusInactiveAccount(int $daysInactive): void
+    {
+        $this
+            ->qb()
+            ->where(
+                'last_login',
+                '<',
+                (new DateTime())
+                    ->modify(sprintf('-%d days', $daysInactive))
+                    ->format('Y-m-d H:i:s'),
+            )
+            ->where('status', '=', true)
+            ->update(['status' => false]);
+    }
+
+    public function getCountUserActives($idEmpresa): int
+    {
+        return $this->qb()->where('id_empresa', '=', $idEmpresa)->where('status', '=', true)->count();
+    }
+
+    private function setUpdatePassword(#[SensitiveParameter] string $newPassword): array
+    {
+        global $config;
+        $expiration_days_password = $config['auth']['expiration_days_password'] ?? 30;
+
+        return [
+            'password' => Functions::hash($newPassword),
+            'expiration_pass' => date('Y-m-d', strtotime(sprintf('+%s days', $expiration_days_password))),
+        ];
+    }
+
+    private function setPerfilUser(int $idUser, int $idPerfil): void
+    {
+        $this->exec('DELETE FROM versa_perfildetalleuser WHERE id_user = ?', [$idUser]);
+        $this->exec(
+            'INSERT INTO versa_perfildetalleuser (id_user, menu_id, submenu_id) SELECT ?, menu_id, submenu_id FROM versa_perfildetalle WHERE perfil_id = ?',
+            [$idUser, $idPerfil],
+        );
     }
 }

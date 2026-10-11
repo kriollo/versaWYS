@@ -5,9 +5,10 @@
 		<meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-		<title>VersaWYS Framework Error</title>
+		<title>
+			VersaWYS Framework Error
+		</title>
 		<link href="{{ getAssets('dashboard', 'css', '/dashboard.css') }}" rel="stylesheet"/>
-
 
 		<style>
 			body {
@@ -28,8 +29,9 @@
 			}
 
 			.error-header {
-				background: linear-gradient(135deg, #dc2626, #b91c1c);
-				color: white;
+				background: linear-gradient(135deg, #EE881D, #d97516);
+				color: #fff;
+				font-weight: bold;
 				padding: 20px;
 			}
 
@@ -65,9 +67,9 @@
 
 			.trace-item {
 				padding: 10px;
-				border-left: 3px solid #dc2626;
+				border-left: 3px solid #EE881D;
 				margin-bottom: 10px;
-				background: #fef2f2;
+				background: #fffef5;
 			}
 
 			.file-path {
@@ -76,7 +78,7 @@
 			}
 
 			.line-number {
-				color: #dc2626;
+				color: #EE881D;
 				font-weight: 600;
 			}
 
@@ -98,7 +100,7 @@
 
 			.highlight-origin {
 				background: #fef3c7 !important;
-				border-left-color: #f59e0b !important;
+				border-left-color: #EE881D !important;
 			}
 
 			details {
@@ -117,9 +119,13 @@
 		<div class="error-container">
 			<div class="error-header">
 				<h1>🚨 VersaWYS Framework Error</h1>
-				<p>{{ data.type ?? 'Unknown Error' }}</p>
+				<p>
+					{{ data.type ?? 'Unknown Error' }}
+				</p>
 				{% if data.timestamp is defined and data.timestamp %}
-					<p style="opacity: 0.8; font-size: 14px;">{{ data.timestamp }}</p>
+					<p style="opacity: 0.8; font-size: 14px;">
+						{{ data.timestamp }}
+					</p>
 				{% endif %}
 			</div>
 
@@ -128,11 +134,16 @@
 				<!-- Mensaje Principal -->
 				<div class="error-section">
 					<h3>Error Message</h3>
-					<div class="code-block">{{ data.message ?? 'No message available' }}</div>
+					<div class="code-block">
+						{{ data.message ?? 'No message available' }}
+					</div>
 				</div>
 
 				<!-- Origen Real del Error -->
-				{% if (data.real_file is defined and data.real_file) or (data.real_origin is defined and data.real_origin) or (data.template_file is defined and data.template_file) %}
+				{% if
+                    (data.real_file is defined and data.real_file)
+                        or (data.real_origin is defined and data.real_origin)
+                        or (data.template_file is defined and data.template_file) %}
 					<div class="error-section highlight-origin">
 						<h3>🎯 Real Error Location (Your Code)</h3>
 						{% set origin = data.real_origin ?? {} %}
@@ -153,8 +164,10 @@
 								{% set line_number = data.real_line ?? origin.line ?? data.template_line ?? null %}
 								{% if line_number %}
 									:
-									<span class="line-number">Line
-										{{ line_number }}</span>
+									<span class="line-number">
+										Line
+										{{ line_number }}
+									</span>
 								{% endif %}
 							</div>
 							{% set function_name = data.real_function ?? origin.function ?? null %}
@@ -175,7 +188,7 @@
 
 				<!-- Stack Trace del Usuario -->
 				{% set trace_data = data.user_stack_trace ?? data.user_trace ?? [] %}
-				{% if trace_data and trace_data is iterable and trace_data|length > 0 %}
+				{% if trace_data and trace_data is iterable and (trace_data|length) > 0 %}
 					<div class="error-section">
 						<h3>📚 Your Code Stack Trace</h3>
 						{% for item in trace_data %}
@@ -185,8 +198,10 @@
 										<span class="file-path">{{ item.file ?? 'Unknown' }}</span>
 										{% if item.line is defined and item.line %}
 											:
-											<span class="line-number">Line
-												{{ item.line }}</span>
+											<span class="line-number">
+												Line
+												{{ item.line }}
+											</span>
 										{% endif %}
 									</div>
 									{% if item.function is defined and item.function %}
@@ -206,21 +221,28 @@
 				{% endif %}
 
 				<!-- Información de Base de Datos -->
-				{% if (data.sql_state is defined and data.sql_state) or (data.debug_info is defined and data.debug_info) or (data.sql_error is defined and data.sql_error) %}
+				{% if
+                    (data.sql_state is defined and data.sql_state)
+                        or (data.debug_info is defined and data.debug_info)
+                        or (data.sql_error is defined and data.sql_error) %}
 					<div class="error-section">
 						<h3>🗄️ Database Information</h3>
 						{% if data.sql_state is defined and data.sql_state %}
 							<p>
 								<strong>SQL State:</strong>
-								{{ data.sql_state }}</p>
+								{{ data.sql_state }}
+							</p>
 						{% endif %}
 						{% if data.sql_error is defined and data.sql_error %}
 							<p>
 								<strong>SQL Error:</strong>
-								{{ data.sql_error }}</p>
+								{{ data.sql_error }}
+							</p>
 						{% endif %}
 						{% if data.debug_info is defined and data.debug_info %}
-							<div class="json-pretty">{{ data.debug_info|json_encode(constant('JSON_PRETTY_PRINT')) }}</div>
+							<div class="json-pretty">
+								{{ data.debug_info|json_encode(constant('JSON_PRETTY_PRINT')) }}
+							</div>
 						{% endif %}
 					</div>
 				{% endif %}
@@ -229,50 +251,70 @@
 				{% if data.context is defined and data.context %}
 					<div class="error-section">
 						<h3>🌐 Request Context</h3>
-						<div class="json-pretty">{{ data.context|json_encode(constant('JSON_PRETTY_PRINT')) }}</div>
+						<div class="json-pretty">
+							{{ data.context|json_encode(constant('JSON_PRETTY_PRINT')) }}
+						</div>
 					</div>
 				{% endif %}
 
 				<!-- Información específica de Template (Twig) -->
-				{% if (data.template_file is defined and data.template_file) or (data.template_line is defined and data.template_line) %}
+				{% if
+                    (data.template_file is defined and data.template_file)
+                        or (data.template_line is defined and data.template_line) %}
 					<div class="error-section">
 						<h3>📄 Template Information</h3>
 						{% if data.template_file is defined and data.template_file %}
 							<p>
 								<strong>Template File:</strong>
-								{{ data.template_file }}</p>
+								{{ data.template_file }}
+							</p>
 						{% endif %}
 						{% if data.template_line is defined and data.template_line %}
 							<p>
 								<strong>Template Line:</strong>
-								{{ data.template_line }}</p>
+								{{ data.template_line }}
+							</p>
 						{% endif %}
 						{% if data.code is defined and data.code %}
 							<p>
 								<strong>Error Code:</strong>
-								{{ data.code }}</p>
+								{{ data.code }}
+							</p>
 						{% endif %}
 					</div>
 				{% endif %}
 
 				<!-- Información Técnica Completa -->
-				{% if (data.raw_exception is defined and data.raw_exception) or (data.full_trace is defined and data.full_trace) or (data.full_stack is defined and data.full_stack) %}
+				{% if
+                    (data.raw_exception is defined and data.raw_exception)
+                        or (data.full_trace is defined and data.full_trace)
+                        or (data.full_stack is defined and data.full_stack) %}
 					<details class="error-section">
-						<summary>🔧 Technical Details (Click to expand)</summary>
+						<summary>
+							🔧 Technical Details (Click to expand)
+						</summary>
 						<div style="margin-top: 15px;">
 							{% if data.raw_exception is defined and data.raw_exception %}
 								<h4>Raw Exception:</h4>
-								<div class="json-pretty">{{ data.raw_exception|json_encode(constant('JSON_PRETTY_PRINT')) }}</div>
+								<div class="json-pretty">
+									{{ data.raw_exception|json_encode(constant('JSON_PRETTY_PRINT')) }}
+								</div>
 							{% endif %}
 
-							{% if (data.full_trace is defined and data.full_trace) or (data.full_stack is defined and data.full_stack) %}
+							{% if
+                                (data.full_trace is defined and data.full_trace)
+                                    or (data.full_stack is defined and data.full_stack) %}
 								<h4 style="margin-top: 20px;">Full Stack Trace:</h4>
-								<div class="code-block">{{ data.full_trace ?? data.full_stack }}</div>
+								<div class="code-block">
+									{{ data.full_trace ?? data.full_stack }}
+								</div>
 							{% endif %}
 
 							{% if data.errors is defined and data.errors %}
 								<h4 style="margin-top: 20px;">PHP Error Info:</h4>
-								<div class="json-pretty">{{ data.errors|json_encode(constant('JSON_PRETTY_PRINT')) }}</div>
+								<div class="json-pretty">
+									{{ data.errors|json_encode(constant('JSON_PRETTY_PRINT')) }}
+								</div>
 							{% endif %}
 						</div>
 					</details>
@@ -280,8 +322,12 @@
 
 				<!-- Dump completo de datos -->
 				<details class="error-section">
-					<summary>📋 Complete Error Data (Click to expand)</summary>
-					<div class="json-pretty" style="margin-top: 15px;">{{ data|json_encode(constant('JSON_PRETTY_PRINT')) }}</div>
+					<summary>
+						📋 Complete Error Data (Click to expand)
+					</summary>
+					<div class="json-pretty" style="margin-top: 15px;">
+						{{ data|json_encode(constant('JSON_PRETTY_PRINT')) }}
+					</div>
 				</details>
 			</div>
 		</div>

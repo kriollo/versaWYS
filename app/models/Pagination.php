@@ -4,32 +4,32 @@ declare(strict_types=1);
 
 namespace app\models;
 
-use versaWYS\kernel\RedBeanCnn;
+use versaWYS\kernel\model\VersaORMModel;
 
-class Pagination extends RedBeanCnn
+class Pagination extends VersaORMModel
 {
     public function pagination(
         string $table,
         array $fields = [],
         string $where = '',
-        string $order = 'ORDER BY id ASC',
-        string $limit = 'LIMIT 0, 15'
+        string $order = 'id ASC',
+        int $limit = 15,
+        int $offset = 0,
     ): array {
-        $filter = trim($where) != '' ? "WHERE $where" : '';
-        $fields = $fields ? implode(',', $fields) : '*';
+        $filter = trim($where) !== '' ? $where : '';
 
-        $result = $this->getAll("SELECT SQL_CALC_FOUND_ROWS $fields FROM $table $filter $order $limit");
-        $total = $this->getCell('SELECT FOUND_ROWS()');
-        return ['total' => $total, 'data' => $result];
-    }
+        $qb = $this->qb()->lazy()->select($fields)->selectRaw('COUNT(*) OVER() AS total_count')->from($table);
 
-    public function __construct()
-    {
-        $this->connet();
-    }
+        if ($filter !== '' && $filter !== '0') {
+            $qb->whereRaw($filter);
+        }
 
-    public function __destruct()
-    {
-        $this->closeDB();
+        $qb->orderByRaw($order)->limit($limit)->offset($offset);
+        $result = $qb->collect();
+
+        return [
+            'total' => isset($result[0]['total_count']) ? (int) $result[0]['total_count'] : 0,
+            'data' => $result,
+        ];
     }
 }

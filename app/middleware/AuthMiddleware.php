@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
-use versaWYS\kernel\GlobalMiddleWare;
+use versaWYS\kernel\GlobalMiddleware;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Response;
 
 /**
- * Class AuthMiddleware
+ * Class AuthMiddleware.
  *
  * This class represents a middleware for authentication.
  */
-class AuthMiddleware extends GlobalMiddleWare
+class AuthMiddleware extends GlobalMiddleware
 {
     /**
      * Validates the parameters for the login request.
      *
-     * @return true|array Returns an array with error details if the parameters are invalid, or null if the parameters are valid.
+     * @return array|true returns an array with error details if the parameters are invalid, or null if the parameters are valid
      */
     public function validateParamsLogin(): true|array
     {
@@ -31,41 +31,27 @@ class AuthMiddleware extends GlobalMiddleWare
             'password' => 'required|min:8',
         ]);
 
-        if (count($result) > 0) {
+        if ($result !== []) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401,
+                'code' => 422, // Validación parámetros (login mantiene 401 en controlador si credenciales incorrectas)
             ];
         }
+
         return true;
     }
 
     /**
      * Redirects the user to the dashboard if a session is active.
-     *
-     * @return void
      */
     public function redirectIfSession(): void
     {
-        global $session;
+        global $session, $config;
 
         if ($session->checkUserSession()) {
-            Response::redirect('/admin/dashboard');
-            exit();
-        }
-    }
-
-    /**
-     * Checks if the user session is valid and redirects to the login page if not.
-     */
-    public function protectedRoute(): void
-    {
-        global $session;
-
-        if (!$session->checkUserSession()) {
-            Response::redirect('/admin/login');
+            Response::redirect('/' . $config['admin']['custom_url'] . '/dashboard');
             exit();
         }
     }
@@ -73,7 +59,7 @@ class AuthMiddleware extends GlobalMiddleWare
     /**
      * Validates the number of login attempts and returns an error message if the maximum number of attempts has been exceeded.
      *
-     * @return array|null An array with the error message and code if the maximum number of attempts has been exceeded, or null if the validation passes.
+     * @return array|null an array with the error message and code if the maximum number of attempts has been exceeded, or null if the validation passes
      */
     public function validateAttemps(): true|array
     {
@@ -96,19 +82,20 @@ class AuthMiddleware extends GlobalMiddleWare
                 'message' => 'Ha superado el número máximo de intentos',
                 'errors' => [
                     'error' => 'Vuelva a intentarlo en un momento...',
-                    'attemps' => "intentos: {$attemps['attempts']}",
-                    'time' => "tiempo de espera $diferenciaEnMinutos",
+                    'attemps' => 'intentos: ' . $attemps['attempts'],
+                    'time' => 'tiempo de espera ' . $diferenciaEnMinutos,
                 ],
                 'code' => 401,
             ];
         }
+
         return true;
     }
 
     /**
      * Check if the email parameter is present and valid in the request.
      *
-     * @return array|null Returns an array with error details if the email parameter is missing or invalid, or null if the email parameter is present and valid.
+     * @return array|null returns an array with error details if the email parameter is missing or invalid, or null if the email parameter is present and valid
      */
     public function checkMail(): true|array
     {
@@ -120,21 +107,22 @@ class AuthMiddleware extends GlobalMiddleWare
             'email' => 'required|email',
         ]);
 
-        if (count($result) > 0) {
+        if ($result !== []) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401,
+                'code' => 422,
             ];
         }
+
         return true;
     }
 
     /**
      * Validates the parameters for applying a password reset.
      *
-     * @return array|null Returns an array with error details if the parameters are invalid, or null if the parameters are valid.
+     * @return array|null returns an array with error details if the parameters are invalid, or null if the parameters are valid
      */
     public function validateParamsApplyResetPassword(): true|array
     {
@@ -149,39 +137,37 @@ class AuthMiddleware extends GlobalMiddleWare
             'email' => 'required|email',
         ]);
 
-        if ($params['new_password'] !== $params['comfirm_new_password']) {
+        if (!hash_equals($params['new_password'], $params['comfirm_new_password'])) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => [
                     'error' => 'Las contraseñas no coinciden',
                 ],
-                'code' => 401,
+                'code' => 422,
             ];
         }
 
-        if ($this->validatePolicyPassword($params['new_password']) === false) {
+        if (!$this->validatePolicyPassword($params['new_password'])) {
             return [
                 'success' => 0,
                 'message' => 'La contraseña no cumple con las politicas de seguridad',
                 'errors' => [
                     'error' => $this->getMessagePolicyPassword(),
                 ],
-                'code' => 401,
+                'code' => 422,
             ];
         }
 
-        if (count($result) > 0) {
+        if ($result !== []) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401,
+                'code' => 422,
             ];
         }
 
         return true;
     }
-
-
 }

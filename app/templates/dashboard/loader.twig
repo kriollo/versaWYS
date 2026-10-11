@@ -1,8 +1,13 @@
 {% extends "dashboard/dashboard.twig" %}
 {% block appDashboard %}
-	{{ csrf_field() | raw }}
-	<input type="hidden" id="current_user" value='{{ current_user | json_encode | raw }}'>
+	{% include 'dashboard/spa-content.twig' %}
+
 {% endblock %}
 {% block appScript %}
+	{# Variable global para SessionManager - indica si hay una sesión activa #}
+	<script>
+		window.versaSessionActive = {{ hasActiveSession ? 'true' : 'false' }};
+	</script>
+	{{ parent() }}
 	<script type="module" src="{{ getAssets('dashboard', 'js', '/vue-loader.js') }}?{{ date()|date('U') }}&m={{m}}"></script>
 {% endblock %}

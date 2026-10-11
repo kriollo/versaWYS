@@ -4,164 +4,207 @@ declare(strict_types=1);
 
 namespace app\models;
 
-use versaWYS\kernel\RedBeanCnn;
+use VersaORM\VersaModel;
+use versaWYS\kernel\model\VersaORMModel;
 
-class Perfil extends RedBeanCnn
+class Perfil extends VersaORMModel
 {
-    protected static string $table = 'versaperfil';
+    protected string $table = 'versa_perfil'; // Example table name
+
+    protected array $fillable = [];
+
+    protected array $guarded = [];
+
+    protected array $rules = [];
 
     /**
      * Get all perfil.
      *
      * Retrieves all the perfil from the database.
      *
-     * @return array An array of user records.
+     * @return array an array of user records
      */
-    public function all($estado = 'all'): array
+    public function all(int $id_empresa, string|int $estado = 'all'): array
     {
         if ($estado === 'all') {
-            // Usar getAll para compatibilidad con métodos seguros
-            return $this->getAll('SELECT * FROM versaperfil');
+            return $this->qb()->where('id_empresa', '=', $id_empresa)->getAll();
         }
-        return $this->getAll('SELECT * FROM versaperfil WHERE estado = ?', [$estado]);
+
+        return $this->qb()->where('estado', '=', $estado)->where('id_empresa', '=', $id_empresa)->getAll();
     }
 
-    public function save(array $params): int
+    public function savePerfil(array $params): int
     {
-        $perfil = $this->dispense(self::$table);
+        $perfil = $this->dispense($this->table);
+        $perfil->id_empresa = $params['id_empresa'];
         $perfil->nombre = $params['nombre'];
         $perfil->estado = $params['estado'];
-        return $this->store($perfil);
+        $this->executeWithErrorHandling($perfil->store(...), [
+            'operation' => 'savePerfil',
+            'params' => $params,
+        ]);
+
+        return $perfil->id;
     }
 
     public function changeState(array $params): int
     {
-        $perfil = $this->load(self::$table, $params['id']);
-        $perfil->estado = $perfil->estado === '1' ? '0' : '1';
-        return $this->store($perfil);
+        $perfil = $this->load($this->table, $params['id']);
+        // Un perfil solo puede modificarse desde su propia empresa
+        if (!$perfil instanceof VersaModel || (int) $perfil->id_empresa !== (int) $params['id_empresa']) {
+            return 0;
+        }
+        $perfil->estado = $perfil->estado ? 0 : 1;
+        $perfil->store();
+
+        return $perfil->id;
     }
 
     public function getPerfil(int $id): array
     {
-        return $this->getRow('SELECT * FROM versaperfil WHERE id = ?', [$id]);
+        return $this->getRow('SELECT * FROM versa_perfil WHERE id = ?', [$id]);
     }
 
-    public function getPerfilPermisos(int $id): array
+    public function getPerfilPermisos(int $perfilId, int $empresaId): array
     {
-        $sql = "SELECT * FROM (SELECT
-                    am.id AS id_menu,
-                    am.seccion,
-                    am.nombre AS menu,
-                    am.icono AS icon,
-                    am.fill AS fill_menu,
-                    am.url AS url_menu,
-                    am.submenu AS ifsubmenu,
-                    asm.id AS id_submenu,
-                    asm.nombre AS submenu,
-                    asm.url AS url_submenu,
-                    CASE WHEN ap.id IS NULL THEN 0 ELSE 1 END AS checked,
-                    am.posicion AS menu_posicion,
-                    asm.posicion AS submenu_posicion
-                FROM
-                    versamenu AS am
-                    LEFT JOIN versasubmenu AS asm ON asm.id_menu = am.id
-                    LEFT JOIN versaperfildetalle AS ap ON asm.id_menu = ap.menu_id
-                    AND asm.id = ap.submenu_id
-                    AND ap.perfil_id = ?
-                WHERE am.submenu = 1
-                UNION
-                SELECT
-                    am.id AS id_menu,
-                    am.seccion,
-                    am.nombre AS menu,
-                    am.icono AS icon,
-                    am.fill AS fill_menu,
-                    am.url AS url_menu,
-                    am.submenu,
-                    0 AS id_submenu,
-                    0 AS submenu,
-                    '' AS url_submenu,
-                    CASE WHEN ap.id IS NULL THEN 0 ELSE 1 END AS checked,
-                    am.posicion AS menu_posicion,
-                    0 AS submenu_posicion
-                FROM
-                    versamenu AS am
-                    LEFT JOIN versaperfildetalle AS ap ON am.id = ap.menu_id
-                    AND ap.perfil_id = ?
-                WHERE am.submenu = 0) AS op
-                ORDER BY op.seccion, op.menu_posicion, op.submenu_posicion";
+        $sql = "SELECT *
+                    FROM
+                        (
+                            SELECT
+                                am.id AS id_menu,
+                                am.seccion,
+                                am.nombre AS menu,
+                                am.icono AS icon,
+                                am.fill AS fill_menu,
+                                am.url AS url_menu,
+                                am.submenu AS ifsubmenu,
+                                asm.id AS id_submenu,
+                                asm.nombre AS submenu,
+                                asm.url AS url_submenu,
+                                CASE WHEN ap.id IS NULL THEN false ELSE true END AS checked,
+                                am.posicion AS menu_posicion,
+                                asm.posicion AS submenu_posicion
+                            FROM
+                                versa_menu AS am
+                                INNER JOIN empresa_modulo as em ON em.id_modulo = am.id AND em.id_empresa = ?
+                                LEFT JOIN versa_submenu AS asm ON asm.id_menu = am.id
+                                LEFT JOIN versa_perfildetalle AS ap ON asm.id_menu = ap.menu_id
+                                AND asm.id = ap.submenu_id
+                                AND ap.perfil_id = ?
+                            WHERE
+                                am.submenu = true
+                            UNION ALL
+                            SELECT
+                                am.id AS id_menu,
+                                am.seccion,
+                                am.nombre AS menu,
+                                am.icono AS icon,
+                                am.fill AS fill_menu,
+                                am.url AS url_menu,
+                                am.submenu AS ifsubmenu,
+                                0 AS id_submenu,
+                                '' AS submenu,
+                                '' AS url_submenu,
+                                CASE WHEN ap.id IS NULL THEN false ELSE true END AS checked,
+                                am.posicion AS menu_posicion,
+                                0 AS submenu_posicion
+                            FROM
+                                versa_menu AS am
+                                INNER JOIN empresa_modulo as em ON em.id_modulo = am.id AND em.id_empresa = ?
+                                LEFT JOIN versa_perfildetalle AS ap ON am.id = ap.menu_id
+                                AND ap.perfil_id = ?
+                            WHERE
+                                am.submenu = false
+                        ) AS op
+                    ORDER BY
+                        op.seccion,
+                        op.menu_posicion,
+                        op.submenu_posicion";
 
-        return $this->getAll($sql, [$id, $id]);
+        return $this->executeWithErrorHandling(
+            fn(): array => $this->getAll($sql, [$empresaId, $perfilId, $empresaId, $perfilId]),
+            ['operation' => 'savePerfilPermisos', 'table' => $this->table, 'query' => $sql],
+        );
     }
 
-    public function savePerfilPermisos(array $params)
+    public function savePerfilPermisos(array $params): int
     {
-        $this->exec('DELETE FROM versaperfildetalle WHERE perfil_id = ?', [$params['id']]);
-        $perfil = $this->load(self::$table, $params['id']);
+        $perfil = $this->load($this->table, $params['id']);
+        // Un perfil solo puede modificarse desde su propia empresa
+        if (!$perfil instanceof VersaModel || (int) $perfil->id_empresa !== (int) $params['id_empresa']) {
+            return 0;
+        }
         $perfil->nombre = $params['nombre'];
         $perfil->pagina_inicio = $params['pagina_inicio'];
-        $result = $this->store($perfil);
+        $this->executeWithErrorHandling($perfil->store(...), [
+            'operation' => 'savePerfilPermisos',
+            'params' => $params,
+        ]);
 
-        $permisos = $params['data'];
+        $permisos = json_decode($params['data'], true);
         if ($permisos === '[]' || $permisos === '') {
-            return $result;
+            return $perfil->id;
         }
 
+        $this->qb('versa_perfildetalle')->where('perfil_id', '=', $params['id'])->delete();
         foreach ($permisos as $value) {
-            //seccion
+            // seccion
             foreach ($value as $value2) {
-                //menu
-                if (array_key_exists('checked', $value2)) {
-                    if ($value2['checked'] === true) {
-                        $perfilDetalle = $this->dispense('versaperfildetalle');
-                        $perfilDetalle->perfil_id = $params['id'];
-                        $perfilDetalle->menu_id = $value2['id_menu'];
-                        $perfilDetalle->submenu_id = 0;
-                        $this->store($perfilDetalle);
-                    }
+                // menu
+                if (array_key_exists('checked', $value2) && $value2['checked']) {
+                    $perfilDetalle = $this->dispense('versa_perfildetalle');
+                    $perfilDetalle->perfil_id = (int) $params['id'];
+                    $perfilDetalle->menu_id = (int) $value2['id_menu'];
+                    $perfilDetalle->submenu_id = 0;
+                    $this->executeWithErrorHandling($perfilDetalle->store(...), [
+                        'operation' => 'versa_perfildetalle',
+                        'table' => 'versa_perfildetalle',
+                    ]);
                 }
+
                 if (array_key_exists('submenu', $value2)) {
                     foreach ($value2['submenu'] as $value3) {
-                        //submenu
-                        if (array_key_exists('checked', $value3)) {
-                            if ($value3['checked'] === true) {
-                                $perfilDetalle = $this->dispense('versaperfildetalle');
-                                $perfilDetalle->perfil_id = $params['id'];
-                                $perfilDetalle->menu_id = $value2['id_menu'];
-                                $perfilDetalle->submenu_id = $value3['id_submenu'];
-                                $this->store($perfilDetalle);
-                            }
+                        // submenu
+                        if (!(array_key_exists('checked', $value3) && $value3['checked'])) {
+                            continue;
                         }
+
+                        $perfilDetalle = $this->dispense('versa_perfildetalle');
+                        $perfilDetalle->perfil_id = $params['id'];
+                        $perfilDetalle->menu_id = $value2['id_menu'];
+                        $perfilDetalle->submenu_id = $value3['id_submenu'];
+                        $this->executeWithErrorHandling($perfilDetalle->store(...), [
+                            'operation' => 'versa_perfildetalle',
+                            'table' => 'versa_perfildetalle',
+                        ]);
                     }
                 }
             }
         }
 
-        //actualizo todos los permisos de todos los usuarios asociados a este perfil
-        $userPerfil = $this->getAll('SELECT id FROM versausers WHERE id_perfil = ?', [$params['id']]);
+        // actualizo todos los permisos de todos los usuarios asociados a este perfil
+        $userPerfil = $this->getAll('SELECT id FROM versa_users WHERE id_perfil = ?', [
+            $params['id'],
+        ]);
         foreach ($userPerfil as $key => $value) {
-            $this->exec('DELETE FROM versaperfildetalleuser WHERE id_user = ?', [$value['id']]);
+            $this->exec('DELETE FROM versa_perfildetalleuser WHERE id_user = ?', [$value['id']]);
             $this->exec(
-                'INSERT INTO versaperfildetalleuser (id_user, menu_id, submenu_id) SELECT ?, menu_id, submenu_id FROM versaperfildetalle WHERE perfil_id = ?',
-                [$value['id'], $params['id']]
+                'INSERT INTO versa_perfildetalleuser (id_user, menu_id, submenu_id) SELECT ?, menu_id, submenu_id FROM versa_perfildetalle WHERE perfil_id = ?',
+                [
+                    $value['id'],
+                    $params['id'],
+                ],
             );
 
-            //actualizo la pagina de inicio
-            $id = (int)$value['id'];
-            $user = $this->load('versausers', $id);
+            // actualizo la pagina de inicio
+            $id = (int) $value['id'];
+            $user = $this->load('versa_users', $id);
             $user->pagina_inicio = $params['pagina_inicio'];
-            $this->store($user);
+            $this->executeWithErrorHandling($user->store(...), [
+                'operation' => 'savePerfilPermisos',
+            ]);
         }
-        return $result;
-    }
 
-    public function __construct()
-    {
-        $this->connet();
-    }
-
-    public function __destruct()
-    {
-        $this->closeDB();
+        return $perfil->id;
     }
 }

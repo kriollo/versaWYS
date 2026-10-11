@@ -8,6 +8,7 @@ use app\models as Models;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+use versaWYS\kernel\CacheUsers;
 use versaWYS\kernel\GlobalControllers;
 use versaWYS\kernel\Response;
 
@@ -33,7 +34,8 @@ class PerfilController extends GlobalControllers
 
     public function getAllPerfiles(): void
     {
-        $perfiles = (new Models\Perfil())->all();
+        $modelo = new Models\Perfil();
+        $perfiles = $modelo->all((int) $this->empresaSelected['id']);
         Response::json([
             'success' => 1,
             'data' => $perfiles,
@@ -44,7 +46,10 @@ class PerfilController extends GlobalControllers
     {
         global $request;
         $params = $request->getAllParams();
-        $id = (new Models\Perfil())->save($params);
+        $params['id_empresa'] = (int) $this->empresaSelected['id'];
+
+        $modelo = new Models\Perfil();
+        $id = $modelo->savePerfil($params);
 
         if ($id === 0) {
             Response::json([
@@ -52,6 +57,8 @@ class PerfilController extends GlobalControllers
                 'message' => 'Error al guardar el perfil',
                 'code' => 500,
             ]);
+
+            return;
         }
 
         Response::json([
@@ -65,6 +72,7 @@ class PerfilController extends GlobalControllers
     {
         global $request;
         $params = $request->getAllParams();
+        $params['id_empresa'] = (int) $this->empresaSelected['id'];
         $id = (new Models\Perfil())->changeState($params);
 
         if ($id === 0) {
@@ -73,6 +81,8 @@ class PerfilController extends GlobalControllers
                 'message' => 'Error al cambiar el estado del perfil',
                 'code' => 500,
             ]);
+
+            return;
         }
 
         Response::json([
@@ -82,10 +92,8 @@ class PerfilController extends GlobalControllers
         ]);
     }
 
-    public function getPerfil($slug = null): void
+    public function getPerfil(int|string|null $slug = null): void
     {
-        global $request;
-
         $perfil = (new Models\Perfil())->getPerfil((int) $slug);
         if ($perfil === null) {
             Response::json([
@@ -93,9 +101,11 @@ class PerfilController extends GlobalControllers
                 'message' => 'Perfil no encontrado',
                 'code' => 404,
             ]);
+
+            return;
         }
 
-        $result = (new Models\Perfil())->getPerfilPermisos((int) $slug);
+        $result = (new Models\Perfil())->getPerfilPermisos((int) $slug, (int) $this->empresaSelected['id']);
 
         $data = [];
         $urls = [
@@ -109,6 +119,7 @@ class PerfilController extends GlobalControllers
                 if (!array_key_exists($item['seccion'], $data)) {
                     $data[$item['seccion']] = [];
                 }
+
                 if (!array_key_exists($item['menu'], $data[$item['seccion']])) {
                     $data[$item['seccion']][$item['menu']] = [
                         'id_menu' => $item['id_menu'],
@@ -116,25 +127,26 @@ class PerfilController extends GlobalControllers
                         'fill_menu' => $item['fill_menu'],
                     ];
                     $data[$item['seccion']][$item['menu']]['submenu'] = [];
-                    if ($item['ifsubmenu'] === '1') {
-                        array_push($urls, [
+                    $urls[] = $item['ifsubmenu']
+                        ? [
                             'url' => $item['url_submenu'],
                             'nombre' => $item['submenu'],
-                        ]);
-                    } else {
-                        $data[$item['seccion']][$item['menu']]['checked'] = $item['checked'] == 1 ? true : false;
-                        array_push($urls, [
+                        ]
+                        : [
                             'url' => $item['url_menu'],
                             'nombre' => $item['menu'],
-                        ]);
+                        ];
+                    if (!$item['ifsubmenu']) {
+                        $data[$item['seccion']][$item['menu']]['checked'] = $item['checked'];
                     }
                 }
-                if ($item['ifsubmenu'] === '1') {
+
+                if ($item['ifsubmenu']) {
                     $data[$item['seccion']][$item['menu']]['submenu'][] = [
                         'id_menu' => $item['id_menu'],
                         'id_submenu' => $item['id_submenu'],
                         'submenu' => $item['submenu'],
-                        'checked' => $item['checked'] == 1 ? true : false,
+                        'checked' => $item['checked'],
                         'url' => $item['url_submenu'],
                     ];
                 }
@@ -147,6 +159,8 @@ class PerfilController extends GlobalControllers
                 'message' => 'Perfil no encontrado',
                 'code' => 404,
             ]);
+
+            return;
         }
 
         Response::json([
@@ -163,7 +177,14 @@ class PerfilController extends GlobalControllers
         global $request;
         $params = $request->getAllParams();
 
+        $params['id_empresa'] = (int) $this->empresaSelected['id'];
+
         $id = (new Models\Perfil())->savePerfilPermisos($params);
+        CacheUsers::invalidateAllUserCache();
+
+        // Invalidar la versión del menú para todos los usuarios,
+        // ya que los permisos han cambiado.
+        (new CacheUsers())->updateMenuVersion();
 
         if ($id === 0) {
             Response::json([
@@ -171,6 +192,8 @@ class PerfilController extends GlobalControllers
                 'message' => 'Error al guardar el perfil',
                 'code' => 500,
             ]);
+
+            return;
         }
 
         Response::json([

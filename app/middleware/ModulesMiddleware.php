@@ -22,12 +22,12 @@ class ModulesMiddleware
             'icono' => 'required',
             'estado' => 'required',
         ]);
-        if (count($result) > 0) {
+        if ($result !== []) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401,
+                'code' => 422,
             ];
         }
 
@@ -44,11 +44,8 @@ class ModulesMiddleware
             'id' => 'required',
             'estado' => 'required',
         ]);
-        if (count($result) > 0) {
-            return false;
-        }
 
-        return true;
+        return count($result) <= 0;
     }
 
     public function validateMovePositionParams(): bool
@@ -59,16 +56,13 @@ class ModulesMiddleware
 
         $result = Functions::validateParams($params, [
             'id' => 'required',
-            'accion' => 'required',
+            'direction' => 'required',
         ]);
-        if (count($result) > 0) {
-            return false;
-        }
 
-        return true;
+        return count($result) <= 0;
     }
 
-    //submodules
+    // submodules
     public function validateChangeStatusSubModulesParams(): bool
     {
         global $request;
@@ -80,11 +74,8 @@ class ModulesMiddleware
             'id_menu' => 'required',
             'estado' => 'required',
         ]);
-        if (count($result) > 0) {
-            return false;
-        }
 
-        return true;
+        return count($result) <= 0;
     }
 
     public function validateSaveSubModuleParams(): true|array
@@ -100,12 +91,12 @@ class ModulesMiddleware
             'url' => 'required',
             'estado' => 'required',
         ]);
-        if (count($result) > 0) {
+        if ($result !== []) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401,
+                'code' => 422,
             ];
         }
 
@@ -121,14 +112,14 @@ class ModulesMiddleware
         $result = Functions::validateParams($params, [
             'id' => 'numeric',
             'id_menu' => 'numeric',
-            'position' => 'numeric',
+            'direction' => 'required',
         ]);
-        if (count($result) > 0) {
+        if ($result !== []) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',
                 'errors' => $result,
-                'code' => 401,
+                'code' => 422,
             ];
         }
 

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+		<title>Error de Base de Datos - versaWYS Framework</title>
+
+		<style>
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+				margin: 0;
+				padding: 20px;
+				background: #f5f5f5;
+				color: #333;
+			}
+
+			.error-container {
+				max-width: 1200px;
+				margin: 0 auto;
+				background: white;
+				border-radius: 8px;
+				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+				overflow: hidden;
+			}
+
+			.error-header {
+				background: linear-gradient(135deg, #0799D5, #0680b8);
+				color: white;
+				padding: 30px;
+			}
+
+			.error-header h1 {
+				margin: 0 0 10px;
+				font-size: 28px;
+				font-weight: 600;
+			}
+
+			.error-header p {
+				margin: 5px 0;
+				opacity: 0.9;
+				font-size: 16px;
+			}
+
+			.error-content {
+				padding: 30px;
+			}
+
+			.error-section {
+				margin-bottom: 25px;
+				padding: 20px;
+				border: 1px solid #e5e7eb;
+				border-radius: 6px;
+				background: #f9fafb;
+			}
+
+			.error-section h3 {
+				margin: 0 0 15px;
+				color: #1f2937;
+				font-size: 18px;
+				font-weight: 600;
+				display: flex;
+				align-items: center;
+				gap: 10px;
+			}
+
+			.error-message {
+				background: #fef3c7;
+				border-left: 4px solid #f59e0b;
+				padding: 20px;
+				border-radius: 4px;
+				font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+				font-size: 14px;
+				line-height: 1.6;
+				white-space: pre-wrap;
+				word-break: break-word;
+			}
+
+			.config-table {
+				width: 100%;
+				border-collapse: collapse;
+				margin-top: 15px;
+			}
+
+			.config-table tr {
+				border-bottom: 1px solid #e5e7eb;
+			}
+
+			.config-table tr:last-child {
+				border-bottom: none;
+			}
+
+			.config-table td {
+				padding: 12px 0;
+			}
+
+			.config-table td:first-child {
+				font-weight: 600;
+				color: #4b5563;
+				width: 150px;
+			}
+
+			.config-table td:last-child {
+				color: #1f2937;
+				font-family: 'Monaco', 'Menlo', monospace;
+				font-size: 13px;
+			}
+
+			.solutions-list {
+				list-style: none;
+				padding: 0;
+				margin: 15px 0 0;
+			}
+
+			.solutions-list li {
+				padding: 12px 15px;
+				margin-bottom: 10px;
+				background: white;
+				border-left: 3px solid #10b981;
+				border-radius: 4px;
+				display: flex;
+				gap: 10px;
+			}
+
+			.solutions-list li::before {
+				content: '💡';
+				flex-shrink: 0;
+			}
+
+			.code-snippet {
+				background: #1f2937;
+				color: #f9fafb;
+				padding: 15px;
+				border-radius: 4px;
+				font-family: 'Monaco', 'Menlo', monospace;
+				font-size: 13px;
+				margin-top: 10px;
+				overflow-x: auto;
+			}
+
+			.footer {
+				padding: 20px 30px;
+				background: #f8f9fa;
+				border-top: 1px solid #dee2e6;
+				font-size: 13px;
+				color: #6c757d;
+				text-align: center;
+			}
+
+			.highlight {
+				background: #e9ecef;
+				padding: 2px 6px;
+				border-radius: 3px;
+				font-family: monospace;
+				color: #e83e8c;
+				font-size: 0.95em;
+			}
+
+			.icon {
+				font-size: 1.2em;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="error-container">
+			<div class="error-header">
+				<h1>
+					<span class="icon">🔌</span>
+					Error de Configuración de Base de Datos
+				</h1>
+				<p>El framework versaWYS no pudo establecer conexión con la base de datos</p>
+				{% if data.timestamp is defined and data.timestamp %}
+					<p style="opacity: 0.8; font-size: 14px; margin-top: 10px;">
+						{{ data.timestamp }}
+					</p>
+				{% endif %}
+			</div>
+
+			<div
+				class="error-content">
+				<!-- Mensaje de Error -->
+				<div class="error-section">
+					<h3>
+						<span class="icon">⚠️</span>
+						Mensaje de Error
+					</h3>
+					<div class="error-message">{{ data.message ?? 'No hay mensaje de error disponible' }}</div>
+				</div>
+
+				<!-- Configuración Actual -->
+				{% if data.context is defined and data.context.database_config is defined %}
+					<div class="error-section">
+						<h3>
+							<span class="icon">⚙️</span>
+							Configuración Actual
+						</h3>
+						<table class="config-table">
+							<tr>
+								<td>Driver:</td>
+								<td>{{ data.context.database_config.driver }}</td>
+							</tr>
+							<tr>
+								<td>Host:</td>
+								<td>{{ data.context.database_config.host }}</td>
+							</tr>
+							<tr>
+								<td>Puerto:</td>
+								<td>{{ data.context.database_config.port }}</td>
+							</tr>
+							<tr>
+								<td>Base de Datos:</td>
+								<td>
+									<strong>{{ data.context.database_config.database }}</strong>
+								</td>
+							</tr>
+							<tr>
+								<td>Archivo Config:</td>
+								<td>
+									<span class="highlight">{{ data.real_file ?? 'versaWYS/kernel/config/config.json' }}</span>
+								</td>
+							</tr>
+						</table>
+					</div>
+				{% endif %}
+
+				<!-- Soluciones Sugeridas -->
+				<div class="error-section" style="background: #f0fdf4; border-color: #86efac;">
+					<h3>
+						<span class="icon">🛠️</span>
+						Soluciones Sugeridas
+					</h3>
+
+					{% set error_msg = data.message | lower %}
+
+					{% if 'no existe la base de datos' in error_msg or 'does not exist' in error_msg %}
+						<!-- Error: Base de datos no existe -->
+						<ul class="solutions-list">
+							<li>
+								<div>
+									<strong>Crear la base de datos</strong>
+									<div class="code-snippet">
+										CREATE DATABASE
+										{{ data.context.database_config.database }};
+									</div>
+								</div>
+							</li>
+							<li>
+								<div>
+									<strong>Verificar el nombre de la base de datos</strong>
+									<br/>Revisa que el nombre
+									<span class="highlight">{{ data.context.database_config.database }}</span>
+									sea correcto en
+									<span class="highlight">versaWYS/kernel/config/config.json</span>
+								</div>
+							</li>
+							<li>
+								<div>
+									<strong>Ejecutar migraciones después de crear la BD</strong>
+									<div class="code-snippet">
+										php versaCLI migrate:up
+									</div>
+								</div>
+							</li>
+						</ul>
+					{% elseif 'connection refused' in error_msg or 'could not connect' in error_msg %}
+						<!-- Error: Conexión rechazada -->
+						<ul class="solutions-list">
+							<li>
+								<div>
+									<strong>Verificar que el servidor esté ejecutándose</strong>
+									<br/>Asegúrate de que
+									{{ data.context.database_config.driver | upper }}
+									esté corriendo en el puerto
+									{{ data.context.database_config.port }}
+								</div>
+							</li>
+							<li>
+								<div>
+									<strong>Revisar host y puerto en la configuración</strong>
+									<br/>Verifica
+									<span class="highlight">host</span>
+									y
+									<span class="highlight">port</span>
+									en
+									<span class="highlight">versaWYS/kernel/config/config.json</span>
+								</div>
+							</li>
+							<li>
+								<div>
+									<strong>Verificar reglas de firewall</strong>
+									<br/>Asegúrate de que el puerto
+									{{ data.context.database_config.port }}
+									no esté bloqueado
+								</div>
+							</li>
+						</ul>
+					{% elseif 'access denied' in error_msg or 'authentication failed' in error_msg %}
+						<!-- Error: Autenticación fallida -->
+						<ul class="solutions-list">
+							<li>
+								<div>
+									<strong>Verificar credenciales</strong>
+									<br/>Revisa usuario y contraseña en
+									<span class="highlight">versaWYS/kernel/config/config.json</span>
+								</div>
+							</li>
+							<li>
+								<div>
+									<strong>Verificar permisos del usuario</strong>
+									<br/>Asegúrate de que el usuario tenga permisos sobre la base de datos
+									{{ data.context.database_config.database }}
+								</div>
+							</li>
+						</ul>
+					{% else %}
+						<!-- Error genérico -->
+						<ul class="solutions-list">
+							<li>
+								<div>
+									<strong>Revisar la configuración de la base de datos</strong>
+									<br/>Verifica todos los parámetros en
+									<span class="highlight">versaWYS/kernel/config/config.json</span>
+								</div>
+							</li>
+							<li>
+								<div>
+									<strong>Consultar los logs del framework</strong>
+									<br/>Revisa
+									<span class="highlight">versaWYS/logs/</span>
+									para más detalles
+								</div>
+							</li>
+							<li>
+								<div>
+									<strong>Verificar el servidor de base de datos</strong>
+									<br/>Asegúrate de que
+									{{ data.context.database_config.driver | upper }}
+									esté instalado y ejecutándose
+								</div>
+							</li>
+						</ul>
+					{% endif %}
+				</div>
+
+				<!-- Información del Framework -->
+				{% if data.context is defined %}
+					<div class="error-section">
+						<h3>
+							<span class="icon">ℹ️</span>
+							Información del Framework
+						</h3>
+						<table class="config-table">
+							<tr>
+								<td>Framework:</td>
+								<td>{{ data.context.framework ?? 'versaWYS-PHP' }}</td>
+							</tr>
+							<tr>
+								<td>Modo:</td>
+								<td>{{ data.context.mode ?? 'Debug' }}</td>
+							</tr>
+							<tr>
+								<td>ORM:</td>
+								<td>VersaORM-PHP</td>
+							</tr>
+						</table>
+					</div>
+				{% endif %}
+			</div>
+
+			<div class="footer">
+				<p>
+					<strong>💡 Nota:</strong>
+					Este error solo es visible en modo
+					<strong>debug</strong>
+					(desarrollo).
+				</p>
+				<p style="margin-top: 5px;">
+					En producción, el sistema continúa sin base de datos para páginas que no la requieran.
+				</p>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="es" class="dark">
-
 	<head>
-		<!--sólo para que no de error de mixin con ngrok, se puede sacar en producción-->
-		{# <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> #}
+		<!-- sólo para que no de error de mixin con ngrok, se puede sacar en producción -->
+		{% if config['build']['debug'] == '1' %}
+			<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"/>
+		{% endif %}
 
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/> <meta charset="UTF-8"/>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+		<script src="{{ getAssets('dashboard', 'js', 'early-init.js') }}"></script>
 
 		<link href="{{ assets_url('/public/vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet"/>
 
@@ -15,36 +19,72 @@
 
 		<link href="{{ getAssets('dashboard', 'img', '/favicon.png') }}" rel="shortcut icon"/> {% block appHead %}{% endblock %}
 
-		<title>{{ config.build.name }}</title>
+		<title>
+			{{ config.build.name }}
+		</title>
 		{% block appHeader %}{% endblock %}
-	</head>
 
-	<body class="bg-gray-50 dark:bg-gray-800 min-h-screen flex flex-col"> {% block appBody %}{% endblock %}
+		<style>
+		/* Custom Scrollbar for Webkit */
+		::-webkit-scrollbar {
+			width: 8px;
+			height: 8px;
+		}
+		::-webkit-scrollbar-track {
+			background: #000;
+		}
+		::-webkit-scrollbar-thumb {
+			background: #333;
+			border-radius: 4px;
+		}
+		::-webkit-scrollbar-thumb:hover {
+			background: #555;
+		} /* Selection Color */
+		::selection {
+			background-color: theme('colors.brand.DEFAULT');
+			color: #fff;
+		}
+	</style>
+
+	<script>
+		window.AppConfig = {
+timezone: "{{ config.build.timezone }}"
+};
+	</script>
+</head>
+
+<body class="bg-gray-50 dark:bg-[#050505] min-h-screen flex flex-col font-sans transition-colors duration-200">
+	<div id="content-general"> {% block appBody %}{% endblock %}
+		</div>
 		<script src="{{ assets_url('/public/vendor/flowbite/flowbite.min.js') }}"></script>
-		{% if config['build']['debug'] == '0' %}
-			{# modo producción #}
-			{# <script type="importmap">
-					{
-						"imports": {
-							"vue": "{{ assets_url('node_modules/vue/dist/vue.esm-browser.prod.js') }}",
-							"sweetalert2": "{{ assets_url('node_modules/sweetalert2/dist/sweetalert2.esm.all.min.js') }}"
-						}
-					}
-			</script> #}
-		{% else %}
-			{# modo debug #}
-			<script type="importmap">
-				{
-					"imports": {
-						"vue": "{{ assets_url('node_modules/vue/dist/vue.esm-browser.js') }}",
-						"sweetalert2": "{{ assets_url('node_modules/sweetalert2/dist/sweetalert2.esm.all.min.js') }}"
+		<input type="hidden" id="urlActual" name="urlActual" value="{{ url_actual|escape('html_attr') }}" class="hidden"/>
 
-					}
-				}
-			</script>
+		{% if config['build']['debug'] == '0' %}
+			<!--        {# modo producción #}
+																		            {# <script type="importmap">
+																						{
+																							"imports": {
+																								"vue": "{{ assets_url('node_modules/vue/dist/vue.esm-browser.prod.js') }}",
+																								"sweetalert2": "{{ assets_url('node_modules/sweetalert2/dist/sweetalert2.esm.all.min.js') }}"
+																							}
+																						}
+																					</script> #}        -->
+			{% else %}
+			<!--        {# modo debug #}
+																		            {# <script type="importmap">
+																						{
+																							"imports": {
+																								"vue": "{{ assets_url('node_modules/vue/dist/vue.esm-browser.js') }}",
+																								"sweetalert2": "{{ assets_url('node_modules/sweetalert2/dist/sweetalert2.esm.all.min.js') }}"
+																							}
+																						}
+																					</script> #}        -->
 		{% endif %}
+
+		<script type="module" src="{{ getAssets('dashboard', 'js', '/spa-navigation.js') }}?{{ date()|date('U') }}"></script>
 		<script type="module" src="{{ getAssets('dashboard', 'js', '/dashboard.js') }}?{{ date()|date('U') }}" defer></script>
+		<script type="module" src="{{ getAssets('dashboard', 'js', '/sidebar-hover.js') }}?{{ date()|date('U') }}" defer></script>
+
 		{% block appScript %}{% endblock %}
 	</body>
-
 </html>

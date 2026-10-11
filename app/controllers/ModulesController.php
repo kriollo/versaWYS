@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace app\controllers;
 
 use app\models as Models;
+use versaWYS\kernel\CacheUsers;
 use versaWYS\kernel\GlobalControllers;
+use versaWYS\kernel\helpers\Functions;
 
 class ModulesController extends GlobalControllers
 {
@@ -14,12 +16,13 @@ class ModulesController extends GlobalControllers
         global $twig, $session;
         parent::__construct($twig, $session);
     }
+
     /**
      * Renders the index page for the ModulesController.
      *
-     * @return string The rendered template for the index page.
+     * @return string the rendered template for the index page
      */
-    public function index()
+    public function index(): string
     {
         return $this->template->render('dashboard/loader', [
             'm' => '/dashboard/js/modules/dashModules',
@@ -36,14 +39,16 @@ class ModulesController extends GlobalControllers
         global $request;
 
         $params = $this->getParamsPaginate($request, ['seccion', 'nombre', 'descripcion']);
-        $filter = $params['filter'] ? $params['filter'] : '';
-        $order = $params['order'] ? "ORDER BY seccion asc, $params[order]" : 'ORDER BY seccion asc , posicion DESC';
-        $result = (new Models\Pagination())->pagination(
-            'versamenu',
+        $filter = $params['filter'] ?? '';
+        $order = $params['order'] ?: 'posicion ASC, seccion ASC';
+        $modelo = new Models\Pagination();
+        $result = $modelo->pagination(
+            'versa_menu',
             ['id', 'seccion', 'nombre', 'descripcion', 'icono', 'fill', 'estado', 'url', 'posicion', 'submenu'],
             $filter,
             $order,
-            $params['limit']
+            $params['limitNumber'],
+            $params['offset'],
         );
 
         $count = (int) $result['total'];
@@ -96,20 +101,20 @@ class ModulesController extends GlobalControllers
                         'class' => 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white',
                         'action' => 'showEditModule',
                         'condition' => 'estado',
-                        'condition_value' => '1',
+                        'condition_value' => true,
                     ],
                     [
                         'title' => 'Ver Submenús',
                         'icon' => 'bi bi-menu-app-fill text-xl text-blue-500  dark:text-blue-300',
                         'class' => [
                             'condition_field' => 'submenu',
-                            'condition_value' => '1',
+                            'condition_value' => true,
                             'active' => 'bg-gray-200 hover:bg-gray-600 dark:bg-gray-500 dark:hover:bg-gray-600',
                             'inactive' => 'text-gray-400 dark:text-gray-400',
                         ],
                         'action' => 'viewSubmenus',
                         'condition' => 'estado',
-                        'condition_value' => '1',
+                        'condition_value' => true,
                     ],
                     [
                         'title' => 'Desactivar Menú',
@@ -117,7 +122,7 @@ class ModulesController extends GlobalControllers
                         'class' => 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white',
                         'action' => 'changeStatus',
                         'condition' => 'estado',
-                        'condition_value' => '1',
+                        'condition_value' => true,
                     ],
                     [
                         'title' => 'Activar Menú',
@@ -125,7 +130,7 @@ class ModulesController extends GlobalControllers
                         'class' => 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white',
                         'action' => 'changeStatus',
                         'condition' => 'estado',
-                        'condition_value' => '0',
+                        'condition_value' => false,
                     ],
                 ],
             ],
@@ -156,13 +161,21 @@ class ModulesController extends GlobalControllers
         global $request;
 
         $params = $request->getAllParams();
-        $params['estado'] = $params['estado'] === 'true' || $params['estado'] === true ? 1 : 0;
-        $params['fill'] = $params['fill'] === 'true' || $params['fill'] === true ? 1 : 0;
-        $result = (new Models\Modules())->saveModule($params);
+        $params['estado'] = $params['estado'] === 'true' || $params['estado'] === 1;
+        $params['fill'] = $params['fill'] === 'true' || $params['fill'] === 1;
+
+        // Sanitizar el icono SVG antes de guardar
+        if (isset($params['icono'])) {
+            $params['icono'] = Functions::sanitizeSvgContent($params['icono']);
+        }
+
+        $modelo = new Models\Modules();
+        $result = $modelo->saveModule($params);
 
         if ($result) {
             return ['success' => 1, 'message' => 'Menú guardado correctamente'];
         }
+
         return ['success' => 0, 'message' => 'Error al crear el menú'];
     }
 
@@ -183,6 +196,7 @@ class ModulesController extends GlobalControllers
         if ($result) {
             return ['success' => 1, 'message' => 'Menú actualizado correctamente'];
         }
+
         return ['success' => 0, 'message' => 'Error al actualizar el menú'];
     }
 
@@ -190,28 +204,31 @@ class ModulesController extends GlobalControllers
     {
         global $request;
 
-        //TODO: finalizar este método
         $params = $request->getAllParams();
-        (new Models\Modules())->movePosition($params);
+        $data = (new Models\Modules())->movePosition($params);
 
-        return ['success' => 1];
+        (new CacheUsers())->updateMenuVersion();
+        CacheUsers::invalidateAllUserCache();
+
+        return ['success' => 1, 'data' => $data];
     }
 
-    //submodules
+    // submodules
     public function getSubModules(): array
     {
         global $request;
 
         $params = $this->getParamsPaginate($request, ['id'], true);
 
-        $filter = $params['filter'] ? $params['filter'] : '';
-        $order = $params['order'] ? "ORDER BY $params[order]" : 'ORDER BY posicion DESC, id ASC';
+        $filter = $params['filter'] ?? '';
+        $order = $params['order'] ?? 'posicion DESC, id ASC';
         $result = (new Models\Pagination())->pagination(
-            'versasubmenu',
+            'versa_submenu',
             ['id_menu', 'id', 'nombre', 'descripcion', 'estado', 'url', 'posicion'],
             $filter,
             $order,
-            $params['limit']
+            $params['limitNumber'],
+            $params['offset'],
         );
 
         $count = (int) $result['total'];
@@ -310,6 +327,7 @@ class ModulesController extends GlobalControllers
         if ($result) {
             return ['success' => 1, 'message' => 'Menú guardado correctamente'];
         }
+
         return ['success' => 0, 'message' => 'Error al crear el menú'];
     }
 
@@ -323,6 +341,7 @@ class ModulesController extends GlobalControllers
         if ($result) {
             return ['success' => 1, 'message' => 'Menú actualizado correctamente'];
         }
+
         return ['success' => 0, 'message' => 'Error al actualizar el menú'];
     }
 
@@ -331,8 +350,11 @@ class ModulesController extends GlobalControllers
         global $request;
 
         $params = $request->getAllParams();
-        (new Models\Modules())->movePositionSubModule($params);
+        $data = (new Models\Modules())->movePositionSubModule($params);
 
-        return ['success' => 1, 'message' => 'Menú actualizado correctamente'];
+        (new CacheUsers())->updateMenuVersion();
+        CacheUsers::invalidateAllUserCache();
+
+        return ['success' => 1, 'message' => 'Posición actualizada correctamente', 'data' => $data];
     }
 }

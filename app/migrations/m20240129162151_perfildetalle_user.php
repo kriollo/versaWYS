@@ -4,39 +4,45 @@ declare(strict_types=1);
 
 namespace app\migrations;
 
-use versaWYS\kernel\RedBeanCnn;
+use VersaORM\Schema\Blueprint;
+use VersaORM\VersaORMException;
+use versaWYS\kernel\model\VersaORMModel;
 
-class m20240129162151_perfildetalle_user extends RedBeanCnn
+class m20240129162151_perfildetalle_user extends VersaORMModel
 {
-    public function up()
+    public function up(): array
     {
         try {
-            $this->exec("CREATE TABLE `versaperfildetalleuser` (
-                    `id` INT NOT NULL AUTO_INCREMENT,
-                    `id_user` INT NOT NULL,
-                    `menu_id` INT NOT NULL,
-                    `submenu_id` INT NOT NULL,
-                    PRIMARY KEY (`id`) USING BTREE
-                )
-                COLLATE='utf8mb4_unicode_ci'
-                ENGINE=InnoDB;");
+            $this->orm()->schemaBuilder()->create('versa_perfildetalleuser', static function (Blueprint $table): void {
+                $table->id();
+                $table->foreignId('id_user');
+                $table->foreignId('menu_id');
+                $table->foreignId('submenu_id')->nullable();
+                $table->timestamps();
+
+                $table->index(['id_user'], 'fk_perfildetalleuser_user_idx');
+                $table->index(['menu_id'], 'fk_perfildetalleuser_menu_idx');
+                $table->index(['submenu_id'], 'fk_perfildetalleuser_submenu_idx');
+
+                $table->foreign(['id_user'])->references('id')->on('versa_users');
+                $table->foreign(['menu_id'])->references('id')->on('versa_menu');
+                $table->foreign(['submenu_id'])->references('id')->on('versa_submenu');
+            });
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
-        } catch (\Exception $e) {
-            return ['message' => $e->getMessage(), 'success' => false];
+        } catch (VersaORMException $versaormException) {
+            return ['message' => $versaormException->getMessage(), 'success' => false];
         }
     }
 
-    public function down()
+    public function down(): array
     {
         try {
-            // Agrega tu lógica para revertir la migración aquí
-
-            $this->exec('DROP TABLE `versaperfildetalleuser`;');
+            $this->orm()->schemaBuilder()->dropIfExists('versa_perfildetalleuser');
 
             return ['message' => 'Migración ejecutada con éxito.', 'success' => true];
-        } catch (\Exception $e) {
-            return ['message' => $e->getMessage(), 'success' => false];
+        } catch (VersaORMException $versaormException) {
+            return ['message' => $versaormException->getMessage(), 'success' => false];
         }
     }
 }

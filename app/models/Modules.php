@@ -4,132 +4,250 @@ declare(strict_types=1);
 
 namespace app\models;
 
-use versaWYS\kernel\RedBeanCnn;
+use VersaORM\VersaModel;
+use versaWYS\kernel\model\VersaORMModel;
 
-class Modules extends RedBeanCnn
+class Modules extends VersaORMModel
 {
-    protected static $table = 'versamenu';
+    protected string $table = 'versa_menu';
 
     /**
      * Get all modules.
      *
      * Retrieves all the modules from the database.
      *
-     * @return array An array of user records.
+     * @return array an array of user records
      */
-    public function all()
+    public function all(): array
     {
-        return $this->getAll('SELECT * FROM versamenu');
+        return $this->getAll('SELECT * FROM versa_menu');
     }
 
-    public function getLastPositionBySeccion($seccion): int
+    public function getLastPositionBySeccion(string $seccion): int
     {
-        $module = $this->findOne('versamenu', 'seccion = ? ORDER BY posicion DESC LIMIT 1', [$seccion]);
-        return $module ? $module->posicion + 1 : 1;
+        $module = $this->qb()->where('seccion', '=', $seccion)->orderBy('posicion', 'desc')->findOne();
+
+        return $module instanceof VersaModel ? $module->posicion + 1 : 1;
     }
 
-    public function saveModule($data): int|string
+    public function saveModule(array $data): int|string
     {
-        if ($data['action'] === 'edit') {
-            $module = $this->load('versamenu', $data['id']);
-        } else {
-            $module = $this->dispense('versamenu');
-            $module->posicion = $this->getLastPositionBySeccion($data['seccion']);
-            $module->created_at = date('Y-m-d H:i:s');
-        }
+        $module = $data['action'] === 'edit' ? $this->load('versa_menu', $data['id']) : $this->dispense('versa_menu');
+        $module->posicion = $this->getLastPositionBySeccion($data['seccion']);
+        $module->created_at = date('Y-m-d H:i:s');
+
         $module->seccion = $data['seccion'];
         $module->nombre = $data['nombre'];
         $module->descripcion = $data['descripcion'];
-        $module->icono = $this->scape($data['icono']);
+        $module->icono = $data['icono'];
         $module->fill = $data['fill'];
         $module->estado = $data['estado'];
         $module->url = $data['url'];
         $module->updated_at = date('Y-m-d H:i:s');
-        return $this->store($module);
+        $module->store();
+
+        return $module->id;
     }
 
-    public function changeStatus($params): mixed
+    public function changeStatus(array $params): mixed
     {
-        $module = $this->load('versamenu', $params['id']);
-        $module->estado = $params['estado'];
-        return $this->store($module);
+        $module = $this->load('versa_menu', $params['id']);
+        $module->estado = !$module->estado;
+        $module->store();
+
+        return $module->id;
     }
 
-    public function movePosition($params): void
+    public function movePosition(array $params): array
     {
-        if ($params['direction'] === 'up') {
-            $newPosition = $params['currentPosition'] - 1;
-            if ($newPosition <= 0) {
-                $newPosition = 1;
+        $id = (int) $params['id'];
+        $direction = $params['direction'];
+
+        $modules = $this->qb()->orderBy('posicion', 'asc')->get();
+
+        if ($modules === []) {
+            return [];
+        }
+
+        // Orden secundario por id en PHP
+        usort($modules, static fn(array $a, array $b): int => $a['posicion'] !== $b['posicion']
+            ? $a['posicion'] <=> $b['posicion']
+            : $a['id'] <=> $b['id']);
+
+        // Normalizar si hay duplicados o ceros
+        $uniquePositions = array_unique(array_column($modules, 'posicion'));
+        if (count($uniquePositions) < count($modules)) {
+            foreach ($modules as $idx => &$module) {
+                $mod = $this->load('versa_menu', (int) $module['id']);
+                $mod->posicion = $idx + 1;
+                $mod->store();
+                $module['posicion'] = $idx + 1;
             }
-        } else {
-            $newPosition = $params['currentPosition'] + 1;
-        }
-    }
 
-    private function toggleSubMenuField($idMenu): void
-    {
-        $subModules = $this->findAll('versasubmenu', 'id_menu = ?', [$idMenu]);
-        $allDisabled = true;
-        foreach ($subModules as $subModule) {
-            if ($subModule->estado === '1') {
-                $allDisabled = false;
-                break;
+            unset($module);
+        }
+
+        // Buscar el índice del ítem actual
+        $currentIndex = -1;
+        foreach ($modules as $idx => $module) {
+            if ((int) $module['id'] !== $id) {
+                continue;
             }
+
+            $currentIndex = $idx;
+            break;
         }
 
-        $mainModule = $this->load('versamenu', $idMenu);
-        $mainModule->submenu = $allDisabled ? '0' : '1';
-        $this->store($mainModule);
-    }
-
-    //submodules
-    public function changeStatusSubModule($params): mixed
-    {
-        $module = $this->load('versasubmenu', $params['id']);
-        $module->estado = $params['estado'];
-        $result = $this->store($module);
-
-        $this->toggleSubMenuField($module->id_menu);
-
-        return $result;
-    }
-
-    public function saveSubModule($data): int|string
-    {
-        if ($data['action'] === 'edit') {
-            $module = $this->load('versasubmenu', (int)$data['id']);
-        } else {
-            $module = $this->dispense('versasubmenu');
-            $module->created_at = date('Y-m-d H:i:s');
+        if ($currentIndex === -1) {
+            return array_map(static fn(array $m): array => ['id' => $m['id'], 'posicion' => $m['posicion']], $modules);
         }
+
+        $swapIndex = $direction === 'up' ? $currentIndex - 1 : $currentIndex + 1;
+
+        if ($swapIndex < 0 || $swapIndex >= count($modules)) {
+            return array_map(static fn(array $m): array => ['id' => $m['id'], 'posicion' => $m['posicion']], $modules);
+        }
+
+        // Intercambiar posiciones
+        $currentMod = $this->load('versa_menu', (int) $modules[$currentIndex]['id']);
+        $swapMod = $this->load('versa_menu', (int) $modules[$swapIndex]['id']);
+
+        $tempPos = (int) $currentMod->posicion;
+        $currentMod->posicion = (int) $swapMod->posicion;
+        $swapMod->posicion = $tempPos;
+
+        $currentMod->store();
+        $swapMod->store();
+
+        $modules[$currentIndex]['posicion'] = $currentMod->posicion;
+        $modules[$swapIndex]['posicion'] = $swapMod->posicion;
+
+        return array_map(static fn(array $m): array => ['id' => $m['id'], 'posicion' => $m['posicion']], $modules);
+    }
+
+    // submodules
+    public function changeStatusSubModule(array $params): mixed
+    {
+        $submodule = $this->load('versa_submenu', $params['id']);
+        $submodule->estado = !$submodule->estado;
+        $submodule->store();
+
+        $this->toggleSubMenuField($submodule->id_menu);
+
+        return $submodule->id;
+    }
+
+    public function saveSubModule(array $data): int|string
+    {
+        $module = $data['action'] === 'edit'
+            ? $this->load('versa_submenu', (int) $data['id'])
+            : $this->dispense('versa_submenu');
+        $module->created_at = date('Y-m-d H:i:s');
+
         $module->id_menu = $data['id_menu'];
         $module->nombre = $data['nombre'];
         $module->descripcion = $data['descripcion'];
         $module->estado = $data['estado'];
         $module->url = $data['url'];
         $module->updated_at = date('Y-m-d H:i:s');
-        $result = $this->store($module);
 
-        $this->toggleSubMenuField($data['id_menu']);
+        $module->store();
 
-        return $result;
+        $this->toggleSubMenuField((int) $data['id_menu']);
+
+        return $module->id;
     }
 
-    public function movePositionSubModule($params): mixed
+    public function movePositionSubModule(array $params): array
     {
-        $subModule = $this->load('versasubmenu', $params['id']);
-        $subModule->posicion = $params['position'];
-        return $this->store($subModule);
+        $idMenu = (int) $params['id_menu'];
+        $id = (int) $params['id'];
+        $direction = $params['direction'];
+
+        $subModules = $this->qb('versa_submenu')->where('id_menu', '=', $idMenu)->orderBy('posicion', 'asc')->get();
+
+        if ($subModules === []) {
+            return [];
+        }
+
+        // Orden secundario por id en PHP
+        usort($subModules, static fn(array $a, array $b): int => $a['posicion'] !== $b['posicion']
+            ? $a['posicion'] <=> $b['posicion']
+            : $a['id'] <=> $b['id']);
+
+        // Normalizar si hay duplicados o ceros
+        $uniquePositions = array_unique(array_column($subModules, 'posicion'));
+        if (count($uniquePositions) < count($subModules)) {
+            foreach ($subModules as $idx => &$subModule) {
+                $mod = $this->load('versa_submenu', (int) $subModule['id']);
+                $mod->posicion = $idx + 1;
+                $mod->store();
+                $subModule['posicion'] = $idx + 1;
+            }
+
+            unset($subModule);
+        }
+
+        // Buscar el índice del ítem actual
+        $currentIndex = -1;
+        foreach ($subModules as $idx => $subModule) {
+            if ((int) $subModule['id'] !== $id) {
+                continue;
+            }
+
+            $currentIndex = $idx;
+            break;
+        }
+
+        if ($currentIndex === -1) {
+            return array_map(static fn(array $m): array => [
+                'id' => $m['id'],
+                'posicion' => $m['posicion'],
+            ], $subModules);
+        }
+
+        $swapIndex = $direction === 'up' ? $currentIndex - 1 : $currentIndex + 1;
+
+        if ($swapIndex < 0 || $swapIndex >= count($subModules)) {
+            return array_map(static fn(array $m): array => [
+                'id' => $m['id'],
+                'posicion' => $m['posicion'],
+            ], $subModules);
+        }
+
+        // Intercambiar posiciones
+        $currentMod = $this->load('versa_submenu', (int) $subModules[$currentIndex]['id']);
+        $swapMod = $this->load('versa_submenu', (int) $subModules[$swapIndex]['id']);
+
+        $tempPos = (int) $currentMod->posicion;
+        $currentMod->posicion = (int) $swapMod->posicion;
+        $swapMod->posicion = $tempPos;
+
+        $currentMod->store();
+        $swapMod->store();
+
+        $subModules[$currentIndex]['posicion'] = $currentMod->posicion;
+        $subModules[$swapIndex]['posicion'] = $swapMod->posicion;
+
+        return array_map(static fn(array $m): array => ['id' => $m['id'], 'posicion' => $m['posicion']], $subModules);
     }
 
-    public function __construct()
+    private function toggleSubMenuField(int $idMenu): void
     {
-        $this->connet();
-    }
+        $subModules = $this->qb('versa_submenu')->where('id_menu', '=', $idMenu)->get();
 
-    public function __destruct()
-    {
-        $this->closeDB();
+        $allDisabled = true;
+        foreach ($subModules as $subModule) {
+            if ($subModule['estado']) {
+                continue;
+            }
+
+            $allDisabled = false;
+            break;
+        }
+
+        $mainModule = $this->load('versa_menu', $idMenu);
+        $mainModule->submenu = $allDisabled;
+        $mainModule->store();
     }
 }

@@ -1,0 +1,19 @@
+<div class="flex flex-col justify-center items-center px-6 mx-auto h-screen xl:px-0">
+	<div class="block md:max-w-lg">
+		<img src="{{ getAssets('dashboard', 'img', '/404.svg') }}" alt="astronaut image"/>
+	</div>
+	<div class="text-center xl:max-w-4xl">
+		<h1 class="mb-3 text-2xl font-bold leading-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+			Pagina no encontrada
+		</h1>
+		<p class="mb-5 text-base font-normal text-gray-500 md:text-lg dark:text-gray-400">
+			Oops! Parece que seguiste un enlace incorrecto. Si cree que esto es un problema con nosotros, díganoslo.
+		</p>
+		<div class="flex justify-center mt-8">
+			<a onclick="history.go(-1)" data-spa class="px-8 py-3 bg-brand text-white rounded-xl font-bold hover:bg-brand-600 transition-all shadow-lg shadow-brand/20 flex items-center gap-2 text-sm cursor-pointer">
+				<i class="bi bi-arrow-left"></i>
+				Volver al Inicio
+			</a>
+		</div>
+	</div>
+</div>
