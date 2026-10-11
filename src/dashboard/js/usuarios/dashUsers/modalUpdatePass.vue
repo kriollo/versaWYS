@@ -1,12 +1,12 @@
 <script setup lang="ts">
     import { html } from 'code-tag';
-    import { computed, inject } from 'vue';
+    import { computed, inject, ref, type Ref } from 'vue';
 
     import modal from '@/dashboard/js/components/modal.vue';
     import { $dom } from '@/dashboard/js/composables/dom';
+    import { API_RESPONSE_CODES } from '@/dashboard/js/constants';
     import { versaAlert, versaFetch, VersaToast } from '@/dashboard/js/functions';
     import type { AccionData, VersaParamsFetch } from '@/dashboard/types/versaTypes';
-import { API_RESPONSE_CODES } from '../../constants';
 
     interface Props {
         showModal: boolean;
@@ -25,7 +25,8 @@ import { API_RESPONSE_CODES } from '../../constants';
     const showModalLocal = computed(() => props.showModal);
     const tokenId = computed(() => props.tokenId);
     const origen = computed(() => props.origen);
-    const csrf_token = inject<string>('csrf_token');
+    const csrf_token = inject<Ref<string>>('csrf_token', ref(''));
+    const panelUrl = inject<string>('panelUrl', ''); // Obtiene el panel URL desde la inyección
 
     const tooglePassword = (
         /** @type {String} */ idInput: string,
@@ -81,7 +82,7 @@ import { API_RESPONSE_CODES } from '../../constants';
 
         const objectData = Object.fromEntries(formData.entries());
         const params = {
-            url: '/admin/users/changePassword',
+            url: `/${panelUrl}/users/changePassword`,
             method: 'PATCH',
             headers: {
                 'content-type': 'application/json',
@@ -118,7 +119,7 @@ import { API_RESPONSE_CODES } from '../../constants';
                 type: 'error',
                 customClass: {
                     popup: 'swal-wide',
-                    // htmlContainer: 'swal-target',
+                    // HtmlContainer: 'swal-target',
                 },
             });
         }
@@ -128,7 +129,7 @@ import { API_RESPONSE_CODES } from '../../constants';
     <modal :id-modal="origen + 'resetPass'" :show-modal="showModalLocal" @accion="accion">
         <template #modalTitle>
             <div class="flex justify-between">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Actualizar Contraseña</h3>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Actualizar Contraseña de usuario</h3>
 
                 <div class="float-left">
                     <button
@@ -149,11 +150,11 @@ import { API_RESPONSE_CODES } from '../../constants';
         </template>
         <template #modalBody>
             <form id="formChangePass" class="space-y-4">
-                <input type="hidden" :value="csrf_token" name="csrf_token" />
+                <input type="hidden" :value="csrf_token.value" name="csrf_token" />
                 <input type="hidden" :value="tokenId" name="tokenid" />
                 <div class="relative">
                     <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="new_password">
-                        Contraseña
+                        Nueva Contraseña
                     </label>
                     <span
                         id="togglePasswordNew"
@@ -185,7 +186,7 @@ import { API_RESPONSE_CODES } from '../../constants';
                     <input
                         id="new_password"
                         type="password"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-brand/30 focus:border-brand block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-brand/30 dark:focus:border-brand"
                         name="new_password"
                         placeholder="••••••••"
                         autocomplete="off"
@@ -196,7 +197,7 @@ import { API_RESPONSE_CODES } from '../../constants';
                     <label
                         class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                         for="comfirm_new_password">
-                        Contraseña
+                        Confirmar Contraseña
                     </label>
                     <span
                         id="togglePasswordConfirmNew"
@@ -230,7 +231,7 @@ import { API_RESPONSE_CODES } from '../../constants';
                     <input
                         id="comfirm_new_password"
                         type="password"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-brand/30 focus:border-brand block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-brand/30 dark:focus:border-brand"
                         name="comfirm_new_password"
                         placeholder="••••••••"
                         autocomplete="off"
@@ -241,15 +242,15 @@ import { API_RESPONSE_CODES } from '../../constants';
         <template #modalFooter>
             <button
                 type="button"
-                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                @click="accion({ accion: 'closeModal' })">
-                Cancelar
+                class="text-white bg-brand-600 hover:bg-brand-700 focus:ring-4 focus:outline-none focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600"
+                @click="sendResetPass()">
+                Actualizar Contraseña
             </button>
             <button
                 type="button"
-                class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-                @click="sendResetPass()">
-                Actualizar Contraseña
+                class="text-white bg-corporate-orange-700 hover:bg-corporate-orange-800 focus:ring-4 focus:outline-none focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-corporate-orange-600 dark:hover:bg-corporate-orange-700 dark:focus:ring-corporate-orange-800"
+                @click="accion({ accion: 'closeModal' })">
+                Cancelar
             </button>
         </template>
     </modal>

@@ -11,11 +11,13 @@
     const emit = defineEmits(['accion']);
 
     const perfil = inject('perfil') as Ref<Perfil>;
-    const csrf_token = inject<string>('csrf_token');
-
-    interface PerfilData {
-        [key: string]: {
-            [key: string]: {
+    const csrf_token = inject<Ref<string>>('csrf_token', ref(''));
+    const panelUrl = inject<string>('panelUrl', ''); // Obtiene el panel URL desde la inyección
+    type PerfilData = Record<
+        string,
+        Record<
+            string,
+            {
                 id_menu: string;
                 submenu: {
                     id_menu: string;
@@ -26,9 +28,9 @@
                 checked: boolean;
                 icon: string;
                 fill_menu: string;
-            };
-        };
-    }
+            }
+        >
+    >;
 
     interface UrlData {
         nombre: string;
@@ -41,7 +43,7 @@
     const removeScapeLocal = (str: string) => removeScape(str);
     const getPerfil = async () => {
         const response = await versaFetch({
-            url: `/admin/perfiles/getPerfil/${perfil.value.id}`,
+            url: `/${panelUrl}/perfiles/getPerfil/${perfil.value.id}`,
             method: 'GET',
         });
 
@@ -67,12 +69,12 @@
             id: perfil.value.id,
             nombre: perfil.value.nombre,
             pagina_inicio: perfil.value.pagina_inicio,
-            csrf_token: csrf_token,
+            csrf_token: csrf_token.value,
             data: JSON.stringify(perfilData.value),
         };
 
         const response = await versaFetch({
-            url: '/admin/perfiles/savePerfilPermisos',
+            url: `/${panelUrl}/perfiles/savePerfilPermisos`,
             method: 'POST',
             data,
         });
@@ -121,6 +123,7 @@
             <div class="flex justify-between">
                 <h2 class="text-lg font-semibold">Pagina de Inicio:</h2>
                 <select
+                    id="selectPaginaInicio"
                     v-model="perfil.pagina_inicio"
                     class="w-[80%] p-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-800">
                     <option v-for="(url, key) in urls" :key="key" :value="url.url">
@@ -147,7 +150,7 @@
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="24"
                                 height="24"
-                                :fill="menu.fill_menu === '1' ? 'currentColor' : 'none'"
+                                :fill="menu.fill_menu === '1' || menu.fill_menu ? 'currentColor' : 'none'"
                                 v-html="removeScapeLocal(menu.icon)"></svg>
                             <div v-if="menu.submenu.length > 0" class="w-full">
                                 <span>{{ index }}</span>

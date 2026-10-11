@@ -1,6 +1,6 @@
-import { createInjection } from '@/dashboard/js/composables/injectStrict';
+import createInjection from '@/dashboard/js/composables/injectStrict';
 
-// import type { InjectionKey } from 'vue';
+// Import type { InjectionKey } from 'vue';
 
 export interface ItemSubModule {
     id_menu: number;
@@ -18,8 +18,7 @@ interface ShowModalSubForm {
     action: string;
 }
 
-const ShowModalSubFormInjection =
-    createInjection<ShowModalSubForm>('ShowModalSubForm');
+const ShowModalSubFormInjection = createInjection<ShowModalSubForm>('ShowModalSubForm');
 
 export interface itemSelectedType {
     id: number | null;
@@ -42,9 +41,4 @@ interface ShowModalForm {
 
 const ShowModalFormInjection = createInjection<ShowModalForm>('ShowModalForm');
 
-export {
-    ShowModalFormInjection,
-    ShowModalSubFormInjection,
-    type ShowModalForm,
-    type ShowModalSubForm,
-};
+export { ShowModalFormInjection, ShowModalSubFormInjection, type ShowModalForm, type ShowModalSubForm };

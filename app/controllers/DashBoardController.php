@@ -111,7 +111,15 @@ class DashBoardController extends GlobalControllers
      */
     public function logout(): void
     {
-        global $session, $cookie, $config;
+        global $session, $cookie, $config, $request;
+
+        // Sin token CSRF válido no se cierra la sesión (evita logout forzado desde otro sitio)
+        $token = (string) $request->get('_csrf_token', '');
+        if (!hash_equals((string) $session->get('csrf_token'), $token)) {
+            Response::redirect('/' . $config['admin']['custom_url']);
+
+            return;
+        }
 
         foreach ($session->getAll() as $key => $value) {
             $session->delete($key);

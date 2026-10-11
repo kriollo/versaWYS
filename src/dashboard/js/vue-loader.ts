@@ -1,34 +1,50 @@
 import { html } from 'code-tag';
-import { createApp, provide, ref } from 'vue';
+import { createApp, provide, ref, type Ref } from 'vue';
 
+import { getCsrfTokenRef, initCsrfToken } from '@/dashboard/js/composables/csrfStore';
 import { $dom } from '@/dashboard/js/composables/dom';
 import { GLOBAL_CONSTANTS } from '@/dashboard/js/constants';
-import { isValidModuleName, sanitizeModulePath } from '@/dashboard/js/functions';
+import { getPanelUrl, isValidModuleName, sanitizeModulePath } from '@/dashboard/js/functions';
 import { handleError, handleHMRError } from '@/dashboard/js/vueLoader/devUtils';
 
-const debug = ref(!!$dom('#debug')); // Default to false if the element is not found
+interface PublicProvider {
+    debug: typeof debug;
+    csrf_token: Ref<string>;
+    current_user: Record<string, unknown>;
+    panelUrl: string;
+    empresaSelected: string;
+    menu_user: Record<string, unknown>;
+    ws_url: string;
+}
+
+const debug = ref(Boolean($dom('#debug'))); // Default to false if the element is not found
 
 const loadModule = async (): Promise<void> => {
     const $contenedor = $dom('#main-content') as HTMLElement;
     const $csrfToken = $dom('#csrf_token') as HTMLInputElement;
     const $current_user = $dom('#current_user') as HTMLInputElement;
+    const $empresaSelected = $dom('#selectEmpresa') as HTMLSelectElement;
+    const $menu = $dom('#menu_user') as HTMLInputElement;
+    const $ws_url = $dom('#ws_url') as HTMLInputElement;
+
+    // Inicializar el store reactivo con el valor del DOM y obtener la referencia compartida
+    initCsrfToken($csrfToken.value ?? '');
+    const csrfTokenRef = getCsrfTokenRef();
 
     const url = new URL(import.meta.url);
     const urlParams = url.search;
     const searchParams = new URLSearchParams(urlParams);
-    let module = searchParams.get('m');
+    const module = searchParams.get('m');
     let validatedModule = 'unknown';
     try {
-        interface PublicProvider {
-            debug: typeof debug;
-            csrf_token: string;
-            current_user: { [key: string]: unknown };
-        }
-
         const public_provider: PublicProvider = {
             debug,
-            csrf_token: $csrfToken.value || '',
-            current_user: JSON.parse($current_user.value) || {},
+            csrf_token: csrfTokenRef,
+            current_user: JSON.parse($current_user?.value ?? '{}') || {},
+            panelUrl: getPanelUrl(),
+            empresaSelected: $empresaSelected ? $empresaSelected.value : '',
+            menu_user: $menu ? JSON.parse($menu.value) : [],
+            ws_url: $ws_url ? $ws_url.value.replaceAll(/^"|"$/g, '') : '',
         };
 
         if (!$contenedor) {
@@ -51,7 +67,7 @@ const loadModule = async (): Promise<void> => {
         if (!component) {
             throw new Error('No se ha especificado un componente para cargar.');
         } // Importar dinámicamente el módulo
-        const moduleResponse = await import(`@/${validatedModule}.js?v=${Date.now()}`);
+        const moduleResponse = await import(`@/${validatedModule}.js?v=${(window as any).AppConfig?.version ?? Date.now()}`);
         if (moduleResponse) {
             // Montar el módulo en el contenedor
             const app = createApp({
@@ -81,11 +97,11 @@ const loadModule = async (): Promise<void> => {
             // Configuración de la aplicación según el modo de depuración
             if (debug) {
                 app.config.warnHandler = function warnHandler(msg, vm, trace): void {
-                    // console.warn(msg, vm, trace);
+                    // Console.warn(msg, vm, trace);
                     handleHMRError(msg, trace);
                 };
                 app.config.errorHandler = function errorHandler(err, vm, info): void {
-                    // console.error(err, vm, info);
+                    // Console.error(err, vm, info);
                     handleHMRError(err instanceof Error ? err.stack || 'Unknown stack' : 'Unknown error', info);
                 };
                 app.config.compilerOptions.comments = true;
@@ -102,4 +118,4 @@ const loadModule = async (): Promise<void> => {
     }
 };
 
-loadModule();
+await loadModule();

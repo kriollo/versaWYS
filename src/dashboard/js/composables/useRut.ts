@@ -5,13 +5,13 @@
  * @param {string} rut - The RUT to validate.
  * @returns {boolean} - Returns true if the RUT is valid, otherwise false.
  */
-export const validateRut = (rut: string): boolean => {
+const validateRut = (rut: string): boolean => {
     if (!rut) {
         return false;
     }
 
     // Eliminar caracteres no válidos
-    let rutValue = rut.replaceAll(/[^0-9kK-]/g, '');
+    const rutValue = rut.replaceAll('.', '').replaceAll(/[^0-9kK-]/g, '');
     const [num, dv] = rutValue.split('-');
 
     // Verificar que num y dv estén definidos
@@ -41,3 +41,5 @@ export const validateRut = (rut: string): boolean => {
     // Comparar el dígito verificador esperado con el proporcionado
     return String(dvEsperado).toLowerCase() === dv.toLowerCase();
 };
+
+export default validateRut;

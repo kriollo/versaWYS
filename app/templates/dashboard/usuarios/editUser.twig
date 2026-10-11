@@ -73,7 +73,7 @@
 					</div>
 					<div class="relative">
 						<label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-							Contraseña
+							Contraseña (dejar en blanco para no cambiarla)
 						</label>
 						<span id="togglePassword" class="absolute end-0 flex items-center cursor-pointer pr-2 top-[50%]">
 							<svg class="hidden w-6 h-6 text-gray-800 dark:text-slate-400" id="imgShowPass" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 20 18">
@@ -86,7 +86,7 @@
 								</g>
 							</svg>
 						</span>
-						<input type="password" name="password" id="password" placeholder="••••••••" autocomplete="off" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-brand/30 focus:border-brand block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-brand/30 dark:focus:border-brand" required/>
+						<input type="password" name="password" id="password" placeholder="••••••••" autocomplete="new-password" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-brand/30 focus:border-brand block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-brand/30 dark:focus:border-brand"/>
 					</div>
 					<div>
 						<label for="perfil" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -130,5 +130,5 @@
 		window.versaSessionActive = {{ hasActiveSession ? 'true' : 'false' }};
 	</script>
 
-	<script type="module" src="{{ getAssets('dashboard', 'js', '/usuarios/addUser.js') }}?{{ date()|date('U') }}"></script>
+	<script type="module" src="{{ getAssets('dashboard', 'js', '/usuarios/addUser.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}"></script>
 {% endblock %}

@@ -1,0 +1,33 @@
+{
+    "recommendations": [
+        // === VUE / TYPESCRIPT / JAVASCRIPT ===
+        "Vue.volar",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+
+        // === PHP ===
+        "bmewburn.vscode-intelephense-client",
+        "junstyle.php-cs-fixer",
+        "devsense.phptools-vscode",
+        "jens1o.mediawiki-twig-extension",
+
+        // === TWIG ===
+        "mblode.twig-language-2",
+
+        // === TAILWIND CSS ===
+        "bradlc.vscode-tailwindcss",
+
+        // === GENERAL UTILITIES ===
+        "streetsidesoftware.code-spell-checker",
+        "streetsidesoftware.code-spell-checker-spanish",
+        "Gruntfuggly.todo-tree",
+        "EditorConfig.EditorConfig",
+        "aaron-bond.better-comments",
+        "jock.svg",
+
+        // === GIT ===
+        "eamodio.gitlens",
+        "mhutchie.git-graph"
+    ],
+    "unwantedRecommendations": ["octref.vetur"]
+}

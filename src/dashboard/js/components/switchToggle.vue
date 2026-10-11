@@ -29,7 +29,7 @@
 
     const types = {
         success: 'bg-green-600',
-        primary: 'bg-blue-600',
+        primary: 'bg-brand',
         danger: 'bg-red-600',
         orange: 'bg-orange-600',
         purple: 'bg-purple-600',
@@ -39,9 +39,7 @@
 <template>
     <div class="flex flex-col items-center gap-2">
         <!-- Label -->
-        <label
-            :for="id"
-            class="text-sm font-medium text-gray-900 dark:text-white">
+        <label :for="id" class="text-sm font-medium text-gray-900 dark:text-white">
             {{ label }}
         </label>
 

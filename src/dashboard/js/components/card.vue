@@ -11,9 +11,7 @@
     const { size } = toRefs(props);
 </script>
 <template>
-    <div
-        class="bg-white dark:bg-gray-800 shadow-sm dark:shadow-gray-700"
-        :class="size">
+    <div class="bg-white dark:bg-gray-800 shadow-sm dark:shadow-gray-700" :class="size">
         <div>
             <slot name="title"></slot>
 

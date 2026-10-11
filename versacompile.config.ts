@@ -1,20 +1,24 @@
-// Archivo de configuración de VersaCompiler
-const config = {
-    tsconfig: './tsconfig.json',
-    compilerOptions: {
-        sourceRoot: './src',
+import { defineConfig } from 'versacompiler/config';
+
+export default defineConfig({
+    root: './src',
+    build: {
         outDir: './public',
-        pathsAlias: {
-            '@/*': ['src/*'],
-            'P@/*': ['public/*'],
+    },
+    resolve: {
+        alias: {
+            '@/*': 'public/*',
+            'P@/*': 'public/*',
         },
     },
-    proxyConfig: {
+    server: {
         proxyUrl: 'http://localhost:8000',
         assetsOmit: true,
+        watch: {
+            additional: ['./app/templates/**/*.twig', './app/templates/**/*.html'],
+        },
     },
-    aditionalWatch: ['./app/templates/**/*.twig', './app/templates/**/*.html'],
-    // puede dejar en false o no agregarlo si no quiere que se ejecute el compilador de tailwind
+    tsconfig: './tsconfig.json',
     tailwindConfig: {
         bin: './node_modules/.bin/tailwindcss',
         input: './src/dashboard/css/dashboard.css',
@@ -29,19 +33,6 @@ const config = {
             paths: ['src/'],
         },
     ],
-    // Configuración de bundlers
-    bundlers: [
-        {
-            name: 'appLoader',
-            fileInput: './public/module/appLoader.js',
-            fileOutput: './public/module/appLoader.prod.js',
-        },
-        {
-            name: 'mainApp',
-            fileInput: './src/main.ts',
-            fileOutput: './dist/main.bundle.js',
-        },
-    ],
-};
-
-export default config;
+    plugins: [],
+    hmrExclude: ['early-init.ts', 'early-init.js'],
+});

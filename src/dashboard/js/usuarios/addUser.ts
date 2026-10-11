@@ -1,10 +1,11 @@
 import { html } from 'code-tag';
 
-import { $dom, validateFormRequired } from '@/dashboard/js/composables/dom.js';
+import { $dom, validateFormRequired } from '@/dashboard/js/composables/dom';
 import { API_RESPONSE_CODES } from '@/dashboard/js/constants';
-import { versaAlert, versaFetch } from '@/dashboard/js/functions';
+import { getPanelUrl, versaAlert, versaFetch } from '@/dashboard/js/functions';
 import type { VersaParamsFetch } from '@/dashboard/types/versaTypes';
 
+const panelUrl = getPanelUrl();
 const btnAddUser = $dom('#btnAddUser') as HTMLButtonElement | null;
 if (btnAddUser) {
     btnAddUser.addEventListener('click', async () => {
@@ -24,7 +25,7 @@ if (btnAddUser) {
         const objectData = Object.fromEntries(formData.entries());
 
         const paramsFetch = {
-            url: existsId ? '/admin/users/editUser' : '/admin/users/addUser',
+            url: existsId ? `/${panelUrl}/users/editUser` : `/${panelUrl}/users/addUser`,
             method: existsId ? 'PUT' : 'POST',
             headers: {
                 'content-type': 'application/json',
@@ -90,7 +91,7 @@ if (btnAddUser) {
             message: data.message,
             type: 'success',
             callback: () => {
-                globalThis.location.href = '/admin/usuarios';
+                globalThis.location.href = `/${panelUrl}/usuarios`;
             },
         });
     });

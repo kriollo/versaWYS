@@ -115,7 +115,7 @@ Router::group(
 Router::get('/admin/api/session/heartbeat', [DashBoardController::class, 'sessionHeartbeat']);
 
 // description: Define la ruta para cerrar sesión de administración.
-Router::get('/admin/logout', [DashBoardController::class, 'logout']);
+Router::post('/admin/logout', [DashBoardController::class, 'logout']);
 // =====================================================
 // 5. GESTIÓN DE USUARIOS (Requiere autenticación + CSRF)
 // =====================================================

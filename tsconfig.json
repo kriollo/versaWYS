@@ -11,41 +11,32 @@
         "checkJs": true, // ⬅️ Cambiar de true a false para mejor performance
         "allowImportingTsExtensions": true, // ⬅️ Añadir
         "module": "esnext",
-        "target": "es2022",
-        "lib": ["es2022", "dom", "dom.iterable"],
+        "target": "es2023",
+        "lib": ["es2023", "dom", "dom.iterable"],
         "outDir": "./public/",
         "sourceRoot": "./src/",
         "sourceMap": true,
         "inlineSourceMap": false, // ⬅️ Añadir
         "inlineSources": false, // ⬅️ Añadir
         "rootDir": ".",
-        "baseUrl": ".",
         "noEmit": true,
-
         // Module resolution
         "paths": {
-            "@/*": ["src/*"],
-            "P@/*": ["public/*"]
+            "@/*": ["./src/*"],
+            "P@/*": ["./public/*"]
         },
-        "typeRoots": [
-            "./node_modules/@types",
-            "./src/dashboard/types",
-            "./src/types"
-        ],
+        "typeRoots": ["./node_modules/@types", "./src/dashboard/types", "./src/types"],
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
         "moduleResolution": "bundler", // ⬅️ Cambiar de "node" a "bundler"
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "isolatedModules": true, // ⬅️ Añadir
-
         // Decorators support
         "experimentalDecorators": true, // ⬅️ Añadir
         "emitDecoratorMetadata": true, // ⬅️ Añadir
-
         // JSX support (si lo necesitas)
         "jsx": "preserve", // ⬅️ Añadir si usas JSX/TSX
-
         // Strict mode options
         "strict": true,
         "noImplicitAny": false,

@@ -9,5 +9,5 @@
 		window.versaSessionActive = {{ hasActiveSession ? 'true' : 'false' }};
 	</script>
 	{{ parent() }}
-	<script type="module" src="{{ getAssets('dashboard', 'js', '/vue-loader.js') }}?{{ date()|date('U') }}&m={{m}}"></script>
+	<script type="module" src="{{ getAssets('dashboard', 'js', '/vue-loader.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}&m={{m}}"></script>
 {% endblock %}

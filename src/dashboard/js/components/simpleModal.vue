@@ -18,13 +18,7 @@
     interface Props {
         idModal: string;
         showModal: boolean;
-        size?:
-            | 'max-w-md'
-            | 'max-w-lg'
-            | 'max-w-2xl'
-            | 'max-w-4xl'
-            | 'max-w-7xl'
-            | string;
+        size?: 'max-w-md' | 'max-w-lg' | 'max-w-2xl' | 'max-w-4xl' | 'max-w-7xl' | string;
     }
 
     const props = withDefaults(defineProps<Props>(), {

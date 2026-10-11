@@ -112,11 +112,11 @@
                                             </svg>
                                         </div>
                                         <span class="ml-3 lg:block hidden" sidebar-toggle-item>
-                                            {{ m.desc_menu|raw|capitalize }}
+                                            {{ m.desc_menu|capitalize }}
                                         </span>
                                         <span
                                             class="!hidden text-dark dark:text-white left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2 text-nowrap tooltip-sidebar shadow-xl border border-gray-100 dark:border-gray-700 ml-2 z-50">
-                                            {{ m.desc_menu|raw|capitalize }}
+                                            {{ m.desc_menu|capitalize }}
                                         </span>
                                     </versa-link>
                                 {% else %}
@@ -157,11 +157,11 @@
                                                 </svg>
                                             </div>
                                             <span class="ml-3 lg:block hidden" sidebar-toggle-item>
-                                                {{ m.desc_menu|raw|capitalize }}
+                                                {{ m.desc_menu|capitalize }}
                                             </span>
                                             <span
                                                 class="!hidden text-dark dark:text-white left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2 text-nowrap tooltip-sidebar shadow-xl border border-gray-100 dark:border-gray-700 ml-2 z-50">
-                                                {{ m.desc_menu|raw|capitalize }}
+                                                {{ m.desc_menu|capitalize }}
                                             </span>
                                         </div>
                                         <i
@@ -200,7 +200,7 @@
                                                             aria-hidden="true">
 
                                                         </i>
-                                                        {{ submenu.desc_submenu|raw|capitalize }}
+                                                        {{ submenu.desc_submenu|capitalize }}
                                                     </versa-link>
                                                 </li>
                                             {% endif %}
@@ -335,90 +335,7 @@
                                         Empresas
                                     </span>
                                 </li>
-                                <!--    Planes
-                                <li
-                                    id="liDropDownPlanes"
-                                    class="group/liDropDownPlanes hover:ml-4 hover:bg-gray-100 text-gray-900 dark:text-gray-200 dark:hover:bg-[#1a1a1a] dark:hover:text-brand rounded-lg w-full transform ease-in-out duration-300 flex">
-                                    <versa-link
-                                        href="{{ getPanelUrl('planes') }}"
-                                        data-spa
-                                        class="flex p-2 w-full {{
-                                        url_actual == 'planes'
-                                            ? 'bg-gray-100 dark:bg-[#1a1a1a] dark:text-brand font-bold'
-                                            : ''
-                                        }}">
-                                        <div
-                                            class="flex-shrink-0 w-6 h-6 flex items-center justify-center transition duration-75 {{
-                                            url_actual == getPanelUrl('planes')
-                                                ? 'text-black dark:text-brand'
-                                                : 'text-gray-500 dark:text-gray-400 group-hover:text-black dark:group-hover:text-brand'
-                                            }}">
-                                            <svg
-                                                class="w-6 h-6"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="24"
-                                                height="24"
-                                                fill="none"
-                                                viewbox="0 0 24 24"
-                                                stroke-width="{1.5}">
-                                                <path
-                                                    stroke="currentColor"
-                                                    stroke-linecap="round"
-                                                    stroke-width="2"
-                                                    d="M8 7V6a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1M3 18v-7a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
-                                            </svg>
-                                        </div>
-                                        <span class="ml-3 lg:block hidden" sidebar-toggle-item>Planes</span>
-                                    </versa-link>
-                                    <span
-                                        class="!hidden text-dark dark:text-white left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2 tooltip-sidebar shadow-xl border border-gray-100 dark:border-gray-700 ml-2 z-50">
-                                        Planes
-                                    </span>
-                                </li>    -->
 
-                                <!--    Facturación 
-                                <li
-                                    id="liDropDownFacturacion"
-                                    class="group/liDropDownFacturacion hover:ml-4 hover:bg-gray-100 text-gray-900 dark:text-gray-200 dark:hover:bg-[#1a1a1a] dark:hover:text-brand rounded-lg w-full transform ease-in-out duration-300 flex">
-                                    <versa-link
-                                        href="{{ getPanelUrl('facturacion') }}"
-                                        data-spa
-                                        class="flex p-2 w-full {{
-                                        url_actual == 'facturacion'
-                                            ? 'bg-gray-100 dark:bg-[#1a1a1a] dark:text-brand font-bold'
-                                            : ''
-                                        }}">
-                                        <div
-                                            class="flex-shrink-0 w-6 h-6 flex items-center justify-center transition duration-75 {{
-                                            url_actual == getPanelUrl('facturacion')
-                                                ? 'text-black dark:text-brand'
-                                                : 'text-gray-500 dark:text-gray-400 group-hover:text-black dark:group-hover:text-brand'
-                                            }}">
-                                            <svg
-                                                class="w-6 h-6"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="24"
-                                                height="24"
-                                                fill="none"
-                                                viewbox="0 0 24 24"
-                                                stroke-width="{1.5}">
-                                                <path
-                                                    stroke="currentColor"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8c-1.11 0-2.08.402-2.599 1M12 16c-1.11 0-2.08-.402-2.599-1M12 16c1.11 0 2.08-.402 2.599-1M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
-                                            </svg>
-                                        </div>
-                                        <span class="ml-3 lg:block hidden" sidebar-toggle-item>Facturación</span>
-                                    </versa-link>
-                                    <span
-                                        class="!hidden text-dark dark:text-white left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2 tooltip-sidebar shadow-xl border border-gray-100 dark:border-gray-700 ml-2 z-50">
-                                        Facturación
-                                    </span>
-                                </li>   -->
 
                                 <!-- Módulos -->
                                 <li

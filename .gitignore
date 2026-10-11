@@ -13,3 +13,12 @@ package-lock.json
 pnpm-lock.yaml
 /versaWYS/kernel/config/config.json
 /versaWYS/logs/*
+/versaWYS/cache/*
+/versaWYS/kernel/config/installed.lock
+/versaWYS/kernel/config/install.token
+/public/dashboard/img/avatars/*
+/public/dashboard/img/logos/*
+/public/dashboard/store/*
+.env
+.env.*
+!.env.example

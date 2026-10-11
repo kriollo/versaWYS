@@ -24,10 +24,7 @@ export const getSheetNames = async (file: File): Promise<string[]> => {
  * @param {number} [hoja=0] - The index of the sheet to read (default is 0).
  * @returns { Promise<Array> } - A promise that resolves to an array of arrays, where each array represents a row of the sheet.
  */
-export const readXlsx = async (
-    file: File,
-    hoja: number = GLOBAL_CONSTANTS.ZERO,
-): Promise<{}[]> => {
+export const readXlsx = async (file: File, hoja: number = GLOBAL_CONSTANTS.ZERO): Promise<{}[]> => {
     const f = await file.arrayBuffer();
     const w = new Uint8Array(f);
 
@@ -45,10 +42,7 @@ export const readXlsx = async (
  * @param {string} [sheetName='Sheet1'] - The name of the sheet in the XLSX file.
  * @returns {Promise<void>} - A promise that resolves when the XLSX file is created.
  */
-export const createXlsxFromJson = async (
-    data: {}[],
-    sheetName: string = 'Sheet1',
-): Promise<void> => {
+export const createXlsxFromJson = async (data: {}[], sheetName: string = 'Sheet1'): Promise<void> => {
     const wb = utils.book_new();
     const ws = await utils.json_to_sheet(data);
     await utils.book_append_sheet(wb, ws, sheetName);

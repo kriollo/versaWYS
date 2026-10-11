@@ -1,45 +1,27 @@
 <script setup lang="ts">
     import Swal from 'sweetalert2';
-    import { computed, inject, provide, reactive, ref } from 'vue';
+    import { inject, provide, reactive, ref, type Ref, toRefs } from 'vue';
 
     import customTable from '@/dashboard/js/components/customTable.vue';
     import modal from '@/dashboard/js/components/modal.vue';
-    import {
-        convertDataTypes,
-        versaFetch,
-        VersaToast,
-    } from '@/dashboard/js/functions';
+    import { API_RESPONSE_CODES, GLOBAL_CONSTANTS } from '@/dashboard/js/constants';
+    import { convertDataTypes, versaFetch, VersaToast } from '@/dashboard/js/functions';
     import {
         type ItemSubModule,
         type ShowModalSubForm,
         ShowModalSubFormInjection,
     } from '@/dashboard/js/modules/InjectKeys';
     import subModulesForm from '@/dashboard/js/modules/subModulesForm.vue';
-    import type {
-        AccionData,
-        actionsType,
-        VersaParamsFetch,
-    } from '@/dashboard/types/versaTypes';
-
-    import {
-        API_RESPONSE_CODES,
-        GLOBAL_CONSTANTS,
-    } from '@/dashboard/js/constants';
+    import type { AccionData, actionsType, VersaParamsFetch } from '@/dashboard/types/versaTypes';
 
     const emit = defineEmits(['accion']);
 
-    const props = defineProps({
-        showModal: {
-            type: Boolean,
-            default: false,
-        },
-        idModule: {
-            type: Number,
-            default: 0,
-        },
-    });
-    const showModal = computed((): boolean => props.showModal);
-    const idModule = computed((): number => props.idModule);
+    const props = defineProps<{
+        showModal: boolean;
+        idModule: number;
+    }>();
+    const { showModal, idModule } = toRefs(props);
+    const panelUrl = inject<string>('panelUrl', ''); // Obtiene el panel URL desde la inyección
 
     const showModalSubForm = reactive<ShowModalSubForm>({
         showModalSubForm: false,
@@ -50,7 +32,7 @@
     ShowModalSubFormInjection.provide(showModalSubForm);
     provide('id_menu', idModule);
 
-    const csrf_token = inject<string>('csrf_token');
+    const csrf_token = inject<Ref<string>>('csrf_token', ref(''));
     const refreshTable = ref(false);
 
     const changeStatus = async (
@@ -73,13 +55,13 @@
         });
         if (result.isConfirmed) {
             const params = {
-                url: '/admin/submodules/changeStatus',
+                url: `/${panelUrl}/submodules/changeStatus`,
                 method: 'PATCH',
                 data: JSON.stringify({
                     id: item.id,
                     id_menu: item.id_menu,
                     estado: '1' === item.estado ? '0' : '1',
-                    csrf_token,
+                    csrf_token: csrf_token.value,
                 }),
                 headers: { 'Content-Type': 'application/json' },
             } as VersaParamsFetch;
@@ -100,59 +82,31 @@
         }
     };
 
-    const changePosition = async (
-        /** @type {Object} */ item: {
-            id: number;
-            id_menu: number;
-            posicion: number;
-        },
-    ) => {
-        const { value } = await Swal.fire({
-            title: 'Cambiar posición',
-            icon: 'question',
-            input: 'number',
-            inputValue: item.posicion.toString(),
-            inputOptions: {
-                min: '1',
-            },
-            inputAttributes: {
-                min: '1',
-            },
-            showCancelButton: true,
-            confirmButtonText: 'Cambiar',
-            cancelButtonText: 'Cancelar',
-            inputValidator: value => {
-                if (!value) {
-                    return 'Debes ingresar una posición';
-                }
-            },
-        });
-        if (value) {
-            const params = {
-                url: '/admin/submodules/changePositionSubModule',
-                method: 'PATCH',
-                data: JSON.stringify({
-                    id: item.id,
-                    id_menu: item.id_menu,
-                    position: value,
-                    csrf_token,
-                }),
-                headers: { 'Content-Type': 'application/json' },
-            } as VersaParamsFetch;
-            const response = await versaFetch(params);
-            if (API_RESPONSE_CODES.SUCCESS === response.success) {
-                refreshTable.value = !refreshTable.value;
-                await VersaToast.fire({
-                    icon: 'success',
-                    title: response.message,
-                });
-                emit('accion', { accion: 'refreshData' });
-            } else {
-                await VersaToast.fire({
-                    icon: 'warning',
-                    title: response.message,
-                });
-            }
+    const changePosition = async (item: { id: number; id_menu: number; direction: string }) => {
+        const params = {
+            url: `/${panelUrl}/submodules/changePositionSubModule`,
+            method: 'PATCH',
+            data: JSON.stringify({
+                id: item.id,
+                id_menu: item.id_menu,
+                direction: item.direction,
+                csrf_token: csrf_token.value,
+            }),
+            headers: { 'Content-Type': 'application/json' },
+        } as VersaParamsFetch;
+        const response = await versaFetch(params);
+        if (API_RESPONSE_CODES.SUCCESS === response.success) {
+            await VersaToast.fire({
+                icon: 'success',
+                title: response.message,
+            });
+            emit('accion', { accion: 'refreshData' });
+            refreshTable.value = !refreshTable.value;
+        } else {
+            await VersaToast.fire({
+                icon: 'warning',
+                title: response.message,
+            });
         }
     };
 
@@ -190,28 +144,19 @@
     };
 </script>
 <template>
-    <modal
-        :showModal="showModal"
-        idModal="modalSubModule"
-        size="max-w-7xl"
-        @accion="accion">
+    <modal :showModal="showModal" idModal="modalSubModule" size="max-w-7xl" @accion="accion">
         <template #modalTitle>
             <div class="flex justify-between">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                    <i
-                        class="bi bi-menu-app-fill text-2xl text-blue-500 dark:text-blue-300"></i>
-                    Listado de Sub Módulos
+                    <i class="bi bi-menu-app-fill text-2xl text-brand dark:text-brand-300"></i>
+                    Listado de Sub Módulos: {{ idModule }}
                 </h3>
                 <div class="float-left">
                     <button
                         type="button"
                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
                         @click="accion({ accion: 'closeModal' })">
-                        <svg
-                            class="w-3 h-3"
-                            fill="none"
-                            viewBox="0 0 14 14"
-                            xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                 stroke="currentColor"
@@ -224,14 +169,14 @@
             </div>
         </template>
         <template #modalBody>
-            <subModulesForm @accion="accion" />
+            <subModulesForm />
             <customTable
                 @accion="accion"
                 v-if="showModal"
                 id="subModulesTable"
                 key="subModulesTable"
                 tablaTitle="Listado de Sub Módulos"
-                urlData="/admin/modules/getSubModules"
+                :urlData="`/${panelUrl}/modules/getSubModules`"
                 :externalFilters="'id_menu=' + idModule"
                 fieldOrder="posicion"
                 :refreshData="refreshTable">
@@ -239,7 +184,7 @@
                     <div class="flex justify-end gap-2">
                         <button
                             type="button"
-                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                            class="text-white bg-brand-600 hover:bg-brand-700 focus:ring-4 focus:outline-none focus:ring-brand/30 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600"
                             @click="accion({ accion: 'create' })">
                             Crear
                         </button>

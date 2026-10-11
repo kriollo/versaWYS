@@ -18,7 +18,7 @@
     import { computed, toRefs } from 'vue';
 
     interface Props {
-        id: string;
+        id: string | number;
         label?: string;
         type?: 'success' | 'danger' | 'warning' | 'info' | 'primary';
         disabled?: boolean;
@@ -37,29 +37,22 @@
         danger = 'text-red-600 dark:text-red-400 focus:ring-red-500 dark:focus:ring-red-500',
         warning = 'text-yellow-600 dark:text-yellow-400 focus:ring-yellow-500 dark:focus:ring-yellow-500',
         info = 'text-gray-600 dark:text-gray-400 focus:ring-gray-500 dark:focus:ring-gray-500',
-        primary = 'text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-500',
+        primary = 'text-brand dark:text-brand-400 focus:ring-brand dark:focus:ring-brand',
     }
 
     const estado = defineModel('modelValue', {
         type: Boolean,
         required: true,
     });
-    const checkType = computed(
-        () => CheckTypes[type.value as keyof typeof CheckTypes],
-    );
+    const checkType = computed(() => {
+        const selected = type.value || 'success';
+        return CheckTypes[selected as keyof typeof CheckTypes];
+    });
 </script>
 <template>
     <div class="flex gap-2">
-        <input
-            :id="id"
-            type="checkbox"
-            class="h-5 w-5"
-            :class="checkType"
-            v-model="estado"
-            :disabled="disabled" />
-        <label
-            class="block text-sm font-medium text-gray-900 dark:text-white"
-            :for="id">
+        <input :id="id" type="checkbox" class="h-5 w-5" :class="checkType" v-model="estado" :disabled="disabled" />
+        <label class="block text-sm font-medium text-gray-900 dark:text-white" :for="id">
             {{ label }}
         </label>
     </div>

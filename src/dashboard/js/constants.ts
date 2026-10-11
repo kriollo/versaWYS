@@ -24,7 +24,11 @@ export const GLOBAL_CONSTANTS: GlobalConstants = {
 } as const;
 
 // === CÓDIGOS DE RESPUESTA API ===
-export const API_RESPONSE_CODES = {
+interface ApiResponseCodes {
+    SUCCESS: number;
+    ERROR: number;
+}
+export const API_RESPONSE_CODES: ApiResponseCodes = {
     SUCCESS: 1,
     ERROR: 0,
 } as const;
@@ -88,8 +92,8 @@ export const RUT_VALIDATION = {
 
 // === PANTALLA/UI ===
 export const UI_BREAKPOINTS = {
-    MOBILE_MAX_WIDTH: 1024, // px
-    DESKTOP_MIN_WIDTH: 1024, // px
+    MOBILE_MAX_WIDTH: 1024, // Px
+    DESKTOP_MIN_WIDTH: 1024, // Px
 } as const;
 
 // === VALORES BOOLEANOS MYSQL ===

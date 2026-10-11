@@ -3,8 +3,8 @@
     import Swal from 'sweetalert2';
     import { computed, inject, type Ref, ref, watch } from 'vue';
 
+    import { API_RESPONSE_CODES } from '@/dashboard/js/constants';
     import { versaFetch, VersaToast } from '@/dashboard/js/functions';
-import { API_RESPONSE_CODES } from '../constants';
 
     const props = defineProps({
         refreshData: {
@@ -14,22 +14,22 @@ import { API_RESPONSE_CODES } from '../constants';
     });
 
     const perfil = inject('perfil') as Ref<Perfil>;
-
+    const panelUrl = inject<string>('panelUrl', ''); // Obtiene el panel URL desde la inyección
     const refreshData = computed(() => props.refreshData);
 
     interface PerfilExtended extends Perfil {
-        estado: string;
+        estado: number;
     }
 
     const data = ref<PerfilExtended[]>([]);
 
     const listPerfilesSide = async () => {
         const response = await versaFetch({
-            url: '/admin/perfiles/all',
+            url: `/${panelUrl}/perfiles/all`,
             method: 'GET',
         });
 
-        if (response.success) {
+        if (response.success === API_RESPONSE_CODES.SUCCESS) {
             data.value = response.data;
         }
     };
@@ -48,23 +48,23 @@ import { API_RESPONSE_CODES } from '../constants';
         });
         if (result.isConfirmed) {
             const response = await versaFetch({
-                url: '/admin/perfiles/changeState',
+                url: `/${panelUrl}/perfiles/changeState`,
                 method: 'PATCH',
                 data: { id: perfil.id },
             });
 
-            if (API_RESPONSE_CODES.SUCCESS === response.success) {
+            if (response.success === API_RESPONSE_CODES.SUCCESS) {
                 listPerfilesSide();
                 VersaToast.fire({
                     icon: 'success',
                     title: 'Perfil actualizado correctamente',
                 });
-            } else {
-                VersaToast.fire({
-                    icon: 'error',
-                    title: 'Error al actualizar el estado del perfil',
-                });
+                return;
             }
+            VersaToast.fire({
+                icon: 'error',
+                title: 'Error al actualizar el estado del perfil',
+            });
         }
     };
 
@@ -81,29 +81,27 @@ import { API_RESPONSE_CODES } from '../constants';
                 :key="item.id"
                 class="flex justify-between items-center"
                 :class="
-                    key === data.length - 1
-                        ? 'rounded-b-lg'
+                    Number(key) == Number(data.length) - 1
+                        ? 'w-full px-4 py-2 border-b border-gray-200 rounded-t-lg dark:border-gray-600 rounded-b-lg'
                         : 'w-full px-4 py-2 border-b border-gray-200 rounded-t-lg dark:border-gray-600'
                 ">
                 <div>
-                    <span :class="item.estado === '0' ? 'line-through' : ''">
+                    <span :class="item.estado == 0 ? 'line-through' : ''">
                         {{ item.nombre }}
                     </span>
                 </div>
                 <div class="flex gap-2">
-                    <button type="button" class="text-xs text-blue-500 dark:text-blue-400" @click="editPerfil(item)">
+                    <button type="button" class="text-xs text-brand dark:text-brand-400" @click="editPerfil(item)">
                         Editar
                     </button>
                     <button
                         type="button"
                         class="text-xs"
                         :class="
-                            item.estado === '0'
-                                ? 'text-green-500 dark:text-green-400'
-                                : 'text-red-500 dark:text-red-400'
+                            item.estado == 0 ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'
                         "
                         @click="deletePerfil(item)">
-                        {{ item.estado === '0' ? 'Activar' : 'Desactivar' }}
+                        {{ item.estado == 0 ? 'Activar' : 'Desactivar' }}
                     </button>
                 </div>
             </li>

@@ -1,8 +1,6 @@
-import { html } from 'code-tag';
-
-import { $dom, blockedForm, serializeToArray } from '@/dashboard/js/composables/dom.js';
+import { $dom, blockedForm, serializeToArray } from '@/dashboard/js/composables/dom';
 import { API_RESPONSE_CODES } from '@/dashboard/js/constants';
-import { versaAlert, versaFetch } from '@/dashboard/js/functions';
+import { showErrorResponse, versaAlert, versaFetch } from '@/dashboard/js/functions';
 
 const $buttonResetPassword = $dom('#resetPassword');
 if ($buttonResetPassword instanceof HTMLButtonElement) {
@@ -15,7 +13,7 @@ if ($buttonResetPassword instanceof HTMLButtonElement) {
         if ('true' === $formResetPass.dataset.locked) {
             return;
         }
-        const __data: { [key: string]: unknown } = {};
+        const __data: Record<string, unknown> = {};
         for (const x of serializeToArray($formResetPass)) {
             __data[x.name] = x.value;
         }
@@ -30,33 +28,13 @@ if ($buttonResetPassword instanceof HTMLButtonElement) {
             },
         });
         if (API_RESPONSE_CODES.ERROR === response.success) {
-            const errores = html`
-                <ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
-                    ${Object.keys(response.errors)
-                        .map(key => `<li>${response.errors[key]}</li>`)
-                        .join('')}
-                </ul>
-            `;
-            versaAlert({
-                title: 'Error',
-                message: response.message,
-                type: 'error',
-                html: errores,
-            });
+            showErrorResponse(response);
         } else {
             versaAlert({
                 title: 'Éxito',
                 message: response.message,
                 type: 'success',
-                callback: () => {
-                    const expiratePass = document.cookie
-                        .split(';')
-                        .find(cookie => cookie.trim().startsWith('expiratePass'));
-                    if (expiratePass) {
-                        location.reload();
-                    }
-                    $formResetPass.reset();
-                },
+                callback: () => window.location.reload(),
             });
         }
         blockedForm($formResetPass, 'false');

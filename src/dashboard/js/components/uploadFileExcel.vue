@@ -7,9 +7,8 @@
     import loader from '@/dashboard/js/components/loader.vue';
     import modal from '@/dashboard/js/components/modal.vue';
     import { getSheetNames, readXlsx } from '@/dashboard/js/composables/useXlsx';
-    import type { AccionData, actionsType, SwalResult } from '@/dashboard/types/versaTypes';
-
     import { GLOBAL_CONSTANTS } from '@/dashboard/js/constants';
+    import type { AccionData, actionsType, SwalResult } from '@/dashboard/types/versaTypes';
 
     const emit = defineEmits(['accion']);
 
@@ -29,6 +28,8 @@
     const showLoader = ref(false);
 
     const { files, showModal, from, returnData } = toRefs(props);
+    const fromValue = computed(() => from.value ?? '');
+    const returnDataValue = computed(() => returnData.value ?? true);
 
     const accion = (response: AccionData): void => {
         const actions: actionsType = {
@@ -36,7 +37,7 @@
             closeModal: (): void =>
                 emit('accion', {
                     accion: 'closeModalUploadExcel',
-                    from: from.value,
+                    from: fromValue.value,
                 }),
         };
         const fn = actions[response.accion];
@@ -86,7 +87,7 @@
         showLoader.value = false;
         if (result.isConfirmed) {
             const sheet = result.value;
-            const data = returnData.value ? await readXlsx(file.file, sheet) : [];
+            const data = returnDataValue.value ? await readXlsx(file.file, sheet) : [];
 
             let primeraLinea = false;
             const check = document.querySelector('#checkPeraLinea');
@@ -94,7 +95,7 @@
                 primeraLinea = check.checked;
             }
 
-            if (returnData.value && data.length === GLOBAL_CONSTANTS.ZERO) {
+            if (returnDataValue.value && data.length === GLOBAL_CONSTANTS.ZERO) {
                 Swal.fire({
                     title: 'Error',
                     text: 'No se encontraron datos en la hoja seleccionada',
@@ -109,7 +110,7 @@
                 primeraLinea,
                 hoja: sheet,
                 files: file,
-                from: from.value,
+                from: fromValue.value,
             });
             accion({ accion: 'closeModal' });
         }
@@ -154,7 +155,7 @@
             <button
                 type="button"
                 @click="accion({ accion: 'closeModal' })"
-                class="text-xs text-gray-400 dark:text-white border border-transparent p-2 bg-primary-600 rounded-md shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                class="text-xs text-gray-400 dark:text-white border border-transparent p-2 bg-brand rounded-md shadow-sm hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand/30">
                 Cerrar
             </button>
         </template>

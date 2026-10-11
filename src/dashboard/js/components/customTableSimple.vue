@@ -84,6 +84,11 @@
         reloadData,
     } = toRefs(props);
 
+    const columnsValue = computed(() => columns.value ?? []);
+    const dataInputValue = computed(() => dataInput.value ?? []);
+    const fieldOrderValue = computed(() => fieldOrder.value ?? 'id');
+    const perPageValue = computed(() => perPage.value ?? 25);
+
     const showPerPages = [...PAGINATION.PER_PAGE_OPTIONS];
 
     interface Data {
@@ -108,33 +113,30 @@
         colspan: [] as string[],
         meta: {
             total: 0,
-            per_page: perPage.value,
+            per_page: perPageValue.value,
             page: PAGINATION.DEFAULT_PAGE,
             total_pages: 0,
             filter: '',
             from: 0,
             to: 0,
-            order: [`${fieldOrder.value}`, 'asc'],
+            order: [`${fieldOrderValue.value}`, 'asc'],
         },
     });
 
     const dataTemp = ref<any[]>([]);
     const refreshData = () => {
-        data.columns = columns.value;
+        data.columns = columnsValue.value;
 
         if ('' !== data.meta.filter) {
             const filter = data.meta.filter.toLowerCase();
-            dataTemp.value = dataInput.value.filter(item =>
-                Object.values(item).some((value: unknown) =>
-                    value?.toString().toLowerCase().includes(filter),
-                ),
+            dataTemp.value = dataInputValue.value.filter(item =>
+                Object.values(item).some((value: unknown) => value?.toString().toLowerCase().includes(filter)),
             );
         } else {
-            dataTemp.value = dataInput.value;
+            dataTemp.value = dataInputValue.value;
         }
         // Paginación
-        const start =
-            (data.meta.page - PAGINATION.DEFAULT_PAGE) * data.meta.per_page;
+        const start = (data.meta.page - PAGINATION.DEFAULT_PAGE) * data.meta.per_page;
         const end = data.meta.page * data.meta.per_page;
         data.data = dataTemp.value.slice(start, end);
 
@@ -178,10 +180,7 @@
     );
 
     watchEffect(() => {
-        emit(
-            'update:totalRegisters',
-            data.meta?.total ?? GLOBAL_CONSTANTS.ZERO,
-        );
+        emit('update:totalRegisters', data.meta?.total ?? GLOBAL_CONSTANTS.ZERO);
     });
 
     const clearFiler = () => {
@@ -201,11 +200,9 @@
     const setOrder = (field: string, order: string) => {
         data.meta.page = PAGINATION.DEFAULT_PAGE;
 
-        if (data.meta.order[PAGINATION.ARRAY_FIRST_INDEX] !== field) {
-            order = 'asc';
-        }
+        const newOrder = data.meta.order[PAGINATION.ARRAY_FIRST_INDEX] !== field ? 'asc' : order;
 
-        data.meta.order = [field, order];
+        data.meta.order = [field, newOrder];
         refreshData();
     };
     const changePage = (page: number | string) => {
@@ -232,17 +229,13 @@
 
     const getLimitPages = computed(() => {
         const limit = 3;
-        const total_pages = data.meta.total_pages;
-        const page = data.meta.page;
+        const { total_pages, page } = data.meta;
         const from = page - limit;
         const to = page + limit;
 
         if (PAGINATION.DEFAULT_PAGE > from) {
             if (total_pages < limit * PAGINATION.PAGES_LIMIT_MULTIPLIER) {
-                const arr = Array.from(
-                    { length: total_pages },
-                    (_, i) => i + PAGINATION.DEFAULT_PAGE,
-                );
+                const arr = Array.from({ length: total_pages }, (_, i) => i + PAGINATION.DEFAULT_PAGE);
                 return arr;
             }
             const arr = Array.from(
@@ -254,33 +247,21 @@
 
         if (to > total_pages) {
             if (total_pages < limit * PAGINATION.PAGES_LIMIT_MULTIPLIER) {
-                const arr = Array.from(
-                    { length: total_pages },
-                    (_, i) => i + PAGINATION.DEFAULT_PAGE,
-                );
+                const arr = Array.from({ length: total_pages }, (_, i) => i + PAGINATION.DEFAULT_PAGE);
                 return arr;
             }
-            const arr = Array.from(
-                { length: limit * PAGINATION.PAGES_LIMIT_MULTIPLIER },
-                (_, i) => total_pages - i,
-            );
-            return arr.reverse();
+            const arr = Array.from({ length: limit * PAGINATION.PAGES_LIMIT_MULTIPLIER }, (_, i) => total_pages - i);
+            return arr.toReversed();
         }
 
-        const arr = Array.from(
-            { length: limit * PAGINATION.PAGES_LIMIT_MULTIPLIER },
-            (_, i) => from + i,
-        );
+        const arr = Array.from({ length: limit * PAGINATION.PAGES_LIMIT_MULTIPLIER }, (_, i) => from + i);
         return arr;
     });
 
-    //detectar cambios en itemSelected y crear clase para linea de la tabla
+    //Detectar cambios en itemSelected y crear clase para linea de la tabla
     const classLineTable = (item: any): string => {
-        if (
-            itemSelected.value?.fieldCompare !== undefined &&
-            itemSelected.value.id === item.id
-        ) {
-            return 'bg-blue-100 border border-blue-500 dark:bg-blue-800 dark:border-blue-700';
+        if (itemSelected.value?.fieldCompare !== undefined && itemSelected.value.id === item.id) {
+            return 'bg-brand-100 border border-brand dark:bg-brand-700 dark:border-brand-600';
         }
         return 'bg-white border-b dark:bg-gray-800 dark:border-gray-700';
     };
@@ -342,14 +323,13 @@
                     :id="id + '_table-search-users'"
                     v-model="data.meta.filter"
                     type="text"
-                    class="block p-2 ps-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    class="block p-2 ps-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-brand focus:border-brand dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-brand dark:focus:border-brand"
                     placeholder="Ingrese y presione 'Enter' para buscar"
                     @keyup.enter="setFilter" />
             </div>
         </div>
         <div class="overflow-x-auto">
-            <table
-                class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <caption
                     v-if="tablaTitle !== ''"
                     class="py-2 px-2 text-lg font-semibold text-gray-900 bg-white dark:text-white dark:bg-gray-800 w-full">
@@ -358,14 +338,11 @@
                             {{ tablaTitle }}
                         </div>
                         <div>
-                            <loader
-                                v-if="loadingData"
-                                key="loadingData"></loader>
+                            <loader v-if="loadingData" key="loadingData"></loader>
                         </div>
                     </div>
                 </caption>
-                <thead
-                    class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                         <th
                             v-for="(cols, index) in colspan"
@@ -378,8 +355,7 @@
                         </th>
                     </tr>
                 </thead>
-                <thead
-                    class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                         <th
                             v-for="(col, index) in data.columns"
@@ -396,18 +372,12 @@
                             <span class="text-xl" v-html="msg"></span>
                         </td>
                     </tr>
-                    <tr
-                        v-for="(row, index) in data.data"
-                        :key="index + '_row'"
-                        :class="classLineTable(row)">
+                    <tr v-for="(row, index) in data.data" :key="index + '_row'" :class="classLineTable(row)">
                         <td
                             v-for="(col, key) in data.columns"
                             :key="key + '_col'"
                             :class="smallLine ? 'py-1 px-2' : 'py-4 px-3'">
-                            <div
-                                v-if="col === 'acciones'"
-                                class="flex justify-end gap-2"
-                                v-html="row[key]"></div>
+                            <div v-if="col === 'acciones'" class="flex justify-end gap-2" v-html="row[key]"></div>
                             <div v-else>
                                 {{ row[key] }}
                             </div>
@@ -417,10 +387,8 @@
             </table>
         </div>
 
-        <nav
-            class="grid justify-center md:content-center md:flex md:justify-between my-4 w-full px-2 overflow-auto">
-            <span
-                class="text-sm font-normal text-gray-500 dark:text-gray-400 h-8 flex items-center gap-1">
+        <nav class="grid justify-center md:content-center md:flex md:justify-between my-4 w-full px-2 overflow-auto">
+            <span class="text-sm font-normal text-gray-500 dark:text-gray-400 h-8 flex items-center gap-1">
                 Monstrando
                 <span class="font-semibold text-gray-900 dark:text-white">
                     {{ data.meta.from }} al {{ data.meta.to }}
@@ -436,18 +404,14 @@
                 <li>
                     <a
                         class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                        :class="
-                            1 == data.meta.page
-                                ? 'cursor-not-allowed'
-                                : 'cursor-pointer'
-                        "
+                        :class="1 == data.meta.page ? 'cursor-not-allowed' : 'cursor-pointer'"
                         @click="changePage('anterior')">
                         Anterior
                     </a>
                 </li>
                 <li v-if="getLimitPages[0] > 1">
                     <a
-                        class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white cursor-pointer"
+                        class="flex items-center justify-center px-3 h-8 text-brand border border-gray-300 bg-brand-50 hover:bg-brand-100 hover:text-brand-600 dark:border-gray-700 dark:bg-gray-700 dark:text-white cursor-pointer"
                         @click="changePage(1)">
                         1
                     </a>
@@ -460,12 +424,10 @@
                     </a>
                 </li>
 
-                <li
-                    v-for="(page, index) in getLimitPages"
-                    :key="index + '_page'">
+                <li v-for="(page, index) in getLimitPages" :key="index + '_page'">
                     <a
                         v-if="data.meta.page == page"
-                        class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white cursor-pointer"
+                        class="flex items-center justify-center px-3 h-8 text-brand border border-gray-300 bg-brand-50 hover:bg-brand-100 hover:text-brand-600 dark:border-gray-700 dark:bg-gray-700 dark:text-white cursor-pointer"
                         aria-current="page"
                         @click="changePage(page)">
                         {{ page }}
@@ -487,8 +449,7 @@
                 <li
                     v-if="
                         data.meta.page < data.meta.total_pages &&
-                        getLimitPages[getLimitPages.length - 1] !=
-                            data.meta.total_pages
+                        getLimitPages[getLimitPages.length - 1] != data.meta.total_pages
                     ">
                     <a
                         class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white cursor-pointer"
@@ -501,8 +462,7 @@
                     <a
                         class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                         :class="
-                            data.meta.total_pages <= data.meta.page ||
-                            data.meta.total_pages == undefined
+                            data.meta.total_pages <= data.meta.page || data.meta.total_pages == undefined
                                 ? 'cursor-not-allowed'
                                 : 'cursor-pointer'
                         "

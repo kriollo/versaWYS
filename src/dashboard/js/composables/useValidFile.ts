@@ -1,39 +1,30 @@
-import fileTypes from '@/dashboard/js/store/fileTypes';
-
+import { useFileTypes } from '@/dashboard/js/composables/useFileTypes';
 import { GLOBAL_CONSTANTS } from '@/dashboard/js/constants';
 
 /**
  * Comprueba si un archivo es válido según una lista de tipos de archivo permitidos.
- * @param {Array} filesPermitidos - La lista de tipos de archivo permitidos.
- * @param {File} file - El archivo a comprobar.
- * @returns {boolean} - Devuelve true si el archivo es válido, de lo contrario devuelve false.
+ * @param filesPermitidos - La lista de extensiones permitidas (ej: ['pdf','jpg'])
+ * @param file - El archivo a comprobar
+ * @returns true si el archivo es válido, false si no
  */
-export const useValidFile = (
-    /** @type {Array} */ filesPermitidos: string[],
-    /** @type {File} */ file: File,
-): boolean => {
-    //obterner la ext desde fileTypes
-    const fileExt = fileTypes
-        .data()
-        .fileTypes.find(item => item.type === file.type);
-    if (!fileExt) {
+export const useValidFile = (filesPermitidos: string[], file: File): boolean => {
+    const { fileTypes } = useFileTypes();
+    // Buscar por tipo MIME o por extensión
+    const fileType = fileTypes.find(item => item.type === file.type);
+    const ext = fileType ? fileType.ext : file.name.split('.').pop()?.toLowerCase();
+    if (!ext) {
         return false;
     }
-
-    const fileTypeValid = filesPermitidos.find(item => item === fileExt.ext);
-    return !!fileTypeValid;
+    return filesPermitidos.includes(ext);
 };
 
 /**
- * Checks if the size of a file is less than or equal to a specified size.
- * @param {File} file - The file to check the size of.
- * @param {Number} size - The maximum allowed size in megabytes.
- * @returns {boolean} - Returns true if the file size is less than or equal to the specified size, otherwise returns false.
+ * Verifica si el tamaño de un archivo es menor o igual al máximo permitido (en MB)
+ * @param file - Archivo a validar
+ * @param size - Tamaño máximo en MB
+ * @returns true si el archivo cumple, false si no
  */
-export const useFileZise = (
-    /** @type {File} */ file: File,
-    /** @type {number} */ size: number,
-): boolean => {
+export const useFileZise = (file: File, size: number): boolean => {
     const fileSize = file.size / GLOBAL_CONSTANTS.MILLION;
     return fileSize <= size;
 };

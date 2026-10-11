@@ -48,7 +48,8 @@
 
 	<script>
 		window.AppConfig = {
-timezone: "{{ config.build.timezone }}"
+timezone: "{{ config.build.timezone }}",
+version: "{{ config.build.debug ? 'now'|date('U') : config.build.version }}"
 };
 	</script>
 </head>
@@ -81,9 +82,9 @@ timezone: "{{ config.build.timezone }}"
 																					</script> #}        -->
 		{% endif %}
 
-		<script type="module" src="{{ getAssets('dashboard', 'js', '/spa-navigation.js') }}?{{ date()|date('U') }}"></script>
-		<script type="module" src="{{ getAssets('dashboard', 'js', '/dashboard.js') }}?{{ date()|date('U') }}" defer></script>
-		<script type="module" src="{{ getAssets('dashboard', 'js', '/sidebar-hover.js') }}?{{ date()|date('U') }}" defer></script>
+		<script type="module" src="{{ getAssets('dashboard', 'js', '/spa-navigation.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}"></script>
+		<script type="module" src="{{ getAssets('dashboard', 'js', '/dashboard.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}" defer></script>
+		<script type="module" src="{{ getAssets('dashboard', 'js', '/sidebar-hover.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}" defer></script>
 
 		{% block appScript %}{% endblock %}
 	</body>

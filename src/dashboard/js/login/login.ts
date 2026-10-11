@@ -1,12 +1,13 @@
 import { html } from 'code-tag';
 
-import { $dom } from '@/dashboard/js/composables/dom.js';
+import { $dom } from '@/dashboard/js/composables/dom';
 import { API_RESPONSE_CODES, GLOBAL_CONSTANTS } from '@/dashboard/js/constants';
-import { versaAlert, versaFetch } from '@/dashboard/js/functions.js';
+import { getPanelUrl, versaAlert, versaFetch } from '@/dashboard/js/functions';
 import type { VersaParamsFetch } from '@/dashboard/types/versaTypes';
 
 // Login Form
 const login = $dom('#login');
+const panelUrl = getPanelUrl();
 if (login) {
     login.addEventListener('click', async event => {
         event.preventDefault();
@@ -18,7 +19,7 @@ if (login) {
         const datos = new FormData(formulario);
 
         const params = {
-            url: '/admin/login/autentication',
+            url: `/${panelUrl}/login/autentication`,
             method: 'POST',
             data: datos,
         } as VersaParamsFetch;
@@ -31,8 +32,7 @@ if (login) {
             }
 
             const errores = html`
-                <ul
-                    class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
+                <ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
                     ${Object.keys(data.errors)
                         .map(
                             key => html`
@@ -67,11 +67,7 @@ if (login) {
                         aria-label="Close"
                         data-dismiss-target="#alert-1">
                         <span class="sr-only">Close</span>
-                        <svg
-                            class="w-3 h-3"
-                            fill="none"
-                            viewBox="0 0 14 14"
-                            xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                 stroke="currentColor"
@@ -88,7 +84,7 @@ if (login) {
             message: data.message,
             type: 'success',
             callback: () => {
-                globalThis.location.href = data.redirect || '/admin/dashboard';
+                globalThis.location.href = `/${panelUrl}/${data.redirect?.startsWith('/') ? data.redirect.slice(1) : data.redirect || `dashboard`}`;
             },
         });
     });
@@ -173,7 +169,7 @@ if (btnlostPass) {
         const objectData = Object.fromEntries(datos.entries());
 
         const params = {
-            url: '/admin/lost-password/send',
+            url: `/${panelUrl}/lost-password/send`,
             method: 'PATCH',
             headers: {
                 'content-type': 'application/json',
@@ -183,8 +179,7 @@ if (btnlostPass) {
         const data = await versaFetch(params);
         if (API_RESPONSE_CODES.ERROR === data.success) {
             const errores = html`
-                <ul
-                    class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
+                <ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
                     ${Object.keys(data.errors)
                         .map(
                             key => html`
@@ -219,11 +214,7 @@ if (btnlostPass) {
                         aria-label="Close"
                         data-dismiss-target="#alert-5">
                         <span class="sr-only">Close</span>
-                        <svg
-                            class="w-3 h-3"
-                            fill="none"
-                            viewBox="0 0 14 14"
-                            xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                 stroke="currentColor"
@@ -263,11 +254,7 @@ if (btnlostPass) {
                     aria-label="Close"
                     data-dismiss-target="#alert-2">
                     <span class="sr-only">Close</span>
-                    <svg
-                        class="w-3 h-3"
-                        fill="none"
-                        viewBox="0 0 14 14"
-                        xmlns="http://www.w3.org/2000/svg">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                             stroke="currentColor"
@@ -302,7 +289,7 @@ if (btnResetPass && btnResetPass instanceof HTMLButtonElement) {
         alerta.innerHTML = '';
 
         const params = {
-            url: '/admin/login/apply-reset-password',
+            url: `/${panelUrl}/login/apply-reset-password`,
             method: 'POST',
             data: datos,
         } as VersaParamsFetch;
@@ -314,8 +301,7 @@ if (btnResetPass && btnResetPass instanceof HTMLButtonElement) {
         const data = await versaFetch(params);
         if (API_RESPONSE_CODES.ERROR === data.success) {
             const errores = html`
-                <ul
-                    class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
+                <ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
                     ${Object.keys(data.errors)
                         .map(
                             key => html`
@@ -350,11 +336,7 @@ if (btnResetPass && btnResetPass instanceof HTMLButtonElement) {
                         aria-label="Close"
                         data-dismiss-target="#alert-3">
                         <span class="sr-only">Close</span>
-                        <svg
-                            class="w-3 h-3"
-                            fill="none"
-                            viewBox="0 0 14 14"
-                            xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                 stroke="currentColor"
@@ -372,10 +354,7 @@ if (btnResetPass && btnResetPass instanceof HTMLButtonElement) {
         const divProgress = $dom('#divProgress') as HTMLDivElement;
         const progress = $dom('#progress') as HTMLDivElement;
 
-        if (
-            !(divProgress instanceof HTMLDivElement) ||
-            !(progress instanceof HTMLDivElement)
-        ) {
+        if (!(divProgress instanceof HTMLDivElement) || !(progress instanceof HTMLDivElement)) {
             btnResetPass.disabled = false;
             return;
         }
@@ -403,20 +382,14 @@ if (btnResetPass && btnResetPass instanceof HTMLButtonElement) {
                                 fill-rule="evenodd" />
                         </svg>
                         <span class="sr-only">Info</span>
-                        <div class="ms-3 text-sm font-medium">
-                            ${data.message}
-                        </div>
+                        <div class="ms-3 text-sm font-medium">${data.message}</div>
                         <button
                             type="button"
                             class="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-green-300 dark:hover:bg-gray-700"
                             aria-label="Close"
                             data-dismiss-target="#alert-4">
                             <span class="sr-only">Close</span>
-                            <svg
-                                class="w-3 h-3"
-                                fill="none"
-                                viewBox="0 0 14 14"
-                                xmlns="http://www.w3.org/2000/svg">
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                     stroke="currentColor"
@@ -429,7 +402,7 @@ if (btnResetPass && btnResetPass instanceof HTMLButtonElement) {
                 `;
 
                 setTimeout(() => {
-                    globalThis.location.href = '/admin/login';
+                    globalThis.location.href = `/${panelUrl}/login`;
                 }, GLOBAL_CONSTANTS.THOUSAND);
             } else {
                 width += GLOBAL_CONSTANTS.ONE;
@@ -470,12 +443,7 @@ const imgShowPassConfirmNew = $dom('#imgShowPassConfirmNew');
 const imgHiddenPassConfirmNew = $dom('#imgHiddenPassConfirmNew');
 const comfirm_new_password = $dom('#comfirm_new_password');
 
-if (
-    togglePasswordConfirmNew &&
-    imgShowPassConfirmNew &&
-    imgHiddenPassConfirmNew &&
-    comfirm_new_password
-) {
+if (togglePasswordConfirmNew && imgShowPassConfirmNew && imgHiddenPassConfirmNew && comfirm_new_password) {
     togglePasswordConfirmNew.addEventListener('click', event => {
         event.preventDefault();
 

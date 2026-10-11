@@ -1,17 +1,24 @@
-import { type InjectionKey, inject, provide } from 'vue';
+import { inject, type InjectionKey, provide } from 'vue';
 
-export function createInjection<T>(keyDesc: string) {
+export interface InjectionBundle<T> {
+    key: InjectionKey<T>;
+    provide: (value: T) => void;
+    inject: () => T;
+    tryInject: () => T | null | undefined;
+}
+
+export default function createInjection<T>(keyDesc: string): InjectionBundle<T> {
     const key: InjectionKey<T> = Symbol(keyDesc);
     return {
         key,
-        provide: (value: T) => provide(key, value),
-        inject: () => {
-            const injected = inject(key);
+        provide: (value: T): void => provide(key, value),
+        inject: (): T => {
+            const injected = inject<T>(key);
             if (!injected) {
                 throw new Error(`[Injection] "${keyDesc}" not provided`);
             }
             return injected;
         },
-        tryInject: () => inject(key), // versión opcional que puede ser null
+        tryInject: (): T | null | undefined => inject<T>(key), // Versión opcional que puede ser null
     };
 }

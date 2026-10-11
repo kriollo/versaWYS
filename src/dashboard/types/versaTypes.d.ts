@@ -1,12 +1,13 @@
-export type VersaParamsFetch = {
+export interface VersaParamsFetch {
     url: string;
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     headers?: Record<string, string> | HeadersInit;
     data?: FormData | Record<string, any> | string;
     credentials?: 'omit' | 'same-origin' | 'include';
-};
+    skipSessionValidation?: boolean;
+}
 
-export type VersaFetchResponse = {
+export interface VersaFetchResponse {
     success: number;
     message: string;
     data?: any;
@@ -14,19 +15,18 @@ export type VersaFetchResponse = {
     id?: number;
     urls?: any;
     redirect?: string;
-    turnos?: any;
-    urlZip?: string;
     acciones?: any;
-    marca?: any;
     disabled?: boolean;
-};
+    total?: number;
+    page?: number;
+}
 
-export type SwalResult = {
+export interface SwalResult {
     isConfirmed: boolean;
     value?: any;
-};
+}
 
-export type AccionData = {
+export interface AccionData {
     accion: string;
     item?: GrupoItem;
     tipo?: string;
@@ -38,25 +38,24 @@ export type AccionData = {
     primeraLinea?: boolean;
     from?: string;
     hoja?: string;
-};
+}
 
-export type actionsType = {
-    [key: string]: () => void;
-};
+// Alias recomendado usando Record para mapear acciones por clave
+export type actionsType = Record<string, () => void>;
 
-export type file = {
+export interface file {
     archivo: string;
     type: string;
     size: number;
     file: File;
-};
+}
 
-export type Archivo = {
+export interface Archivo {
     data: string[];
     files: file;
     hoja: string;
     primeraLinea: boolean;
-};
+}
 
 declare module 'versaTypes' {
     export { AccionData, actionsType, Archivo, SwalResult, VersaFetchResponse, VersaParamsFetch };

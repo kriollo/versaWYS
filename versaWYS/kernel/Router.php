@@ -272,6 +272,9 @@ class Router
                 || str_starts_with($url, 'blob:')
                 || str_starts_with($url, 'data:')
             ) {
+                // Un archivo estático que llegó hasta aquí no existe o está protegido: nunca 200 vacío
+                http_response_code(404);
+
                 return null;
             }
 

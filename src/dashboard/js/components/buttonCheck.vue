@@ -30,14 +30,14 @@
         success: 'bg-green-650 focus:ring-green-400 hover:bg-green-700',
         danger: 'bg-red-500 focus:ring-red-400 hover:bg-red-700',
         warning: 'bg-yellow-500 focus:ring-yellow-400 hover:bg-yellow-700',
-        primary: 'bg-blue-500 focus:ring-blue-400 hover:bg-blue-700',
+        primary: 'bg-brand focus:ring-brand/40 hover:bg-brand-600',
         info: 'bg-gray-500 focus:ring-gray-400 hover:bg-gray-600',
     };
     const actives = {
         success: 'bg-green-700 hover:bg-green-700',
         danger: 'bg-red-700 hover:bg-red-700',
         warning: 'bg-yellow-700 hover:bg-yellow-700',
-        primary: 'bg-blue-700 hover:bg-blue-700',
+        primary: 'bg-brand-600 hover:bg-brand-600',
         info: 'bg-gray-800 hover:bg-gray-600',
     };
 </script>

@@ -30,7 +30,7 @@
         <div class="transform hover:scale-105 transition-transform duration-500 logo-container">
             <img
                 src="{{ assets_url('/public/dashboard/img/favicon.png') }}"
-                alt="VersaBOT Logo"
+                alt="{{ config.build.name }}"
                 class="w-24 h-auto frame-zoom" />
         </div>
 
@@ -72,5 +72,5 @@
     </div>
 {% endblock %}
 {% block appScript %}
-    <script type="module" src="{{ getAssets('dashboard', 'js', '/login/login.js') }}?{{ date()|date('U') }}"></script>
+    <script type="module" src="{{ getAssets('dashboard', 'js', '/login/login.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}"></script>
 {% endblock %}

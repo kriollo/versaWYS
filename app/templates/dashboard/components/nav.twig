@@ -173,10 +173,12 @@
                                 </versa-link>
                             </li>
                             <li>
-                                <a
-                                    href="{{ getPanelUrl('logout') }}"
-                                    class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-[#0a0a0a] dark:hover:text-brand transition-colors"
-                                    role="menuitem">
+                                <form method="post" action="{{ getPanelUrl('logout') }}">
+                                    {{ csrf_field('csrf_token_logout')|raw }}
+                                    <button
+                                        type="submit"
+                                        class="w-full text-left block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-[#0a0a0a] dark:hover:text-brand transition-colors"
+                                        role="menuitem">
                                     <div class="flex gap-2 items-center">
                                         <svg
                                             class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-black dark:group-hover:text-brand"
@@ -193,7 +195,8 @@
                                         </svg>
                                         <span>Salir</span>
                                     </div>
-                                </a>
+                                </button>
+                                </form>
                             </li>
                         </ul>
                     </div>

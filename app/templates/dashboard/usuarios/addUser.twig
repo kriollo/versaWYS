@@ -130,5 +130,5 @@
 		window.versaSessionActive = {{ hasActiveSession ? 'true' : 'false' }};
 	</script>
 
-	<script type="module" src="{{ getAssets('dashboard', 'js', '/usuarios/addUser.js') }}?{{ date()|date('U') }}"></script>
+	<script type="module" src="{{ getAssets('dashboard', 'js', '/usuarios/addUser.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}"></script>
 {% endblock %}

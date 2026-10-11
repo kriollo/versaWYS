@@ -5,10 +5,7 @@
 
     import loader from '@/dashboard/js/components/loader.vue';
     import { $dom } from '@/dashboard/js/composables/dom';
-    import {
-        useFileZise,
-        useValidFile,
-    } from '@/dashboard/js/composables/useValidFile';
+    import { useFileZise, useValidFile } from '@/dashboard/js/composables/useValidFile';
 
     const emit = defineEmits(['accion']);
     const props = defineProps({
@@ -29,8 +26,7 @@
         msgTiposArchivos: {
             type: String,
             required: false,
-            default:
-                'Tipos Validos: .doc .docx .pdf .xlsx .xls .ppt .pptx - < 10 MB',
+            default: 'Tipos Validos: .doc .docx .pdf .xlsx .xls .ppt .pptx - < 10 MB',
         },
         fileTypeValid: {
             type: Array,
@@ -45,9 +41,7 @@
     });
     const multiple = computed(() => props.multiple);
     const nfilesMultiple = computed(() => props.nfilesMultiple);
-    const fileTypeValid = computed(() => props.fileTypeValid) as unknown as Ref<
-        string[]
-    >;
+    const fileTypeValid = computed(() => props.fileTypeValid) as unknown as Ref<string[]>;
     const msgTiposArchivos = computed(() => props.msgTiposArchivos);
     const maxSizeFile = computed(() => props.maxSizeFileMB);
     interface FileError {
@@ -80,12 +74,9 @@
                     <ul class="list-group list-group-flush">
                         ${ArrayFilesErrors.value
                             .map(
-                                (
-                                    /** @type {{ name: string; error_msg: string; }} */ item,
-                                ) => html`
+                                (/** @type {{ name: string; error_msg: string; }} */ item) => html`
                                     <li>
-                                        <i
-                                            class="bi bi-exclamation-circle text-red-500"></i>
+                                        <i class="bi bi-exclamation-circle text-red-500"></i>
                                         ${item.name} - ${item.error_msg}
                                     </li>
                                 `,
@@ -109,9 +100,7 @@
         });
     };
 
-    const validaFiles = (
-        file: File,
-    ): FileError | { name: string; isValid: true } => {
+    const validaFiles = (file: File): FileError | { name: string; isValid: true } => {
         if (!useValidFile(fileTypeValid.value, file)) {
             return {
                 name: file.name,
@@ -134,9 +123,7 @@
             };
         }
 
-        const indexFile = files.value.findIndex(
-            (item: any) => item?.archivo === file.name,
-        );
+        const indexFile = files.value.findIndex((item: any) => item?.archivo === file.name);
         if (-1 !== indexFile) {
             return {
                 name: file.name,
@@ -176,7 +163,7 @@
                     archivo: file.name,
                     type: file.type,
                     size: file.size,
-                    file: file,
+                    file,
                 });
             } else {
                 ArrayFilesErrors.value.push(result);
@@ -226,29 +213,28 @@
     };
 </script>
 <template>
-    <div class="w-full h-full dark:text-white">
+    <div class="w-full h-full flex items-center justify-center">
         <label
-            class="DragDropArea"
-            style="cursor: pointer"
-            :class="classActive ? 'active' : ''"
+            class="relative flex flex-col items-center justify-center w-full h-64 border-4 border-dashed rounded-xl transition-all duration-300 cursor-pointer bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-700 hover:border-brand hover:bg-brand-50 dark:hover:bg-brand-900/30"
+            :class="classActive ? 'border-brand bg-brand-100 dark:bg-brand-700/40' : ''"
             @click="btn_SelectFile"
             @dragleave="dragleave"
             @dragover="drag"
             @drop="drop"
             ref="DragDropArea"
             title="Puedes dar click o arrastrar los archivos">
-            <div class="absolute z-10 pointer-events-none p-2">
-                <div class="text-center">
-                    <h4 class="text-center text-sm/6">
-                        {{ mensaje }}
-                        <loader v-if="loading"></loader>
-                    </h4>
+            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none p-4">
+                <div class="mb-2">
+                    <i class="bi bi-cloud-upload text-6xl text-brand-400 dark:text-brand-300 animate-bounce"></i>
                 </div>
-                <span class="font-bold text-xs text-center">
+                <h4 class="text-lg font-semibold text-gray-700 dark:text-white text-center mb-1">
+                    {{ mensaje }}
+                    <loader v-if="loading" class="inline-block ml-2"></loader>
+                </h4>
+                <span class="font-medium text-xs text-gray-500 dark:text-gray-400 text-center">
                     {{ msgTiposArchivos }}
                 </span>
             </div>
-
             <input
                 id="file"
                 type="file"
@@ -261,64 +247,5 @@
     </div>
 </template>
 <style scoped>
-    .DragDropArea {
-        border: 3px dashed #5f5b5b;
-        height: 100%;
-        width: 100%;
-        border-radius: 5px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        cursor: pointer;
-        transition:
-            background-color 0.3s,
-            border-color 0.3s,
-            color 0.3s;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        position: relative;
-        background-color: #f5f5f5;
-        color: #bdbdbd;
-        text-transform: uppercase;
-        font-family: 'Roboto', sans-serif;
-        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75);
-    }
-
-    .DragDropArea.active {
-        background-color: #b8d4fe;
-        color: black;
-        border: 4px dashed #618ac9;
-    }
-
-    .DragDropArea h4 {
-        font-size: 25px;
-        font-weight: 500;
-        color: #000;
-        margin: 0;
-        padding: 10px;
-    }
-
-    .DragDropArea span {
-        font-size: 12px;
-        font-weight: 500;
-        color: #000;
-        margin-top: 5px;
-    }
-
-    .DragDropArea .icon {
-        font-size: 50px;
-        color: #bdbdbd;
-        margin-bottom: 10px;
-        transition: color 0.3s;
-    }
-
-    .DragDropArea.active .icon {
-        color: #618ac9;
-    }
-
-    .DragDropArea .loader {
-        margin-top: 10px;
-    }
+    /* Elimina estilos antiguos, todo el diseño ahora es TailwindCSS y modo oscuro */
 </style>

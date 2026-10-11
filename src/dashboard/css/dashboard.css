@@ -94,6 +94,51 @@ body {
     min-height: 100vh;
 }
 
+/* Selección global de texto con contraste consistente */
+::selection {
+    background-color: rgb(7 153 213 / 0.28);
+    color: rgb(17 24 39);
+}
+
+::-moz-selection {
+    background-color: rgb(7 153 213 / 0.28);
+    color: rgb(17 24 39);
+}
+
+html.dark ::selection {
+    background-color: rgb(56 189 248 / 0.38);
+    color: rgb(243 244 246);
+}
+
+html.dark ::-moz-selection {
+    background-color: rgb(56 189 248 / 0.38);
+    color: rgb(243 244 246);
+}
+
+input::selection,
+textarea::selection {
+    background-color: rgb(7 153 213 / 0.3);
+    color: inherit;
+}
+
+input::-moz-selection,
+textarea::-moz-selection {
+    background-color: rgb(7 153 213 / 0.3);
+    color: inherit;
+}
+
+html.dark input::selection,
+html.dark textarea::selection {
+    background-color: rgb(56 189 248 / 0.42);
+    color: rgb(243 244 246);
+}
+
+html.dark input::-moz-selection,
+html.dark textarea::-moz-selection {
+    background-color: rgb(56 189 248 / 0.42);
+    color: rgb(243 244 246);
+}
+
 /* Cambiar el color del scrollbar */
 ::-webkit-scrollbar {
     width: 12px;
@@ -195,6 +240,68 @@ html {
     color: white;
 }
 
+/* --- SweetAlert2 Botones Corporativos --- */
+/* Botón de confirmación con colores corporativos */
+.swal2-confirm {
+    background-color: #0799d5 !important;
+    /* brand */
+    border: none !important;
+    box-shadow: 0 0 0 3px rgba(7, 153, 213, 0.3) !important;
+}
+
+.swal2-confirm:hover {
+    background-color: #0680b8 !important;
+    /* brand-600 */
+}
+
+.swal2-confirm:focus {
+    box-shadow: 0 0 0 3px rgba(7, 153, 213, 0.5) !important;
+}
+
+/* Botón de cancelación con colores corporativos (naranja) */
+.swal2-cancel {
+    background-color: #ee881d !important;
+    /* corporate-orange */
+    border: none !important;
+}
+
+.swal2-cancel:hover {
+    background-color: #d97516 !important;
+    /* corporate-orange-600 */
+}
+
+.swal2-cancel:focus {
+    box-shadow: 0 0 0 3px rgba(238, 136, 29, 0.3) !important;
+}
+
+/* Botón de denegación (si se usa) */
+.swal2-deny {
+    background-color: #dc2626 !important;
+    /* red-600 */
+    border: none !important;
+}
+
+.swal2-deny:hover {
+    background-color: #b91c1c !important;
+    /* red-700 */
+}
+
+/* Dark mode para SweetAlert2 */
+.dark .swal2-popup {
+    background-color: rgb(31 41 55) !important;
+    /* dark:bg-gray-800 */
+    color: #fff !important;
+}
+
+.dark .swal2-title {
+    color: #fff !important;
+}
+
+.dark .swal2-html-container {
+    color: rgb(209 213 219) !important;
+    /* dark:text-gray-300 */
+}
+
 /* scroll */
 /* width */
 ::-webkit-scrollbar {
@@ -219,17 +326,16 @@ html {
 /* --- Tooltips del Sidebar --- */
 /* Tooltips del sidebar se muestran solo cuando el sidebar está contraído (w-16) */
 .tooltip-sidebar {
-    @apply opacity-0 invisible pointer-events-none transition-all duration-200;
-}
-
-/* Mostrar tooltips solo cuando el sidebar padre tiene w-16 (contraído) */
-.w-16 .tooltip-sidebar {
-    @apply opacity-100 visible pointer-events-auto;
-}
-
-/* Asegurar que los tooltips estén ocultos cuando el sidebar está expandido (w-56) */
-.w-56 .tooltip-sidebar {
     @apply opacity-0 invisible pointer-events-none;
+    transition:
+        visibility 0ms 200ms,
+        opacity 200ms ease-in-out;
+    z-index: 50;
+}
+
+/* Los tooltips se controlan vía JavaScript para evitar conflictos con submenús */
+.w-56 .tooltip-sidebar {
+    @apply !opacity-0 !invisible !pointer-events-none;
 }
 
 /* --- Textos del Sidebar --- */
@@ -266,7 +372,7 @@ html {
 }
 
 /* Los componentes Vue deben usar toda la altura disponible sin forzar scroll */
-#main-content>div {
+#main-content > div {
     flex: 1;
 }
 
@@ -286,7 +392,6 @@ html {
 
 /* --- Responsividad del Layout --- */
 @media (max-width: 1023px) {
-
     /* En móvil, asegurar que el layout funcione correctamente */
     .flex-1.lg\:ml-56 {
         min-height: calc(100vh - 4rem);
@@ -300,19 +405,24 @@ html {
 }
 
 /* --- Submenús del Sidebar --- */
-/* Permitir que los submenús se muestren en hover cuando no están explícitamente ocultos */
-.group\/lisDropDown:hover ul[id^="dropdown-"]:not(.hidden) {
-    @apply flex flex-col;
+/* Todos los submenús están ocultos por defecto - JavaScript manejará la visibilidad */
+ul[id^='dropdown-'] {
+    @apply flex flex-col absolute min-w-max shadow-lg border border-gray-300 dark:border-gray-600 p-2 rounded-lg space-y-1;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        visibility 0ms 200ms,
+        opacity 200ms ease-in-out;
+    z-index: 100;
+    background-color: rgb(229 231 235 / 1);
+    /* bg-gray-200 */
 }
 
-/* Cuando un submenú tiene la clase 'hidden', forzar que se oculte incluso con hover */
-.hidden.group-hover\/lisDropDown\:flex {
-    @apply !hidden;
-}
-
-/* Cuando un submenú NO tiene 'hidden', permitir que se muestre */
-ul[id^="dropdown-"]:not(.hidden) {
-    @apply flex flex-col;
+/* Dark mode para submenús */
+.dark ul[id^='dropdown-'] {
+    background-color: rgb(31 41 55 / 1);
+    /* dark:bg-gray-800 */
 }
 
 /* --- Responsividad de Submenús --- */
@@ -321,32 +431,33 @@ ul[id^="dropdown-"]:not(.hidden) {
     @apply relative;
 }
 
-/* Submenús siempre flotantes como tooltips/popups */
-ul[id^="dropdown-"] {
-    @apply absolute z-50 min-w-max shadow-lg border border-gray-300 dark:border-gray-600 p-2;
-}
-
 /* En desktop, submenús a la derecha */
 @media (min-width: 1024px) {
-    ul[id^="dropdown-"] {
+    ul[id^='dropdown-'] {
         @apply left-full top-0 ml-2;
     }
 }
 
 /* En móvil, verificar si hay espacio a la derecha, sino mostrar a la izquierda */
 @media (max-width: 1023px) {
-    ul[id^="dropdown-"] {
+    ul[id^='dropdown-'] {
         @apply right-full top-0 mr-2;
     }
 
     /* Si el sidebar está en el lado izquierdo, mostrar submenús a la derecha */
-    #sidebar ul[id^="dropdown-"] {
+    #sidebar ul[id^='dropdown-'] {
         @apply left-full right-auto ml-2 mr-0;
     }
 }
 
 /* --- Prioridad de tooltips vs submenús --- */
-/* Cuando un submenú está abierto, ocultar el tooltip del menú principal */
-.sidebar-item:has(ul[id^="dropdown-"]:not(.hidden)) .tooltip-sidebar {
+/* Cuando un submenú está visible, asegurar que el tooltip esté oculto */
+.sidebar-item:has(ul[id^='dropdown-'][style*='visible']) .tooltip-sidebar {
     @apply !hidden;
+}
+
+/* Los tooltips se manejan vía JavaScript para mejor control */
+.sidebar-item:hover .tooltip-sidebar {
+    /* El hover no activa tooltips automáticamente, se controla vía JS */
+    transition: none;
 }

@@ -1,28 +1,13 @@
 <script setup lang="ts">
     import Swal from 'sweetalert2';
-    import { inject, ref } from 'vue';
+    import { inject, ref, type Ref } from 'vue';
 
     import customTable from '@/dashboard/js/components/customTable.vue';
-    import {
-        convertDataTypes,
-        versaFetch,
-        VersaToast,
-    } from '@/dashboard/js/functions';
-    import {
-        type itemSelectedType,
-        ShowModalFormInjection,
-    } from '@/dashboard/js/modules/InjectKeys';
+    import { API_RESPONSE_CODES, GLOBAL_CONSTANTS } from '@/dashboard/js/constants';
+    import { convertDataTypes, versaFetch, VersaToast } from '@/dashboard/js/functions';
+    import { type itemSelectedType, ShowModalFormInjection } from '@/dashboard/js/modules/InjectKeys';
     import subModulesList from '@/dashboard/js/modules/subModulesList.vue';
-    import type {
-        AccionData,
-        actionsType,
-        VersaParamsFetch,
-    } from '@/dashboard/types/versaTypes';
-
-    import {
-        API_RESPONSE_CODES,
-        GLOBAL_CONSTANTS,
-    } from '@/dashboard/js/constants';
+    import type { AccionData, actionsType, VersaParamsFetch } from '@/dashboard/types/versaTypes';
 
     const externalFilters = ref('');
     const buttonSelected = ref('Todos');
@@ -31,8 +16,8 @@
 
     const showModalForm = ShowModalFormInjection.inject();
 
-    const csrf_token = inject<string>('csrf_token');
-
+    const csrf_token = inject<Ref<string>>('csrf_token', ref(''));
+    const panelUrl = inject<string>('panelUrl', ''); // Obtiene el panel URL desde la inyección
     const setFilterExterno = (/** @type {string} */ filter) => {
         externalFilters.value = filter;
         refreshTable.value = !refreshTable.value;
@@ -51,12 +36,12 @@
         });
         if (result.isConfirmed) {
             const params = {
-                url: '/admin/modules/changeStatus',
+                url: `/${panelUrl}/modules/changeStatus`,
                 method: 'PATCH',
                 data: JSON.stringify({
                     id: item.id,
                     estado: '1' === item.estado ? '0' : '1',
-                    csrf_token,
+                    csrf_token: csrf_token.value,
                 }),
                 headers: { 'Content-Type': 'application/json' },
             } as VersaParamsFetch;
@@ -76,21 +61,24 @@
         }
     };
 
-    const changePosition = async (/** @type {Object} */ item) => {
+    const changePosition = async (item: { id: number; direction: string }) => {
         const params = {
-            url: '/admin/modules/movePosition',
+            url: `/${panelUrl}/modules/movePosition`,
             method: 'PATCH',
             data: JSON.stringify({
                 id: item.id,
-                currentPosition: item.posicion,
                 direction: item.direction,
-                csrf_token,
+                csrf_token: csrf_token.value,
             }),
             headers: { 'Content-Type': 'application/json' },
         } as VersaParamsFetch;
         const response = await versaFetch(params);
         if (API_RESPONSE_CODES.SUCCESS === response.success) {
-            refreshTable.value = !refreshTable.value;
+            await VersaToast.fire({
+                icon: 'success',
+                title: 'Posición actualizada',
+            });
+            location.reload();
         } else {
             await VersaToast.fire({
                 icon: 'warning',
@@ -149,13 +137,13 @@
             :externalFilters="externalFilters"
             :refreshData="refreshTable"
             @accion="accion"
-            fieldOrder="seccion"
+            fieldOrder="posicion"
             tablaTitle="Listado de Modulos de la Aplicación"
-            urlData="/admin/modules/getModulesPaginated">
+            :urlData="`/${panelUrl}/modules/getModulesPaginated`">
             <template v-slot:buttons>
                 <div class="flex justify-between gap-2">
                     <a
-                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer"
+                        class="text-white bg-brand hover:bg-brand-600 focus:ring-4 focus:outline-none focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600 cursor-pointer"
                         @click="accion({ accion: 'openModalForm' })">
                         <svg
                             class="w-[20px] h-[20px] text-gray-800 dark:text-white"
@@ -172,14 +160,15 @@
 
                         <span class="max-lg:hidden ms-2">Nuevo Modulo</span>
                     </a>
-                    <div class="flex justify-end gap-2">
+
+                    <div class="bg-gray-100 dark:bg-gray-800 p-1 rounded-xl flex items-center">
                         <button
                             type="button"
-                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                            class="px-4 py-2 rounded-lg text-sm font-bold transition-all"
                             :class="
                                 buttonSelected === 'Todos'
-                                    ? 'ring-4 ring-blue-800 font-bold text-current underline underline-offset-8'
-                                    : 'font-medium '
+                                    ? 'bg-white dark:bg-black text-black dark:text-white shadow-sm'
+                                    : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
                             "
                             @click="
                                 buttonSelected = 'Todos';
@@ -189,39 +178,38 @@
                         </button>
                         <button
                             type="button"
-                            class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                            class="px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
                             :class="
                                 buttonSelected === 'Activos'
-                                    ? 'ring-4 ring-green-800 font-bold text-current  underline underline-offset-8'
-                                    : 'font-medium '
+                                    ? 'bg-white dark:bg-black text-green-600 shadow-sm'
+                                    : 'text-gray-500 hover:text-green-600'
                             "
                             @click="
                                 buttonSelected = 'Activos';
-                                setFilterExterno('estado = 1');
+                                setFilterExterno('estado=true');
                             ">
+                            <span class="w-2 h-2 rounded-full bg-green-500" v-if="buttonSelected !== 'Activos'"></span>
                             Activos
                         </button>
                         <button
                             type="button"
-                            class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                            class="px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
                             :class="
                                 buttonSelected === 'Inactivos'
-                                    ? 'ring-4 ring-red-800 font-bold text-current  underline underline-offset-8'
-                                    : 'font-medium '
+                                    ? 'bg-white dark:bg-black text-red-500 shadow-sm'
+                                    : 'text-gray-500 hover:text-red-500'
                             "
                             @click="
                                 buttonSelected = 'Inactivos';
-                                setFilterExterno('estado = 0');
+                                setFilterExterno('estado=false');
                             ">
+                            <span class="w-2 h-2 rounded-full bg-red-500" v-if="buttonSelected !== 'Inactivos'"></span>
                             Inactivos
                         </button>
                     </div>
                 </div>
             </template>
         </customTable>
-        <subModulesList
-            :showModal="showModalSubMenu"
-            @accion="accion"
-            :idModule="Number(idModuleSelected)" />
+        <subModulesList :showModal="showModalSubMenu" @accion="accion" :idModule="Number(idModuleSelected)" />
     </div>
 </template>
