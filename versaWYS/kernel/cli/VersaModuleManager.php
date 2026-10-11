@@ -8,7 +8,7 @@ class VersaModuleManager
 {
     public static function createModule(string $moduleName): void
     {
-        //$assets = self::$assets . ucfirst($moduleName);
-        echo "Creando modulo $moduleName...\n";
+        // $assets = self::$assets . ucfirst($moduleName);
+        CLIErrorHandler::info("Creando modulo {$moduleName}...");
     }
 }

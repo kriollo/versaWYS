@@ -1,83 +1,107 @@
-<Files .htaccess>
-    Order allow,deny
-    Deny from all
-</Files>
+Options -Indexes
 
-<Files 'versa-cli.php'>
-    Order allow,deny
-    Deny from all
-</Files>
+# Bloquear cualquier archivo o directorio oculto (.git, .env*, .htaccess, ...)
+<IfModule mod_alias.c>
+    RedirectMatch 404 "(^|/)\.(?!well-known/)"
+</IfModule>
 
-<FilesMatch "(\.(bak|config|dist|fla|inc|ini|log|psd|sh|sql|json|lock|swp|xml|twig|gitignore|yml|md|jade|scss|sqlite3|html|rst)|~)$">
-    Order allow,deny
-    Deny from all
-    Satisfy All
+# Bloquear acceso a archivos de configuración
+<FilesMatch "\.(json|config|env|log|yml|yaml)$">
+    Require all denied
 </FilesMatch>
 
-<FilesMatch "\.php$">
-    SetHandler application/x-httpd-php
+# Bloquear acceso a .htaccess
+<Files ".htaccess">
+    Require all denied
+</Files>
+
+# CLI del framework
+<Files "versaCLI">
+    Require all denied
+</Files>
+
+# Extensiones peligrosas o de desarrollo
+<FilesMatch "(\.(bak|config|dist|fla|inc|ini|log|psd|sh|sql|json|lock|swp|xml|twig|gitignore|yml|md|jade|scss|sqlite3|html|rst|conf|ts|mjs|toml|neon)|~)$">
+    Require all denied
 </FilesMatch>
 
-<ifModule mod_rewrite.c>
+<IfModule mod_rewrite.c>
     Options +FollowSymLinks
     RewriteEngine On
 
-    RewriteCond %{REQUEST_URI} !\.(js|css|jpg|jpeg|png|gif|svg|ico)$ [NC]
-    RewriteCond %{REQUEST_URI} !^/blob:
+    # Servir CSS/JS pre-comprimidos con gzip si existen
+    RewriteCond "%{HTTP:Accept-encoding}" "gzip"
+    RewriteCond "%{REQUEST_FILENAME}\.gz" -s
+    RewriteRule "^(.*)\.css$" "$1\.css\.gz" [QSA,L]
 
-    # --- HELP PARA ROUTER DEL FRAMEWORK --- #
+    RewriteCond "%{HTTP:Accept-encoding}" "gzip"
+    RewriteCond "%{REQUEST_FILENAME}\.gz" -s
+    RewriteRule "^(.*)\.js$" "$1\.js\.gz" [QSA,L]
+
+    # Declarar tipos de contenido correctos para archivos .gz servidos
+    RewriteRule "\.css\.gz$" "-" [T=text/css,E=no-gzip:1,L]
+    RewriteRule "\.js\.gz$"  "-" [T=text/javascript,E=no-gzip:1,L]
+
+    # Si la URI apunta a carpetas internas del framework, siempre va a index.php
+    RewriteCond %{REQUEST_URI} ^/(app|versaWYS|vendor|logs|src|configs|scripts|documentacion|node_modules)(/|$) [NC]
+    RewriteRule ^ index.php [QSA,L]
+
+    # Para el resto, solo redirigir si no es archivo o directorio físico
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^ index.php [QSA,L]
-    # --- HELP PARA ROUTER DEL FRAMEWORK --- #
 </IfModule>
 
 <IfModule mod_headers.c>
-    # Sirve archivos comprimidos gzip CSS si existen
-    # y el cliente acepta gzip.
-    RewriteCond "%{HTTP:Accept-encoding}" "gzip"
-    RewriteCond "%{REQUEST_FILENAME}\.gz" -s
-    RewriteRule "^(.*)\.css" "$1\.css\.gz" [QSA]
+    # Seguridad: fallback para respuestas donde PHP no llegó a ejecutarse
+    # (ej. páginas de error 403/404 generadas directamente por Apache).
+    # Con "setifempty" el framework PHP tiene prioridad: si ya envió el header,
+    # Apache no lo pisa. Esto evita conflictos con init_headers.php.
+    Header always setifempty X-Frame-Options "SAMEORIGIN"
+    Header always setifempty X-Content-Type-Options "nosniff"
+    Header always setifempty Referrer-Policy "strict-origin-when-cross-origin"
 
-    # Sirve archivos comprimidos gzip JS si existen
-    # y el cliente acepta gzip.
-    RewriteCond "%{HTTP:Accept-encoding}" "gzip"
-    RewriteCond "%{REQUEST_FILENAME}\.gz" -s
-    RewriteRule "^(.*)\.js" "$1\.js\.gz" [QSA]
-
-    # Sirve los tipos de contenido correctos y evita mod_deflate double gzip.
-    RewriteRule "\.css\.gz$" "-" [T=text/css,E=no-gzip:1]
-    RewriteRule "\.js\.gz$" "-" [T=text/javascript,E=no-gzip:1]
-
+    # Archivos .gz — indicar codificación y separar caché en proxies
     <FilesMatch "(\.js\.gz|\.css\.gz)$">
-      # Sirve el tipo de codificación correcto.
-      Header append Content-Encoding gzip
-
-      # Forzar proxies para almacenar en caché gzip y
-      # archivos css / js no comprimidos por separado.
-      Header append Vary Accept-Encoding
+        Header append Content-Encoding gzip
+        Header append Vary Accept-Encoding
     </FilesMatch>
-
-    # --- FORZAR CACHÉ POR 1 MES --- #
-    #<FilesMatch "\.(ico|pdf|flv|jpg|jpeg|png|gif|swf|js|xml|txt|css|svg)$">
-    #    Header set Cache-Control "max-age=2592000, public"
-    #</FilesMatch>
-
 </IfModule>
 
-<IfModule mod_gzip.c>
-    mod_gzip_on       Yes
-    mod_gzip_dechunk  Yes
-    mod_gzip_item_include file      \.(html?|txt|css|js|php|pl)$
-    mod_gzip_item_include handler   ^cgi-script$
-    mod_gzip_item_include mime      ^text/.*
-    mod_gzip_item_include mime      ^application/x-javascript.*
-    mod_gzip_item_exclude mime      ^image/.*
-    mod_gzip_item_exclude rspheader ^Content-Encoding:.*gzip.*
+# ==============================================================================
+# PERFORMANCE — Cache de assets estáticos
+# ==============================================================================
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    # Imágenes y fuentes: 1 mes
+    ExpiresByType image/jpeg             "access plus 1 month"
+    ExpiresByType image/png              "access plus 1 month"
+    ExpiresByType image/gif              "access plus 1 month"
+    ExpiresByType image/svg+xml          "access plus 1 month"
+    ExpiresByType image/webp             "access plus 1 month"
+    ExpiresByType image/x-icon           "access plus 1 month"
+    ExpiresByType font/woff2             "access plus 1 month"
+    ExpiresByType font/woff              "access plus 1 month"
+    # CSS y JS: 1 semana (los builds llevan hash en el nombre)
+    ExpiresByType text/css               "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType text/javascript        "access plus 1 week"
 </IfModule>
+
+# ==============================================================================
+# PERFORMANCE — Compresión DEFLATE (solo texto, no imágenes ya comprimidas)
+# ==============================================================================
 
 <IfModule mod_deflate.c>
-<FilesMatch "\.(ico|jpg|jpeg|png|gif|js|css|html|php|txt|xml)$">
-SetOutputFilter DEFLATE
-</FilesMatch>
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE image/svg+xml
 </IfModule>

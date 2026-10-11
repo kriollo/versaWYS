@@ -7,52 +7,63 @@ namespace versaWYS\kernel\cli;
 class MiddlewareManager
 {
     private static string $path = 'app/middleware/';
+
     public static function createMiddleware(string $middlewareName): void
     {
         $middlewareName = ucfirst($middlewareName) . 'Middleware';
 
-        echo "Creando middleware $middlewareName...\n";
-        $middlewareFile = self::$path . "$middlewareName.php";
+        CLIErrorHandler::info("Creando middleware {$middlewareName}...");
+        $middlewareFile = self::$path . ($middlewareName . '.php');
 
         if (file_exists($middlewareFile)) {
-            echo "El Middleware $middlewareFile ya existe.\nDesea sobreescribirlo? (y/n): ";
-            $handle = fopen('php://stdin', 'r');
-            $line = fgets($handle);
-            if (trim($line) != 'y' && trim($line) != 'Y') {
-                echo "Saliendo...\n";
+            if (!CLIHelper::confirm("El Middleware {$middlewareFile} ya existe. Desea sobreescribirlo?")) {
+                CLIErrorHandler::info('Operación cancelada.');
                 exit();
             }
+
             unlink($middlewareFile);
         }
+
         $template = <<<'EOT'
-<?php
+            <?php
 
-declare(strict_types=1);
+            declare(strict_types=1);
 
-namespace app\middleware;
+            namespace app\middleware;
 
-use versaWYS\kernel\helpers\Functions;
+            use versaWYS\kernel\helpers\Functions;
 
-class $middlewareName {}
-EOT;
+            class $middlewareName {}
+            EOT;
 
         $template = str_replace('$middlewareName', $middlewareName, $template);
-        file_put_contents($middlewareFile, $template);
-        echo "Ruta $middlewareFile creada.\n";
+
+        CLIHelper::ensureDirectory(dirname($middlewareFile));
+
+        if (file_put_contents($middlewareFile, $template)) {
+            chmod($middlewareFile, 0o775);
+            CLIErrorHandler::success("Middleware {$middlewareFile} creada.");
+        } else {
+            CLIErrorHandler::warning("No se pudo crear el archivo: {$middlewareFile}");
+        }
     }
+
     public static function deleteMiddleware(string $middlewareName): void
     {
         $middlewareName = ucfirst($middlewareName) . 'Middleware';
 
-        echo "Eliminando middleware $middlewareName...\n";
-        $middlewareFile = self::$path . "$middlewareName.php";
+        CLIErrorHandler::info("Eliminando middleware {$middlewareName}...");
+        $middlewareFile = self::$path . ($middlewareName . '.php');
 
         if (!file_exists($middlewareFile)) {
-            echo "El Middleware $middlewareFile no existe.\n";
+            CLIErrorHandler::warning("El Middleware {$middlewareFile} no existe.");
             exit();
         }
 
-        unlink($middlewareFile);
-        echo "Ruta $middlewareFile eliminada.\n";
+        if (unlink($middlewareFile)) {
+            CLIErrorHandler::success("Middleware {$middlewareFile} eliminada.");
+        } else {
+            CLIErrorHandler::warning("No se pudo eliminar: {$middlewareFile}");
+        }
     }
 }

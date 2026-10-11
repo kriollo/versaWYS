@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel\cli;
 
-use versaWYS\kernel\Helpers as helpers;
+use versaWYS\kernel\helpers as helpers;
 
 class ConfigManager
 {
@@ -12,176 +12,110 @@ class ConfigManager
 
     public static function getConfig(): array
     {
+        if (!file_exists(self::$pathConfig)) {
+            return [];
+        }
         $config = file_get_contents(self::$pathConfig);
-        return json_decode($config, true);
+
+        return json_decode($config, true) ?? [];
     }
 
     public static function saveConfig(array $config): void
     {
-        $config = json_encode($config, JSON_PRETTY_PRINT);
+        $config = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         file_put_contents(self::$pathConfig, $config);
+        chmod(self::$pathConfig, 0o660);
     }
 
     public static function setDebug($params): void
     {
         if (!isset($params)) {
-            echo "Error: Debe especificar un valor para debug\n";
-            exit();
+            CLIErrorHandler::warning('Error: Debe especificar un valor para debug');
+            exit(1);
         }
 
-        if (!in_array($params, [true, false])) {
-            echo "Error: El valor de debug debe ser true o false\n";
-            exit();
+        if (!in_array($params, ['true', 'false'], strict: true)) {
+            CLIErrorHandler::warning('Error: El valor de debug debe ser true o false');
+            exit(1);
         }
 
         $config = self::getConfig();
-        $config['build']['debug'] = $params === 'true';
+        $debugValue = $params === 'true';
+        $config['build']['debug'] = $debugValue;
         self::saveConfig($config);
+
+        $status = $debugValue ? 'activado' : 'desactivado';
+        CLIErrorHandler::success("Modo debug {$status} exitosamente.");
     }
 
     public static function setTemplateCache($params): void
     {
         if (!isset($params)) {
-            echo "Error: Debe especificar un valor para templateCache\n";
-            exit();
+            CLIErrorHandler::warning('Error: Debe especificar un valor para templateCache');
+            exit(1);
         }
 
-        if (!in_array($params, ['true', 'false'])) {
-            echo "Error: El valor de templateCache debe ser true o false\n";
-            exit();
+        if (!in_array($params, ['true', 'false'], strict: true)) {
+            CLIErrorHandler::warning('Error: El valor de templateCache debe ser true o false');
+            exit(1);
         }
 
         $config = self::getConfig();
-        $config['twig']['cache'] = $params === 'true';
+        $cacheValue = $params === 'true';
+        $config['twig']['cache'] = $cacheValue;
         self::saveConfig($config);
+
+        $status = $cacheValue ? 'activado' : 'desactivado';
+        CLIErrorHandler::success("Cache de templates {$status} exitosamente.");
     }
 
     public static function clearCache(): void
     {
         $config = self::getConfig();
 
-        $pathCahe = $config['twig']['compiled_dir'];
+        $pathCahe = $config['twig']['compiled_dir'] ?? 'app/templates/.cache';
+
+        if (str_starts_with($pathCahe, './')) {
+            $pathCahe = substr($pathCahe, 2);
+        }
 
         helpers\FilesFunction::destroyAllDir($pathCahe);
 
-        if (!is_dir($pathCahe)) {
-            mkdir($pathCahe, 0777, true);
-        }
+        CLIHelper::ensureDirectory($pathCahe, 0o775);
 
-        echo "Cache eliminado\n";
+        CLIErrorHandler::success('Cache eliminado');
     }
 
     public static function initConfig(): void
     {
         if (file_exists(self::$pathConfig)) {
-            echo "El archivo de configuración ya existe en: " . self::$pathConfig . "\n";
+            CLIErrorHandler::info('El archivo de configuración ya existe en: ' . self::$pathConfig);
+
             return;
         }
 
-        $template = <<<'EOT'
-{
-    "framework": "versaWYS-PHP 1.0.0",
-    "DB": {
-        "DB_HOST": "localhost",
-        "DB_USER": "root",
-        "DB_PASS": "",
-        "DB_NAME": "versademo"
-    },
-    "twig": {
-        "cache": false,
-        "compiled_dir": "./app/templates/.cache",
-        "templates_dir": "./app/templates",
-        "strict_variables": true,
-        "auto_escape": true,
-        "default_template_404": "versaWYS/404"
-    },
-    "build": {
-        "debug": true,
-        "name": "VERSAWYS-PHP-APP",
-        "version": "0.0.1",
-        "timezone": "America/Santiago",
-        "charset": "utf-8"
-    },
-    "auth": {
-        "inactive_account_days": 30,
-        "expiration_days_password": 90,
-        "password_policy": {
-            "large": 8,
-            "uppercase": true,
-            "lowercase": true,
-            "number": true,
-            "special_chars": true
-        }
-    },
-    "session": {
-        "key": "VERSAWYS.NEW",
-        "lifetime": 36000,
-        "user_cookie": {
-            "domain": "localhost",
-            "enable": true,
-            "key_encript": "GenerateANewKeyHere",
-            "lifetime": 36000,
-            "lifetime_remember": 2592000,
-            "secure": false,
-            "http_only": false
-        }
-    },
-    "api": {
-        "auth": true
-    },
-    "login_attempt": {
-        "max": 5,
-        "time": 120
-    },
-    "mail": {
-        "host": "",
-        "port": 25,
-        "transport": "smtp",
-        "secure": "tls",
-        "name_from": "MyApp",
-        "username": "",
-        "password": ""
-    },
-    "assets": {
-        "dashboard": {
-            "js": {
-                "src": "src/dashboard/js",
-                "dist": "public/dashboard/js"
-            },
-            "css": {
-                "src": "src/dashboard/css",
-                "dist": "public/dashboard/css"
-            },
-            "img": {
-                "dist": "public/dashboard/img"
-            },
-            "avatars": {
-                "dist": "public/dashboard/img/avatars"
-            },
-            "store": {
-                "dist": "public/dashboard/store"
-            },
-            "temp": {
-                "dist": "public/temp"
-            }
-        }
-    }
-}
-EOT;
+        // Misma fuente que usa el runtime para los valores por defecto: no pueden divergir
+        $defaults = require __DIR__ . '/../config/config.default.php';
+        $defaults['session']['key'] = bin2hex(random_bytes(32));
+        $defaults['session']['user_cookie']['key_encript'] = bin2hex(random_bytes(32));
+        $template = json_encode($defaults, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         // Asegurarse de que el directorio de configuración exista
-        $configDir = dirname(self::$pathConfig);
-        if (!is_dir($configDir)) {
-            if (!mkdir($configDir, 0777, true) && !is_dir($configDir)) {
-                echo "Error: No se pudo crear el directorio de configuración: " . $configDir . "\n";
-                return;
-            }
-        }
+        $configPath = self::$pathConfig;
+        /** @var string $configDir */
+        $configDir = dirname($configPath);
 
-        if (file_put_contents(self::$pathConfig, $template) !== false) {
-            echo "Archivo de configuración creado exitosamente en: " . self::$pathConfig . "\n";
-        } else {
-            echo "Error: No se pudo crear el archivo de configuración en: " . self::$pathConfig . "\n";
+        try {
+            CLIHelper::ensureDirectory($configDir, 0o775);
+
+            if (file_put_contents(self::$pathConfig, $template) !== false) {
+                chmod(self::$pathConfig, 0o660);
+                CLIErrorHandler::success('Archivo de configuración creado exitosamente en: ' . self::$pathConfig);
+            } else {
+                throw new \RuntimeException('No se pudo escribir el archivo');
+            }
+        } catch (\Throwable $e) {
+            CLIErrorHandler::warning('Error: No se pudo crear el archivo de configuración: ' . $e->getMessage());
         }
     }
 }

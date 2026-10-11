@@ -1,0 +1,11 @@
+# public/ solo sirve assets estáticos: nunca ejecutar PHP aquí (incluye archivos subidos)
+<FilesMatch "\.(php|phtml|phar|php[0-9])$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_mime.c>
+    AddType application/javascript .js
+    AddType text/css .css
+    AddType font/woff .woff
+    AddType font/woff2 .woff2
+</IfModule>

@@ -7,79 +7,108 @@ namespace versaWYS\kernel\cli;
 class ModelManager
 {
     private static string $path = 'app/models/';
+
     public static function createModel(string $modelName): void
     {
         $originalModelName = strtolower($modelName);
         $modelName = ucfirst($modelName);
 
-        echo "Creando modelo $modelName...\n";
-        $modelFile = self::$path . "$modelName.php";
+        CLIErrorHandler::info("Creando modelo {$modelName}...");
+        $modelFile = self::$path . ($modelName . '.php');
 
         if (file_exists($modelFile)) {
-            echo "El modelo $modelFile ya existe.\nDesea sobreescribirlo? (y/n): ";
-            $handle = fopen('php://stdin', 'r');
-            $line = fgets($handle);
-            if (trim($line) != 'y' && trim($line) != 'Y') {
-                echo "Saliendo...\n";
+            if (!CLIHelper::confirm("El modelo {$modelFile} ya existe. Desea sobreescribirlo?")) {
+                CLIErrorHandler::info('Operación cancelada.');
                 exit();
             }
+
             unlink($modelFile);
         }
+
         $template = <<<'EOT'
-<?php
+            <?php
 
-declare(strict_types=1);
+            declare(strict_types=1);
 
-namespace app\models;
+            namespace app\models;
 
-use versaWYS\kernel\RedBeanCnn;
+            use Exception;
+            use VersaORM\VersaModel;
+            use versaWYS\kernel\helpers\Functions;
+            use versaWYS\kernel\model\VersaORMModel;
 
-class $modelName extends RedBeanCnn
-{
-    protected static $table = '$originalModelName';
+            class $modelName extends VersaORMModel
+            {
+                /**
+                 * @var string
+                 */
+                protected string $table = '$originalModelName';
 
-    /**
-     * Get all $originalModelName.
-     *
-     * Retrieves all the $originalModelName from the database.
-     *
-     * @return array An array of user records.
-     */
-    public function all()
-    {
-        return $this->getAll('SELECT * FROM ' . self::$table);
-    }
+                /**
+                 * Define las reglas de validación para el modelo.
+                 *
+                 * @return array
+                 */
+                protected array $rules = [];
 
-    public function __construct()
-    {
-        $this->connet();
-    }
+                /**
+                 * Define los tipos de propiedades para el modelo.
+                 *
+                 * @throws Exception
+                 */
+                public static function definePropertyTypes(): array
+                {
+                    return [
+                        'id' => ['type' => 'int', 'nullable' => false, 'auto_increment' => true],
+                        'estado' => ['type' => 'bool', 'nullable' => false],
+                        'created_at' => ['type' => 'varchar', 'nullable' => false],
+                        'updated_at' => ['type' => 'varchar', 'nullable' => false],
+                    ];
+                }
 
-    public function __destruct()
-    {
-        $this->closeDB();
-    }
-}
-EOT;
+                /**
+                 * Get all $originalModelName.
+                 *
+                 * Retrieves all the $originalModelName from the database.
+                 *
+                 * @return array An array of user records.
+                 */
+                public function all(): array
+                {
+                    return $this->getAll('SELECT * FROM ' . $this->table);
+                }
+            }
+            EOT;
 
         $template = str_replace('$modelName', $modelName, $template);
         $template = str_replace('$originalModelName', $originalModelName, $template);
-        file_put_contents($modelFile, $template);
-        echo "Modelo $modelFile creado.\n";
+
+        CLIHelper::ensureDirectory(dirname($modelFile));
+
+        if (file_put_contents($modelFile, $template)) {
+            chmod($modelFile, 0o775);
+            CLIErrorHandler::success("Modelo {$modelFile} creado.");
+        } else {
+            CLIErrorHandler::warning("No se pudo crear el archivo: {$modelFile}");
+        }
     }
+
     public static function deleteModel(string $modelName): void
     {
         $modelName = ucfirst($modelName);
 
-        echo "Eliminando modelo $modelName...\n";
-        $modelFile = self::$path . "$modelName.php";
+        CLIErrorHandler::info("Eliminando modelo {$modelName}...");
+        $modelFile = self::$path . ($modelName . '.php');
 
         if (!file_exists($modelFile)) {
-            echo "El modelo $modelFile no existe.\n";
+            CLIErrorHandler::warning("El modelo {$modelFile} no existe.");
             exit();
         }
 
-        unlink($modelFile);
-        echo "Modelo $modelFile eliminado.\n";
+        if (unlink($modelFile)) {
+            CLIErrorHandler::success("Modelo {$modelFile} eliminado.");
+        } else {
+            CLIErrorHandler::warning("No se pudo eliminar: {$modelFile}");
+        }
     }
 }
