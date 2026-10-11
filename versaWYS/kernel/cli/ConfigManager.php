@@ -111,6 +111,12 @@ class ConfigManager
             if (file_put_contents(self::$pathConfig, $template) !== false) {
                 chmod(self::$pathConfig, 0o660);
                 CLIErrorHandler::success('Archivo de configuración creado exitosamente en: ' . self::$pathConfig);
+
+                // Token de un solo uso que exige el instalador web (/install)
+                $token = bin2hex(random_bytes(16));
+                file_put_contents($configDir . '/install.token', $token);
+                chmod($configDir . '/install.token', 0o660);
+                CLIErrorHandler::info('Token para el instalador web (/install): ' . $token);
             } else {
                 throw new \RuntimeException('No se pudo escribir el archivo');
             }

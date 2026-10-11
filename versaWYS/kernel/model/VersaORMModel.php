@@ -131,6 +131,17 @@ class VersaORMModel extends VersaModel
     }
 
     /**
+     * Reemplaza la instancia activa de VersaORM.
+     * Para el instalador, donde la configuración de BD cambia dentro de la misma petición.
+     */
+    public static function replaceOrm(VersaORM $orm): void
+    {
+        self::$orm = $orm;
+        $GLOBALS['versaOrm'] = $orm;
+        VersaModel::setORM($orm);
+    }
+
+    /**
      * Constructor que sobrescribe VersaModel para manejar la inicialización automática.
      *
      * @param string|null $table Nombre de la tabla (opcional, se autodetermina si no se proporciona)

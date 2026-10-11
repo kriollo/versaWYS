@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="{{ config.build.charset }}">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="robots" content="noindex, nofollow">
+	<title>Instalación — {{ config.build.name }}</title>
+	<style>
+		:root {
+			color-scheme: light dark;
+			--bg: #f3f4f6;
+			--card: #ffffff;
+			--text: #111827;
+			--muted: #6b7280;
+			--border: #e5e7eb;
+			--primary: #1d4ed8;
+			--primary-hover: #1e40af;
+			--danger: #b91c1c;
+			--danger-bg: #fef2f2;
+			--success: #047857;
+			--success-bg: #ecfdf5;
+		}
+		@media (prefers-color-scheme: dark) {
+			:root {
+				--bg: #0f172a;
+				--card: #1e293b;
+				--text: #f1f5f9;
+				--muted: #94a3b8;
+				--border: #334155;
+				--danger-bg: #3f1d1d;
+				--success-bg: #113328;
+			}
+		}
+		* { box-sizing: border-box; }
+		body {
+			margin: 0;
+			font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+			background: var(--bg);
+			color: var(--text);
+			padding: 2.5rem 1rem 4rem;
+		}
+		.wrap { max-width: 720px; margin: 0 auto; }
+		h1 { font-size: 1.5rem; margin-bottom: .25rem; }
+		p.lead { color: var(--muted); margin-top: 0; }
+		.card {
+			background: var(--card);
+			border: 1px solid var(--border);
+			border-radius: .75rem;
+			padding: 1.5rem;
+			margin-bottom: 1.5rem;
+		}
+		.card h2 {
+			font-size: 1.05rem;
+			margin: 0 0 1rem;
+			padding-bottom: .5rem;
+			border-bottom: 1px solid var(--border);
+		}
+		.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+		@media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+		label { display: block; font-size: .85rem; margin-bottom: .3rem; color: var(--muted); }
+		input[type=text], input[type=email], input[type=password], input[type=number], select {
+			width: 100%;
+			padding: .55rem .65rem;
+			border-radius: .5rem;
+			border: 1px solid var(--border);
+			background: transparent;
+			color: var(--text);
+			font-size: .95rem;
+		}
+		.field { margin-bottom: 1rem; }
+		.help { font-size: .78rem; color: var(--muted); margin-top: .3rem; }
+		.checkbox-row { display: flex; align-items: center; gap: .5rem; }
+		.checkbox-row label { margin: 0; color: var(--text); }
+		button {
+			background: var(--primary);
+			color: #fff;
+			border: none;
+			padding: .75rem 1.5rem;
+			border-radius: .5rem;
+			font-size: 1rem;
+			cursor: pointer;
+			width: 100%;
+		}
+		button:hover { background: var(--primary-hover); }
+		button:disabled { opacity: .6; cursor: not-allowed; }
+		#alert {
+			border-radius: .5rem;
+			padding: .9rem 1rem;
+			margin-bottom: 1.5rem;
+			font-size: .9rem;
+			display: none;
+		}
+		#alert.error { display: block; background: var(--danger-bg); color: var(--danger); }
+		#alert.success { display: block; background: var(--success-bg); color: var(--success); }
+		#alert ul { margin: .4rem 0 0; padding-left: 1.1rem; }
+		#log { font-size: .8rem; color: var(--muted); margin-top: .5rem; }
+		#log li { margin-bottom: .2rem; }
+	</style>
+</head>
+<body>
+	<div class="wrap">
+		<h1>Instalación de {{ config.build.name }}</h1>
+		<p class="lead">Este asistente configura la base de datos, crea las tablas, la empresa y el usuario superadministrador. Solo puede ejecutarse una vez.</p>
+
+		<div id="alert"></div>
+
+		<form id="installForm">
+			{{ csrf_field()|raw }}
+
+			<div class="card">
+				<h2>Base de datos</h2>
+				<div class="grid">
+					<div class="field">
+						<label for="db_driver">Motor</label>
+						<select name="db_driver" id="db_driver" required>
+							<option value="mysql" {{ config.database.driver == 'mysql' ? 'selected' }}>MySQL / MariaDB</option>
+							<option value="postgresql" {{ config.database.driver == 'postgresql' ? 'selected' }}>PostgreSQL</option>
+						</select>
+					</div>
+					<div class="field">
+						<label for="db_host">Host</label>
+						<input type="text" name="db_host" id="db_host" value="{{ config.database.host }}" required>
+					</div>
+					<div class="field">
+						<label for="db_port">Puerto</label>
+						<input type="number" name="db_port" id="db_port" value="{{ config.database.port }}" min="1" max="65535" required>
+					</div>
+					<div class="field">
+						<label for="db_name">Nombre de la base de datos</label>
+						<input type="text" name="db_name" id="db_name" value="{{ config.database.database }}" required>
+					</div>
+					<div class="field">
+						<label for="db_user">Usuario</label>
+						<input type="text" name="db_user" id="db_user" value="{{ config.database.username }}" required>
+					</div>
+					<div class="field">
+						<label for="db_pass">Contraseña</label>
+						<input type="password" name="db_pass" id="db_pass" autocomplete="new-password">
+					</div>
+				</div>
+				<div class="help">La base de datos debe existir y estar vacía.</div>
+			</div>
+
+			<div class="card">
+				<h2>Empresa</h2>
+				<div class="grid">
+					<div class="field">
+						<label for="empresa_nombre">Nombre</label>
+						<input type="text" name="empresa_nombre" id="empresa_nombre" maxlength="255" required>
+					</div>
+					<div class="field">
+						<label for="empresa_rut">RUT</label>
+						<input type="text" name="empresa_rut" id="empresa_rut" maxlength="20" placeholder="11111111-1" required>
+					</div>
+				</div>
+			</div>
+
+			<div class="card">
+				<h2>Usuario superadministrador</h2>
+				<div class="grid">
+					<div class="field">
+						<label for="admin_name">Nombre</label>
+						<input type="text" name="admin_name" id="admin_name" required>
+					</div>
+					<div class="field">
+						<label for="admin_email">Correo</label>
+						<input type="email" name="admin_email" id="admin_email" required>
+					</div>
+					<div class="field">
+						<label for="admin_password">Contraseña</label>
+						<input type="password" name="admin_password" id="admin_password" minlength="8" autocomplete="new-password" required>
+					</div>
+					<div class="field">
+						<label for="admin_password_confirm">Confirmar contraseña</label>
+						<input type="password" name="admin_password_confirm" id="admin_password_confirm" minlength="8" autocomplete="new-password" required>
+					</div>
+				</div>
+			</div>
+
+			<div class="card">
+				<h2>Token de instalación</h2>
+				<div class="field">
+					<label for="install_token">Token</label>
+					<input type="text" name="install_token" id="install_token" autocomplete="off" required>
+					<div class="help">Lo muestra <code>php versaCLI config:init</code> y queda en <code>versaWYS/kernel/config/install.token</code>.</div>
+				</div>
+			</div>
+
+			<button type="submit" id="submitBtn">Instalar</button>
+		</form>
+	</div>
+
+	<script>
+		const form = document.getElementById('installForm');
+		const alertBox = document.getElementById('alert');
+		const submitBtn = document.getElementById('submitBtn');
+
+		// Los mensajes del servidor se insertan como texto, nunca como HTML
+		function showAlert(type, message, items) {
+			alertBox.className = type;
+			alertBox.replaceChildren(Object.assign(document.createElement('div'), { textContent: message }));
+			if (items && items.length) {
+				const ul = document.createElement('ul');
+				items.forEach(text => ul.append(Object.assign(document.createElement('li'), { textContent: text })));
+				alertBox.append(ul);
+			}
+			alertBox.scrollIntoView({ behavior: 'smooth' });
+		}
+
+		form.addEventListener('submit', async event => {
+			event.preventDefault();
+
+			if (form.admin_password.value !== form.admin_password_confirm.value) {
+				showAlert('error', 'Las contraseñas no coinciden.');
+				return;
+			}
+
+			submitBtn.disabled = true;
+			submitBtn.textContent = 'Instalando...';
+
+			try {
+				const response = await fetch('/install/run', { method: 'POST', body: new FormData(form) });
+				const data = await response.json();
+
+				if (data.success == 1) {
+					showAlert('success', data.message, data.log);
+					setTimeout(() => { window.location.href = data.redirect; }, 1500);
+					return;
+				}
+
+				showAlert('error', data.message, Object.values(data.errors || {}).map(String).concat(data.log || []));
+			} catch (e) {
+				showAlert('error', 'No fue posible completar la solicitud: ' + e.message);
+			} finally {
+				submitBtn.disabled = false;
+				submitBtn.textContent = 'Instalar';
+			}
+		});
+	</script>
+</body>
+</html>
