@@ -174,7 +174,10 @@ class Loggin
         }
 
         // Limpiar logs antiguos
-        self::cleanOldLogs();
+        // La limpieza recorre todo el directorio de logs: basta hacerla de vez en cuando, no en cada petición
+        if (random_int(1, 100) === 1) {
+            self::cleanOldLogs();
+        }
     }
 
     /**

@@ -231,12 +231,26 @@ class GlobalMiddleware
         return true;
     }
 
+    /**
+     * Usuario de la petición: el que ya cargó checkSession o, si no se ejecutó antes, desde la BD.
+     *
+     * @return array<string, mixed>
+     */
+    private function currentUser(int $idUser): array
+    {
+        $loaded = self::$currentUserData['user'] ?? null;
+
+        return is_array($loaded) && (int) ($loaded['id'] ?? 0) === $idUser
+            ? $loaded
+            : (new Users())->findWithCompany($idUser);
+    }
+
     public function onlyAdmin(): ?bool
     {
         global $session, $debug, $config;
 
         $iduser = (int) $session->get('id_user');
-        $user = (new Users())->findWithCompany($iduser);
+        $user = $this->currentUser($iduser);
         if ($user === []) {
             Response::redirect('/' . $config['admin']['custom_url'] . '/login');
             exit();
@@ -255,7 +269,7 @@ class GlobalMiddleware
         global $session, $debug, $config;
 
         $iduser = (int) $session->get('id_user');
-        $user = (new Users())->findWithCompany($iduser);
+        $user = $this->currentUser($iduser);
         if ($user === []) {
             Response::redirect('/' . $config['admin']['custom_url'] . '/login');
             exit();
@@ -274,7 +288,7 @@ class GlobalMiddleware
         global $session, $request, $config;
 
         $iduser = (int) $session->get('id_user');
-        $user = (new Users())->findWithCompany($iduser);
+        $user = $this->currentUser($iduser);
         if ($user === []) {
             Response::redirect('/' . $config['admin']['custom_url'] . '/login');
             exit();

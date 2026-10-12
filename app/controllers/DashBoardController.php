@@ -121,6 +121,9 @@ class DashBoardController extends GlobalControllers
             return;
         }
 
+        // El JWT deja de servir aunque alguien conserve una copia de la cookie
+        $session->revokeToken($cookie->get('tknHash'));
+
         foreach ($session->getAll() as $key => $value) {
             $session->delete($key);
         }

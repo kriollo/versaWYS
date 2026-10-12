@@ -31,6 +31,37 @@ class Session
 {
     private static bool $validatedThisRequest = false;
 
+    // ponytail: revocación en archivos, válida para un solo servidor; pasar a Redis si hay varios nodos
+    private const string REVOKED_DIR = 'versaWYS/cache/jwt_revoked/';
+
+    /**
+     * Invalida un JWT antes de su expiración (logout). Guarda su `jti` hasta que expire por sí solo.
+     */
+    public function revokeToken(#[\SensitiveParameter] ?string $jwt): void
+    {
+        try {
+            $decoded = $this->decodeJWT((string) $jwt);
+        } catch (RuntimeException) {
+            return; // Un token inválido o ya expirado no necesita revocarse
+        }
+
+        if (!isset($decoded['jti'], $decoded['exp']) || preg_match('/^[a-f0-9]{32}$/', (string) $decoded['jti']) !== 1) {
+            return;
+        }
+
+        if (!is_dir(self::REVOKED_DIR)) {
+            @mkdir(self::REVOKED_DIR, 0o2775, true);
+        }
+        file_put_contents(self::REVOKED_DIR . $decoded['jti'], (string) $decoded['exp']);
+
+        // Las revocaciones de tokens que ya expiraron dejan de ser necesarias
+        foreach (glob(self::REVOKED_DIR . '*') ?: [] as $file) {
+            if ((int) @file_get_contents($file) < time()) {
+                @unlink($file);
+            }
+        }
+    }
+
     /**
      * Session constructor.
      *
@@ -370,6 +401,7 @@ class Session
             'iat' => time(),
             'nbf' => time(),
             'exp' => time() + $lifetime,
+            'jti' => bin2hex(random_bytes(16)),
             'id_user' => $userId,
             'empresa_id' => $empresaId,
         ];
@@ -692,6 +724,11 @@ class Session
             } catch (Exception $e) {
                 Loggin::error('[Session::checkUserSession] Error decodificando JWT: ' . $e->getMessage(), 'Session');
 
+                return false;
+            }
+
+            // El token fue revocado al cerrar sesión
+            if (isset($decoded['jti']) && is_file(self::REVOKED_DIR . $decoded['jti'])) {
                 return false;
             }
 

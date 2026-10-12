@@ -621,7 +621,8 @@ class Router
      */
     private function respondNotFound($request, array $config, string $e = 'ruta no encontrada'): bool|string
     {
-        Loggin::error('Ruta no encontrada: ' . $request->getUrl(), 'router', [
+        // Un 404 no es un fallo del sistema: nivel notice, sin traza (los escáneres generan miles)
+        Loggin::notice('Ruta no encontrada: ' . $request->getUrl(), 'router', [
             'timestamp' => date('Y-m-d H:i:s'),
             'request_uri' => $request->getUrl(),
             'request_method' => $request->getMethod(),
