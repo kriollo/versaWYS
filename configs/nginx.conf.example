@@ -1,0 +1,255 @@
+# Plantilla: reemplazar example.com, /var/www/mi-proyecto y la versión de PHP-FPM antes de usar.
+# ============================================================================
+# CONFIGURACIÓN NGINX OPTIMIZADA PARA example.com
+# Fecha: 2 de febrero de 2026
+# Compatible con init_headers.php (no duplica headers de PHP)
+# ============================================================================
+
+# ⚠️ IMPORTANTE: Estas zonas deben ir en /etc/nginx/nginx.conf dentro del bloque http {}
+# O en /etc/nginx/conf.d/rate-limiting.conf
+# NO dentro del server block
+# ============================================================================
+# limit_req_zone $binary_remote_addr zone=general:10m rate=10r/s;
+# limit_req_zone $binary_remote_addr zone=api:10m rate=30r/s;
+# limit_req_zone $binary_remote_addr zone=login:10m rate=20r/m;
+# ============================================================================
+
+server {
+    server_name example.com;
+    client_max_body_size 200M;
+    
+    root /var/www/mi-proyecto/current;
+    index index.php index.html;
+    
+    # ========================================================================
+    # 🔒 SEGURIDAD BÁSICA
+    # ========================================================================
+    server_tokens off;                    # Oculta versión de nginx
+    more_clear_headers 'Server';          # Elimina header Server completamente
+    
+    # ========================================================================
+    # 🚦 RATE LIMITING
+    # ========================================================================
+    limit_req zone=general burst=50 nodelay;
+    limit_req_status 429;                  # Retorna 429 Too Many Requests
+    
+    # ========================================================================
+    # ⚡ OPTIMIZACIONES DE RED
+    # ========================================================================
+    tcp_nopush on;                         # Envía headers en un solo paquete
+    tcp_nodelay on;                        # Desactiva buffering para datos pequeños
+    keepalive_timeout 65;                  # Mantiene conexión abierta 65s
+    keepalive_requests 100;                # Máximo 100 requests por conexión
+    
+    # ========================================================================
+    # 🗜️ COMPRESIÓN GZIP OPTIMIZADA
+    # ========================================================================
+    gzip on;
+    gzip_comp_level 5;                     # Mejor balance para CPU móvil en redes lentas
+    gzip_static on;                        # Sirve .gz precomprimidos cuando existan
+    gzip_vary on;                          # Agrega header "Vary: Accept-Encoding"
+    gzip_proxied any;                      # Comprime respuestas proxied
+    gzip_min_length 256;                   # Solo comprime archivos >256 bytes
+    gzip_disable "msie6";                  # Desactiva para IE6
+    
+    gzip_types 
+        text/plain 
+        text/css 
+        text/xml 
+        text/javascript 
+        application/json 
+        application/javascript 
+        application/xml+rss 
+        application/rss+xml 
+        application/atom+xml 
+        application/x-javascript
+        image/svg+xml;
+    
+    # ========================================================================
+    # 🛡️ HEADERS DE SEGURIDAD
+    # ⚠️ Estos headers están duplicados con init_headers.php para que
+    #    los scanners de seguridad los detecten en la primera respuesta nginx
+    # ========================================================================
+    
+    # Headers de seguridad básicos (duplicados de PHP por compatibilidad con scanners)
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "no-referrer" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    
+    # Permissions-Policy optimizado para PWA/Mobile Web App
+    add_header Permissions-Policy "geolocation=(self), microphone=(self), camera=(self), accelerometer=(self), gyroscope=(self), magnetometer=(self), payment=(self), usb=(), interest-cohort=()" always;
+    
+    # ========================================================================
+    # 🚫 BLOQUEO DE MÉTODOS HTTP PELIGROSOS
+    # ========================================================================
+    if ($request_method !~ ^(GET|POST|PUT|DELETE|OPTIONS|HEAD|PATCH)$) {
+        return 405;
+    }
+    
+    # ========================================================================
+    # 📸 CACHE AGRESIVO PARA IMÁGENES
+    # ========================================================================
+    location ~* \.(jpg|jpeg|png|gif|ico|webp|avif|bmp|tiff)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable, no-transform" always;
+        add_header Vary "Accept-Encoding" always;
+        access_log off;
+        log_not_found off;
+    }
+    
+    # ========================================================================
+    # 🔤 CACHE AGRESIVO PARA FONTS
+    # ========================================================================
+    location ~* \.(woff|woff2|ttf|otf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable" always;
+        add_header Access-Control-Allow-Origin "*" always;
+        access_log off;
+        log_not_found off;
+    }
+    
+    # ========================================================================
+    # 🎨 CACHE AGRESIVO PARA CSS/JS
+    # ========================================================================
+    location ~* \.(css|js)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable, no-transform" always;
+        add_header Vary "Accept-Encoding" always;
+        access_log off;
+    }
+    
+    # ========================================================================
+    # 📄 CACHE PARA PDF/SVG
+    # ========================================================================
+    location ~* \.(pdf|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, no-transform" always;
+        access_log off;
+    }
+    
+    # ========================================================================
+    # 🎥 CACHE PARA VIDEOS
+    # ========================================================================
+    location ~* \.(mp4|webm|ogg|avi|mov|flv|wmv)$ {
+        expires 30d;
+        add_header Cache-Control "public, no-transform" always;
+        access_log off;
+    }
+    
+    # ========================================================================
+    # 🔊 CACHE PARA AUDIO
+    # ========================================================================
+    location ~* \.(mp3|wav|ogg|m4a|aac|flac)$ {
+        expires 30d;
+        add_header Cache-Control "public, no-transform" always;
+        access_log off;
+    }
+    
+    # ========================================================================
+    # 🚫 DENEGAR ARCHIVOS SENSIBLES
+    # ========================================================================
+    location ~ ^/(composer\.(json|lock)|package(-lock)?\.json|vhost\.conf|\.env)$ {
+        deny all;
+        return 404;  # Retorna 404 en lugar de 403 para no revelar existencia
+    }
+    
+    # ========================================================================
+    # 🚫 DENEGAR ARCHIVOS OCULTOS Y BACKUPS
+    # ========================================================================
+    location ~ /\. {
+        deny all;
+        return 404;
+    }
+    
+    location ~ ~$ {
+        deny all;
+        return 404;
+    }
+    
+    # ========================================================================
+    # 🚫 DENEGAR DIRECTORIOS SENSIBLES (archivos que NO deben ser accesibles)
+    # ========================================================================
+    location ~ ^/(vendor|node_modules)/ {
+        deny all;
+        return 404;
+    }
+    
+    # ========================================================================
+    # 🔒 FORZAR ROUTER PARA CARPETAS SENSIBLES
+    # Si intentan acceder a estas carpetas, pasar siempre por el router PHP
+    # para que muestre la página 404 personalizada en lugar de error del servidor
+    # ========================================================================
+    location ~ ^/(app|versaWYS|vendor|logs|src|configs|documentacion|node_modules)(/|$) {
+        try_files /nonexistent /index.php?$query_string;
+    }
+    
+    # ========================================================================
+    # 🤖 EVITAR INDEXACIÓN DE CARPETA STORE
+    # ========================================================================
+    location /dashboard/store/ {
+        add_header X-Robots-Tag "noindex, nofollow, noarchive, nosnippet" always;
+    }
+    
+    # ========================================================================
+    # 🚦 RATE LIMITING (aplicado en PHP-FPM location block)
+    # ========================================================================
+    # El rate limiting se aplica directamente en location ~ \.php$
+    
+    # ========================================================================
+    # 📁 RUTA PRINCIPAL
+    # ========================================================================
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+    
+    # ========================================================================
+    # 🐘 PHP-FPM
+    # ========================================================================
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_param DOCUMENT_ROOT $realpath_root;
+        
+        # Buffers optimizados para uploads grandes
+        fastcgi_buffer_size 128k;
+        fastcgi_buffers 4 256k;
+        fastcgi_busy_buffers_size 256k;
+        
+        # Timeouts para uploads grandes
+        fastcgi_read_timeout 300s;
+        fastcgi_send_timeout 300s;
+        
+        # Ocultar headers de PHP (ya se hace en init_headers.php también)
+        fastcgi_hide_header X-Powered-By;
+        
+        fastcgi_pass unix:/run/php/php8.4-fpm.sock;
+    }
+    
+    # ========================================================================
+    # 🔐 SSL/TLS
+    # ========================================================================
+    listen 443 ssl;
+    http2 on;
+    
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+
+# ============================================================================
+# 🔄 REDIRECCIÓN HTTP → HTTPS
+# ============================================================================
+server {
+    listen 80;
+    server_name example.com;
+    
+    # Redirección 301 permanente
+    if ($host = example.com) {
+        return 301 https://$host$request_uri;
+    }
+    
+    return 404;
+}

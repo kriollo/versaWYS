@@ -23,3 +23,4 @@ pnpm-lock.yaml
 .env.*
 !.env.example
 /versaWYS/.phpunit.cache
+/versa_deploy.yml

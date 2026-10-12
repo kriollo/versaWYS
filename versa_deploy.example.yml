@@ -1,0 +1,83 @@
+# Plantilla para versaDeploy. Copiar a versa_deploy.yml (ignorado por git) y completar.
+project: 'mi-proyecto'
+environments:
+    production:
+        ssh:
+            host: 'servidor.example.com'
+            user: 'deploy'
+            key_path: '~/.ssh/id_ed25519'
+            port: 22
+            known_hosts_file: '~/.ssh/known_hosts'
+            use_ssh_agent: false
+
+        remote_path: '/var/www/mi-proyecto'
+        # Tiempo máximo de cada hook post_deploy, en segundos
+        hook_timeout: 300
+
+        # Rutas que no se suben al servidor
+        ignored_paths:
+            - '.git'
+            - '.gitignore'
+            - '.vscode'
+            - 'versa_deploy.yml'
+            - 'versa_deploy.example.yml'
+            - 'configs'
+            - 'documentacion'
+            - 'src'
+            - 'vendor'
+            - 'versaWYS/tests'
+            - 'versaWYS/logs'
+            - 'versaWYS/cache'
+            - 'versaWYS/.phpunit.cache'
+            - 'versaWYS/kernel/config/install.token'
+            - 'public/dashboard/img/avatars'
+            - 'public/dashboard/img/logos'
+            - 'public/dashboard/store'
+            - 'composer.json'
+            - 'package.json'
+            - 'tailwind.config.js'
+            - '.oxlintrc.json'
+            - '.prettierrc.mjs'
+            - '.tool-versions'
+
+        # Se conservan tal como están en el servidor entre despliegues
+        preserved_paths:
+            - 'versaWYS/kernel/config/config.json'
+            - 'versaWYS/kernel/config/installed.lock'
+
+        # Compartidas entre releases (subidas de usuarios, logs y caché)
+        shared_paths:
+            - 'public/dashboard/img/avatars'
+            - 'public/dashboard/img/logos'
+            - 'public/dashboard/store'
+            - 'versaWYS/logs'
+            - 'versaWYS/cache'
+
+        builds:
+            php:
+                enabled: true
+                root: 'versaWYS'
+                composer_command: 'composer install --no-dev --optimize-autoloader'
+            frontend:
+                enabled: true
+                npm_command: 'pnpm install'
+                compile_command: 'pnpm run compile'
+                cleanup_dev_deps: true
+                reusable_paths:
+                    - 'public/dashboard/js'
+                    - 'public/dashboard/css'
+            go:
+                enabled: false
+            python:
+                enabled: false
+
+        # Se ejecutan en el servidor después de activar el release
+        post_deploy:
+            - 'php versaCLI migrate:up'
+            - 'php versaCLI route:compile'
+            - 'php versaCLI config:templateCache:true'
+            - 'php versaCLI command:refresh'
+
+        services_reload:
+            - 'sudo systemctl reload php8.4-fpm'
+            - 'sudo systemctl reload apache2'
