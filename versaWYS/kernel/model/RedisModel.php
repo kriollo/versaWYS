@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel\model;
 
-use \Redis;
-use \RedisException;
+use Redis;
+use RedisException;
 use Exception;
 use versaWYS\kernel\Loggin;
 
@@ -50,12 +50,16 @@ class RedisModel
     /**
      * Constructor privado para prevenir instanciación directa.
      */
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
     /**
      * Prevenir clonación de la instancia.
      */
-    private function __clone() {}
+    private function __clone()
+    {
+    }
 
     /**
      * Prevenir deserialización de la instancia.

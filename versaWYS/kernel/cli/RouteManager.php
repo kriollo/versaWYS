@@ -91,7 +91,7 @@ class RouteManager
             return [];
         }
         $routes = scandir(self::$path);
-        $routes = array_filter($routes, static fn($route): bool => !in_array($route, ['.', '..'], strict: true));
+        $routes = array_filter($routes, static fn ($route): bool => !in_array($route, ['.', '..'], strict: true));
         return array_values($routes);
     }
 

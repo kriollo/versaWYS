@@ -100,22 +100,22 @@ class Functions
 
             // Definir las validaciones en un arreglo tipo hash
             $validations = [
-                'required' => static fn($field, $value): ?string => !self::e($value)
+                'required' => static fn ($field, $value): ?string => !self::e($value)
                     ? sprintf('El campo %s es requerido', $field)
                     : null,
-                'email' => static fn($field, $value): ?string => filter_var($value, FILTER_VALIDATE_EMAIL)
+                'email' => static fn ($field, $value): ?string => filter_var($value, FILTER_VALIDATE_EMAIL)
                     ? null
                     : sprintf('El campo %s no es un email valido', $field),
-                'rut' => static fn($field, $value): ?string => self::validarRut($value)
+                'rut' => static fn ($field, $value): ?string => self::validarRut($value)
                     ? null
                     : sprintf('El campo %s no es un rut valido', $field),
-                'min' => static fn($field, $value, $param): ?string => strlen($value) < $param
+                'min' => static fn ($field, $value, $param): ?string => strlen($value) < $param
                     ? sprintf('El campo %s debe tener minimo %s caracteres', $field, $param)
                     : null,
-                'max' => static fn($field, $value, $param): ?string => strlen($value) > $param
+                'max' => static fn ($field, $value, $param): ?string => strlen($value) > $param
                     ? sprintf('El campo %s debe tener maximo %s caracteres', $field, $param)
                     : null,
-                'numeric' => static fn($field, $value): ?string => is_numeric($value)
+                'numeric' => static fn ($field, $value): ?string => is_numeric($value)
                     ? null
                     : sprintf('El campo %s debe ser numerico', $field),
                 'int' => static function ($field, $value, $param): ?string {
@@ -147,7 +147,7 @@ class Functions
 
                     return null;
                 },
-                'time' => static fn($field, $value): ?string => preg_match(
+                'time' => static fn ($field, $value): ?string => preg_match(
                     '/^([01]?\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/',
                     $value,
                 )
@@ -171,7 +171,7 @@ class Functions
                         ? null
                         : sprintf('El campo %s debe ser un arreglo', $field);
                 },
-                'url' => static fn($field, $value): ?string => filter_var($value, FILTER_VALIDATE_URL)
+                'url' => static fn ($field, $value): ?string => filter_var($value, FILTER_VALIDATE_URL)
                     ? null
                     : sprintf('El campo %s debe ser una url valida', $field),
             ];

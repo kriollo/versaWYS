@@ -32,7 +32,7 @@ if (!$isLocalhost) {
 // Solo en producción: en debug el HMR y la barra de depuración necesitan orígenes locales.
 if (!($config['build']['debug'] ?? false) && ($config['csp']['enabled'] ?? true)) {
     $csp = $config['csp'] ?? [];
-    $extra = static fn(string $directive): string => implode(' ', (array) ($csp[$directive] ?? []));
+    $extra = static fn (string $directive): string => implode(' ', (array) ($csp[$directive] ?? []));
 
     // ponytail: 'unsafe-inline' y 'unsafe-eval' siguen porque los templates usan scripts inline
     // y el runtime de Vue compila plantillas; quitar cuando se migre a nonces y build precompilado.

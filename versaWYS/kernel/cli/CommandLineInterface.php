@@ -25,7 +25,7 @@ class CommandLineInterface
         // Remover flags globales de los argumentos
         $this->args = array_filter(
             $this->args,
-            static fn($arg): bool => !in_array($arg, ['--verbose', '-v', '--force'], strict: true),
+            static fn ($arg): bool => !in_array($arg, ['--verbose', '-v', '--force'], strict: true),
         );
         $this->args = array_values($this->args); // Re-indexar array
     }
@@ -48,7 +48,7 @@ class CommandLineInterface
         $params = array_merge($params, $additionalArgs);
 
         // Filtrar parámetros vacíos (pero mantener "0" que es válido)
-        $params = array_filter($params, static fn(string $param): bool => trim($param) !== '');
+        $params = array_filter($params, static fn (string $param): bool => trim($param) !== '');
         // Re-indexar array
         $params = array_values($params);
 

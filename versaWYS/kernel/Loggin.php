@@ -140,7 +140,8 @@ class Loggin
 
         // Crear directorio de logs si no existe
         if (!is_dir(self::$logDir)) {
-            set_error_handler(static function () {}, E_WARNING);
+            set_error_handler(static function () {
+            }, E_WARNING);
             $mkdirSuccess = @mkdir(self::$logDir, 0o775, true);
             restore_error_handler();
 
@@ -634,7 +635,7 @@ class Loggin
                 // Remover las llamadas internas de Loggin
                 $trace = array_filter(
                     $trace,
-                    static fn(array $item): bool => !isset($item['class']) || $item['class'] !== self::class,
+                    static fn (array $item): bool => !isset($item['class']) || $item['class'] !== self::class,
                 );
                 $data['trace'] = array_values($trace);
             }
@@ -724,7 +725,8 @@ class Loggin
 
         // Verificar que el directorio existe y es escribible
         if (!is_dir(self::$logDir)) {
-            set_error_handler(static function () {}, E_WARNING);
+            set_error_handler(static function () {
+            }, E_WARNING);
             $mkdirSuccess = @mkdir(self::$logDir, 0o775, true);
             restore_error_handler();
 
@@ -744,7 +746,8 @@ class Loggin
 
         if (!file_exists($logFile)) {
             $previousUmask = umask(0);
-            set_error_handler(static function () {}, E_WARNING);
+            set_error_handler(static function () {
+            }, E_WARNING);
             $handle = @fopen($logFile, 'ab');
             restore_error_handler();
             umask($previousUmask);
@@ -787,7 +790,8 @@ class Loggin
             return;
         }
 
-        set_error_handler(static function () {}, E_WARNING);
+        set_error_handler(static function () {
+        }, E_WARNING);
         $chmodSuccess = @chmod($path, $mode);
         restore_error_handler();
 

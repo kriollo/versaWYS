@@ -128,7 +128,7 @@ class CheckDeployCommand extends BaseCommand
             echo
                 CLIErrorHandler::colorize(
                     '  ⚠ Windows Paths: '
-                    . count(array_filter($this->warnings, static fn($w) => 'Windows Paths' === $w['phase']))
+                    . count(array_filter($this->warnings, static fn ($w) => 'Windows Paths' === $w['phase']))
                     . " advertencias encontradas\n",
                     'yellow',
                 )
@@ -205,7 +205,7 @@ class CheckDeployCommand extends BaseCommand
             echo
                 CLIErrorHandler::colorize(
                     '  ⚠ Windows Commands: '
-                    . count(array_filter($this->warnings, static fn($w) => 'Windows Commands' === $w['phase']))
+                    . count(array_filter($this->warnings, static fn ($w) => 'Windows Commands' === $w['phase']))
                     . " advertencias encontradas\n",
                     'yellow',
                 )
@@ -270,7 +270,7 @@ class CheckDeployCommand extends BaseCommand
             echo
                 CLIErrorHandler::colorize(
                     '  ⚠ Line Endings: '
-                    . count(array_filter($this->warnings, static fn($w) => 'Line Endings' === $w['phase']))
+                    . count(array_filter($this->warnings, static fn ($w) => 'Line Endings' === $w['phase']))
                     . " advertencias encontradas\n",
                     'yellow',
                 )
@@ -351,7 +351,7 @@ class CheckDeployCommand extends BaseCommand
             }
         }
 
-        $issueCount = count(array_filter($this->issues, static fn($i) => 'Environment' === $i['phase']));
+        $issueCount = count(array_filter($this->issues, static fn ($i) => 'Environment' === $i['phase']));
         if (0 === $issueCount) {
             CLIErrorHandler::success("  ✓ Environment: Sin problemas críticos detectados\n");
         } else {
@@ -588,7 +588,7 @@ class CheckDeployCommand extends BaseCommand
             echo
                 CLIErrorHandler::colorize(
                     '  ⚠ Credentials: '
-                    . count(array_filter($this->warnings, static fn($w) => 'Credentials' === $w['phase']))
+                    . count(array_filter($this->warnings, static fn ($w) => 'Credentials' === $w['phase']))
                     . " advertencias encontradas\n",
                     'yellow',
                 )

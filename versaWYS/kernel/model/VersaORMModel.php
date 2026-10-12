@@ -203,7 +203,7 @@ class VersaORMModel extends VersaModel
     {
         global $versaOrm;
 
-        return $this->executeWithErrorHandling(static fn() => $versaOrm->exec($sql, $params), [
+        return $this->executeWithErrorHandling(static fn () => $versaOrm->exec($sql, $params), [
             'operation' => 'exec',
             'query' => $sql,
             'bindings' => $params,
@@ -349,7 +349,7 @@ class VersaORMModel extends VersaModel
         global $versaOrm;
 
         return $this->executeWithErrorHandling(
-            static fn() => $versaOrm->table($table ?? static::tableName(), static::class),
+            static fn () => $versaOrm->table($table ?? static::tableName(), static::class),
             [
                 'operation' => 'queryBuilder',
                 'table' => $table ?? static::tableName(),

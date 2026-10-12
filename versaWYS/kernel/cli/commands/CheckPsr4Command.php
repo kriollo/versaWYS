@@ -615,7 +615,7 @@ class CheckPsr4Command extends BaseCommand
         }
 
         // Sort by file then line
-        usort($dead, static fn($a, $b) => [$a['file'], $a['line']] <=> [$b['file'], $b['line']]);
+        usort($dead, static fn ($a, $b) => [$a['file'], $a['line']] <=> [$b['file'], $b['line']]);
 
         if ($dead !== []) {
             $cnt = count($dead);
