@@ -79,3 +79,24 @@ $user = $this->getRow('SELECT * FROM versa_users WHERE email = ?', [$email]);
 Con estos principios y las herramientas integradas de versaWYS-PHP, puedes reducir drásticamente el riesgo de las vulnerabilidades más comunes en aplicaciones web.
 
 ¿Dudas? Consulta la [Guía de Configuración](./CONFIGURATION.md), la [Guía de Enrutamiento](./Enrutamiento.md) o la [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md) para más detalles sobre seguridad y buenas prácticas.
+
+## Protecciones que el framework aplica por defecto
+
+- **CSRF automático.** Toda ruta `POST`, `PUT`, `PATCH` o `DELETE` valida el token CSRF sin declararlo. En formularios usa `{{ csrf_field()|raw }}`; `versaFetch` lo envía solo en la cabecera `X-CSRF-Token`. Para un endpoint que autentica de otra forma (por ejemplo un webhook firmado) decláralo con `->withoutCsrf()`:
+
+  ```php
+  Router::post('/webhooks/pagos', [PagosController::class, 'recibir'])->withoutCsrf();
+  ```
+
+- **El modo debug no relaja la seguridad.** CSRF y controles de rol siguen activos; lo único que cambia es el detalle de los errores.
+- **Listados sin SQL del cliente.** `getParamsPaginate()` devuelve la condición con marcadores `?` y sus valores en `bindings`. El cliente solo puede filtrar por las columnas que el controlador autoriza:
+
+  ```php
+  $params = $this->getParamsPaginate($request, ['nombre', 'email'], allowedFilters: ['estado']);
+  $qb->whereRaw($params['filter'], $params['bindings'])->orderByRaw($params['order']);
+  ```
+
+- **Sesión.** Al autenticar se renuevan el id de sesión y el token CSRF; al cerrar sesión el JWT queda revocado aunque alguien conserve la cookie.
+- **Subida de archivos.** `File::getType()` devuelve el tipo detectado en el contenido, no el que declara el navegador, y ningún archivo puede guardarse con extensión ejecutable (`.php`, `.phtml`, `.phar`…) ni como archivo oculto. Aun así, valida siempre contra una lista de tipos permitidos antes de mover el archivo.
+- **Rate limiting.** El login se limita por IP y por cuenta; las reglas están en `rate_limiting` de `config.json`.
+- **Aislamiento por empresa.** Usa siempre `$this->empresaSelected['id']` de la sesión; nunca un id de empresa enviado por el cliente.

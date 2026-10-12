@@ -117,8 +117,9 @@ class GlobalControllers
         if ($fitro !== '' && $filedsToFilters !== []) {
             $likes = [];
             foreach ($filedsToFilters as $field) {
-                $likes[] = $field . ' LIKE ?';
-                $bindings[] = '%' . $fitro . '%';
+                // Sin distinguir mayúsculas y válido para columnas no textuales, igual en MySQL y PostgreSQL
+                $likes[] = 'LOWER(CONCAT(' . $field . ", '')) LIKE ?";
+                $bindings[] = '%' . mb_strtolower($fitro) . '%';
             }
             $conditions[] = '(' . implode(' OR ', $likes) . ')';
         }

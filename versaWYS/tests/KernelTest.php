@@ -73,3 +73,42 @@ describe('token de recuperación de contraseña', function (): void {
             ->and(strlen($token))->toBeLessThanOrEqual(255);
     });
 });
+
+/** Invoca un método privado estático del kernel. */
+function kernelStatic(string $class, string $method, mixed ...$args): mixed
+{
+    return (new ReflectionMethod($class, $method))->invoke(null, ...$args);
+}
+
+describe('filtros de listados', function (): void {
+    $parse = static fn (string $raw, array $allowed): array => kernelStatic(versaWYS\kernel\GlobalControllers::class, 'parseExternalFilters', $raw, $allowed);
+    $order = static fn (string $raw): string => kernelStatic(versaWYS\kernel\GlobalControllers::class, 'sanitizeOrder', $raw, 'id,asc');
+
+    it('convierte las condiciones permitidas en marcadores y valores', function () use ($parse): void {
+        expect($parse('status = true AND id_menu=5', ['status' => 'u.status', 'id_menu']))
+            ->toBe([['u.status = ?', 'id_menu = ?'], [true, 5]]);
+    });
+
+    it('descarta columnas no permitidas y nunca deja SQL del cliente en la condición', function () use ($parse): void {
+        expect($parse("password>'a'", ['status']))->toBe([[], []])
+            ->and($parse('1=1; DROP TABLE x', ['status']))->toBe([[], []])
+            ->and($parse('status=false OR 1=1', ['status']))->toBe([['status = ?'], ['false OR 1=1']]);
+    });
+
+    it('solo acepta orden por un identificador y una dirección', function () use ($order): void {
+        expect($order('name,desc'))->toBe('name DESC')
+            ->and($order('versa_users.email'))->toBe('versa_users.email ASC')
+            ->and($order('id;DROP TABLE versa_users'))->toBe('id ASC')
+            ->and($order('(select 1)'))->toBe('id ASC')
+            ->and($order('password,asc'))->toBe('id ASC');
+    });
+});
+
+describe('archivos subidos', function (): void {
+    it('no acepta destinos que el servidor web pueda ejecutar u ocultar', function (string $destination): void {
+        $file = new versaWYS\kernel\File(['name' => 'a.png', 'type' => 'image/png', 'tmp_name' => '', 'error' => 0, 'size' => 1]);
+
+        expect(static fn () => (new ReflectionMethod($file, 'assertSafeDestination'))->invoke($file, $destination))
+            ->toThrow(RuntimeException::class);
+    })->with(['public/x/shell.php', 'public/x/shell.PHP5', 'public/x/a.phtml', 'public/x/a.php.jpg', 'public/x/.htaccess', 'public/x/.env']);
+});
