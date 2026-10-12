@@ -5,7 +5,7 @@
 
     import check from '@/dashboard/js/components/check.vue';
     import inputEditable from '@/dashboard/js/components/inputEditable.vue';
-    import { removeScape, versaFetch } from '@/dashboard/js/functions';
+    import { sanitizeSvgContent, versaFetch } from '@/dashboard/js/functions';
     import type { AccionData, actionsType } from '@/dashboard/types/versaTypes';
 
     const emit = defineEmits(['accion']);
@@ -40,7 +40,7 @@
     const perfilData = ref<PerfilData>({});
     const urls = ref<UrlData[]>([]);
 
-    const removeScapeLocal = (str: string) => removeScape(str);
+    const removeScapeLocal = (str: string) => sanitizeSvgContent(str);
     const getPerfil = async () => {
         const response = await versaFetch({
             url: `/${panelUrl}/perfiles/getPerfil/${perfil.value.id}`,

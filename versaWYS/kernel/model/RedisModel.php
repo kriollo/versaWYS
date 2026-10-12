@@ -1363,12 +1363,13 @@ class RedisModel
             // Si json_decode falla, el dato puede ser legado con PHP serialize().
             // Se intenta recuperar en lugar de perder la información.
             if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
-                if (@unserialize($value) !== false) {
+                // allowed_classes=false: un valor manipulado en Redis nunca instancia objetos
+                if (@unserialize($value, ['allowed_classes' => false]) !== false) {
                     self::log(
                         'Dato con formato PHP serialize detectado al leer en modo json — clave posiblemente migrada',
                     );
 
-                    return unserialize($value);
+                    return unserialize($value, ['allowed_classes' => false]);
                 }
 
                 return $value;
@@ -1377,7 +1378,7 @@ class RedisModel
             return $decoded;
         }
 
-        return unserialize($value);
+        return unserialize($value, ['allowed_classes' => false]);
     }
 
     /**

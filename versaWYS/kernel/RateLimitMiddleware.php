@@ -36,9 +36,15 @@ class RateLimitMiddleware
     {
         global $request;
 
-        $ip = $request->getIp();
+        $byIp = SecurityUtils::checkRateLimit($request->getIp(), 'login');
+        if ($byIp !== true) {
+            return $byIp;
+        }
 
-        return SecurityUtils::checkRateLimit($ip, 'login');
+        // También por cuenta: un ataque repartido entre muchas IP contra un mismo usuario sigue acotado
+        $email = strtolower(trim((string) $request->get('email', '')));
+
+        return $email === '' ? true : SecurityUtils::checkRateLimit('login-user:' . sha1($email), 'login');
     }
 
     /**

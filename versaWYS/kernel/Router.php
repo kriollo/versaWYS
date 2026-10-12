@@ -213,7 +213,7 @@ class Router
      * Middlewares de una ruta. Toda ruta que modifica estado (POST, PUT, PATCH, DELETE) valida
      * primero el token CSRF, salvo que lo declare ella misma o use withoutCsrf().
      *
-     * @return list<array{0: class-string, 1: string}>
+     * @return array<int, array{0: class-string, 1: string}>
      */
     private function routeMiddlewares(string $method, string $route): array
     {

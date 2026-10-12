@@ -2,6 +2,7 @@
     import { computed } from 'vue';
 
     import VersaLink from '@/dashboard/js/components/VersaLink.vue';
+    import { sanitizeSvgContent } from '@/dashboard/js/functions';
 
     interface Item {
         type: string;
@@ -24,7 +25,7 @@
 <template>
     <div class="mx-4 my-4 lg:flex lg:justify-between max-sm:flex-col max-sm:flex-wrap">
         <div class="flex gap-2 items-center">
-            <div v-html="props.iconSVG"></div>
+            <div v-html="sanitizeSvgContent(props.iconSVG)"></div>
             <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
                 {{ props.title }}
             </h1>
@@ -33,7 +34,7 @@
             <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
                 <li v-for="(item, index) in items" :key="index">
                     <div class="flex items-center" v-if="item.type === 'link'">
-                        <div v-html="item.icon"></div>
+                        <div v-html="sanitizeSvgContent(item.icon)"></div>
                         <VersaLink :href="item.link" :data-spa="true" v-if="item.link !== ''">
                             <span
                                 class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-brand dark:text-gray-400 dark:hover:text-white">
@@ -42,7 +43,7 @@
                         </VersaLink>
                     </div>
                     <div class="flex items-center" v-if="item.type === 'text'">
-                        <div v-html="item.icon"></div>
+                        <div v-html="sanitizeSvgContent(item.icon)"></div>
                         <span class="inline-flex items-center text-sm font-medium text-gray-700 dark:text-gray-400">
                             {{ item.title }}
                         </span>

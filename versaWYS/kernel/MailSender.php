@@ -46,7 +46,8 @@ class MailSender
         $options = [];
         if ($secure === false || $secure === 'false' || $secure === '') {
             $options['auto_tls'] = false;
-        } else {
+        } elseif (($config['mail']['verify_peer'] ?? true) === false) {
+            // Solo para servidores SMTP internos con certificado autofirmado (mail.verify_peer = false)
             $options['verify_peer'] = false;
             $options['verify_peer_name'] = false;
             $options['allow_self_signed'] = true;

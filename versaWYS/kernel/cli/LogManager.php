@@ -140,7 +140,7 @@ class LogManager
     /**
      * Lee `--lines=N` de los parámetros; 20 por defecto.
      *
-     * @param list<string> $params
+     * @param array<int, string> $params
      */
     private static function linesOption(array $params): int
     {

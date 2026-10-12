@@ -75,6 +75,7 @@ return [
         'port' => 587,
         'transport' => 'smtp',
         'secure' => 'tls',
+        'verify_peer' => true, // false solo para SMTP interno con certificado autofirmado
         'name_from' => '',
         'username' => '',
         'password' => '',

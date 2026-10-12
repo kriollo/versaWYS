@@ -86,9 +86,6 @@ if ($config['build']['debug']) {
 date_default_timezone_set($config['build']['timezone']);
 setlocale(LC_ALL, $config['build']['locale']);
 
-ini_set('memory_limit', '-1');
-ini_set('max_execution_time', '0');
-
 mb_internal_encoding($config['build']['charset']);
 mb_http_output($config['build']['charset']);
 

@@ -1,6 +1,8 @@
 <script setup lang="ts">
     import { computed, inject, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 
+    import { sanitizeSvgContent } from '@/dashboard/js/functions';
+
     // Inyectar el menú desde el provider
     const menu_user = inject<any[]>('menu_user', []);
 
@@ -257,7 +259,7 @@
                                             :fill="item.fill_menu ? 'currentColor' : 'none'"
                                             :stroke="item.fill_menu ? 'none' : 'currentColor'"
                                             viewBox="0 0 24 24"
-                                            v-html="item.ico_menu"></svg>
+                                            v-html="sanitizeSvgContent(item.ico_menu)"></svg>
                                     </div>
 
                                     <!-- Contenido -->

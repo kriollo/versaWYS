@@ -7,7 +7,7 @@
     import { $dom, blockedForm } from '@/dashboard/js/composables/dom';
     import { API_RESPONSE_CODES } from '@/dashboard/js/constants';
     import { showModalAsociaModuloInjection } from '@/dashboard/js/empresa/InjectKeys';
-    import { removeScape, showErrorResponse, versaAlert, versaFetch } from '@/dashboard/js/functions';
+    import { sanitizeSvgContent, showErrorResponse, versaAlert, versaFetch } from '@/dashboard/js/functions';
 
     interface ModuleEmpresa {
         id: number;
@@ -58,7 +58,7 @@
             }
         },
     );
-    const removeScapeLocal = (str: string) => removeScape(str);
+    const removeScapeLocal = (str: string) => sanitizeSvgContent(str);
 
     const saveAsociado = async () => {
         const params = {

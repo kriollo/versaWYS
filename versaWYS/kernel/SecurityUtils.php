@@ -336,25 +336,12 @@ class SecurityUtils
             return true; // Regla específica no habilitada
         }
 
-        // Generar clave de cache
-        $key = self::generateKey($identifier, $rule);
+        $rateData = self::incrementLocked(self::generateKey($identifier, $rule), (int) $rules['window']);
 
-        // Cargar el estado actual de las solicitudes
-        $rateData = self::getStoredLimits($key);
-
-        // Verificar si está dentro de la ventana de tiempo
-        if (!isset($rateData['window_start']) || !self::isWithinWindow($rateData['window_start'], $rules['window'])) {
-            $rateData = [
-                'count' => 0,
-                'window_start' => time(),
-            ];
+        // Limpieza ocasional de contadores vencidos (1 de cada `cleanup_probability` peticiones)
+        if (random_int(1, max(1, (int) ($settings['cleanup_probability'] ?? 100))) === 1) {
+            self::cleanExpiredLimits();
         }
-
-        // Incrementar conteo
-        $rateData['count']++;
-
-        // Almacenar nuevamente
-        self::storeLimits($key, $rateData);
 
         // Verificar si excede el límite
         if ($rateData['count'] > $rules['requests']) {
@@ -408,12 +395,13 @@ class SecurityUtils
             return;
         }
 
-        $defaultWindow = $config['rate_limiting']['rules']['global']['window'] ?? 3600;
+        // La ventana más larga de todas las reglas: un contador vigente para alguna regla no se borra
+        $defaultWindow = max([3600, ...array_column($config['rate_limiting']['rules'] ?? [], 'window')]);
 
         foreach ($files as $file) {
-            $data = json_decode(file_get_contents($file), true);
-            if (isset($data['window_start']) && !self::isWithinWindow($data['window_start'], $defaultWindow)) {
-                unlink($file); // Eliminar archivo si expiró
+            $data = json_decode((string) @file_get_contents($file), true);
+            if (!isset($data['window_start']) || !self::isWithinWindow((int) $data['window_start'], $defaultWindow)) {
+                @unlink($file); // Eliminar archivo si expiró o quedó corrupto
             }
         }
     }
@@ -478,50 +466,45 @@ class SecurityUtils
     }
 
     /**
-     * Carga los datos de limitación de archivo si existen.
+     * Suma una petición al contador de la clave y devuelve su estado. Lectura y escritura ocurren
+     * bajo un bloqueo exclusivo, para que peticiones simultáneas no se pisen ni se pierdan.
+     *
+     * @return array{count: int, window_start: int}
      */
-    private static function getStoredLimits(string $key): array
-    {
-        global $config;
-
-        $cacheDir = $config['rate_limiting']['cache_dir'];
-        $filePath = $cacheDir . $key . '.json';
-        if (file_exists($filePath)) {
-            $data = json_decode(file_get_contents($filePath), true);
-
-            return $data ?: [];
-        }
-
-        return [];
-    }
-
-    /**
-     * Almacena los datos de limitación en un archivo.
-     */
-    private static function storeLimits(string $key, array $data): void
+    private static function incrementLocked(string $key, int $window): array
     {
         global $config;
 
         $cacheDir = $config['rate_limiting']['cache_dir'];
         if (!is_dir($cacheDir)) {
-            if (!mkdir($cacheDir, 0o775, true)) {
-                $message = 'Failed to create cache directory: ' . $cacheDir;
-                if (class_exists('versaWYS\\kernel\\ErrorHandler')) {
-                    $errorHandler = new ErrorHandler();
-                    $errorHandler->handleException(new RuntimeException($message));
-                    exit();
-                }
-
-                // Fallback if ErrorHandler is not available yet
-                throw new Exception($message);
-            }
-            // 02775 = 0775 + setgid: los archivos creados dentro heredan el grupo del directorio
-            @chmod($cacheDir, 0o2775);
+            @mkdir($cacheDir, 0o2775, true);
         }
 
-        $filePath = $cacheDir . $key . '.json';
-        file_put_contents($filePath, json_encode($data));
-        chmod($filePath, 0o775);
+        $fresh = ['count' => 1, 'window_start' => time()];
+        $handle = @fopen($cacheDir . $key . '.json', 'c+');
+        if ($handle === false) {
+            // Sin almacenamiento no se puede contar: se registra y la petición continúa
+            Loggin::error('Rate limiting sin almacenamiento escribible: ' . $cacheDir, 'security');
+
+            return $fresh;
+        }
+
+        flock($handle, LOCK_EX);
+        $data = json_decode((string) stream_get_contents($handle), true);
+
+        if (is_array($data) && isset($data['window_start']) && self::isWithinWindow((int) $data['window_start'], $window)) {
+            $data = ['count' => (int) ($data['count'] ?? 0) + 1, 'window_start' => (int) $data['window_start']];
+        } else {
+            $data = $fresh;
+        }
+
+        ftruncate($handle, 0);
+        rewind($handle);
+        fwrite($handle, (string) json_encode($data));
+        flock($handle, LOCK_UN);
+        fclose($handle);
+
+        return $data;
     }
 
     /**

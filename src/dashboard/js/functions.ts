@@ -501,33 +501,43 @@ export const removeScape = (str: string): string => {
  * @param {string} svgContent - El contenido SVG a sanitizar.
  * @returns {string} El contenido SVG sanitizado y seguro.
  */
+const SVG_ALLOWED_TAGS = new Set([
+    'svg', 'g', 'path', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'rect', 'defs', 'title', 'desc',
+    'lineargradient', 'radialgradient', 'stop', 'clippath', 'mask',
+]);
+
 export const sanitizeSvgContent = (svgContent: string): string => {
     if (!svgContent || typeof svgContent !== 'string') {
         return '';
     }
 
-    // Primero decodificar entidades HTML
-    let decoded = removeScape(svgContent);
+    // Lista blanca sobre el DOM real que construye el navegador: lo que no es dibujo SVG se descarta
+    const container = new DOMParser().parseFromString(`<div>${removeScape(svgContent)}</div>`, 'text/html').body
+        .firstElementChild;
+    if (!container) {
+        return '';
+    }
 
-    // Eliminar elementos peligrosos
-    const dangerousElements = ['script', 'iframe', 'object', 'embed', 'form', 'input', 'textarea', 'button'];
-    dangerousElements.forEach(tag => {
-        const regex1 = new RegExp(`<${tag}[^>]*>.*?</${tag}>`, 'gis');
-        const regex2 = new RegExp(`<${tag}[^>]*/?>`, 'gi');
-        decoded = decoded.replaceAll(regex1, '').replaceAll(regex2, '');
-    });
+    for (const element of [...container.querySelectorAll('*')]) {
+        if (!SVG_ALLOWED_TAGS.has(element.localName.toLowerCase())) {
+            element.remove();
+            continue;
+        }
 
-    // Eliminar eventos JavaScript (onclick, onload, etc.)
-    decoded = decoded.replaceAll(/\s*on\w+\s*=\s*["'][^"']*["']/g, '');
-    decoded = decoded.replaceAll(/\s*on\w+\s*=\s*[^>\s]+/g, '');
+        for (const attribute of [...element.attributes]) {
+            const name = attribute.name.toLowerCase();
+            if (
+                name.startsWith('on') ||
+                name === 'style' ||
+                name.endsWith('href') ||
+                /javascript:|data:/i.test(attribute.value)
+            ) {
+                element.removeAttribute(attribute.name);
+            }
+        }
+    }
 
-    // Eliminar javascript: en atributos
-    decoded = decoded.replaceAll(/javascript\s*:/gi, '');
-
-    // Eliminar data: URLs que podrían contener JavaScript
-    decoded = decoded.replaceAll(/data\s*:\s*[^,]*,/gi, '');
-
-    return decoded;
+    return container.innerHTML;
 };
 /**
  * @preserve

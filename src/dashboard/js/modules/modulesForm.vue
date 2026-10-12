@@ -6,7 +6,7 @@
     import check from '@/dashboard/js/components/check.vue';
     import modal from '@/dashboard/js/components/modal.vue';
     import { API_RESPONSE_CODES } from '@/dashboard/js/constants';
-    import { removeScape, versaAlert, versaFetch } from '@/dashboard/js/functions';
+    import { removeScape, sanitizeSvgContent, versaAlert, versaFetch } from '@/dashboard/js/functions';
     import { type itemSelectedType, ShowModalFormInjection } from '@/dashboard/js/modules/InjectKeys';
     import type { AccionData, actionsType, VersaParamsFetch } from '@/dashboard/types/versaTypes';
 
@@ -203,7 +203,7 @@
                                         class="w-full h-full text-gray-800 dark:text-white text-center"
                                         :fill="localFormData.fill === true ? 'currentColor' : 'none'"
                                         height="24"
-                                        v-html="localFormData.icono"
+                                        v-html="sanitizeSvgContent(localFormData.icono)"
                                         viewBox="0 0 24 24"
                                         width="24"
                                         xmlns="http://www.w3.org/2000/svg"></svg>
