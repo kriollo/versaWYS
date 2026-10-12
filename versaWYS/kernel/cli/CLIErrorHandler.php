@@ -169,6 +169,9 @@ class CLIErrorHandler
     /**
      * Muestra un mensaje de advertencia.
      */
+    /** Algún comando reportó un error: versaCLI termina con código de salida 1 */
+    public static bool $failed = false;
+
     public static function warning(string $message): void
     {
         echo self::colorize('⚠ ', 'yellow') . $message . "\n";

@@ -15,13 +15,15 @@ php versaCLI migrate       # ayuda de un módulo
 | `--verbose`, `-v` | Muestra el detalle de lo que se ejecuta. |
 | `--force` | Omite la confirmación de los comandos destructivos (`migrate:refresh`, `migrate:dropAll`). Pensado para despliegues automáticos. |
 
+Un comando que falla o no existe termina con código de salida 1, así que puede usarse en scripts y CI.
+
 Los nombres que se pasan a generadores y borradores solo admiten letras, números, `_`, `-` y `.`.
 
 ## Proyecto
 
 | Comando | Qué hace |
 |---|---|
-| `serve` | Servidor de desarrollo en `localhost:8000`. |
+| `serve` | Servidor de desarrollo en `localhost:8000`. Acepta `--port=N` y `--host=H`. |
 | `status` | Estado del entorno: PHP, extensiones, base de datos, permisos de carpetas. |
 | `version` | Versión del proyecto y del stack. |
 
@@ -32,7 +34,7 @@ Los nombres que se pasan a generadores y borradores solo admiten letras, número
 | `config:init` | Crea `config.json` con claves aleatorias y el token del instalador web. |
 | `config:debug:true\|false` | Activa o desactiva el modo debug. |
 | `config:templateCache:true\|false` | Activa o desactiva la caché de Twig. |
-| `cache:clear` | Limpia las cachés de rutas, Twig y rate limiting. |
+| `cache:clear` | Limpia las cachés de rutas, Twig y rate limiting. La de rutas queda desactivada hasta el próximo `route:compile`. |
 | `cache:status` | Estado de las cachés. |
 | `cache:routes`, `cache:twig` | Limpia solo una caché. |
 | `route:compile` | Compila todas las rutas en un solo archivo y ofrece activar `build.cacheRoute`. |
@@ -50,6 +52,7 @@ Los nombres que se pasan a generadores y borradores solo admiten letras, número
 | `migrate:refresh` | Revierte todo y vuelve a migrar. Pide confirmación. |
 | `migrate:refresh:seeder` | Igual, y luego ejecuta los seeders. |
 | `migrate:dropAll` | Elimina todas las tablas. Pide confirmación. |
+| `migrate:status` | Muestra qué migraciones ya se ejecutaron y cuáles están pendientes. |
 | `seeder:make:<nombre>` | Crea un seeder. |
 | `seeder:run:<nombre>` | Ejecuta un seeder. |
 | `seeder:runAll` | Ejecuta todos los seeders en orden de nombre. |
@@ -78,7 +81,7 @@ Las rutas generadas quedan protegidas con `checkSession` y `onlyUserWithAccess`.
 |---|---|
 | `logs:list` | Lista los archivos de `versaWYS/logs/`. |
 | `logs:view:<nombre>` | Muestra un log completo. |
-| `logs:tail:<nombre>` | Últimas 20 líneas. |
+| `logs:tail:<nombre>` | Últimas 20 líneas, o las que indique `--lines=N`. |
 | `logs:clear` | Elimina los logs. |
 
 ## Tareas programadas

@@ -1,0 +1,37 @@
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+
+jobs:
+    php:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: versaWYS
+        steps:
+            - uses: actions/checkout@v4
+            - uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.4'
+                  extensions: intl, mbstring, pdo_mysql, pdo_pgsql, fileinfo, zip
+                  coverage: none
+            - run: composer install --no-interaction --no-progress
+            # pint (formato), phpstan (análisis estático) y pest (tests)
+            - run: composer check
+
+    frontend:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+            - run: pnpm install --no-frozen-lockfile
+            - run: pnpm lint
+            - run: pnpm compile

@@ -40,7 +40,7 @@ Los valores por defecto están en `versaWYS/kernel/config/config.default.php` y 
 
 ## Modo debug
 
-Con `build.debug` en `true` se muestran errores detallados y la barra de depuración, y **se omiten la validación CSRF y los controles de rol** para facilitar el desarrollo. No lo actives en un servidor accesible desde internet.
+Con `build.debug` en `true` se muestran errores detallados (rutas de archivos, trazas y SQL) y la barra de depuración. La validación CSRF y los controles de rol siguen activos. No lo actives en un servidor accesible desde internet: en producción las respuestas de error solo llevan el mensaje y el detalle queda en los logs.
 
 ## Variables de entorno
 

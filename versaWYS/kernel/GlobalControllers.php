@@ -86,8 +86,8 @@ class GlobalControllers
      * Nada de lo que envía el cliente llega como SQL: `filter` devuelve un fragmento con
      * marcadores `?` y sus valores van en `bindings`, para usarse como whereRaw($filter, $bindings).
      *
-     * @param array $filedsToFilters columnas sobre las que busca el texto libre (`filter`)
-     * @param array $allowedFilters columnas que el cliente puede filtrar con `externalFilters`
+     * @param list<string> $filedsToFilters columnas sobre las que busca el texto libre (`filter`)
+     * @param array<int|string, string> $allowedFilters columnas que el cliente puede filtrar con `externalFilters`
      *                              (`col=valor AND col2>valor2`). Acepta `'col'` o `'nombreCliente' => 'tabla.col'`.
      *
      * @return array<string, mixed>
@@ -142,6 +142,8 @@ class GlobalControllers
      * Convierte `col=valor AND col2>=valor2` en condiciones con marcadores. Las condiciones con
      * formato inválido o sobre columnas no permitidas se descartan.
      *
+     * @param array<int|string, string> $allowed
+     *
      * @return array{0: list<string>, 1: list<mixed>}
      */
     private static function parseExternalFilters(string $raw, array $allowed): array
@@ -154,7 +156,9 @@ class GlobalControllers
         $conditions = [];
         $bindings = [];
 
-        foreach (preg_split('/\s+AND\s+/i', trim($raw)) ?: [] as $part) {
+        $parts = preg_split('/\s+AND\s+/i', trim($raw));
+
+        foreach ($parts === false ? [] : $parts as $part) {
             if (preg_match('/^([A-Za-z_][\w.]*)\s*(=|!=|<>|>=|<=|>|<)\s*(.*)$/s', trim($part), $m) !== 1) {
                 continue;
             }

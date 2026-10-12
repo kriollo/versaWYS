@@ -394,6 +394,28 @@ class MigrationManager extends VersaORMModel
         }
     }
 
+    /**
+     * Lista las migraciones del proyecto indicando cuáles ya se ejecutaron.
+     */
+    public function status(): void
+    {
+        $executed = in_array('versa_migrations', self::orm()->schema('tables'), strict: true)
+            ? array_column(self::orm()->exec('SELECT name FROM versa_migrations'), 'name')
+            : [];
+
+        $pending = 0;
+        $files = glob(self::$path . '*.php');
+
+        foreach ($files === false ? [] : $files as $file) {
+            $name = basename($file, '.php');
+            $done = in_array($name, $executed, strict: true);
+            $pending += $done ? 0 : 1;
+            echo ($done ? CLIErrorHandler::colorize('  ✓ ejecutada ', 'green') : CLIErrorHandler::colorize('  • pendiente ', 'yellow')) . $name . PHP_EOL;
+        }
+
+        CLIErrorHandler::info($pending === 0 ? 'No hay migraciones pendientes.' : $pending . ' migración(es) pendiente(s).');
+    }
+
     public function dropAll(): void
     {
         $isMysql = str_contains(strtolower((string) (ConfigManager::getConfig()['database']['driver'] ?? '')), 'mysql');

@@ -56,6 +56,11 @@ class CommandLineInterface
         $generators = ['migrate', 'seeder', 'route', 'controller', 'model', 'middleware', 'RCMD', 'versaMODULE', 'front', 'cron', 'logs'];
         if (in_array($modulo, $generators, strict: true)) {
             foreach ($params as $param) {
+                // Las opciones (--lines=50) las valida cada comando
+                if (str_starts_with($param, '--')) {
+                    continue;
+                }
+
                 if (preg_match('/^[A-Za-z0-9_][A-Za-z0-9_.\-]*$/', $param) !== 1 || str_contains($param, '..')) {
                     CLIErrorHandler::warning("Parámetro inválido: '{$param}'. Solo letras, números, '_', '-' y '.'.");
                     exit(1);
@@ -86,7 +91,7 @@ class CommandLineInterface
                 'RCMD' => $this->handleAtajos($params),
                 'versaMODULE' => $this->handleModule($params),
                 'front' => $this->handleFront($params),
-                'serve' => ServerManager::handleServe($this->verbose),
+                'serve' => ServerManager::handleServe($this->verbose, $params),
                 'status' => StatusManager::handleStatus($this->verbose),
                 'version' => VersionManager::handleVersion(),
                 'logs' => LogManager::handleLogs($params, $this->verbose),
@@ -94,7 +99,8 @@ class CommandLineInterface
                 'cron' => $this->handleCron($params),
                 'command' => $this->handleCommand($params),
                 'app' => $this->handleAppCommand($params),
-                default => HelpView::printHelp(),
+                'help' => HelpView::printHelp(),
+                default => $this->unknownCommand($command),
             };
         } catch (Exception $exception) {
             CLIErrorHandler::handleGeneralError($exception, 'Ejecutando comando: ' . $command);
@@ -444,7 +450,7 @@ class CommandLineInterface
             return;
         }
 
-        $allowedActions = ['up', 'down', 'make', 'rollback', 'refresh', 'dropAll'];
+        $allowedActions = ['up', 'down', 'make', 'rollback', 'refresh', 'dropAll', 'status'];
         $action = $this->validateAction($params[0], $allowedActions, 'migrate');
 
         if ($action === 'make') {
@@ -484,6 +490,7 @@ class CommandLineInterface
                 'refresh' => $migrate->refresh(false, $this->verbose),
                 'refresh:seeder' => $migrate->refresh(true, $this->verbose),
                 'dropAll' => $migrate->dropAll(),
+                'status' => $migrate->status(),
                 default => $this->showError('Acción de migración no reconocida: ' . $action),
             };
         } catch (Exception $exception) {
@@ -551,13 +558,20 @@ class CommandLineInterface
         CLIErrorHandler::success($message);
     }
 
+    private function unknownCommand(string $command): void
+    {
+        $this->showError("Comando no reconocido: '{$command}'.");
+        HelpView::printHelp();
+    }
+
     /**
-     * Muestra un mensaje de error y termina.
+     * Muestra un mensaje de error y marca la ejecución como fallida.
      */
     private function showError(string $message, int $code = 1): void
     {
+        // No termina el proceso: quien llama puede mostrar a continuación el uso correcto
         CLIErrorHandler::warning($message);
-        exit($code);
+        CLIErrorHandler::$failed = true;
     }
 
     /**

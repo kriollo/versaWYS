@@ -25,7 +25,7 @@ class Response
         $last = error_get_last();
         if ($last !== null) {
             error_clear_last();
-            if ($GLOBALS['config']['build']['debug'] ?? false) {
+            if (($GLOBALS['config']['build']['debug'] ?? false) === true) {
                 self::jsonError(['success' => 0, 'message' => 'Error en la petición', 'errors' => $last, 'code' => 500], 500);
 
                 return false;
@@ -442,10 +442,14 @@ class Response
     /**
      * En producción una respuesta de error solo lleva lo que el usuario necesita. Rutas de archivos,
      * trazas, SQL y mensajes del driver quedan en el log, nunca en la respuesta.
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
      */
     private static function withoutInternals(array $data): array
     {
-        if ($GLOBALS['config']['build']['debug'] ?? false) {
+        if (($GLOBALS['config']['build']['debug'] ?? false) === true) {
             return $data;
         }
 

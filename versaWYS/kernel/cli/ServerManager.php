@@ -6,15 +6,29 @@ namespace versaWYS\kernel\cli;
 
 class ServerManager
 {
-    public static function handleServe(bool $verbose = false): void
+    /**
+     * @param list<string> $params opciones --port=N y --host=H
+     */
+    public static function handleServe(bool $verbose = false, array $params = []): void
     {
+        // php versaCLI serve --port=8080 --host=0.0.0.0
+        $port = 8000;
+        $host = 'localhost';
+        foreach ($params as $param) {
+            if (preg_match('/^--port=(\d{2,5})$/', $param, $m) === 1) {
+                $port = (int) $m[1];
+            } elseif (preg_match('/^--host=([A-Za-z0-9.\-]+)$/', $param, $m) === 1) {
+                $host = $m[1];
+            }
+        }
+
         // ✅ VERIFICAR SI EL PUERTO 8000 ESTÁ EN USO
-        if (!self::isPortAvailable(8000)) {
-            CLIErrorHandler::error('❌ ERROR: El puerto 8000 ya está siendo utilizado.');
+        if (!self::isPortAvailable($port)) {
+            CLIErrorHandler::error("❌ ERROR: El puerto {$port} ya está siendo utilizado. Use --port=N para elegir otro.");
             echo "\n";
 
             // Intentar obtener información del proceso que usa el puerto
-            $processInfo = self::getProcessUsingPort(8000);
+            $processInfo = self::getProcessUsingPort($port);
             if ($processInfo !== null) {
                 echo "📌 Proceso usando el puerto:\n";
                 echo '   PID: ' . CLIErrorHandler::colorize((string) $processInfo['pid'], 'yellow') . "\n";
@@ -42,23 +56,23 @@ class ServerManager
 
                 echo "   3. Usar otro puerto modificando el comando en ServerManager.php\n";
             } else {
-                echo "💡 Verifica que no haya otro servidor corriendo en el puerto 8000.\n";
+                echo "💡 Verifica que no haya otro servidor corriendo en el puerto {$port}.\n";
                 if (PHP_OS_FAMILY === 'Windows') {
                     echo
                         '   Puedes verificar con: '
-                            . CLIErrorHandler::colorize('netstat -ano | findstr :8000', 'yellow')
+                            . CLIErrorHandler::colorize('netstat -ano | findstr :' . $port, 'yellow')
                             . "\n"
                     ;
                 } else {
-                    echo '   Puedes verificar con: ' . CLIErrorHandler::colorize('lsof -i :8000', 'yellow') . "\n";
+                    echo '   Puedes verificar con: ' . CLIErrorHandler::colorize('lsof -i :' . $port, 'yellow') . "\n";
                 }
             }
 
             exit(1);
         }
 
-        echo "🚀 Iniciando servidor de desarrollo en localhost:8000...\n";
-        echo '🌐 URL: ' . CLIErrorHandler::colorize('http://localhost:8000', 'cyan') . "\n";
+        echo "🚀 Iniciando servidor de desarrollo en {$host}:{$port}...\n";
+        echo '🌐 URL: ' . CLIErrorHandler::colorize("http://{$host}:{$port}", 'cyan') . "\n";
         echo "⏹️  Presiona Ctrl+C para detener el servidor\n\n";
 
         // Cambiar al directorio raíz del proyecto para el servidor
@@ -81,7 +95,7 @@ class ServerManager
         }
 
         // Comando para iniciar el servidor con router script
-        $command = sprintf('php -S localhost:8000 -t %s %s', escapeshellarg($publicDir), escapeshellarg($routerScript));
+        $command = sprintf('php -S %s:%d -t %s %s', $host, $port, escapeshellarg($publicDir), escapeshellarg($routerScript));
 
         if ($verbose) {
             CLIErrorHandler::info('Ejecutando: ' . $command);

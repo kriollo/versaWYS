@@ -59,7 +59,7 @@ class HelpView
         echo sprintf('%s%sComandos disponibles:%s%s', $bold, $blue, $reset, PHP_EOL);
         echo "\n";
         echo sprintf('%s%s🚀 Servidor%s%s', $bold, $green, $reset, PHP_EOL);
-        echo "  {$yellow}serve{$reset}                     Iniciar servidor de desarrollo en localhost:8000\n";
+        echo "  {$yellow}serve{$reset}                     Servidor de desarrollo en localhost:8000 (--port=N --host=H)\n";
         echo "\n";
         echo sprintf('%s%s⏱️ Cron%s%s', $bold, $green, $reset, PHP_EOL);
         echo "  {$yellow}cron:make:[nombre]{$reset}        Crear nueva tarea cron\n";
@@ -80,6 +80,7 @@ class HelpView
         echo "  {$yellow}migrate:refresh{$reset}           Revertir y re-ejecutar todas las migraciones\n";
         echo "  {$yellow}migrate:refresh:seeder{$reset}    Refresh + ejecutar todos los seeders\n";
         echo "  {$yellow}migrate:dropAll{$reset}           Eliminar todas las tablas\n";
+        echo "  {$yellow}migrate:status{$reset}            Ver migraciones ejecutadas y pendientes\n";
         echo "\n";
         echo "  {$yellow}seeder:make:[nombre]{$reset}      Crear nuevo seeder\n";
         echo "  {$yellow}seeder:runAll{$reset}             Ejecutar todos los seeders\n";
@@ -114,7 +115,7 @@ class HelpView
         echo "  {$yellow}logs:clear{$reset}                Limpiar todos los archivos de log\n";
         echo "  {$yellow}logs:list{$reset}                 Listar archivos de log disponibles\n";
         echo "  {$yellow}logs:view:[nombre]{$reset}        Ver contenido de un log específico\n";
-        echo "  {$yellow}logs:tail:[nombre]{$reset}        Ver últimas líneas de un log\n";
+        echo "  {$yellow}logs:tail:[nombre]{$reset}        Ver últimas líneas de un log (--lines=N)\n";
         echo "\n";
         echo sprintf('%s%s🗂️  Cache%s%s', $bold, $green, $reset, PHP_EOL);
         echo "  {$yellow}cache:clear{$reset}               Limpiar todo el cache del sistema\n";

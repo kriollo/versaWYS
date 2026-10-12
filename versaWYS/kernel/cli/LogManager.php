@@ -30,7 +30,7 @@ class LogManager
                 'clear' => self::clearLogs($verbose),
                 'list' => self::listLogs(),
                 'view' => self::viewLog($params[1] ?? null),
-                'tail' => self::tailLog($params[1] ?? null),
+                'tail' => self::tailLog($params[1] ?? null, self::linesOption($params)),
                 default => self::showError('Acción de logs no reconocida: ' . $action),
             };
         } catch (Exception $exception) {
@@ -137,6 +137,22 @@ class LogManager
         }
     }
 
+    /**
+     * Lee `--lines=N` de los parámetros; 20 por defecto.
+     *
+     * @param list<string> $params
+     */
+    private static function linesOption(array $params): int
+    {
+        foreach ($params as $param) {
+            if (preg_match('/^--lines=(\d+)$/', $param, $m) === 1) {
+                return max(1, (int) $m[1]);
+            }
+        }
+
+        return 20;
+    }
+
     private static function tailLog(?string $logName, int $lines = 20): void
     {
         if (!$logName) {
@@ -209,7 +225,8 @@ class LogManager
 
     private static function showError(string $message): void
     {
+        // No termina el proceso: quien llama puede mostrar a continuación el uso correcto
         CLIErrorHandler::warning($message);
-        exit(1);
+        CLIErrorHandler::$failed = true;
     }
 }

@@ -149,7 +149,7 @@ class Loggin
                 // Mostrar error visible en pantalla con diseño corporativo
                 http_response_code(500);
                 // El detalle (rutas, usuario del proceso, comandos) solo se muestra al desarrollar
-                if (!($config['build']['debug'] ?? false)) {
+                if (($config['build']['debug'] ?? false) !== true) {
                     error_log('versaWYS: no se puede crear el directorio de logs: ' . self::$logDir);
                     echo '<h1>Error interno del servidor</h1><p>Por favor, contacte al administrador.</p>';
                     exit();

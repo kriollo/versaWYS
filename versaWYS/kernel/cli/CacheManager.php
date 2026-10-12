@@ -121,29 +121,11 @@ class CacheManager
 
     private static function clearRoutesCache(bool $showMessage = true): bool
     {
-        $routesCache = 'versaWYS/cache/routes.compiled.php';
+        // Una sola implementación: borra el archivo compilado y el minificado, y desactiva
+        // build.cacheRoute para que las rutas vuelvan a leerse desde app/routes
+        RouteManager::clearCache();
 
-        if (file_exists($routesCache)) {
-            if (unlink($routesCache)) {
-                if ($showMessage) {
-                    CLIErrorHandler::success('Cache de rutas limpiado exitosamente.');
-                }
-
-                return true;
-            }
-
-            if ($showMessage) {
-                CLIErrorHandler::warning('No se pudo limpiar el cache de rutas.');
-            }
-
-            return false;
-        }
-
-        if ($showMessage) {
-            CLIErrorHandler::info('No hay cache de rutas para limpiar.');
-        }
-
-        return false;
+        return true;
     }
 
     private static function clearTwigCache(bool $showMessage = true): bool
@@ -278,7 +260,8 @@ class CacheManager
 
     private static function showError(string $message): void
     {
+        // No termina el proceso: quien llama puede mostrar a continuación el uso correcto
         CLIErrorHandler::warning($message);
-        exit(1);
+        CLIErrorHandler::$failed = true;
     }
 }

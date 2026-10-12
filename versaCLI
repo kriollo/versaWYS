@@ -93,3 +93,5 @@ if (file_exists($absolutePathConfig)) {
 
 $cli = new CommandLineInterface($argv);
 $cli->run();
+
+exit(versaWYS\kernel\cli\CLIErrorHandler::$failed ? 1 : 0);
