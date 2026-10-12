@@ -31,15 +31,21 @@ abstract class BaseCommand implements CommandInterface
 
         // Inicializar ORM si no está disponible
         if (!isset($versaOrm) || $versaOrm === null) {
-            $versaOrm = OrmFactory::make(
-                $this->config
-                + [
-                    'versaorm' => [
-                        'debug' => $this->debug,
+            // Sin base de datos el comando igual debe poder listarse, mostrar su ayuda y ejecutarse
+            // si no la necesita; los que sí la usan fallarán al consultar, con el error del ORM.
+            try {
+                $versaOrm = OrmFactory::make(
+                    $this->config
+                    + [
+                        'versaorm' => [
+                            'debug' => $this->debug,
+                        ],
                     ],
-                ],
-            );
-            VersaModel::setORM($versaOrm);
+                );
+                VersaModel::setORM($versaOrm);
+            } catch (\Throwable) {
+                $versaOrm = null;
+            }
         }
 
         $this->versaOrm = $versaOrm;

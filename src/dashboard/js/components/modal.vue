@@ -350,7 +350,10 @@
             ]"
             :id="idModal"
             ref="modal"
-            tabindex="-1">
+            role="dialog"
+            aria-modal="true"
+            tabindex="-1"
+            @keydown.esc.stop="emit('accion', { accion: 'closeModal' })">
             <div class="relative p-4 w-full max-h-full my-auto" :class="size" ref="modalContent">
                 <!-- Modal content -->
                 <div class="relative bg-white rounded-lg shadow dark:bg-[#050505]">

@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace versaWYS\kernel;
 
-use Exception;
-use RuntimeException;
-
 /**
  * Clase de utilidades de seguridad para sanitización y validación de datos.
  */

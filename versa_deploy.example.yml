@@ -74,6 +74,8 @@ environments:
         # Se ejecutan en el servidor después de activar el release
         post_deploy:
             - 'php versaCLI migrate:up'
+            # La caché de Twig es compartida entre releases: sin limpiarla se servirían plantillas antiguas
+            - 'php versaCLI cache:twig'
             - 'php versaCLI route:compile'
             - 'php versaCLI config:templateCache:true'
             - 'php versaCLI command:refresh'

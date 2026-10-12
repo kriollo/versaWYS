@@ -86,4 +86,6 @@ php versaCLI config:templateCache:true
 php versaCLI route:compile
 ```
 
+Con la caché de plantillas activa, Twig no detecta cambios en los `.twig`. Después de cada despliegue ejecuta `php versaCLI cache:twig` (y `route:compile` si cambiaron rutas); la plantilla de versaDeploy ya lo hace.
+
 Consulta la [Guía de Configuración](./CONFIGURATION.md) para el resto de opciones.

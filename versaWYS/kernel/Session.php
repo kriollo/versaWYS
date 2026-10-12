@@ -55,7 +55,9 @@ class Session
         file_put_contents(self::REVOKED_DIR . $decoded['jti'], (string) $decoded['exp']);
 
         // Las revocaciones de tokens que ya expiraron dejan de ser necesarias
-        foreach (glob(self::REVOKED_DIR . '*') ?: [] as $file) {
+        $revoked = glob(self::REVOKED_DIR . '*');
+
+        foreach ($revoked === false ? [] : $revoked as $file) {
             if ((int) @file_get_contents($file) < time()) {
                 @unlink($file);
             }

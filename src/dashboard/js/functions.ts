@@ -518,13 +518,15 @@ export const sanitizeSvgContent = (svgContent: string): string => {
         return '';
     }
 
-    for (const element of [...container.querySelectorAll('*')]) {
+    // querySelectorAll entrega una lista estática: es seguro eliminar nodos mientras se recorre
+    for (const element of container.querySelectorAll('*')) {
         if (!SVG_ALLOWED_TAGS.has(element.localName.toLowerCase())) {
             element.remove();
             continue;
         }
 
-        for (const attribute of [...element.attributes]) {
+        // element.attributes es una colección viva: se copia antes de quitar atributos
+        for (const attribute of Array.from(element.attributes)) {
             const name = attribute.name.toLowerCase();
             if (
                 name.startsWith('on') ||
