@@ -495,6 +495,11 @@ class Router
                     throw $e; // Re-lanzar la excepción para ErrorHandler detallado
                 }
 
+                // Un fallo interno en una llamada API es un 500, no una ruta inexistente
+                if ($request->isApiCall()) {
+                    return Response::json(['success' => 0, 'message' => 'Error interno'], 500);
+                }
+
                 // En modo producción, usar respuesta limpia
                 return $this->respondNotFound($request, $config, 'Error interno del middleware');
             }
@@ -523,7 +528,8 @@ class Router
 
             $response = $controllerClassTemp->$controllerMethodName(...$slug);
             if (is_array($response) || is_object($response)) {
-                return Response::json($response);
+                // Igual que en los middlewares: la clave `code` define el estado HTTP
+                return Response::json($response, is_array($response) ? (int) ($response['code'] ?? 200) : 200);
             }
 
             echo $response;
@@ -559,6 +565,11 @@ class Router
             // para obtener información más detallada (stack trace, contexto, etc.)
             if (isset($config['build']['debug']) && $config['build']['debug']) {
                 throw $throwable; // Re-lanzar la excepción para que la capture ErrorHandler::handleException
+            }
+
+            // Un fallo interno en una llamada API es un 500, no una ruta inexistente
+            if ($request->isApiCall()) {
+                return Response::json(['success' => 0, 'message' => 'Error interno'], 500);
             }
 
             // En modo producción, usar respuesta limpia

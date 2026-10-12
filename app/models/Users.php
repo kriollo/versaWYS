@@ -148,11 +148,11 @@ class Users extends VersaORMModel
     }
 
     /**
-     * Token de recuperación de contraseña de un solo uso, válido por una hora.
+     * Token de recuperación de contraseña de un solo uso, válido por una hora salvo que se indique otro plazo.
      */
-    public static function newResetToken(): string
+    public static function newResetToken(int $ttlSeconds = 3600): string
     {
-        return bin2hex(random_bytes(32)) . '.' . (time() + 3600);
+        return bin2hex(random_bytes(32)) . '.' . (time() + $ttlSeconds);
     }
 
     /**

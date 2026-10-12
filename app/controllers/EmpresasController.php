@@ -173,6 +173,7 @@ class EmpresasController extends GlobalControllers
             $result = $empresaModel->saveEmpresa($params);
 
             // crear usuarios admin de la nueva empresa
+            $activationUrl = null;
             if ($params['action'] === 'create') {
                 $newPerfil = (new Models\Perfil())->savePerfil([
                     'id_empresa' => $result,
@@ -185,7 +186,8 @@ class EmpresasController extends GlobalControllers
                     'empresa' => $result,
                     'name' => 'Admin ' . $params['nombre'],
                     'email' => $params['email'],
-                    'password' => Functions::hash(str_pad($params['rut'], 8, '0', STR_PAD_LEFT)),
+                    // Contraseña aleatoria que nadie conoce: el admin define la suya con el enlace de activación
+                    'password' => Functions::hash(bin2hex(random_bytes(32))),
                     'expiration_pass' => date('Y-m-d H:i:s', strtotime('-1 day')),
                     'role' => 'admin',
                     'status' => true,
@@ -195,12 +197,22 @@ class EmpresasController extends GlobalControllers
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
+
+                if ($params['email'] !== '') {
+                    global $config;
+                    $token = Users::newResetToken(7 * 86400);
+                    $userModel->saveTokenResetPass($params['email'], $token);
+                    $activationUrl = sprintf('%s/%s/reset-password?token=%s', $request->getBaseUrl(), $config['admin']['custom_url'], $token);
+                }
             }
 
             return [
                 'success' => 1,
-                'message' => 'Empresa guardada correctamente',
+                'message' => $activationUrl === null
+                    ? 'Empresa guardada correctamente'
+                    : 'Empresa guardada. Enlace de activación del administrador (válido 7 días): ' . $activationUrl,
                 'id' => $result,
+                'activation_url' => $activationUrl,
             ];
         } catch (Throwable $throwable) {
             return [

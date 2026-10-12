@@ -16,7 +16,7 @@ class UsersMiddleware extends AuthMiddleware
 
         $result = Functions::validateParams($params, [
             'empresa' => 'required',
-            'name' => 'required',
+            'name' => 'required|min:2',
             'email' => 'required|email',
             'password' => 'required',
             'id_perfil' => 'required|integer',
@@ -54,7 +54,7 @@ class UsersMiddleware extends AuthMiddleware
         $result = Functions::validateParams($params, [
             'tokenid' => 'required',
             'empresa' => 'required',
-            'name' => 'required',
+            'name' => 'required|min:2',
             'email' => 'required|email',
             'id_perfil' => 'required|integer',
         ]);

@@ -127,12 +127,7 @@
                     v-model="perfil.pagina_inicio"
                     class="w-[80%] p-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-800">
                     <option v-for="(url, key) in urls" :key="key" :value="url.url">
-                        <ruby>
-                            <rt>{{ url.nombre }}&nbsp;</rt>
-                            <rp>(</rp>
-                            <rt>{{ url.url }}</rt>
-                            <rp>)</rp>
-                        </ruby>
+                        {{ url.nombre }} ({{ url.url }})
                     </option>
                 </select>
             </div>

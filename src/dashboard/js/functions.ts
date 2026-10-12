@@ -54,7 +54,7 @@ export const convertDataTypes = <T = unknown>(data: unknown, conversions: FieldC
                 }
 
                 case 'number': {
-                    const numValue = typeof value === 'string' ? Number.parseFloat(value) : Number(value);
+                    const numValue = Number(value);
                     result[key] = Number.isNaN(numValue) ? value : numValue;
                     break;
                 }
@@ -311,8 +311,10 @@ export const getAnnoMes = (): string => formatDate(getCurrentTime(), { day: unde
  *
  * @returns {number} The current year.
  */
-export const getAnno = (): number =>
-    Number.parseInt(formatDate(getCurrentTime(), { year: 'numeric', month: undefined, day: undefined }), 10);
+export const getAnno = (): number => {
+    const year = formatDate(getCurrentTime(), { year: 'numeric', month: undefined, day: undefined });
+    return Math.trunc(Number(year));
+};
 
 /**
  * @preserve
@@ -741,7 +743,7 @@ export const randomNumberToken = (len: number): string => {
 };
 
 export const formatCurrency = (value: number | string, currency: string = 'CLP'): string => {
-    const num = typeof value === 'string' ? Number.parseFloat(value) : value;
+    const num = Number(value);
     return new Intl.NumberFormat('es-CL', {
         style: 'currency',
         currency,

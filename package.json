@@ -19,22 +19,22 @@
     },
     "dependencies": {
         "sweetalert2": "^11.26.25",
-        "vue": "^3.5.42"
+        "vue": "^3.5.43"
     },
     "devDependencies": {
         "@prettier/plugin-php": "^0.25.0",
         "@trivago/prettier-plugin-sort-imports": "^6.0.2",
-        "@types/node": "^22.20.2",
-        "@vue/compiler-dom": "^3.5.42",
-        "@vue/reactivity": "^3.5.42",
-        "@vue/runtime-core": "^3.5.42",
-        "@vue/runtime-dom": "^3.5.42",
+        "@types/node": "^26.6.5",
+        "@vue/compiler-dom": "^3.5.43",
+        "@vue/reactivity": "^3.5.43",
+        "@vue/runtime-core": "^3.5.43",
+        "@vue/runtime-dom": "^3.5.43",
         "@zackad/prettier-plugin-twig": "^0.17.0",
         "code-tag": "^1.2.0",
-        "globals": "^17.12.0",
-        "oxlint": "1.82.0",
-        "prettier": "3.9.6",
+        "globals": "^17.13.0",
+        "oxlint": "1.87.0",
+        "prettier": "3.9.10",
         "tailwindcss": "3.4.19",
-        "versacompiler": "2.7.1"
+        "versacompiler": "2.7.3"
     }
 }

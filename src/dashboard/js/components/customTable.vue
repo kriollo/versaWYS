@@ -169,7 +169,7 @@
 
     // --- Utility Functions ---
     const formatCurrency = (value: number | string, currency: string = 'CLP') => {
-        const num = typeof value === 'string' ? Number.parseFloat(value) : value;
+        const num = Number(value);
         return new Intl.NumberFormat('es-CL', {
             style: 'currency',
             currency,
