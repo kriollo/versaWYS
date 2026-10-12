@@ -148,7 +148,16 @@ class File extends SplFileInfo implements \ArrayAccess
     #[\Override]
     public function getType(): string
     {
-        return $this->file['type'];
+        // Tipo detectado desde el contenido: el que declara el cliente no es confiable
+        $tmp = (string) ($this->file['tmp_name'] ?? '');
+        if ($tmp !== '' && is_file($tmp)) {
+            $real = (new \finfo(FILEINFO_MIME_TYPE))->file($tmp);
+            if (is_string($real) && $real !== '') {
+                return $real;
+            }
+        }
+
+        return (string) $this->file['type'];
     }
 
     public function getTmpName(): string
@@ -185,6 +194,7 @@ class File extends SplFileInfo implements \ArrayAccess
     public function moveToOriginalName(string $path): bool
     {
         $destination = rtrim($path, '/') . '/' . $this->sanitizeFileName($this->file['name']);
+        $this->assertSafeDestination($destination);
         if (!file_exists($path)) {
             mkdir($path, 0o775, true);
         }
@@ -198,11 +208,11 @@ class File extends SplFileInfo implements \ArrayAccess
             if (!file_put_contents($destination, $filetmp)) {
                 $this->handleError('No se pudo mover el archivo a la ruta especificada.');
             }
-            chmod($destination, 0o775);
+            chmod($destination, 0o664);
         } elseif (!move_uploaded_file($this->getTmpName(), $destination)) {
             $this->handleError('No se pudo mover el archivo a la ruta especificada.');
         } else {
-            chmod($destination, 0o775);
+            chmod($destination, 0o664);
         }
 
         return true;
@@ -213,6 +223,7 @@ class File extends SplFileInfo implements \ArrayAccess
         global $debug;
         // Normalizar la ruta
         $finalPath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $finalPath);
+        $this->assertSafeDestination($finalPath);
         $directory = dirname($finalPath);
 
         // Log para debugging
@@ -276,7 +287,7 @@ class File extends SplFileInfo implements \ArrayAccess
 
             $success = file_put_contents($finalPath, $filetmp) !== false;
             if ($success) {
-                chmod($finalPath, 0o775);
+                chmod($finalPath, 0o664);
             }
             if (!$success) {
                 $error = error_get_last();
@@ -304,7 +315,7 @@ class File extends SplFileInfo implements \ArrayAccess
         }
 
         // Establecer permisos del archivo
-        @chmod($finalPath, 0o775);
+        @chmod($finalPath, 0o664);
 
         if ($debug) {
             Loggin::info('moveToNewName: Archivo movido exitosamente', 'File', [
@@ -351,7 +362,26 @@ class File extends SplFileInfo implements \ArrayAccess
      */
     private function sanitizeFileName(string $filename): string
     {
-        return preg_replace('/[^a-zA-Z0-9\-_.]/', '', $filename);
+        // Sin puntos iniciales: nunca generar archivos ocultos (.htaccess, .env)
+        return ltrim((string) preg_replace('/[^a-zA-Z0-9\-_.]/', '', $filename), '.');
+    }
+
+    /**
+     * Ningún archivo subido puede quedar con un nombre que el servidor web ejecute o interprete.
+     */
+    private function assertSafeDestination(string $destination): void
+    {
+        $name = strtolower(basename($destination));
+
+        if (
+            $name === ''
+            || str_starts_with($name, '.')
+            || preg_match('/\.(php\d?|phtml|pht|phar|cgi|pl|sh|htaccess|htpasswd)(\.|$)/', $name) === 1
+        ) {
+            Loggin::warning('Subida bloqueada por nombre de archivo no permitido: ' . $name, 'File');
+
+            throw new \RuntimeException('Tipo de archivo no permitido.');
+        }
     }
 
     /**

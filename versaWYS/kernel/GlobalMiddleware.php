@@ -201,14 +201,10 @@ class GlobalMiddleware
     {
         global $session, $request, $debug;
 
-        if ($debug) {
-            return true;
-        }
-
         // Buscar token en orden de prioridad
         $token = $request->get('_csrf_token') ?: $request->get('csrf_token') ?: $this->getCSRFTokenWithPrefix(
             $request,
-        ) ?: $request->getHeader('X-CSRF-Token') ?: $slug;
+        ) ?: $request->getHeader('X-CSRF-Token');
 
         if (in_array($token, [null, '', false], true)) {
             return [
@@ -239,10 +235,6 @@ class GlobalMiddleware
     {
         global $session, $debug, $config;
 
-        if ($debug) {
-            return true;
-        }
-
         $iduser = (int) $session->get('id_user');
         $user = (new Users())->findWithCompany($iduser);
         if ($user === []) {
@@ -261,10 +253,6 @@ class GlobalMiddleware
     public function onlySuperAdmin(): ?bool
     {
         global $session, $debug, $config;
-
-        if ($debug) {
-            return true;
-        }
 
         $iduser = (int) $session->get('id_user');
         $user = (new Users())->findWithCompany($iduser);

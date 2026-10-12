@@ -55,10 +55,11 @@ class Users extends VersaORMModel
         string $order = 'id ASC',
         int $limit = 15,
         int $offset = 0,
+        array $bindings = [],
     ): array {
-        $filter = trim($where) !== ''
-            ? sprintf(' versa_users.id_empresa = %d AND %s', $id_empresa, $where)
-            : 'versa_users.id_empresa = ' . $id_empresa;
+        // La empresa siempre la impone el servidor; los filtros del cliente solo pueden acotar más
+        $filter = 'versa_users.id_empresa = ?' . (trim($where) !== '' ? ' AND ' . $where : '');
+        $bindings = [$id_empresa, ...$bindings];
 
         $result = $this
             ->qb()
@@ -67,7 +68,7 @@ class Users extends VersaORMModel
             ->selectRaw('COUNT(*) OVER() AS total_count')
             ->leftJoin('versa_perfil as vp', 'vp.id', '=', 'versa_users.id_perfil')
             ->leftJoin('empresas as e', 'e.id', '=', 'versa_users.id_empresa')
-            ->whereRaw($filter)
+            ->whereRaw($filter, $bindings)
             ->orderByRaw($order)
             ->limit($limit)
             ->offset($offset)

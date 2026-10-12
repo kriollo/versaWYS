@@ -70,7 +70,7 @@ class UsersController extends GlobalControllers
                 'versa_users.pagina_inicio',
                 'vp.nombre',
                 'e.nombre',
-            ]);
+            ], allowedFilters: ['status' => 'versa_users.status']);
             $filter = $params['filter'] ?? '';
             $order = $params['order'] ? '' . $params['order'] : 'id DESC';
             $result = (new Users())->getUsersPaginate(
@@ -90,6 +90,7 @@ class UsersController extends GlobalControllers
                 $order,
                 (int) $params['limitNumber'],
                 (int) $params['offset'],
+                $params['bindings'],
             );
             $count = (int) $result['total'];
 

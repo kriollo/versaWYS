@@ -30,6 +30,9 @@ class Router
 
     protected static array $middlewares = []; // Estructura: $middlewares[method][route][]
 
+    /** Rutas que renuncian a la validación CSRF automática: $csrfExempt[method][route] */
+    protected static array $csrfExempt = [];
+
     protected string $lastRoute = '';
 
     protected string $lastRouteMethod = '';
@@ -195,6 +198,38 @@ class Router
      *
      * @return Router the Router instance
      */
+    /**
+     * Excluye la ruta de la validación CSRF automática. Solo para endpoints que autentican la
+     * petición por otro medio (webhooks firmados, APIs con token propio).
+     */
+    public function withoutCsrf(): static
+    {
+        self::$csrfExempt[$this->lastRouteMethod][$this->lastRoute] = true;
+
+        return $this;
+    }
+
+    /**
+     * Middlewares de una ruta. Toda ruta que modifica estado (POST, PUT, PATCH, DELETE) valida
+     * primero el token CSRF, salvo que lo declare ella misma o use withoutCsrf().
+     */
+    private function routeMiddlewares(string $method, string $route): array
+    {
+        $middlewares = self::$middlewares[$method][$route] ?? [];
+
+        if ($method === 'get' || isset(self::$csrfExempt[$method][$route])) {
+            return $middlewares;
+        }
+
+        foreach ($middlewares as $middleware) {
+            if (($middleware[1] ?? '') === 'validateCSRFToken') {
+                return $middlewares;
+            }
+        }
+
+        return [[GlobalMiddleware::class, 'validateCSRFToken'], ...$middlewares];
+    }
+
     public function middleware(array $middlewares): static
     {
         $route = $this->lastRoute;
@@ -312,8 +347,9 @@ class Router
                 $originalRoute = $url;
                 // Ejecutar middlewares y controlador de forma centralizada
                 $result = null;
-                if (isset(self::$middlewares[$routeMethod][$originalRoute])) {
-                    $result = $this->executeMiddlewares(self::$middlewares[$routeMethod][$originalRoute], []);
+                $routeMiddlewares = $this->routeMiddlewares($routeMethod, $originalRoute);
+                if ($routeMiddlewares !== []) {
+                    $result = $this->executeMiddlewares($routeMiddlewares, []);
                 }
 
                 if ($result !== null) {
@@ -369,8 +405,9 @@ class Router
 
                     // Ejecutar middlewares y controlador de forma centralizada para rutas parametrizadas
                     $result = null;
-                    if (isset(self::$middlewares[$routeMethod][$originalRoute])) {
-                        $result = $this->executeMiddlewares(self::$middlewares[$routeMethod][$originalRoute], $slug);
+                    $routeMiddlewares = $this->routeMiddlewares($routeMethod, $originalRoute);
+                    if ($routeMiddlewares !== []) {
+                        $result = $this->executeMiddlewares($routeMiddlewares, $slug);
                     }
 
                     if ($result !== null) {

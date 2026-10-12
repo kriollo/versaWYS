@@ -20,22 +20,17 @@ class Response
      */
     public static function json(array $data, int $code = 200): bool|string
     {
-        if (error_get_last() !== null) {
-            $last = error_get_last();
-            $data = [
-                'success' => 0,
-                'message' => 'Error en la petición',
-                'errors' => $last,
-                'code' => 500,
-            ];
-            $code = 500;
-            // Limpiar el último error para evitar bucles infinitos al volver a invocar jsonError / jsonErrorForSPA
-            if (function_exists('error_clear_last')) {
-                error_clear_last();
-            }
-            self::jsonError($data, $code);
+        // Un warning previo no invalida la respuesta. Solo en debug se muestra, para detectarlo al desarrollar;
+        // en producción queda en el log y la respuesta sigue su curso sin exponer rutas internas.
+        $last = error_get_last();
+        if ($last !== null) {
+            error_clear_last();
+            if ($GLOBALS['config']['build']['debug'] ?? false) {
+                self::jsonError(['success' => 0, 'message' => 'Error en la petición', 'errors' => $last, 'code' => 500], 500);
 
-            return false;
+                return false;
+            }
+            Loggin::warning('Warning previo a la respuesta: ' . $last['message'], 'response', $last);
         }
 
         if (is_array($data) || is_object($data)) {
@@ -65,6 +60,8 @@ class Response
 
             return false; // Nunca debería llegar aquí
         }
+
+        $data = self::withoutInternals($data);
 
         // === SPA-AWARE: Si es una petición SPA, devolver error como JSON SPA renderizable ===
         if (Request::isSPARequestStatic()) {
@@ -440,5 +437,18 @@ class Response
             echo "==================\n\n";
             exit($code === 200 ? 0 : 1);
         }
+    }
+
+    /**
+     * En producción una respuesta de error solo lleva lo que el usuario necesita. Rutas de archivos,
+     * trazas, SQL y mensajes del driver quedan en el log, nunca en la respuesta.
+     */
+    private static function withoutInternals(array $data): array
+    {
+        if ($GLOBALS['config']['build']['debug'] ?? false) {
+            return $data;
+        }
+
+        return array_intersect_key($data, array_flip(['success', 'message', 'errors', 'code', 'type', 'timestamp']));
     }
 }

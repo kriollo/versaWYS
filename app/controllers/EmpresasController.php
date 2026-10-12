@@ -33,7 +33,10 @@ class EmpresasController extends GlobalControllers
     public function getEmpresasPaginated(): array
     {
         global $request;
-        $params = $this->getParamsPaginate($request, ['rut', 'nombre', 'email']);
+        $params = $this->getParamsPaginate($request, ['rut', 'empresas.nombre', 'email'], allowedFilters: [
+            'estado' => 'empresas.estado',
+            'empresas.estado',
+        ]);
         $filter = $params['filter'] ?? '';
         $order = $params['order'] ?? 'id DESC';
         $modelo = new Models\Empresas();
@@ -52,6 +55,7 @@ class EmpresasController extends GlobalControllers
             $params['limitNumber'],
             $params['offset'],
             $this->pathLogo,
+            $params['bindings'],
         );
         $count = (int) $result['total'];
 

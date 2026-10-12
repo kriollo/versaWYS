@@ -51,6 +51,7 @@ class Empresas extends VersaORMModel
         int $limit = 15,
         int $offset = 0,
         string $pathLogo = '',
+        array $bindings = [],
     ): array {
         $filter = trim($where) !== '' ? $where : '';
 
@@ -62,7 +63,7 @@ class Empresas extends VersaORMModel
             ->from('empresas');
 
         if ($filter !== '' && $filter !== '0') {
-            $qb->whereRaw($filter);
+            $qb->whereRaw($filter, $bindings);
         }
 
         $qb->orderByRaw($order)->limit($limit)->offset($offset);

@@ -45,7 +45,8 @@ class Request
             $this->rawBody = file_get_contents('php://input') ?? null;
             $this->rawBodyLength = strlen($this->rawBody) ?? 0;
 
-            if (isset($this->params['_method'])) {
+            // _method solo puede elevar un POST de formulario: nunca convertir un GET en escritura
+            if ($this->method === 'POST' && isset($this->params['_method'])) {
                 $this->method = strtoupper($this->params['_method']);
             }
         } catch (Throwable $throwable) {
@@ -482,7 +483,7 @@ class Request
         $fileTmpName = tempnam(sys_get_temp_dir(), 'uploaded_file_');
 
         file_put_contents($fileTmpName, $fileTmpContent);
-        chmod($fileTmpName, 0o775);
+        chmod($fileTmpName, 0o600);
 
         return [
             'name' => $fileName,

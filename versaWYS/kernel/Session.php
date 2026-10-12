@@ -29,6 +29,8 @@ use versaWYS\kernel\helpers\Functions;
  */
 class Session
 {
+    private static bool $validatedThisRequest = false;
+
     /**
      * Session constructor.
      *
@@ -91,7 +93,7 @@ class Session
     {
         global $debug;
         if (session_status() === PHP_SESSION_ACTIVE) {
-            session_regenerate_id();
+            session_regenerate_id(true);
         } else {
             $error_message = 'Cannot regenerate session ID: No active session';
             Loggin::error($error_message, 'Session');
@@ -384,57 +386,13 @@ class Session
      */
     public function decodeJWT(string $jwt): array
     {
-        global $config, $debug;
+        global $config;
 
+        // Un token inválido o expirado es una condición normal: quien llama decide la respuesta
         try {
             $decoded = JWT::decode($jwt, new Key($config['session']['key'], 'HS256'));
         } catch (Exception $exception) {
-            $error_message = 'Failed to decode JWT: ' . $exception->getMessage();
-            Loggin::error($error_message, 'Session');
-
-            // Handle error according to debug mode
-            if ($debug) {
-                // In debug mode, use ErrorHandler to show detailed error
-                $errorHandler = new ErrorHandler();
-                $errorHandler->handleException(new RuntimeException($error_message));
-                exit();
-            }
-
-            // Check if this is an API request using our improved detection
-            $isApi = $this->isStaticApiCall();
-
-            if ($isApi) {
-                Response::jsonError(['message' => 'Token inválido', 'code' => 401], 401);
-                exit();
-            }
-
-            // For non-API requests, redirect to login or show error
-            header('Location: /login');
-            exit();
-        }
-
-        if ($decoded === false) {
-            $error_message = 'JWT decode returned false';
-            Loggin::error($error_message, 'Session');
-
-            // Handle error according to debug mode
-            if ($debug) {
-                // In debug mode, use ErrorHandler to show detailed error
-                $errorHandler = new ErrorHandler();
-                $errorHandler->handleException(new RuntimeException($error_message));
-                exit();
-            }
-
-            // Check if this is an API request using our improved detection
-            $isApi = $this->isStaticApiCall();
-            if ($isApi) {
-                Response::jsonError(['message' => 'Token inválido', 'code' => 401], 401);
-                exit();
-            }
-
-            // For non-API requests, redirect to login
-            header('Location: /login');
-            exit();
+            throw new RuntimeException('Token inválido: ' . $exception->getMessage(), 401, $exception);
         }
 
         // transformar objeto a array
@@ -486,6 +444,12 @@ class Session
                 $config['session']['user_cookie']['http_only'],
             );
         }
+
+        // Tras autenticar: id de sesión y token CSRF nuevos, para que nada fijado antes del login sirva después
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
+        }
+        $this->setCSRFToken();
     }
 
     /**
@@ -847,24 +811,13 @@ class Session
      */
     public function checkUserSessionCached(bool $forceValidation = false): bool
     {
-        // Si ya validamos en esta request, usar resultado cacheado
-        // Esto evita múltiples decodificaciones JWT por request
-        $cacheKey = '_session_validated_at';
-        $lastValidation = $this->get($cacheKey);
-
-        if (!$forceValidation && $lastValidation !== null) {
-            $secondsSinceValidation = time() - (int) $lastValidation;
-            // Aceptar caché de hasta 5 segundos (misma request HTTP)
-            if ($secondsSinceValidation < 5 && $this->get('id_user') !== null && $this->get('empresa_id') !== null) {
-                return true;
-            }
+        // Caché solo dentro de la petición actual: entre peticiones siempre se revalida el JWT
+        if (!$forceValidation && self::$validatedThisRequest) {
+            return true;
         }
 
         $result = $this->checkUserSession();
-
-        if ($result) {
-            $this->set($cacheKey, time());
-        }
+        self::$validatedThisRequest = $result;
 
         return $result;
     }
@@ -894,7 +847,11 @@ class Session
             return false;
         }
 
-        $decoded = $this->decodeJWT($token);
+        try {
+            $decoded = $this->decodeJWT($token);
+        } catch (RuntimeException) {
+            return false;
+        }
 
         return isset($decoded['id_user'], $decoded['empresa_id']) && $decoded['exp'] > time();
     }

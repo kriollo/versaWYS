@@ -38,7 +38,7 @@ class ModulesController extends GlobalControllers
     {
         global $request;
 
-        $params = $this->getParamsPaginate($request, ['seccion', 'nombre', 'descripcion']);
+        $params = $this->getParamsPaginate($request, ['seccion', 'nombre', 'descripcion'], true, 'posicion,asc', ['estado']);
         $filter = $params['filter'] ?? '';
         $order = $params['order'] ?: 'posicion ASC, seccion ASC';
         $modelo = new Models\Pagination();
@@ -49,6 +49,7 @@ class ModulesController extends GlobalControllers
             $order,
             $params['limitNumber'],
             $params['offset'],
+            $params['bindings'],
         );
 
         $count = (int) $result['total'];
@@ -218,7 +219,7 @@ class ModulesController extends GlobalControllers
     {
         global $request;
 
-        $params = $this->getParamsPaginate($request, ['id'], true);
+        $params = $this->getParamsPaginate($request, ['nombre', 'descripcion'], true, 'posicion,asc', ['id_menu']);
 
         $filter = $params['filter'] ?? '';
         $order = $params['order'] ?? 'posicion DESC, id ASC';
@@ -229,6 +230,7 @@ class ModulesController extends GlobalControllers
             $order,
             $params['limitNumber'],
             $params['offset'],
+            $params['bindings'],
         );
 
         $count = (int) $result['total'];

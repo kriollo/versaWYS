@@ -81,75 +81,117 @@ class GlobalControllers
     }
 
     /**
-     * Retrieves the parameters for pagination.
+     * Parámetros de paginación, búsqueda y orden de un listado.
      *
-     * @param Request $http the HTTP request object
-     * @param array $filedsToFilters an array of fields to filter
+     * Nada de lo que envía el cliente llega como SQL: `filter` devuelve un fragmento con
+     * marcadores `?` y sus valores van en `bindings`, para usarse como whereRaw($filter, $bindings).
      *
-     * @return array the pagination parameters
+     * @param array $filedsToFilters columnas sobre las que busca el texto libre (`filter`)
+     * @param array $allowedFilters columnas que el cliente puede filtrar con `externalFilters`
+     *                              (`col=valor AND col2>valor2`). Acepta `'col'` o `'nombreCliente' => 'tabla.col'`.
+     *
+     * @return array<string, mixed>
      */
     public function getParamsPaginate(
         Request $http,
         array $filedsToFilters,
         bool $inmediateExternalFilter = true,
         string $orderDefault = 'id,asc',
+        array $allowedFilters = [],
     ): array {
-        $page = (int) ($http->get('page') ?? 1);
-        $per_page = (float) ($http->get('per_page') ?? 15);
-        $fitro = (string) ($http->get('filter') ?? '');
-        $order = (string) ($http->get('order') ?? $orderDefault);
-        $order = str_replace(',', ' ', $order);
+        // ponytail: tope fijo de filas por página; exportaciones mayores necesitan un endpoint por streaming
+        $per_page = min(max((int) $http->get('per_page', 15), 1), 5000);
+        $page = max((int) $http->get('page', 1), 1);
+        $offset = ($page - 1) * $per_page;
 
-        $externalFilters = (string) ($http->get('externalFilters') ?? '');
+        $fitro = trim((string) $http->get('filter', ''));
+        $externalFilters = (string) $http->get('externalFilters', '');
 
-        // $externalFilters = $externalFilters;
+        $conditions = [];
+        $bindings = [];
 
-        if ($page === 0 && !is_numeric($page)) {
-            $page = 1;
-        }
-
-        if ($per_page === 0.0 && !is_numeric($per_page)) {
-            $per_page = 15;
-        }
-
-        $page = $page > 1 ? (int) ($page - 1) * $per_page : 0;
-
-        $limit = sprintf('LIMIT %s , %s', $page, $per_page);
-        $limitNumber = (int) $per_page;
-        $offset = (int) $page;
-
-        $filter = '';
         if ($inmediateExternalFilter) {
-            $filter = sprintf(' %s ', $externalFilters);
+            [$conditions, $bindings] = self::parseExternalFilters($externalFilters, $allowedFilters);
         }
 
-        if (trim($fitro) !== '') {
-            if (trim($filter) !== '') {
-                $filter .= ' AND ';
+        if ($fitro !== '' && $filedsToFilters !== []) {
+            $likes = [];
+            foreach ($filedsToFilters as $field) {
+                $likes[] = $field . ' LIKE ?';
+                $bindings[] = '%' . $fitro . '%';
             }
-
-            $filter .= ' ( ';
-            foreach ($filedsToFilters as $key => $value) {
-                $filter .= match ($key) {
-                    0 => sprintf(" %s LIKE '%%%s%%' ", $value, $fitro),
-                    default => sprintf(" OR %s LIKE '%%%s%%' ", $value, $fitro),
-                };
-            }
-
-            $filter .= ' ) ';
+            $conditions[] = '(' . implode(' OR ', $likes) . ')';
         }
 
         return [
-            'page' => $page,
+            'page' => $offset,
             'per_page' => $per_page,
             'filtro' => $fitro,
-            'order' => $order,
+            'order' => self::sanitizeOrder((string) $http->get('order', $orderDefault), $orderDefault),
             'externalFilters' => $externalFilters,
-            'limit' => $limit,
-            'filter' => $filter,
+            'limit' => sprintf('LIMIT %d , %d', $offset, $per_page),
+            'filter' => implode(' AND ', $conditions),
+            'bindings' => $bindings,
             'allParams' => $http->getAllParams(),
             'offset' => $offset,
-            'limitNumber' => $limitNumber,
+            'limitNumber' => $per_page,
         ];
+    }
+
+    /**
+     * Convierte `col=valor AND col2>=valor2` en condiciones con marcadores. Las condiciones con
+     * formato inválido o sobre columnas no permitidas se descartan.
+     *
+     * @return array{0: list<string>, 1: list<mixed>}
+     */
+    private static function parseExternalFilters(string $raw, array $allowed): array
+    {
+        $columns = [];
+        foreach ($allowed as $key => $column) {
+            $columns[is_int($key) ? $column : $key] = $column;
+        }
+
+        $conditions = [];
+        $bindings = [];
+
+        foreach (preg_split('/\s+AND\s+/i', trim($raw)) ?: [] as $part) {
+            if (preg_match('/^([A-Za-z_][\w.]*)\s*(=|!=|<>|>=|<=|>|<)\s*(.*)$/s', trim($part), $m) !== 1) {
+                continue;
+            }
+
+            if (!isset($columns[$m[1]])) {
+                continue;
+            }
+
+            $value = trim($m[3], " \t\"'");
+            $conditions[] = $columns[$m[1]] . ' ' . $m[2] . ' ?';
+            $bindings[] = match (true) {
+                strtolower($value) === 'true' => true,
+                strtolower($value) === 'false' => false,
+                is_numeric($value) => $value + 0,
+                default => $value,
+            };
+        }
+
+        return [$conditions, $bindings];
+    }
+
+    /**
+     * Solo `columna [asc|desc]`: la columna debe ser un identificador simple.
+     */
+    private static function sanitizeOrder(string $order, string $default): string
+    {
+        foreach ([$order, $default] as $candidate) {
+            // ponytail: lista negra mínima para no ordenar por secretos; pasar a lista blanca por
+            // listado si aparecen más columnas sensibles
+            if (
+                preg_match('/^([A-Za-z_][\w.]*)[,\s]*(asc|desc)?$/i', trim($candidate), $m) === 1
+                && preg_match('/password|token/i', $m[1]) !== 1
+            ) {
+                return $m[1] . ' ' . strtoupper($m[2] ?? 'ASC');
+            }
+        }
+
+        return 'id ASC';
     }
 }
