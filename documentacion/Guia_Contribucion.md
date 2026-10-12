@@ -53,7 +53,6 @@ Puedes contribuir de varias formas:
 - [Repositorio oficial en GitHub](https://github.com/kriollo/versaWYS)
 - [Documentación del framework](../documentacion/)
 - [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md)
-- [RedBeanPHP ORM](https://redbeanphp.com/index.php?p=/learn)
 - [Guía de Estructura de Directorios](./EstructuraDeDirectorios.md)
 - [Guía de ORM y Base de Datos](./ORM_y_BaseDeDatos.md)
 

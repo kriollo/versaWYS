@@ -49,6 +49,7 @@ class HelpView
         echo "\n";
         echo sprintf('%s%sOpciones globales:%s%s', $bold, $blue, $reset, PHP_EOL);
         echo "  {$yellow}--verbose, -v{$reset}  Mostrar información detallada del comando\n";
+        echo "  {$yellow}--force{$reset}        Omitir la confirmación de comandos destructivos\n";
         echo "\n";
         echo sprintf('%s%sAtajos rápidos:%s%s', $bold, $blue, $reset, PHP_EOL);
         echo "  {$yellow}RCMD:[nombre]{$reset}              Crear ruta, controlador, modelo y middleware\n";

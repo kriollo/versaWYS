@@ -50,14 +50,15 @@ El XSS permite a un atacante inyectar scripts maliciosos en páginas vistas por 
 
 ## 3. Prevención de Inyección SQL
 
-La inyección SQL ocurre cuando datos del usuario se insertan sin control en consultas SQL. versaWYS-PHP utiliza RedBeanPHP, que emplea consultas parametrizadas.
+La inyección SQL ocurre cuando datos del usuario se insertan sin control en consultas SQL. versaWYS-PHP utiliza VersaORM, que emplea consultas parametrizadas.
 
 - **Siempre usa métodos del ORM** para operaciones CRUD.
 - **Evita SQL crudo**. Si es imprescindible, usa parámetros y/o escapa los datos cuidadosamente.
 
 **Ejemplo seguro:**
 ```php
-$user = R::findOne('users', 'username = ? AND password_hash = ?', [$usuario, $hash]);
+// Dentro de un modelo (VersaORMModel)
+$user = $this->getRow('SELECT * FROM versa_users WHERE email = ?', [$email]);
 ```
 
 - Valida tipo, longitud y formato de los datos antes de enviarlos a la base de datos.

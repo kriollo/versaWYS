@@ -1,200 +1,89 @@
 # Guía de Instalación de versaWYS-PHP
 
-Esta guía te ayudará a instalar y configurar versaWYS-PHP en tu entorno de desarrollo de manera clara y ordenada.
+## Requisitos
 
-## Tabla de Contenidos
+- **PHP 8.3 o superior** con las extensiones `intl`, `pdo`, `mbstring`, `fileinfo`, `curl`, `zip` y el driver de tu base de datos (`pdo_mysql` o `pdo_pgsql`).
+- **Composer**.
+- **MySQL 8 / MariaDB 10.5+** o **PostgreSQL 13+**.
+- **Apache 2.4+** (con `mod_rewrite`) o **NGINX**. Para desarrollo basta `php versaCLI serve`.
+- **Node.js 20+** y **pnpm** para compilar el frontend.
 
-- [Requisitos Previos](#requisitos-previos)
-- [Flujo de Instalación Paso a Paso](#flujo-de-instalación-paso-a-paso)
-- [Configuración del Servidor Web (Opcional)](#configuración-del-servidor-web-opcional)
-  - [Apache](#apache)
-  - [NGINX](#nginx)
-- [Compilación de Assets para Producción](#compilación-de-assets-para-producción)
+Puedes revisar el estado del entorno en cualquier momento con `php versaCLI status`.
 
-## Requisitos Previos
+## Instalación paso a paso
 
-Asegúrate de tener los siguientes componentes instalados en tu sistema. Si tienes dudas sobre cómo instalar dependencias, consulta la [Guía de Configuración](./CONFIGURATION.md) y la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md).
-
-- **PHP 8.3 o superior** (incluye la extensión `php-intl`)
-- **Composer** (manejador de dependencias para PHP)
-- **MySQL 5.7 o superior** (o MariaDB)
-- **Servidor web Apache 2.4+** (con `mod_rewrite` habilitado) o **NGINX**
-- **Node.js 20 o superior** y **npm** (para la compilación de assets CSS/JS)
-
----
-
-## Flujo de Instalación Paso a Paso
-
-### 1. Obtener el Código Fuente
-
-Abre una terminal en el directorio donde deseas instalar el proyecto y ejecuta uno de los siguientes comandos:
-
-- **Clonar con Git (recomendado):**
-    ```bash
-    git clone https://github.com/kriollo/versaWYS.git .
-    ```
-- **Descargar ZIP:**
-    Descarga desde [https://github.com/kriollo/versaWYS/archive/refs/heads/main.zip](https://github.com/kriollo/versaWYS/archive/refs/heads/main.zip) y descomprímelo en tu directorio de proyecto.
-
-### 2. Instalar Dependencias PHP
-
-Navega a la carpeta raíz del proyecto `versaWYS` y ejecuta:
+### 1. Obtener el código
 
 ```bash
-composer install
+git clone https://github.com/kriollo/versaWYS.git mi-proyecto
+cd mi-proyecto
 ```
 
-Esto instalará todas las dependencias necesarias para el backend.
+### 2. Instalar dependencias
 
-### 3. Crear el Archivo de Configuración
+```bash
+cd versaWYS && composer install && cd ..
+pnpm install
+```
 
-Antes de continuar, debes crear el archivo de configuración principal del framework. Ejecuta:
+### 3. Crear la configuración
 
 ```bash
 php versaCLI config:init
 ```
 
-Esto generará el archivo `versaWYS/kernel/config/config.json` con una plantilla base. **No continúes hasta que este archivo exista.** Para más detalles, revisa la [Guía de Configuración](./CONFIGURATION.md) y la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md).
+Genera `versaWYS/kernel/config/config.json` con claves de sesión aleatorias y muestra el **token del instalador web**. El token también queda en `versaWYS/kernel/config/install.token`.
 
-### 4. Configurar la Base de Datos
-
-- Crea una base de datos en tu servidor MySQL/MariaDB.
-- Abre el archivo `versaWYS/kernel/config/config.json` en tu editor.
-- Actualiza la sección `"DB"` con tus credenciales de base de datos:
-    ```json
-    "DB": {
-        "DB_HOST": "localhost",
-        "DB_USER": "root",
-        "DB_PASS": "tu_contraseña",
-        "DB_NAME": "nombre_de_tu_bd"
-    }
-    ```
-
-### 5. Ejecutar Migraciones de Base de Datos
-
-Desde la raíz del proyecto, ejecuta:
+### 4. Compilar el frontend
 
 ```bash
-php versaCLI migrate:up
+pnpm compile      # producción
+pnpm watch        # desarrollo, con recarga en caliente
 ```
 
-Esto creará las tablas necesarias en tu base de datos. Consulta la [sección de migraciones](./ORM_y_BaseDeDatos.md#migraciones-control-de-esquema) para más información.
+### 5. Ejecutar el instalador web
 
-### 6. Instalar Dependencias Frontend y Compilar Assets
-
-Si vas a trabajar con el frontend (panel de administración, dashboard, etc.), revisa también la [Estructura de Directorios](./EstructuraDeDirectorios.md) para entender dónde se ubican los archivos fuente y compilados.
-
-- **Instala las dependencias de Node.js:**
-    ```bash
-    npm install
-    ```
-
-- **Compila los archivos CSS y JS:**
-    - Para compilar archivos JS:
-        ```bash
-        npm run versaCompileJS
-        ```
-    - Para compilar solo los estilos del dashboard:
-        ```bash
-        npm run versaCompileCSS
-        ```
-    - Consulta tu archivo `package.json` para ver todos los scripts disponibles y elige el que se ajuste a tu flujo de trabajo.
-
-### 7. Iniciar el Servidor de Desarrollo
-
-Puedes usar el servidor incorporado de PHP a través de la CLI de versaWYS ([ver detalles](./Guia_versaCLI.md#servidor-de-desarrollo)):
+Crea una base de datos **vacía**, levanta el servidor y abre `/install`:
 
 ```bash
 php versaCLI serve
+# http://localhost:8000/install
 ```
 
-Por defecto, tu aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
+El asistente pide los datos de la base de datos, de la empresa, del usuario superadministrador y el token del paso 3. Con eso:
 
-- **Credenciales por defecto:**
-    - Usuario: `admin@wys.cl`
-    - Contraseña: `admin2023`
+1. prueba la conexión y guarda los datos en `config.json`;
+2. ejecuta las migraciones y los seeders;
+3. crea la empresa y el superadministrador;
+4. escribe `installed.lock` y elimina el token.
 
----
+Desde ese momento `/install` deja de estar disponible y puedes entrar por `/admin/login`.
 
-## Configuración del Servidor Web (Opcional)
+> En desarrollo local sin HTTPS, cambia `session.user_cookie.secure` a `false` en `config.json`; de lo contrario el navegador no enviará la cookie de sesión.
 
-Si vas a desplegar en producción o usar Apache/NGINX, revisa la sección correspondiente para configurar correctamente las URLs amigables y el acceso a los assets.
+### Instalación sin el asistente
 
-### Apache
+Si prefieres la terminal, completa la sección `database` de `config.json` y ejecuta:
 
-Asegúrate de que `mod_rewrite` esté habilitado. Necesitarás un archivo `.htaccess` en el directorio raíz de tu proyecto (o en el directorio `public/` si esa es tu raíz web) con reglas similares a las siguientes para redirigir todas las solicitudes al `index.php` principal:
-
-```apache
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /
-
-    # Redirige todas las solicitudes a index.php si no es un archivo o directorio existente
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]
-</IfModule>
+```bash
+php versaCLI migrate:up
+php versaCLI seeder:runAll
 ```
 
-La configuración exacta puede variar dependiendo de si la raíz de tu sitio apunta al directorio principal del proyecto o a una subcarpeta como `public/`.
+Los seeders no crean usuarios: el superadministrador se crea con el instalador web.
 
-### NGINX
+## Servidor web
 
-Para NGINX, la configuración del servidor podría verse así:
+En `configs/` hay plantillas para NGINX (`nginx.conf.example`) y Apache (`apache-vhost.conf.example`). La raíz del sitio es la carpeta del proyecto (donde está `index.php`); los `.htaccess` incluidos bloquean el acceso directo a `app/`, `versaWYS/` y a los archivos de configuración.
 
-```nginx
-server {
-    listen 80;
-    server_name tu_dominio.com;
-    root /ruta/a/tu/proyecto/public; # O la raíz de tu proyecto si manejas las rutas de manera diferente
+Para desplegar con versaDeploy, copia `versa_deploy.example.yml` a `versa_deploy.yml` y completa los datos del servidor.
 
-    index index.php index.html index.htm;
+## Producción
 
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location ~ \.php$ {
-        include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock; # Ajusta la versión de PHP y la ruta del socket FPM
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        include fastcgi_params;
-    }
-
-    location ~ /\.ht {
-        deny all;
-    }
-}
+```bash
+php versaCLI config:debug:false
+php versaCLI config:templateCache:true
+php versaCLI route:compile
 ```
 
-Ajusta `tu_dominio.com`, la ruta al proyecto (`root`) y la configuración de `fastcgi_pass` según tu entorno.
-
----
-
-## Compilación de Assets para Producción
-
-Cuando estés listo para desplegar tu aplicación, compila y minifica tus archivos CSS y JS. Consulta la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md) para ver los scripts disponibles y la [Estructura de Directorios](./EstructuraDeDirectorios.md) para la ubicación de los assets.
-
-- Para CSS:
-    ```bash
-    npm run versaCompileCSS
-    ```
-- Para JS y otros assets:
-    ```bash
-    npm run versaCompileJS
-    ```
-
-**Nota Importante:**
-Los nombres exactos de los scripts (`versaCompileCSS`, `watch`, `versaCompileJS`, etc.) **dependen exclusivamente de cómo estén definidos en la sección `"scripts"` de tu archivo `package.json`**. Siempre consulta ese archivo como la fuente autoritativa para estos comandos.
-
-Si estás utilizando tareas preconfiguradas de VSCode que ejecutan estos scripts, asegúrate de que apunten a los nombres correctos definidos en tu `package.json`.
-
----
-
-**¡Listo!**
-Tu entorno versaWYS-PHP debería estar funcionando. Si tienes dudas, revisa la documentación incluida en la carpeta `documentacion/` o ejecuta `php versaCLI help` para ver todos los comandos disponibles. También puedes consultar la [Guía de Línea de Comandos (CLI)](./Guia_versaCLI.md) y la [Guía de Contribución](./Guia_Contribucion.md).
-
-**NOTA**
-**versaCompiler:** El comando `npm run watch` o `npx versacompiler` compila y transpila los archivos JS/CSS de `src/` hacia los directorios públicos, facilitando el flujo de trabajo frontend.
-
-Para más información sobre versaCompiler, consulta su [repositorio oficial](https://github.com/versaCompiler)
+Consulta la [Guía de Configuración](./CONFIGURATION.md) para el resto de opciones.

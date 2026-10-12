@@ -14,14 +14,14 @@ Esta guía te proporciona una visión general del framework y enlaces a las guí
 
 versaWYS-PHP es un framework PHP MVC (Modelo-Vista-Controlador) moderno y ligero, diseñado para desarrolladores que buscan una base sólida y eficiente para construir aplicaciones web y APIs RESTful. Su filosofía se centra en la simplicidad, la velocidad y la facilidad de uso, permitiendo un desarrollo ágil sin sacrificar la potencia ni la flexibilidad.
 
-Inspirado en la necesidad de un arranque rápido de proyectos y una curva de aprendizaje suave, versaWYS-PHP integra componentes robustos y populares de la comunidad PHP, como RedBeanPHP para un ORM fluido y Twig para un sistema de plantillas elegante y seguro.
+Inspirado en la necesidad de un arranque rápido de proyectos y una curva de aprendizaje suave, versaWYS-PHP integra componentes robustos y populares de la comunidad PHP, como VersaORM para el acceso a datos y Twig para un sistema de plantillas elegante y seguro.
 
 ## Guías Detalladas
 
 - [Guía de Instalación](./INSTALL.md)
 - [Guía de Configuración](./CONFIGURATION.md)
 - [Enrutamiento](./Enrutamiento.md)
-- [ORM y Base de Datos (RedBeanPHP, Migraciones y Seeders)](./ORM_y_BaseDeDatos.md)
+- [ORM y Base de Datos (VersaORM, Migraciones y Seeders)](./ORM_y_BaseDeDatos.md)
 - [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md)
 - [Seguridad del Framework](./Seguridad_Principios_Basicos.md)
 - [Documentación de Rutas Interactiva](./RutasInteractivas.md)

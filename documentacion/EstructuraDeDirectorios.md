@@ -42,7 +42,7 @@ El directorio `app/` es donde reside la mayor parte de tu código de aplicación
 *   **`migrations/`**: Aquí se guardan todos los archivos de migración de la base de datos. Cada archivo de migración contiene métodos para aplicar (`up`) y revertir (`down`) cambios en el esquema de tu base de datos, permitiendo un control de versiones del mismo.
     *   Ejemplo: `2023_10_27_100000_create_users_table.php`.
 
-*   **`models/`**: Contiene las clases de tus modelos. Los modelos representan la lógica de negocio y la interacción con la base de datos. En versaWYS-PHP, estos modelos a menudo extienden o interactúan con las funcionalidades ORM proporcionadas (por ejemplo, RedBeanPHP).
+*   **`models/`**: Contiene las clases de tus modelos. Los modelos representan la lógica de negocio y la interacción con la base de datos. En versaWYS-PHP, estos modelos extienden `versaWYS\kernel\model\VersaORMModel`.
     *   Ejemplo: `Usuario.php`, `Producto.php`.
 
 *   **`seeders/`**: Contiene las clases de seeders. Los seeders se utilizan para poblar la base de datos con datos iniciales o de prueba, lo cual es útil para el desarrollo y las pruebas.

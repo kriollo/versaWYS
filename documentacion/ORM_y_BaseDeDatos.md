@@ -1,162 +1,134 @@
-# ORM y Base de Datos en versaWYS-PHP
+# ORM y Base de Datos
 
-Esta guía explica cómo versaWYS-PHP gestiona la interacción con la base de datos usando RedBeanPHP como ORM, y cómo puedes crear y ejecutar migraciones y seeders para mantener tu esquema y tus datos de forma estructurada y reproducible.
+versaWYS usa VersaORM (paquete Composer `versaorm/versaorm-php`) y funciona con MySQL/MariaDB y PostgreSQL. La conexión se define en la sección `database` de `config.json`.
 
----
+## Modelos
 
-## 1. Configuración de la Conexión
-
-La conexión a la base de datos se configura en el archivo `versaWYS/kernel/config/config.json`, en la sección `DB`. Para más detalles sobre la configuración, consulta la [Guía de Configuración](./CONFIGURATION.md):
-
-```json
-"DB": {
-    "DB_HOST": "localhost",
-    "DB_USER": "usuario",
-    "DB_PASS": "contraseña",
-    "DB_NAME": "nombre_bd"
-}
-```
-
-El framework utiliza la clase `versaWYS\kernel\RedBeanCnn` para gestionar la conexión y cierre de la base de datos. No necesitas configuraciones adicionales: la conexión se establece automáticamente al usar los modelos.
-
----
-
-## 2. Modelos y Operaciones Básicas con RedBeanPHP
-
-Los modelos en `app/models/` extienden `RedBeanCnn` y encapsulan la lógica de acceso a datos. RedBeanPHP permite trabajar con la base de datos de forma orientada a objetos, sin escribir SQL para operaciones CRUD básicas. Puedes generar modelos usando [versaCLI](./Guia_versaCLI.md).
-
-### Ejemplo básico de uso en un modelo:
-
-```php
-// Crear un nuevo usuario
-$user = R::dispense('users');
-$user->name = 'Juan';
-$user->email = 'juan@ejemplo.com';
-R::store($user); // Guarda el usuario
-
-// Buscar un usuario
-$user = R::findOne('users', 'email = ?', ['juan@ejemplo.com']);
-
-// Actualizar
-$user->name = 'Juan Pérez';
-R::store($user);
-
-// Eliminar
-R::trash($user);
-```
-
-Puedes ver ejemplos reales en los modelos `app/models/Users.php`, `Modules.php`, `Perfil.php`, etc.
-
----
-
-## 3. Migraciones: Control de Esquema
-
-Las migraciones te permiten versionar y modificar el esquema de la base de datos de forma controlada y reproducible. Puedes crearlas y ejecutarlas fácilmente con la [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md).
-
-### Crear una migración
+Los modelos viven en `app/models/` y extienden `versaWYS\kernel\model\VersaORMModel`. Se crean con:
 
 ```bash
-php versaCLI migrate:make:NombreDeLaMigracion
+php versaCLI model:make:Producto
 ```
-
-Esto crea un archivo en `app/migrations/` con métodos `up()` y `down()` para aplicar y revertir cambios.
-
-### Ejecutar migraciones
-
-```bash
-php versaCLI migrate:up
-```
-
-Esto aplicará todas las migraciones pendientes.
-
-### Ejemplo de migración
 
 ```php
-class m20230515100000_CreateProductsTable {
-    public static function up() {
-        R::exec("CREATE TABLE products (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255))");
+namespace app\models;
+
+use VersaORM\VersaModel;
+use versaWYS\kernel\model\VersaORMModel;
+
+class Producto extends VersaORMModel
+{
+    protected string $table = 'productos';
+
+    public function activos(): array
+    {
+        return $this->getAll('SELECT * FROM ' . $this->table . ' WHERE estado = ?', [true]);
     }
-    public static function down() {
-        R::exec("DROP TABLE IF EXISTS products");
+
+    public function porId(int $id): ?array
+    {
+        $producto = $this->findOne($this->table, $id);
+
+        return $producto instanceof VersaModel ? $producto->export() : null;
+    }
+
+    public function crear(array $datos): int
+    {
+        $producto = $this->dispense($this->table);
+        $producto->nombre = $datos['nombre'];
+        $producto->precio = $datos['precio'];
+        $producto->created_at = date('Y-m-d H:i:s');
+
+        return $producto->store();
     }
 }
 ```
 
-Si quieres borrar todo y volver a ejecutar las migraciones, puedes usar:
+Operaciones habituales dentro de un modelo:
+
+| Operación | Código |
+|---|---|
+| Registro nuevo | `$this->dispense($tabla)` y luego `->store()` |
+| Cargar por id o por campo | `$this->load($tabla, $valor)` / `$this->load($tabla, $valor, 'campo')` |
+| Buscar uno (o `null`) | `$this->findOne($tabla, $valor, 'campo')` |
+| SQL con parámetros | `$this->getAll($sql, $params)`, `$this->getRow($sql, $params)`, `$this->exec($sql, $params)` |
+| Query builder | `$this->qb()->where('estado', '=', true)->limit(10)->getAll()` |
+| Contar / actualizar / borrar | `$this->qb()->where(...)->count()`, `->update([...])`, `->delete()` |
+
+**Usa siempre parámetros (`?`) para los valores que vienen del usuario**; nunca los concatenes en el SQL.
+
+Si tu código debe correr en ambos motores, evita sintaxis exclusiva de uno: usa `CONCAT()` en lugar de `||`, y no dependas de `ILIKE`, `RETURNING` ni de conversiones `::tipo`.
+
+## Migraciones
 
 ```bash
-php versaCLI migrate:refresh
+php versaCLI migrate:make:productos   # crea app/migrations/mAAAAMMDDHHMMSS_productos.php
+php versaCLI migrate:up               # ejecuta las pendientes
+php versaCLI migrate:rollback         # revierte la última
+php versaCLI migrate:down:nombre      # revierte una en particular
+php versaCLI migrate:refresh          # revierte todo y vuelve a ejecutar (pide confirmación)
+php versaCLI migrate:refresh:seeder   # lo mismo y además ejecuta los seeders
+php versaCLI migrate:dropAll          # elimina todas las tablas (pide confirmación)
 ```
 
----
-
-## 4. Seeders: Poblado de Datos
-
-Los seeders permiten poblar la base de datos con datos iniciales o de prueba. Puedes crearlos y ejecutarlos usando la [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md).
-
-### Crear un seeder
-
-```bash
-php versaCLI seeder:make:NombreDelSeeder
-```
-
-Esto crea un archivo en `app/seeders/` con un método `run()`.
-
-### Ejecutar seeders
-
-- Ejecutar todos:
-  ```bash
-  php versaCLI seeder:runAll
-  ```
-- Ejecutar uno específico:
-  ```bash
-  php versaCLI seeder:run:NombreDelSeeder
-  ```
-
-### Ejemplo de seeder
+Los comandos destructivos piden confirmación; agrega `--force` para omitirla en scripts de despliegue.
 
 ```php
-class ProductsSeeder {
-    public static function run() {
-        $product = R::dispense('products');
-        $product->name = 'Laptop';
-        R::store($product);
+namespace app\migrations;
+
+use Exception;
+use VersaORM\Schema\Blueprint;
+use versaWYS\kernel\model\VersaORMModel;
+
+class m20260101120000_productos extends VersaORMModel
+{
+    public function up(): array
+    {
+        try {
+            $this->orm()->schemaBuilder()->create('productos', static function (Blueprint $table): void {
+                $table->id();
+                $table->foreignId('id_empresa');
+                $table->string('nombre', 255);
+                $table->integer('precio')->default(0);
+                $table->boolean('estado')->default(true);
+                $table->timestamps();
+
+                $table->foreign('id_empresa')->references('id')->on('empresas');
+            }, true);
+
+            return ['message' => 'Tabla productos creada.', 'success' => true];
+        } catch (Exception $exception) {
+            return ['message' => $exception->getMessage(), 'success' => false];
+        }
+    }
+
+    public function down(): array
+    {
+        try {
+            $this->orm()->schemaBuilder()->dropIfExists('productos');
+
+            return ['message' => 'Tabla productos eliminada.', 'success' => true];
+        } catch (Exception $exception) {
+            return ['message' => $exception->getMessage(), 'success' => false];
+        }
     }
 }
 ```
 
-***Nota***: Los seeders son útiles para poblar datos de prueba o iniciales. Puedes crear múltiples seeders para diferentes tablas o conjuntos de datos.
+> Declara las columnas que apuntan a otra tabla con `foreignId()`. `id()` crea un `BIGINT UNSIGNED` en MySQL, y una columna `integer()` no puede referenciarlo.
 
-Si necesitar poblar datos de prueba, puedes usar `php versaCLI migrate:refresh:seeder`, que revertirá todas las migraciones y ejecutará todos los seeders.
+Las migraciones ejecutadas se registran en la tabla `versa_migrations`.
 
----
+## Seeders
 
-## 5. Relaciones y Consultas Avanzadas
-
-RedBeanPHP permite definir relaciones entre tablas usando propiedades como `ownXList` (uno a muchos) y `sharedXList` (muchos a muchos). Para consultas complejas, puedes usar `R::getAll()` con SQL directo.
-
-### Ejemplo de relación uno a muchos
-
-```php
-$author = R::dispense('author');
-$book = R::dispense('book');
-$author->ownBookList[] = $book;
-R::store($author);
+```bash
+php versaCLI seeder:make:Productos
+php versaCLI seeder:run:Productos
+php versaCLI seeder:runAll            # en orden natural de nombre
 ```
 
-### Ejemplo de consulta avanzada
+Un seeder es una clase en `app/seeders/` con un método `run()` que devuelve `['message' => ..., 'success' => bool]`. Usa un prefijo ordenable (`S202601_...`) cuando un seeder dependa de otro.
 
-```php
-$results = R::getAll('SELECT * FROM users WHERE status = ?', ['active']);
-```
+## Multiempresa
 
----
-
-## 6. Buenas Prácticas
-
-- Usa migraciones para cualquier cambio de esquema ([ver sección de migraciones](#3-migraciones-control-de-esquema)).
-- Usa seeders para poblar datos de prueba o iniciales ([ver sección de seeders](#4-seeders-poblado-de-datos)).
-- Encapsula la lógica de acceso a datos en modelos dentro de `app/models/` ([ver estructura de carpetas](./EstructuraDeDirectorios.md)).
-- Para operaciones CRUD simples, usa las funciones ORM de RedBeanPHP. Para consultas complejas, puedes usar SQL directo con `R::getAll()`.
-
-¿Dudas? Consulta la [Guía de ORM y Base de Datos](./ORM_y_BaseDeDatos.md), la [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md) o abre un issue en el repositorio.
+El starter es multiempresa: `versa_users`, `versa_perfil` y los módulos se asocian a una fila de `empresas`. En los controladores, `$this->empresaSelected['id']` es la empresa de la sesión; filtra siempre por ella y no confíes en un id de empresa enviado por el cliente.

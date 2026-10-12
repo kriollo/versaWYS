@@ -10,7 +10,7 @@
 
 - **Arquitectura MVC** clara y flexible para proyectos de cualquier tamaño.
 - **Enrutamiento avanzado** con soporte para agrupación de rutas, middlewares y parámetros dinámicos.
-- **ORM integrado (RedBeanPHP)** para trabajar con bases de datos de forma sencilla y segura.
+- **ORM integrado (VersaORM)** compatible con MySQL y PostgreSQL, para trabajar con bases de datos de forma sencilla y segura.
 - **Sistema de plantillas Twig** para vistas elegantes y seguras.
 - **CLI potente (versaCLI)** para generación de código, migraciones, seeders y automatización de tareas.
 - **Seguridad integrada**: protección CSRF, XSS, control de sesiones y middlewares personalizables.
@@ -26,7 +26,7 @@ Toda la documentación detallada se encuentra en la carpeta [`/documentacion`](.
 - [Guía de Instalación](./documentacion/INSTALL.md): cómo instalar y configurar el framework.
 - [Guía de Configuración](./documentacion/CONFIGURATION.md): personalización y ajustes del entorno.
 - [Enrutamiento](./documentacion/Enrutamiento.md): cómo funcionan las rutas y middlewares.
-- [ORM y Base de Datos](./documentacion/ORM_y_BaseDeDatos.md): uso de RedBeanPHP, migraciones y seeders.
+- [ORM y Base de Datos](./documentacion/ORM_y_BaseDeDatos.md): modelos con VersaORM, migraciones y seeders.
 - [Interfaz de Línea de Comandos (CLI)](./documentacion/LineaDeComandos.md): automatización y utilidades.
 - [Seguridad](./documentacion/Seguridad_Principios_Basicos.md): buenas prácticas y protección.
 - [Estructura de Directorios](./documentacion/EstructuraDeDirectorios.md): organización del proyecto.
