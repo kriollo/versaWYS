@@ -377,6 +377,55 @@
                                         Módulos
                                     </span>
                                 </li>
+                                <!-- Configuración -->
+                                <li
+                                    id="liDropDownConfiguracion"
+                                    class="group/liDropDownConfiguracion hover:ml-4 hover:bg-gray-100 text-gray-900 dark:text-gray-200 dark:hover:bg-[#1a1a1a] dark:hover:text-brand rounded-lg w-full transform ease-in-out duration-300 flex">
+                                    <versa-link
+                                        href="{{ getPanelUrl('configuracionRoutes') }}"
+                                        data-spa
+                                        class="flex p-2 w-full {{
+                                        url_actual == 'configuracionRoutes'
+                                            ? 'bg-gray-100 dark:bg-[#1a1a1a] dark:text-brand font-bold'
+                                            : ''
+                                        }}">
+                                        <div
+                                            class="flex-shrink-0 w-6 h-6 flex items-center justify-center transition duration-75 {{
+                                            url_actual == 'configuracionRoutes'
+                                                ? 'text-black dark:text-brand'
+                                                : 'text-gray-500 dark:text-gray-400 group-hover:text-black dark:group-hover:text-brand'
+                                            }}">
+                                            <svg
+                                                class="w-6 h-6"
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="24"
+                                                height="24"
+                                                fill="none"
+                                                viewbox="0 0 24 24"
+                                                strokewidth="{1.5}">
+                                                <path
+                                                    stroke="currentColor"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="1.5"
+                                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065Z" />
+                                                <path
+                                                    stroke="currentColor"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="1.5"
+                                                    d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                            </svg>
+                                        </div>
+                                        <span class="ml-3 lg:block hidden" sidebar-toggle-item>Configuración</span>
+                                    </versa-link>
+                                    <span
+                                        class="!hidden text-dark dark:text-white left-[100%] absolute bg-gray-200 dark:bg-gray-800 rounded-lg space-y-2 p-2 tooltip-sidebar shadow-xl border border-gray-100 dark:border-gray-700 ml-2 z-50">
+                                        Configuración
+                                    </span>
+                                </li>
+
                                 {% if config['build']['debug'] == '1' %}
                                     <!-- Documentación -->
                                     <li
