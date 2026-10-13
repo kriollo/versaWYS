@@ -36,7 +36,13 @@ Router::group(
             [EmpresasMiddleware::class, 'validateParamsChangeStatus'],
         ]);
 
+        // description: Lista los módulos del sistema indicando cuáles tiene asociados una empresa.
+        // query-param name:idEmpresa type:int description:ID de la empresa
         Router::get('/api/getModulesEmpresa', [EmpresasController::class, 'getModulesEmpresa']);
+
+        // description: Guarda los módulos asociados a una empresa.
+        // request-body name:id type:int description:ID de la empresa
+        // request-body name:modulos type:array description:IDs de los módulos que quedan asociados
         Router::post('/api/saveModuloEmpresaAsociado', [
             EmpresasController::class,
             'saveModuloEmpresaAsociado',

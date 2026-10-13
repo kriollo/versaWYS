@@ -91,7 +91,7 @@ class RouteManager
             return [];
         }
         $routes = scandir(self::$path);
-        $routes = array_filter($routes, static fn ($route): bool => !in_array($route, ['.', '..'], strict: true));
+        $routes = array_filter($routes, static fn ($route): bool => str_ends_with($route, '.php'));
         return array_values($routes);
     }
 
@@ -124,23 +124,6 @@ class RouteManager
         self::listarRutasFromRoute($route);
     }
 
-    public static function getRoutesFromRouteFile($routeFile): array
-    {
-        $routeFile = self::$path . $routeFile;
-        if (!file_exists($routeFile)) {
-            echo "La ruta {$routeFile} no existe.\n";
-            exit();
-        }
-
-        $routeContent = file_get_contents($routeFile);
-
-        $pattern = '/Router::(\w+)\(\s*[\'"]([^\'"]+)[\'"](?:[^;]*\[\s*([^]]+),\s*([^]]+)])?(?:[^;]*\[\s*([^]]+),\s*([^]]+)])?\s*\)/s';
-        $routeContent = preg_replace('/\s+/', ' ', $routeContent); // Eliminar saltos de línea y espacios en blanco adicionales
-        preg_match_all($pattern, $routeContent, $matches, PREG_SET_ORDER);
-
-        return $matches;
-    }
-
     /**
      * Extrae datos de rutas de un archivo, incluyendo soporte para grupos anidados.
      *
@@ -150,237 +133,636 @@ class RouteManager
      */
     public static function extractRouteData(string $routeFile): array
     {
-        $routeFile = self::$path . $routeFile;
-        if (!file_exists($routeFile)) {
-            echo "La ruta {$routeFile} no existe.\n";
-            exit();
+        // El nombre llega desde la URL de /doc: solo se aceptan archivos que existen en app/routes
+        if (!in_array($routeFile, self::getRoutes(), strict: true)) {
+            throw new \InvalidArgumentException("El archivo de rutas '{$routeFile}' no existe.");
         }
 
-        $routeContent = file_get_contents($routeFile);
+        $routeContent = file_get_contents(self::$path . $routeFile);
+        if ($routeContent === false) {
+            throw new \RuntimeException("No se pudo leer el archivo de rutas: {$routeFile}");
+        }
 
-        // Dividir el contenido en líneas para procesar
-        $lines = preg_split('/\r\n|\r|\n/', $routeContent);
+        return self::parseRouteSource($routeContent);
+    }
 
-        // Estructura para almacenar rutas
-        $allRoutesData = [];
+    /**
+     * Rutas de todos los archivos de app/routes, indexadas por archivo.
+     *
+     * @return array<string, array<int, array<string, mixed>>>
+     */
+    public static function extractAllRouteData(): array
+    {
+        $all = [];
+        foreach (self::getRoutes() as $routeFile) {
+            $all[$routeFile] = self::extractRouteData($routeFile);
+        }
 
-        // Estructura para manejar grupos y su anidamiento
-        $groupStack = [];
-        $currentPath = '';
-        $currentMiddleware = [];
+        return $all;
+    }
 
-        // Variables para almacenar documentación
-        $currentDescription = '';
-        $currentRequestBody = [];
-        $currentQueryParams = [];
+    /**
+     * Analiza el código de un archivo de rutas sin ejecutarlo.
+     *
+     * Cada ruta incluye, además de lo declarado: `url` (dirección real, con el prefijo del panel
+     * configurado), `csrf` (none | protected | exempt) e `issues` (problemas detectados).
+     *
+     * @param string|null $adminUrl prefijo del panel; por defecto `admin.custom_url` de la configuración
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function parseRouteSource(string $source, ?string $adminUrl = null): array
+    {
+        $tokens = token_get_all($source);
+        $routes = self::extractRoutesFromTokens($tokens, 0, count($tokens), [], []);
+        $imports = self::parseImports($source);
+        $adminUrl ??= (string) (ConfigManager::getConfig()['admin']['custom_url'] ?? 'admin');
 
-        foreach ($lines as $line) {
-            $line = trim($line);
-            if ($line === '' || $line === '0') {
+        $previousGroupKey = null;
+        foreach ($routes as &$route) {
+            $route['groupKey'] = implode(' > ', array_column($route['groups'], 'path'));
+            $route['showGroupHeading'] = $route['groupKey'] !== '' && $route['groupKey'] !== $previousGroupKey;
+            $previousGroupKey = $route['groupKey'];
+
+            $route['url'] = self::publicUrl($route['route'], $adminUrl);
+            $route['csrf'] = self::csrfMode($route);
+            $route['issues'] = self::routeIssues($route, $imports);
+        }
+        unset($route);
+
+        return $routes;
+    }
+
+    /**
+     * Las rutas se declaran como /admin/... y el Router las sirve bajo `admin.custom_url`.
+     */
+    private static function publicUrl(string $route, string $adminUrl): string
+    {
+        if ($adminUrl === '' || $adminUrl === 'admin') {
+            return $route;
+        }
+
+        return $route === '/admin' || str_starts_with($route, '/admin/')
+            ? '/' . $adminUrl . substr($route, 6)
+            : $route;
+    }
+
+    /**
+     * El Router valida CSRF en toda ruta que modifica estado, salvo las marcadas con withoutCsrf().
+     *
+     * @param array<string, mixed> $route
+     */
+    private static function csrfMode(array $route): string
+    {
+        if ($route['method'] === 'GET') {
+            return 'none';
+        }
+
+        return $route['withoutCsrf'] === true ? 'exempt' : 'protected';
+    }
+
+    /**
+     * Mapa `NombreCorto => Clase\Completa` de las sentencias `use` del archivo, más su namespace
+     * en la clave vacía.
+     *
+     * @return array<string, string>
+     */
+    private static function parseImports(string $source): array
+    {
+        $imports = ['' => ''];
+        if (preg_match('/^\s*namespace\s+([\w\\\\]+)\s*;/m', $source, $namespace) === 1) {
+            $imports[''] = $namespace[1];
+        }
+
+        preg_match_all('/^\s*use\s+([\w\\\\]+)(?:\s+as\s+(\w+))?\s*;/m', $source, $matches, PREG_SET_ORDER);
+        foreach ($matches as $match) {
+            $segments = explode('\\', $match[1]);
+            $imports[$match[2] ?? end($segments)] = ltrim($match[1], '\\');
+        }
+
+        return $imports;
+    }
+
+    /**
+     * Resuelve `Clase::class` tal como lo haría PHP dentro del archivo de rutas.
+     *
+     * @param array<string, string> $imports
+     */
+    private static function resolveClass(string $reference, array $imports): string
+    {
+        $name = preg_replace('/::class$/', '', trim($reference)) ?? '';
+        if (str_starts_with($name, '\\')) {
+            return ltrim($name, '\\');
+        }
+
+        $segments = explode('\\', $name);
+        if (isset($imports[$segments[0]])) {
+            $segments[0] = $imports[$segments[0]];
+
+            return implode('\\', $segments);
+        }
+
+        return ltrim($imports[''] . '\\' . $name, '\\');
+    }
+
+    /**
+     * Problemas de una ruta. `error`: la ruta fallará al usarse (clase o método inexistente).
+     * `warning`: le falta documentación.
+     *
+     * @param array<string, mixed> $route
+     * @param array<string, string> $imports
+     *
+     * @return array<int, array{level: string, message: string}>
+     */
+    private static function routeIssues(array $route, array $imports): array
+    {
+        $issues = [];
+        $missing = static function (string $reference, string $method) use ($imports): ?string {
+            $class = self::resolveClass($reference, $imports);
+            if (!class_exists($class)) {
+                return "la clase {$class} no existe";
+            }
+
+            return method_exists($class, $method) ? null : "el método {$class}::{$method}() no existe";
+        };
+
+        if ($route['class'] === null) {
+            $issues[] = ['level' => 'error', 'message' => 'No se pudo determinar el controlador: debe ser [Clase::class, \'metodo\'].'];
+        } elseif (($problem = $missing($route['class'], (string) $route['class_method'])) !== null) {
+            $issues[] = ['level' => 'error', 'message' => 'Controlador: ' . $problem . '.'];
+        }
+
+        foreach ($route['middleware'] as $middleware) {
+            if (($problem = $missing($middleware['class'], $middleware['class_method'])) !== null) {
+                $issues[] = ['level' => 'error', 'message' => 'Middleware: ' . $problem . '.'];
+            }
+        }
+
+        if ($route['description'] === '') {
+            $issues[] = ['level' => 'warning', 'message' => 'Falta `// description:`.'];
+        }
+
+        $documented = array_column($route['pathParams'], 'name');
+        foreach (array_diff($route['routeParams'], $documented) as $param) {
+            $issues[] = ['level' => 'warning', 'message' => "Falta `// path-param name:{$param} ...`."];
+        }
+        foreach (array_diff($documented, $route['routeParams']) as $param) {
+            $issues[] = ['level' => 'warning', 'message' => "`path-param {$param}` no aparece en la URL de la ruta."];
+        }
+
+        return $issues;
+    }
+
+    /**
+     * @param array<int, array{0: int, 1: string, 2: int}|string> $tokens
+     * @param array<int, array{prefix: string, path: string, description: string}> $groups
+     * @param array<int, array{class: string, class_method: string}> $inheritedMiddleware
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private static function extractRoutesFromTokens(
+        array $tokens,
+        int $start,
+        int $end,
+        array $groups,
+        array $inheritedMiddleware,
+    ): array {
+        $routes = [];
+        $documentation = self::emptyRouteDocumentation();
+
+        for ($index = $start; $index < $end; $index++) {
+            $token = $tokens[$index];
+            if (is_array($token) && $token[0] === T_COMMENT) {
+                self::captureRouteDocumentation($token[1], $documentation);
                 continue;
             }
 
-            // Capturar documentación
-            if (str_starts_with($line, '// description:')) {
-                $currentDescription = trim(substr($line, 15));
-
+            if (!is_array($token) || $token[0] !== T_STRING || $token[1] !== 'Router') {
                 continue;
             }
 
-            // Capturar request-body
-            if (str_starts_with($line, '// request-body')) {
-                if (preg_match(
-                    '/\/\/\s*request-body\s+name:(.+?)\s+type:(.+?)\s+description:(.+)$/',
-                    $line,
-                    $matches,
-                )) {
-                    $currentRequestBody[] = [
-                        'name' => trim($matches[1]),
-                        'type' => trim($matches[2]),
-                        'description' => trim($matches[3]),
-                    ];
+            $scopeIndex = self::nextSignificantTokenIndex($tokens, $index + 1, $end);
+            if (
+                $scopeIndex === null
+                || !is_array($tokens[$scopeIndex])
+                || $tokens[$scopeIndex][0] !== T_DOUBLE_COLON
+            ) {
+                continue;
+            }
+
+            $methodIndex = self::nextSignificantTokenIndex($tokens, $scopeIndex + 1, $end);
+            if ($methodIndex === null || !is_array($tokens[$methodIndex]) || $tokens[$methodIndex][0] !== T_STRING) {
+                continue;
+            }
+
+            $method = strtolower($tokens[$methodIndex][1]);
+            if (!in_array($method, ['group', 'get', 'post', 'put', 'patch', 'delete'], true)) {
+                continue;
+            }
+
+            $openIndex = self::nextSignificantTokenIndex($tokens, $methodIndex + 1, $end);
+            if ($openIndex === null || $tokens[$openIndex] !== '(') {
+                continue;
+            }
+
+            $closeIndex = self::findMatchingToken($tokens, $openIndex, '(', ')', $end);
+            if ($closeIndex === null) {
+                continue;
+            }
+
+            $arguments = self::splitTokenArgumentRanges($tokens, $openIndex + 1, $closeIndex);
+            $routePath = isset($arguments[0])
+                ? self::getStringArgument($tokens, $arguments[0][0], $arguments[0][1])
+                : null;
+
+            if ($method === 'group') {
+                $callbackRange = $arguments[1] ?? null;
+                $callbackFunctionIndex = $callbackRange === null
+                    ? null
+                    : self::findTokenId($tokens, T_FUNCTION, $callbackRange[0], $callbackRange[1]);
+                if ($routePath === null || $callbackFunctionIndex === null) {
+                    $documentation = self::emptyRouteDocumentation();
+                    $index = $closeIndex;
+                    continue;
                 }
 
-                continue;
-            }
-
-            // Capturar query-param
-            if (str_starts_with($line, '// query-param')) {
-                if (preg_match('/\/\/\s*query-param\s+name:(.+?)\s+type:(.+?)\s+description:(.+)$/', $line, $matches)) {
-                    $currentQueryParams[] = [
-                        'name' => trim($matches[1]),
-                        'type' => trim($matches[2]),
-                        'description' => trim($matches[3]),
-                    ];
+                $bodyOpenIndex = self::findTokenValue($tokens, '{', $callbackFunctionIndex + 1, $callbackRange[1]);
+                $bodyCloseIndex = $bodyOpenIndex === null
+                    ? null
+                    : self::findMatchingToken($tokens, $bodyOpenIndex, '{', '}', $callbackRange[1]);
+                if ($bodyOpenIndex === null || $bodyCloseIndex === null) {
+                    $documentation = self::emptyRouteDocumentation();
+                    $index = $closeIndex;
+                    continue;
                 }
 
+                $groupPath = ($groups === [] ? '' : $groups[count($groups) - 1]['path']) . $routePath;
+                $nestedGroups = array_merge($groups, [[
+                    'prefix' => $routePath,
+                    'path' => $groupPath,
+                    'description' => $documentation['description'],
+                ]]);
+                $groupMiddleware = isset($arguments[2])
+                    ? self::parseMiddleware(self::tokenRangeToString($tokens, $arguments[2][0], $arguments[2][1]))
+                    : [];
+                $routes = array_merge(
+                    $routes,
+                    self::extractRoutesFromTokens(
+                        $tokens,
+                        $bodyOpenIndex + 1,
+                        $bodyCloseIndex,
+                        $nestedGroups,
+                        array_merge($inheritedMiddleware, $groupMiddleware),
+                    ),
+                );
+                $documentation = self::emptyRouteDocumentation();
+                $index = $closeIndex;
                 continue;
             }
 
-            // Detectar inicio de grupo
-            if (preg_match('/Router::group\s*\(\s*[\'"](.*?)[\'"](.*?)function\s*\(\s*\)\s*\{/', $line, $matches)) {
-                $groupPrefix = $matches[1];
+            if ($routePath === null) {
+                $documentation = self::emptyRouteDocumentation();
+                $index = $closeIndex;
+                continue;
+            }
 
-                // Detectar middleware del grupo
-                // Primero verificamos si hay middleware en la línea actual
-                $groupMiddleware = [];
-                if (preg_match('/,\s*\[(.*?)\]\s*\)/', $matches[2], $mwMatches)) {
-                    $middlewareStr = $mwMatches[1];
-                    $groupMiddleware = self::parseMiddleware($middlewareStr);
-                } else {
-                    // Si no, buscamos en las próximas líneas por un cierre de grupo con middleware
-                    $nextLineIndex = array_search($line, $lines, true) + 1;
-                    while ($nextLineIndex < count($lines)) {
-                        $nextLine = trim($lines[$nextLineIndex]);
-                        if (preg_match('/\},\s*\[(.*?)\]\s*\);/', $nextLine, $mwMatches)) {
-                            $middlewareStr = $mwMatches[1];
-                            $groupMiddleware = self::parseMiddleware($middlewareStr);
-                            break;
-                        }
+            $fullPath = ($groups === [] ? '' : $groups[count($groups) - 1]['path']) . $routePath;
+            preg_match_all('/\{([^}]+)\}/', $fullPath, $routeParamMatches);
 
-                        if (str_starts_with($nextLine, '});')) {
-                            break;
-                        }
+            $callbackRange = $arguments[1] ?? null;
+            $callback = $callbackRange === null
+                ? ''
+                : self::tokenRangeToString($tokens, $callbackRange[0], $callbackRange[1]);
+            $class = null;
+            $classMethod = null;
+            if (preg_match('/\[\s*([\\\\\w]+::class)\s*,\s*([\'"])(.*?)\2\s*,?\s*\]/s', $callback, $callbackMatches)) {
+                $class = $callbackMatches[1];
+                $classMethod = $callbackMatches[3];
+            }
 
-                        $nextLineIndex++;
+            $routeMiddleware = isset($arguments[2])
+                ? self::parseMiddleware(self::tokenRangeToString($tokens, $arguments[2][0], $arguments[2][1]))
+                : [];
+            // Métodos encadenados a la ruta: ->middleware([...]) y ->withoutCsrf(), en cualquier orden
+            $withoutCsrf = false;
+            $chainIndex = $closeIndex;
+            while (true) {
+                $operatorIndex = self::nextSignificantTokenIndex($tokens, $chainIndex + 1, $end);
+                if (
+                    $operatorIndex === null
+                    || !is_array($tokens[$operatorIndex])
+                    || $tokens[$operatorIndex][0] !== T_OBJECT_OPERATOR
+                ) {
+                    break;
+                }
+
+                $nameIndex = self::nextSignificantTokenIndex($tokens, $operatorIndex + 1, $end);
+                $argsOpenIndex = $nameIndex === null ? null : self::nextSignificantTokenIndex($tokens, $nameIndex + 1, $end);
+                if ($nameIndex === null || !is_array($tokens[$nameIndex]) || $argsOpenIndex === null || $tokens[$argsOpenIndex] !== '(') {
+                    break;
+                }
+
+                $argsCloseIndex = self::findMatchingToken($tokens, $argsOpenIndex, '(', ')', $end);
+                if ($argsCloseIndex === null) {
+                    break;
+                }
+
+                if ($tokens[$nameIndex][1] === 'withoutCsrf') {
+                    $withoutCsrf = true;
+                } elseif ($tokens[$nameIndex][1] === 'middleware') {
+                    $chainArguments = self::splitTokenArgumentRanges($tokens, $argsOpenIndex + 1, $argsCloseIndex);
+                    if (isset($chainArguments[0])) {
+                        $routeMiddleware = array_merge(
+                            $routeMiddleware,
+                            self::parseMiddleware(self::tokenRangeToString($tokens, $chainArguments[0][0], $chainArguments[0][1])),
+                        );
                     }
                 }
 
-                // Guardar estado actual del grupo
-                $groupStack[] = [
-                    'prefix' => $groupPrefix,
-                    'middleware' => $groupMiddleware,
-                    'description' => $currentDescription,
+                $chainIndex = $argsCloseIndex;
+            }
+
+            $description = $documentation['description'];
+            // Sin descripción propia hereda la del grupo más cercano que tenga una
+            for ($level = count($groups) - 1; $description === '' && $level >= 0; $level--) {
+                $description = $groups[$level]['description'];
+            }
+
+            $routes[] = [
+                'route' => $fullPath,
+                'method' => strtoupper($method),
+                'routeParams' => $routeParamMatches[1] ?? [],
+                'description' => $description,
+                'pathParams' => $documentation['pathParams'],
+                'requestBody' => $documentation['requestBody'],
+                'queryParams' => $documentation['queryParams'],
+                'class' => $class,
+                'class_method' => $classMethod,
+                'middleware' => array_merge($inheritedMiddleware, $routeMiddleware),
+                'withoutCsrf' => $withoutCsrf,
+                'groups' => $groups,
+            ];
+            $documentation = self::emptyRouteDocumentation();
+            $index = $closeIndex;
+        }
+
+        return $routes;
+    }
+
+    /**
+     * @param array<string, mixed> $documentation
+     */
+    private static function captureRouteDocumentation(string $comment, array &$documentation): void
+    {
+        if (preg_match('/^\s*\/\/\s*description:\s*(.+)$/', $comment, $matches)) {
+            $documentation['description'] = trim($matches[1]);
+            return;
+        }
+
+        foreach (['path-param' => 'pathParams', 'request-body' => 'requestBody', 'query-param' => 'queryParams'] as $tag => $key) {
+            if (preg_match('/^\s*\/\/\s*' . preg_quote($tag, '/') . '\s+name:(.+?)\s+type:(.+?)\s+description:(.+)$/', $comment, $matches)) {
+                $documentation[$key][] = [
+                    'name' => trim($matches[1]),
+                    'type' => trim($matches[2]),
+                    'description' => trim($matches[3]),
                 ];
+                return;
+            }
+        }
+    }
 
-                // Actualizar path actual con el prefijo del grupo
-                $currentPath = '';
-                foreach ($groupStack as $group) {
-                    $currentPath .= $group['prefix'];
-                }
+    /**
+     * @return array{description: string, pathParams: list<array{name: string, type: string, description: string}>, requestBody: list<array{name: string, type: string, description: string}>, queryParams: list<array{name: string, type: string, description: string}>}
+     */
+    private static function emptyRouteDocumentation(): array
+    {
+        return [
+            'description' => '',
+            'pathParams' => [],
+            'requestBody' => [],
+            'queryParams' => [],
+        ];
+    }
 
-                // Actualizar middleware actual con el del grupo
-                $currentMiddleware = [];
-                foreach ($groupStack as $group) {
-                    $currentMiddleware = array_merge($currentMiddleware, $group['middleware']);
-                }
-
-                // Reiniciar descripción después de usarla
-                $currentDescription = '';
-
+    /**
+     * @param array<int, array{0: int, 1: string, 2: int}|string> $tokens
+     */
+    private static function nextSignificantTokenIndex(array $tokens, int $start, int $end): ?int
+    {
+        for ($index = $start; $index < $end; $index++) {
+            if (is_array($tokens[$index]) && in_array($tokens[$index][0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
                 continue;
             }
 
-            // Detectar cierre de grupo
-            if (str_starts_with($line, '});') || str_starts_with($line, '}, [')) {
-                // Quitar el último grupo de la pila
-                if ($groupStack !== []) {
-                    array_pop($groupStack);
+            return $index;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<int, array{0: int, 1: string, 2: int}|string> $tokens
+     */
+    private static function findMatchingToken(
+        array $tokens,
+        int $openIndex,
+        string $openToken,
+        string $closeToken,
+        int $end,
+    ): ?int {
+        $depth = 0;
+        for ($index = $openIndex; $index < $end; $index++) {
+            if ($tokens[$index] === $openToken) {
+                $depth++;
+            } elseif ($tokens[$index] === $closeToken) {
+                $depth--;
+                if ($depth === 0) {
+                    return $index;
                 }
-
-                // Recalcular path y middleware actuales
-                $currentPath = '';
-                $currentMiddleware = [];
-                foreach ($groupStack as $group) {
-                    $currentPath .= $group['prefix'];
-                    $currentMiddleware = array_merge($currentMiddleware, $group['middleware']);
-                }
-
-                continue;
-            }
-
-            // Detectar definición de ruta
-            if (preg_match(
-                '/Router::(group|get|post|put|patch|delete)\s*\(\s*[\'"](.*?)[\'"](.*?)\[([^\]]+)\]\)/',
-                $line,
-                $matches,
-            )) {
-                $method = strtoupper($matches[1]);
-                $routePath = $matches[2];
-                $callback = $matches[4];
-
-                // Manejar rutas vacías dentro de grupos (como '')
-                if (($routePath === '' || $routePath === '0') && ($currentPath !== '' && $currentPath !== '0')) {
-                    $routePath = '';
-                }
-
-                // Path completo incluyendo prefijos de grupo
-                $fullPath = $currentPath . $routePath;
-
-                // Extraer parámetros de ruta
-                preg_match_all('/\{([^\}]+)\}/', $fullPath, $routeParamsMatches);
-                $routeParams = $routeParamsMatches[1] ?? [];
-
-                // Extraer clase y método del controlador
-                $callbackParts = explode(',', str_replace(['[', ']', ' ', "'"], '', $callback));
-                $class = $callbackParts[0] ?? null;
-                $class_method = $callbackParts[1] ?? null;
-
-                // Detectar middleware de la ruta
-                $routeMiddleware = [];
-                if (preg_match('/->middleware\s*\(\s*\[(.*?)\]\s*\)/', $line, $mwMatches)) {
-                    $middlewareStr = $mwMatches[1];
-                    $routeMiddleware = self::parseMiddleware($middlewareStr);
-                }
-
-                // Combinar middleware de grupos y ruta
-                $allMiddleware = array_merge($currentMiddleware, $routeMiddleware);
-
-                // Usar descripción de la ruta o heredar del grupo más cercano si está vacía
-                $description = $currentDescription;
-                if (($description === '' || $description === '0') && $groupStack !== []) {
-                    $lastGroup = end($groupStack);
-                    $description = $lastGroup['description'];
-                }
-
-                // Guardar datos de la ruta
-                $allRoutesData[] = [
-                    'route' => $fullPath,
-                    'method' => $method,
-                    'routeParams' => $routeParams,
-                    'description' => $description,
-                    'requestBody' => $currentRequestBody,
-                    'queryParams' => $currentQueryParams,
-                    'class' => $class,
-                    'class_method' => $class_method,
-                    'middleware' => $allMiddleware,
-                ];
-
-                // Reiniciar documentación después de usarla
-                $currentDescription = '';
-                $currentRequestBody = [];
-                $currentQueryParams = [];
             }
         }
 
-        return $allRoutesData;
+        return null;
     }
 
-    public static function listarRutasFromRoute($routeFile): void
+    /**
+     * @param array<int, array{0: int, 1: string, 2: int}|string> $tokens
+     *
+     * @return array<int, array{0: int, 1: int}>
+     */
+    private static function splitTokenArgumentRanges(array $tokens, int $start, int $end): array
     {
-        $matches = self::getRoutesFromRouteFile($routeFile);
+        $ranges = [];
+        $argumentStart = $start;
+        $parentheses = 0;
+        $brackets = 0;
+        $braces = 0;
 
-        // Encabezados
-        echo str_pad('Method', 10) . '|';
-        echo str_pad('URI', 40) . '|';
-        echo str_pad('Controller', 50) . '|';
-        echo str_pad('Action', 20) . "|\n";
-        // Línea separadora
-        echo str_repeat('-', 10) . '|';
-        echo str_repeat('-', 40) . '|';
-        echo str_repeat('-', 50) . '|';
-        echo str_repeat('-', 20) . "|\n";
+        for ($index = $start; $index < $end; $index++) {
+            $token = $tokens[$index];
+            if ($token === '(') {
+                $parentheses++;
+            } elseif ($token === ')') {
+                $parentheses--;
+            } elseif ($token === '[') {
+                $brackets++;
+            } elseif ($token === ']') {
+                $brackets--;
+            } elseif ($token === '{') {
+                $braces++;
+            } elseif ($token === '}') {
+                $braces--;
+            } elseif ($token === ',' && $parentheses === 0 && $brackets === 0 && $braces === 0) {
+                $ranges[] = [$argumentStart, $index];
+                $argumentStart = $index + 1;
+            }
+        }
 
-        foreach ($matches as $match) {
-            $method = $match[1];
-            $path = $match[2];
-            $controller = $match[3] ?? '';
-            $actionController = $match[4] ?? '';
+        if ($argumentStart < $end) {
+            $ranges[] = [$argumentStart, $end];
+        }
 
-            echo str_pad($method, 10) . '|';
-            echo str_pad($path, 40) . '|';
-            echo str_pad($controller, 50) . '|';
-            echo str_pad($actionController, 20) . "|\n";
+        return $ranges;
+    }
+
+    /**
+     * @param array<int, array{0: int, 1: string, 2: int}|string> $tokens
+     */
+    private static function findTokenId(array $tokens, int $tokenId, int $start, int $end): ?int
+    {
+        for ($index = $start; $index < $end; $index++) {
+            if (is_array($tokens[$index]) && $tokens[$index][0] === $tokenId) {
+                return $index;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<int, array{0: int, 1: string, 2: int}|string> $tokens
+     */
+    private static function findTokenValue(array $tokens, string $value, int $start, int $end): ?int
+    {
+        for ($index = $start; $index < $end; $index++) {
+            if ($tokens[$index] === $value) {
+                return $index;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<int, array{0: int, 1: string, 2: int}|string> $tokens
+     */
+    private static function getStringArgument(array $tokens, int $start, int $end): ?string
+    {
+        $index = self::nextSignificantTokenIndex($tokens, $start, $end);
+        if ($index === null || !is_array($tokens[$index]) || $tokens[$index][0] !== T_CONSTANT_ENCAPSED_STRING) {
+            return null;
+        }
+
+        $literal = $tokens[$index][1];
+        $value = substr($literal, 1, -1);
+        return $literal[0] === "'"
+            ? str_replace(["\\\\", "\\'"], ["\\", "'"], $value)
+            : stripcslashes($value);
+    }
+
+    /**
+     * @param array<int, array{0: int, 1: string, 2: int}|string> $tokens
+     */
+    private static function tokenRangeToString(array $tokens, int $start, int $end): string
+    {
+        $value = '';
+        for ($index = $start; $index < $end; $index++) {
+            $value .= is_array($tokens[$index]) ? $tokens[$index][1] : $tokens[$index];
+        }
+
+        return $value;
+    }
+
+    public static function listarRutasFromRoute(string $routeFile): void
+    {
+        self::printRouteTable(self::extractRouteData($routeFile));
+    }
+
+    /**
+     * Lista las rutas de todos los archivos, sin preguntar (`route:list --all`).
+     */
+    public static function listAllRoutes(): void
+    {
+        $total = 0;
+        foreach (self::extractAllRouteData() as $routeFile => $routes) {
+            echo PHP_EOL . CLIErrorHandler::colorize($routeFile, 'cyan') . PHP_EOL;
+            self::printRouteTable($routes);
+            $total += count($routes);
+        }
+
+        echo PHP_EOL;
+        CLIErrorHandler::info($total . ' rutas.');
+    }
+
+    /**
+     * Revisa todas las rutas (`route:check`). Los errores (controlador, método o middleware que no
+     * existe) marcan la ejecución como fallida; con `--strict` también la documentación faltante.
+     */
+    public static function checkRoutes(bool $strict = false): void
+    {
+        $errors = 0;
+        $warnings = 0;
+        $total = 0;
+
+        foreach (self::extractAllRouteData() as $routeFile => $routes) {
+            foreach ($routes as $route) {
+                $total++;
+                foreach ($route['issues'] as $issue) {
+                    $isError = $issue['level'] === 'error';
+                    $errors += $isError ? 1 : 0;
+                    $warnings += $isError ? 0 : 1;
+                    echo sprintf(
+                        '%s %s %s %s — %s%s',
+                        $isError ? CLIErrorHandler::colorize('✗', 'red') : CLIErrorHandler::colorize('⚠', 'yellow'),
+                        $routeFile,
+                        $route['method'],
+                        $route['route'],
+                        $issue['message'],
+                        PHP_EOL,
+                    );
+                }
+            }
+        }
+
+        $summary = sprintf('%d rutas revisadas: %d error(es), %d aviso(s) de documentación.', $total, $errors, $warnings);
+        if ($errors > 0 || ($strict && $warnings > 0)) {
+            CLIErrorHandler::warning($summary);
+            CLIErrorHandler::$failed = true;
+
+            return;
+        }
+
+        CLIErrorHandler::success($summary);
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $routes
+     */
+    private static function printRouteTable(array $routes): void
+    {
+        echo str_pad('Método', 9) . str_pad('URL', 52) . str_pad('Controlador', 44) . 'CSRF' . PHP_EOL;
+        echo str_repeat('-', 112) . PHP_EOL;
+
+        foreach ($routes as $route) {
+            $controller = $route['class'] === null
+                ? '(no reconocido)'
+                : str_replace('::class', '', (string) $route['class']) . '@' . $route['class_method'];
+
+            echo str_pad($route['method'], 8) . ' '
+                . str_pad($route['url'], 51) . ' '
+                . str_pad($controller, 43) . ' '
+                . ['none' => '-', 'protected' => 'sí', 'exempt' => 'EXENTA'][$route['csrf']]
+                . PHP_EOL;
         }
     }
 

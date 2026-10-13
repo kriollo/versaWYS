@@ -67,7 +67,8 @@ Más detalle en [ORM y Base de Datos](./ORM_y_BaseDeDatos.md).
 | `model:make\|delete:<nombre>` | `app/models/<Nombre>.php` |
 | `middleware:make\|delete:<nombre>` | `app/middleware/<Nombre>Middleware.php` |
 | `route:make\|delete:<nombre>` | `app/routes/<Nombre>Routes.php` |
-| `route:list` | Lista las rutas de un archivo (interactivo). |
+| `route:list` | Lista las rutas de un archivo (interactivo). Con `--all` lista todas sin preguntar: método, URL real, controlador y si valida CSRF. |
+| `route:check` | Revisa todas las rutas sin ejecutarlas. Falla (código 1) si un controlador, método o middleware no existe; con `--strict` también si falta documentación. |
 | `front:makeTwig:<nombre>` | Plantilla Twig. |
 | `front:makeVue:<nombre>` | Componente Vue. |
 | `RCMD:<nombre>` | Ruta + controlador + modelo + middleware. |

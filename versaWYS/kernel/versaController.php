@@ -14,33 +14,62 @@ class versaController extends GlobalControllers
         parent::__construct($twig, $session);
     }
 
+    /**
+     * Documentación interactiva de rutas (/doc). Sin `route` muestra el índice de archivos;
+     * `?route=Archivo.php` las rutas de un archivo y `?route=all` las de todos.
+     */
     public function versaRoute(): string
     {
         global $request;
 
-        $params = $request->getAllParams();
+        $route = (string) $request->get('route', '');
+        $allRoutes = RouteManager::extractAllRouteData();
 
         $opcionActual = [];
-        $routesFiles = [];
         $routesFromRouteFile = [];
-        if (isset($params['route'])) {
+        $routesSummary = [];
+
+        if ($route === '') {
+            foreach ($allRoutes + ['all' => array_merge(...array_values($allRoutes))] as $file => $routes) {
+                $routesSummary[$file] = self::summarize($routes);
+            }
+        } else {
+            // Solo archivos reales de app/routes: cualquier otro valor vuelve al índice
+            if ($route !== 'all' && !isset($allRoutes[$route])) {
+                Response::redirect('/doc');
+
+                return '';
+            }
+
+            $routesFromRouteFile = $route === 'all' ? array_merge(...array_values($allRoutes)) : $allRoutes[$route];
             $opcionActual = [
                 ['link' => '/doc', 'name' => 'VersaRoutes - Files'],
-                [
-                    'link' => '/doc?route=' . $params['route'],
-                    'name' => 'VersaRoutes - ' . $params['route'],
-                ],
+                ['link' => '/doc?route=' . rawurlencode($route), 'name' => 'VersaRoutes - ' . ($route === 'all' ? 'Todas' : $route)],
             ];
-
-            $routesFromRouteFile = RouteManager::extractRouteData($params['route']);
-        } else {
-            $routesFiles = RouteManager::getRoutes();
         }
 
         return $this->template->render('versaWYS/versaRoute', [
             'opcionActual' => $opcionActual,
-            'routesFiles' => $routesFiles,
+            'routesFiles' => $route === '' ? array_keys($allRoutes) : [],
+            'routesSummary' => $routesSummary,
             'routesFromRouteFile' => $routesFromRouteFile,
         ]);
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $routes
+     *
+     * @return array{routes: int, errors: int, warnings: int}
+     */
+    private static function summarize(array $routes): array
+    {
+        $summary = ['routes' => count($routes), 'errors' => 0, 'warnings' => 0];
+        foreach ($routes as $route) {
+            $levels = array_column($route['issues'], 'level');
+            $summary['errors'] += in_array('error', $levels, strict: true) ? 1 : 0;
+            $summary['warnings'] += in_array('warning', $levels, strict: true) ? 1 : 0;
+        }
+
+        return $summary;
     }
 }

@@ -160,6 +160,8 @@ Router::group(
     ],
 );
 
-// description: endpoint politicas de privacidad
+// description: Muestra la política de privacidad (página pública).
 Router::get('/privacy-policy', [DashBoardController::class, 'renderPrivacyPolicy']);
+
+// description: Muestra las instrucciones para solicitar la eliminación de datos (página pública).
 Router::get('/data-deletion', [DashBoardController::class, 'renderDataDeletion']);

@@ -686,6 +686,20 @@ class versaTwig extends Environment
         return isset($headers['X-Requested-With']) && strtolower($headers['X-Requested-With']) === 'xmlhttprequest';
     }
 
+    private const string SCRIPT_TAG = '/<script\b([^>]*)>(.*?)<\/script>/is';
+
+    /**
+     * Un <script> sin `type`, o con tipo JavaScript o `module`, es código; cualquier otro tipo son datos.
+     */
+    private static function isExecutableScript(string $attributes): bool
+    {
+        if (preg_match('/\btype\s*=\s*["\']?([^"\'\s>]+)/i', $attributes, $type) !== 1) {
+            return true;
+        }
+
+        return in_array(strtolower($type[1]), ['text/javascript', 'application/javascript', 'module'], strict: true);
+    }
+
     /**
      * Extracts the body content from rendered HTML, removing head and other elements.
      *
@@ -695,6 +709,18 @@ class versaTwig extends Environment
      */
     private function extractBodyContent(string $content): string
     {
+        // Los scripts ejecutables viajan aparte (extractPageSpecificScripts) para no ejecutarse dos veces.
+        // Los bloques de datos (application/json, plantillas, importmap) son contenido y se conservan.
+        $contentWithoutScripts = preg_replace_callback(
+            self::SCRIPT_TAG,
+            static fn (array $tag): string => self::isExecutableScript($tag[1]) ? '' : $tag[0],
+            $content,
+        );
+        if ($contentWithoutScripts === null) {
+            throw new \RuntimeException('No se pudo extraer el contenido HTML para la navegación SPA.');
+        }
+        $content = $contentWithoutScripts;
+
         // Si el contenido ya es un fragmento (no tiene html/body tags), devolver tal como está
         if (!str_contains($content, '<html') && !str_contains($content, '<body')) {
             return $content;
@@ -773,9 +799,13 @@ class versaTwig extends Environment
         }
 
         // Extraer scripts inline del bloque appScript
-        if (preg_match_all('/<script[^>]*>([^<]+)<\/script>/i', $content, $matches)) {
-            foreach ($matches[1] as $inlineScript) {
-                $script = trim($inlineScript);
+        if (preg_match_all(self::SCRIPT_TAG, $content, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $tag) {
+                if (!self::isExecutableScript($tag[1])) {
+                    continue;
+                }
+
+                $script = trim($tag[2]);
                 // Usar el método de validación dinámico
                 if (!$this->isInvalidInlineScript($script)) {
                     $scripts[] = [

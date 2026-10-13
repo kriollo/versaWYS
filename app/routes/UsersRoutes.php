@@ -34,7 +34,7 @@ Router::group(
         Router::get('/addUser', [UsersController::class, 'addUserTemplate']);
 
         // description: Muestra el formulario para editar un usuario existente.
-        // query-param name:id type:int description:ID del usuario a editar
+        // path-param name:id type:int description:ID del usuario que se va a editar
         Router::get('/editUser/{id}', [UsersController::class, 'editUserTemplate']);
     },
     [

@@ -112,3 +112,108 @@ describe('archivos subidos', function (): void {
             ->toThrow(RuntimeException::class);
     })->with(['public/x/shell.php', 'public/x/shell.PHP5', 'public/x/a.phtml', 'public/x/a.php.jpg', 'public/x/.htaccess', 'public/x/.env']);
 });
+
+describe('documentación de rutas', function (): void {
+    $source = <<<'PHP'
+        <?php
+
+        namespace app\routes;
+
+        use app\controllers\UsersController;
+        use app\middleware\AuthMiddleware;
+        use versaWYS\kernel\Router;
+
+        // description: Grupo de usuarios
+        Router::group(
+            '/admin/users',
+            function (): void {
+                // description: Lista usuarios
+                Router::get('', [UsersController::class, 'getUsersPaginated']);
+
+                // description: Edita un usuario
+                // path-param name:id type:int description:ID del usuario
+                Router::put('/edit/{id}', [
+                    UsersController::class,
+                    'editUser',
+                ])->middleware([
+                    [AuthMiddleware::class, 'onlyAdmin'],
+                ]);
+
+                Router::group('/api', function (): void {
+                    Router::post('/hook/{token}', [UsersController::class, 'noExiste'])->withoutCsrf();
+                });
+            },
+            [[AuthMiddleware::class, 'checkSession']],
+        );
+
+        Router::delete('/x', [\app\controllers\Fantasma::class, 'borrar'])->middleware([[AuthMiddleware::class, 'checkSession']])->withoutCsrf();
+        PHP;
+
+    $routes = versaWYS\kernel\cli\RouteManager::parseRouteSource($source, 'panel');
+    $messages = static fn (array $route): string => implode(' | ', array_column($route['issues'], 'message'));
+
+    it('reconoce grupos anidados, prefijos y la URL real del panel', function () use ($routes): void {
+        expect(array_column($routes, 'route'))->toBe(['/admin/users', '/admin/users/edit/{id}', '/admin/users/api/hook/{token}', '/x'])
+            ->and(array_column($routes, 'url'))->toBe(['/panel/users', '/panel/users/edit/{id}', '/panel/users/api/hook/{token}', '/x'])
+            ->and(array_column($routes, 'method'))->toBe(['GET', 'PUT', 'POST', 'DELETE']);
+    });
+
+    it('lee el controlador aunque esté en varias líneas y hereda middlewares y descripción del grupo', function () use ($routes): void {
+        expect($routes[1]['class_method'])->toBe('editUser')
+            ->and(array_column($routes[1]['middleware'], 'class_method'))->toBe(['checkSession', 'onlyAdmin'])
+            ->and($routes[1]['pathParams'][0]['name'])->toBe('id')
+            ->and($routes[2]['description'])->toBe('Grupo de usuarios');
+    });
+
+    it('indica la protección CSRF de cada ruta', function () use ($routes): void {
+        expect(array_column($routes, 'csrf'))->toBe(['none', 'protected', 'exempt', 'exempt']);
+    });
+
+    it('detecta controladores inexistentes y documentación faltante', function () use ($routes, $messages): void {
+        expect($routes[0]['issues'])->toBe([])
+            ->and($routes[1]['issues'])->toBe([])
+            ->and($messages($routes[2]))->toContain('noExiste() no existe')->toContain('path-param name:token')
+            ->and($messages($routes[3]))->toContain('la clase app\controllers\Fantasma no existe')->toContain('Falta `// description:`');
+    });
+
+    it('el starter no tiene rutas rotas ni sin documentar', function (): void {
+        $pending = [];
+        foreach (versaWYS\kernel\cli\RouteManager::extractAllRouteData() as $file => $fileRoutes) {
+            foreach ($fileRoutes as $route) {
+                foreach ($route['issues'] as $issue) {
+                    $pending[] = "{$file} {$route['method']} {$route['route']}: {$issue['message']}";
+                }
+            }
+        }
+
+        expect($pending)->toBe([]);
+    });
+
+    it('rechaza nombres de archivo fuera de app/routes', function (): void {
+        versaWYS\kernel\cli\RouteManager::extractRouteData('../../versaWYS/kernel/config/config.php');
+    })->throws(InvalidArgumentException::class);
+});
+
+describe('respuesta SPA', function (): void {
+    $twig = (new ReflectionClass(versaWYS\kernel\versaTwig::class))->newInstanceWithoutConstructor();
+    $call = static fn (string $method, string $html): mixed => (new ReflectionMethod($twig, $method))->invoke($twig, $html);
+    $html = '<div id="a">hola</div>'
+        . '<script type="application/json" id="datos">{"a":1}</script>'
+        . "<script>if (1 < 2) { window.x = 1; }\n</script>"
+        . '<script type="module">import { a } from "/a.js";</script>'
+        . '<script src="/public/pagina.js"></script>';
+
+    it('saca del contenido los scripts ejecutables y conserva los bloques de datos', function () use ($call, $html): void {
+        $content = $call('extractBodyContent', $html);
+
+        expect($content)->toContain('<div id="a">hola</div>')->toContain('type="application/json"')
+            ->not->toContain('window.x')->not->toContain('pagina.js')->not->toContain('import {');
+    });
+
+    it('entrega cada script ejecutable una sola vez, incluidos los que contienen "<"', function () use ($call, $html): void {
+        $scripts = $call('extractPageSpecificScripts', $html);
+
+        expect(array_column($scripts, 'src'))->toBe(['/public/pagina.js'])
+            ->and(array_column($scripts, 'content'))->toBe(['if (1 < 2) { window.x = 1; }', 'import { a } from "/a.js";']);
+    });
+});

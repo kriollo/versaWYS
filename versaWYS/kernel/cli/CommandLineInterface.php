@@ -384,7 +384,7 @@ class CommandLineInterface
             return;
         }
 
-        $allowedActions = ['make', 'delete', 'list', 'compile', 'cache', 'clear-cache'];
+        $allowedActions = ['make', 'delete', 'list', 'check', 'compile', 'cache', 'clear-cache'];
         $action = $this->validateAction($params[0], $allowedActions, 'route');
 
         if (in_array($action, ['make', 'delete'], strict: true)) {
@@ -397,7 +397,8 @@ class CommandLineInterface
             match ($action) {
                 'make' => RouteManager::createRoute($params[1]),
                 'delete' => RouteManager::deleteRoute($params[1]),
-                'list' => RouteManager::listRoutes(),
+                'list' => in_array('--all', $params, strict: true) ? RouteManager::listAllRoutes() : RouteManager::listRoutes(),
+                'check' => RouteManager::checkRoutes(in_array('--strict', $params, strict: true)),
                 'compile' => RouteManager::compileRoutes(),
                 'cache' => RouteManager::cacheStatus(),
                 'clear-cache' => RouteManager::clearCache(),

@@ -741,6 +741,11 @@ class SPANavigation {
                 return;
             }
 
+            // Bloques de datos (application/json, plantillas, importmap): son contenido, no código
+            if (script.type && !['text/javascript', 'application/javascript', 'module'].includes(script.type)) {
+                return;
+            }
+
             // Script inline
             const content = script.textContent || script.innerHTML;
             const isModule = script.type === 'module' || this.isModuleScript(content);

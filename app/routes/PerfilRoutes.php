@@ -33,7 +33,7 @@ Router::group(
         Router::get('/all', [PerfilController::class, 'getAllPerfiles']);
 
         // description: Obtiene un perfil por ID.
-        // query-param name:id type:int description:ID del perfil
+        // path-param name:id type:int description:ID del perfil que se consulta
         Router::get('/getPerfil/{id}', [PerfilController::class, 'getPerfil']);
     },
     [

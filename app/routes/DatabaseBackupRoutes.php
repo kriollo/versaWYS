@@ -24,6 +24,7 @@ Router::group(
         ]);
 
         // description: Descarga (y elimina del servidor) el dump generado previamente.
+        // path-param name:token type:string description:Token temporal emitido al preparar la exportación
         Router::get('/export/{token}/download', [DatabaseBackupController::class, 'downloadExport']);
 
         // description: Restaura la base de datos a partir de un archivo .sql subido.

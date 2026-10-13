@@ -161,6 +161,47 @@ En este caso, la ruta `/bot/status` ejecutará primero los middlewares del grupo
 
 ---
 
+## Documentar las rutas
+
+Las rutas se documentan con comentarios justo encima de cada `Router::...`. El framework los lee sin ejecutar el archivo y con ellos arma la documentación interactiva de `/doc` y las revisiones de `route:check`.
+
+```php
+// description: Edita un usuario existente.
+// path-param name:id type:int description:ID del usuario que se va a editar
+// query-param name:notificar type:bool description:Envía un correo al usuario si es true
+// request-body name:name type:string description:Nombre del usuario
+// request-body name:avatar type:file description:Imagen de perfil (opcional)
+Router::put('/usuarios/{id}', [UsersController::class, 'editUser']);
+```
+
+| Anotación | Para qué |
+|---|---|
+| `// description: texto` | Qué hace la ruta. Puesta sobre un `Router::group`, la heredan las rutas del grupo que no tengan la suya. |
+| `// path-param name:… type:… description:…` | Un parámetro de la URL (`{id}`). Debe existir uno por cada `{parámetro}`. |
+| `// query-param name:… type:… description:…` | Un parámetro de la cadena de consulta (`?page=2`). |
+| `// request-body name:… type:… description:…` | Un campo del cuerpo. Con `type:file` o `type:file[]` el probador de `/doc` muestra un selector de archivos. |
+
+### La página `/doc`
+
+Disponible solo con `build.debug` en `true`. Muestra los archivos de `app/routes` con su cantidad de rutas y cuántas tienen problemas, y permite ver las de un archivo o todas juntas. De cada ruta indica:
+
+- la **URL real**: las rutas se declaran como `/admin/...`, pero se sirven bajo `admin.custom_url`;
+- controlador, método y middlewares, incluidos los heredados de los grupos;
+- si el Router **valida CSRF** en ella o si está exenta con `withoutCsrf()`;
+- **errores** (el controlador, el método o un middleware no existe) y **avisos** de documentación faltante.
+
+Cada ruta trae un probador que envía la petición al propio servidor con tu sesión y el token CSRF. Las peticiones que modifican datos piden confirmación, porque actúan sobre la base de datos real.
+
+### Revisar las rutas desde la terminal
+
+```bash
+php versaCLI route:list --all       # todas las rutas: método, URL real, controlador y CSRF
+php versaCLI route:check            # falla si una ruta apunta a algo que no existe
+php versaCLI route:check --strict   # falla también si falta documentación
+```
+
+`route:check` no necesita base de datos ni ejecuta las rutas, así que sirve en CI. El starter incluye un test que exige que todas sus rutas pasen la revisión estricta.
+
 ## La Clase `Request` (`versaWYS\kernel\Request`)
 
 Antes de que una ruta pueda ser completamente procesada, es esencial entender cómo la aplicación accede a la información de la petición HTTP entrante. La clase `versaWYS\kernel\Request` encapsula estos datos. Una instancia de esta clase suele estar disponible globalmente (a menudo como `global $request;`) o puede ser inyectada donde sea necesario.

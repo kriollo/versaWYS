@@ -89,7 +89,8 @@ setlocale(LC_ALL, $config['build']['locale']);
 mb_internal_encoding($config['build']['charset']);
 mb_http_output($config['build']['charset']);
 
-if (isset($config['database']) && !empty($config['database'])) {
+// Sin base de datos configurada (instalación pendiente) no se intenta conectar: /install debe poder abrirse
+if (($config['database']['database'] ?? '') !== '') {
     try {
         global $versaOrm;
         $versaOrm = OrmFactory::make(

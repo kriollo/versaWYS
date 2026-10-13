@@ -92,7 +92,8 @@ class HelpView
         echo "\n";
         echo "  {$yellow}route:make:[nombre]{$reset}       Crear archivo de rutas\n";
         echo "  {$yellow}route:delete:[nombre]{$reset}     Eliminar archivo de rutas\n";
-        echo "  {$yellow}route:list{$reset}               Mostrar todas las rutas registradas\n";
+        echo "  {$yellow}route:list{$reset}               Listar rutas de un archivo (--all: todas, sin preguntar)\n";
+        echo "  {$yellow}route:check{$reset}              Detectar rutas rotas o sin documentar (--strict)\n";
         echo "  {$yellow}route:compile{$reset}             Compilar rutas\n";
         echo "  {$yellow}route:cache{$reset}               Estado del cache de rutas\n";
         echo "  {$yellow}route:clear-cache{$reset}         Limpiar cache de rutas\n";
@@ -179,7 +180,8 @@ class HelpView
     {
         echo "  {$color}route:make:[nombre]{$reset}       Crear archivo de rutas\n";
         echo "  {$color}route:delete:[nombre]{$reset}     Eliminar archivo de rutas\n";
-        echo "  {$color}route:list{$reset}               Mostrar todas las rutas registradas\n";
+        echo "  {$color}route:list{$reset}               Listar rutas de un archivo (--all: todas, sin preguntar)\n";
+        echo "  {$color}route:check{$reset}              Detectar rutas rotas o sin documentar (--strict)\n";
         echo "  {$color}route:compile{$reset}             Compilar rutas\n";
         echo "  {$color}route:cache{$reset}               Estado del cache de rutas\n";
         echo "  {$color}route:clear-cache{$reset}         Limpiar cache de rutas\n";
