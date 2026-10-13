@@ -109,10 +109,10 @@ class Functions
                 'rut' => static fn ($field, $value): ?string => self::validarRut($value)
                     ? null
                     : sprintf('El campo %s no es un rut valido', $field),
-                'min' => static fn ($field, $value, $param): ?string => strlen($value) < $param
+                'min' => static fn ($field, $value, $param): ?string => strlen((string) $value) < $param
                     ? sprintf('El campo %s debe tener minimo %s caracteres', $field, $param)
                     : null,
-                'max' => static fn ($field, $value, $param): ?string => strlen($value) > $param
+                'max' => static fn ($field, $value, $param): ?string => strlen((string) $value) > $param
                     ? sprintf('El campo %s debe tener maximo %s caracteres', $field, $param)
                     : null,
                 'numeric' => static fn ($field, $value): ?string => is_numeric($value)

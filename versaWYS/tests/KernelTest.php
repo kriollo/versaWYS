@@ -61,6 +61,10 @@ describe('Functions::validateParams', function (): void {
             ->and(Functions::validateParams(['name' => ''], ['name' => 'required|min:2']))->toHaveKey('name')
             ->and(Functions::validateParams(['name' => 'Ana'], ['name' => 'required|min:2']))->toBe([]);
     });
+
+    it('min y max aceptan números enviados por JSON', function (): void {
+        expect(Functions::validateParams(['id' => 7], ['id' => 'required|numeric|min:1|max:3']))->toBe([]);
+    });
 });
 
 describe('token de recuperación de contraseña', function (): void {

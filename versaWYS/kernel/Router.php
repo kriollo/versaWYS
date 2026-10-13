@@ -510,7 +510,9 @@ class Router
 
                 $response = $middlewareClassTemp->$middlewareMethodName(...$slug);
                 if (is_array($response) || is_object($response)) {
-                    return Response::json($response, $response['code'] ?? 200);
+                    $status = is_array($response) ? (int) ($response['code'] ?? 200) : 200;
+
+                    return Response::json((array) $response, $status >= 100 && $status <= 599 ? $status : 200);
                 }
             } catch (Throwable $e) {
                 Loggin::error(
@@ -568,7 +570,10 @@ class Router
             $response = $controllerClassTemp->$controllerMethodName(...$slug);
             if (is_array($response) || is_object($response)) {
                 // Igual que en los middlewares: la clave `code` define el estado HTTP
-                return Response::json($response, is_array($response) ? (int) ($response['code'] ?? 200) : 200);
+                // Solo si es un estado HTTP válido: hay respuestas con code 0 o con el código de una excepción
+                $status = is_array($response) ? (int) ($response['code'] ?? 200) : 200;
+
+                return Response::json((array) $response, $status >= 100 && $status <= 599 ? $status : 200);
             }
 
             echo $response;
