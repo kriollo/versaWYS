@@ -677,6 +677,10 @@ class RouteManager
     {
         $value = '';
         for ($index = $start; $index < $end; $index++) {
+            // Sin comentarios: un middleware comentado dentro del arreglo no está activo
+            if (is_array($tokens[$index]) && in_array($tokens[$index][0], [T_COMMENT, T_DOC_COMMENT], true)) {
+                continue;
+            }
             $value .= is_array($tokens[$index]) ? $tokens[$index][1] : $tokens[$index];
         }
 

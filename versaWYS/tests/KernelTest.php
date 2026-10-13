@@ -287,3 +287,26 @@ describe('revisión previa al despliegue', function (): void {
         ['corta1A', false],
     ]);
 });
+
+describe('documentación de rutas: comentarios', function (): void {
+    it('no cuenta como activo un middleware comentado dentro del arreglo', function (): void {
+        $routes = versaWYS\kernel\cli\RouteManager::parseRouteSource(<<<'PHP'
+            <?php
+
+            namespace app\routes;
+
+            use app\controllers\UsersController;
+            use app\middleware\AuthMiddleware;
+            use versaWYS\kernel\Router;
+
+            // description: Formulario de alta
+            Router::get('/admin/usuarios/addUser', [UsersController::class, 'addUserTemplate'])->middleware([
+                // [NoExisteMiddleware::class, 'validar'],
+                [AuthMiddleware::class, 'checkSession'],
+            ]);
+            PHP, 'admin');
+
+        expect(array_column($routes[0]['middleware'], 'class_method'))->toBe(['checkSession'])
+            ->and($routes[0]['issues'])->toBe([]);
+    });
+});
