@@ -234,3 +234,22 @@ describe('apariencia del panel', function (): void {
         }
     });
 });
+
+describe('plantillas', function (): void {
+    it('ningún script en línea contiene etiquetas de documento como texto', function (): void {
+        // El proxy de desarrollo inserta su script en el primer cierre de body de la respuesta y la
+        // navegación SPA busca el body con expresiones regulares: si esas etiquetas aparecen dentro de
+        // un texto de JavaScript, el script se corta y su código queda visible en la página.
+        $offenders = [];
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator('app/templates', FilesystemIterator::SKIP_DOTS)) as $file) {
+            preg_match_all('/<script\b[^>]*>(.*?)<\/script>/is', (string) file_get_contents($file->getPathname()), $scripts);
+            foreach ($scripts[1] as $script) {
+                if (preg_match('/<\/?(body|html|head)\b/i', $script) === 1) {
+                    $offenders[] = $file->getPathname();
+                }
+            }
+        }
+
+        expect($offenders)->toBe([]);
+    });
+});

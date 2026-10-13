@@ -1024,10 +1024,14 @@
                 const frame = el('iframe', 'h-[32rem] w-full border-0 bg-white dark:bg-black');
                 frame.setAttribute('sandbox', '');
                 frame.setAttribute('title', 'Vista previa de la respuesta');
+                // Sin etiquetas html, head ni body escritas aquí: el proxy de desarrollo (versacompiler /
+                // BrowserSync) inserta su script en el primer cierre de body que encuentra en la página,
+                // aunque esté dentro de un texto de JavaScript, y eso corta este script.
+                // El navegador crea esas etiquetas solo; el tema oscuro lo activa el contenedor .dark.
                 frame.srcdoc =
-                    `<!doctype html><html lang="es" class="${dark ? 'dark' : ''}"><head><meta charset="utf-8">` +
-                    `<base href="${window.location.origin}/" target="_blank">${styles}</head>` +
-                    `<body class="${dark ? 'bg-black text-gray-100' : 'bg-white text-gray-900'} p-4">${html}</body></html>`;
+                    `<meta charset="utf-8"><base href="${window.location.origin}/" target="_blank">${styles}` +
+                    `<div class="${dark ? 'dark' : ''}"><div class="min-h-screen p-4 ` +
+                    `${dark ? 'bg-black text-gray-100' : 'bg-white text-gray-900'}">${html}</div></div>`;
                 return frame;
             }
 
