@@ -1,3 +1,5 @@
+import colors from 'tailwindcss/colors.js';
+
 /** @type {import('tailwindcss').Config} */
 
 export default {
@@ -42,6 +44,9 @@ export default {
     theme: {
         extend: {
             colors: {
+                // Grises neutros en vez de los azulados por defecto: las superficies del tema oscuro
+                // (tarjetas gray-800, campos gray-700) quedan en la misma gama que el fondo negro del panel.
+                gray: colors.neutral,
                 primary: {
                     50: '#eff6ff',
                     100: '#dbeafe',
@@ -125,6 +130,35 @@ export default {
                     700: '#0369a1',
                     800: '#075985',
                     900: '#0c4a6e',
+                },
+                // Color de marca del panel: botones, enlaces, foco y estados activos (bg-brand, text-brand...).
+                // Para personalizar un proyecto basta cambiar esta paleta.
+                brand: {
+                    DEFAULT: '#0799D5',
+                    50: '#e6f7fd',
+                    100: '#b3e5f8',
+                    200: '#80d3f3',
+                    300: '#4dc1ee',
+                    400: '#1aaee9',
+                    500: '#0799D5',
+                    600: '#0680b8',
+                    700: '#05669a',
+                    800: '#044d7c',
+                    900: '#03335e',
+                },
+                // Color de advertencia que usan los componentes (sesión por expirar, avisos)
+                'corporate-orange': {
+                    DEFAULT: '#EE881D',
+                    50: '#fef5e7',
+                    100: '#fce4bc',
+                    200: '#fad391',
+                    300: '#f8c266',
+                    400: '#f6b13b',
+                    500: '#EE881D',
+                    600: '#d97516',
+                    700: '#b45f12',
+                    800: '#8f4a0e',
+                    900: '#6a350a',
                 },
             },
             fontFamily: {

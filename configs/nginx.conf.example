@@ -171,6 +171,12 @@ server {
     # ========================================================================
     # 🚫 DENEGAR DIRECTORIOS SENSIBLES (archivos que NO deben ser accesibles)
     # ========================================================================
+    # De node_modules solo se sirven los módulos JS y CSS que importa el frontend (Vue, SweetAlert2...)
+    location ~* ^/node_modules/.+\.(js|mjs|css)$ {
+        expires 30d;
+        try_files $uri =404;
+    }
+
     location ~ ^/(vendor|node_modules)/ {
         deny all;
         return 404;
@@ -181,7 +187,7 @@ server {
     # Si intentan acceder a estas carpetas, pasar siempre por el router PHP
     # para que muestre la página 404 personalizada en lugar de error del servidor
     # ========================================================================
-    location ~ ^/(app|versaWYS|vendor|logs|src|configs|documentacion|node_modules)(/|$) {
+    location ~ ^/(app|versaWYS|vendor|logs|src|configs|documentacion)(/|$) {
         try_files /nonexistent /index.php?$query_string;
     }
     

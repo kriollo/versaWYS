@@ -43,10 +43,13 @@ TraceEnable Off
     RewriteRule .+~$ - [R=404,L]
 
     # Bloquear directorios sensibles
-    RewriteRule ^(vendor|node_modules)(/|$) - [R=404,L,NC]
+    RewriteRule ^vendor(/|$) - [R=404,L,NC]
+    # De node_modules solo se sirven los módulos JS y CSS que importa el frontend (Vue, SweetAlert2...)
+    RewriteCond %{REQUEST_URI} !\.(js|mjs|css)$ [NC]
+    RewriteRule ^node_modules(/|$) - [R=404,L,NC]
 
     # Forzar router para carpetas sensibles
-    RewriteRule ^(app|versaWYS|vendor|logs|src|configs|documentacion|node_modules)(/|$) /index.php [QSA,L]
+    RewriteRule ^(app|versaWYS|vendor|logs|src|configs|documentacion)(/|$) /index.php [QSA,L]
 
     # Headers de seguridad
     Header always set X-Frame-Options "SAMEORIGIN"

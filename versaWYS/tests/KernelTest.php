@@ -217,3 +217,20 @@ describe('respuesta SPA', function (): void {
             ->and(array_column($scripts, 'content'))->toBe(['if (1 < 2) { window.x = 1; }', 'import { a } from "/a.js";']);
     });
 });
+
+describe('apariencia del panel', function (): void {
+    it('define en Tailwind las paletas propias que usan las plantillas y componentes', function (): void {
+        $config = (string) file_get_contents('tailwind.config.js');
+        $sources = '';
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator('app/templates', FilesystemIterator::SKIP_DOTS)) as $file) {
+            $sources .= file_get_contents($file->getPathname());
+        }
+
+        // Sin la paleta en la configuración, clases como bg-brand no generan ningún estilo
+        foreach (['brand', 'corporate-orange'] as $palette) {
+            if (preg_match('/\b(?:bg|text|border|ring)-' . $palette . '\b/', $sources) === 1 || $palette === 'corporate-orange') {
+                expect($config)->toMatch('/[\'"]?' . preg_quote($palette, '/') . '[\'"]?\s*:\s*\{/');
+            }
+        }
+    });
+});

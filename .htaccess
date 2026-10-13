@@ -43,7 +43,13 @@ Options -Indexes
     RewriteRule "\.js\.gz$"  "-" [T=text/javascript,E=no-gzip:1,L]
 
     # Si la URI apunta a carpetas internas del framework, siempre va a index.php
-    RewriteCond %{REQUEST_URI} ^/(app|versaWYS|vendor|logs|src|configs|scripts|documentacion|node_modules)(/|$) [NC]
+    RewriteCond %{REQUEST_URI} ^/(app|versaWYS|vendor|logs|src|configs|scripts|documentacion)(/|$) [NC]
+    RewriteRule ^ index.php [QSA,L]
+
+    # El frontend compilado importa Vue y otras librerías desde /node_modules/<paquete>/dist/.
+    # De node_modules solo se sirven módulos JS y CSS; el resto pasa por el router (404).
+    RewriteCond %{REQUEST_URI} ^/node_modules/ [NC]
+    RewriteCond %{REQUEST_URI} !\.(js|mjs|css)$ [NC]
     RewriteRule ^ index.php [QSA,L]
 
     # Para el resto, solo redirigir si no es archivo o directorio físico

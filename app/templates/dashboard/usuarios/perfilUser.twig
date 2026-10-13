@@ -52,7 +52,7 @@
 							{% if owner_user.avatar != null %}
 								<img class="w-20 h-20 rounded-full" src="{{ getAssets('dashboard', 'avatars', '/' ~ owner_user.avatar) }}" alt="{{ owner_user.name }}"/>
 							{% else %}
-								<img class="w-20 h-20 rounded-full" src="{{ getAssets('dashboard', 'avatars', '/incognito-icon-20.jpg') }}" alt="user"/>
+								<img class="w-20 h-20 rounded-full dark:invert" src="{{ getAssets('dashboard', 'avatars', '/incognito-icon-20.jpg') }}" alt="user"/>
 							{% endif %}
 							<form method="POST" class="flex flex-col space-y-4" id="formUpdateAvatar" action="{{ getPanelUrl('usuarios/updateAvatar') }}">
 								{{ csrf_field('csrf_token_avatar')|raw }}

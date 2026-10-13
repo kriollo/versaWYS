@@ -22,74 +22,6 @@
         translateY(0); } }
 
         @media (prefers-reduced-motion: reduce) { .doc-route, .doc-enter { animation: none; transition: none; } }
-
-        .doc-shell { background-color: #f1f5f9 !important; color: #1e293b !important; color-scheme: light; }
-
-        .doc-shell h1, .doc-shell h2, .doc-shell h3, .doc-shell h4 { color: #0f172a !important; }
-
-        .doc-shell p, .doc-shell nav span, .doc-shell label { color: #475569 !important; }
-
-        .doc-shell header > div p:first-of-type, .doc-shell section > div > div > p:first-child { color: #0f766e
-        !important; }
-
-        .doc-shell section { border-color: #cbd5e1 !important; background-color: #ffffff !important; color: #1e293b
-        !important; }
-
-        .doc-shell versa-link { border-color: #cbd5e1 !important; background-color: #f8fafc !important; color: #1e293b
-        !important; }
-
-        .doc-shell versa-link:hover { border-color: #0f766e !important; background-color: #ffffff !important; }
-
-        .doc-shell versa-link span { color: #1e293b !important; }
-
-        .doc-shell versa-link .doc-code { background-color: #134e4a !important; color: #99f6e4 !important; }
-
-        .doc-shell .doc-route { border-color: #cbd5e1 !important; background-color: #ffffff !important; color: #1e293b
-        !important; }
-
-        .doc-shell .route-toggle { color: #1e293b !important; }
-
-        .doc-shell .route-toggle > .route-method { color: #ffffff !important; }
-
-        .doc-shell .route-method[data-method='GET'] { background-color: #047857 !important; } .doc-shell
-        .route-method[data-method='POST'] { background-color: #0369a1 !important; } .doc-shell
-        .route-method[data-method='PUT'] { background-color: #b45309 !important; } .doc-shell
-        .route-method[data-method='PATCH'] { background-color: #6d28d9 !important; } .doc-shell
-        .route-method[data-method='DELETE'] { background-color: #be123c !important; }
-
-        .doc-shell .route-toggle code, .doc-shell .route-details code, .doc-shell .route-details label { color: #0f172a
-        !important; }
-
-        .doc-shell .route-toggle .route-chevron { color: #64748b !important; }
-
-        .doc-shell .route-details { border-color: #cbd5e1 !important; background-color: #f8fafc !important; color:
-        #334155 !important; }
-
-        .doc-shell .route-details p, .doc-shell .route-details span { color: #475569 !important; }
-
-        .doc-shell .doc-group { border-color: #0f766e !important; background: radial-gradient(ellipse at top left,
-        rgb(20 184 166 / 18%), transparent 55%), #10252f !important; color: #f8fafc !important; }
-
-        .doc-shell .doc-group h3, .doc-shell .doc-group code, .doc-shell .doc-group span { color: #f8fafc !important; }
-
-        .doc-shell input:not([type='file']), .doc-shell select, .doc-shell textarea { border-color: #94a3b8 !important;
-        background-color: #ffffff !important; color: #0f172a !important; }
-
-        .doc-shell input::placeholder, .doc-shell textarea::placeholder { color: #64748b !important; opacity: 1; }
-
-        .doc-shell .send-route-request { border: 0 !important; background-color: #0f766e !important; color: #ffffff
-        !important; }
-
-        .doc-shell .send-route-request:hover { background-color: #115e59 !important; }
-
-        .doc-shell #filterRoutesButton { border: 0 !important; background-color: #0f172a !important; color: #ffffff
-        !important; }
-
-        .doc-shell .request-result { border-color: #cbd5e1 !important; background-color: #ffffff !important; color:
-        #1e293b !important; }
-
-        .doc-shell .request-result-status, .doc-shell .request-result-duration, .doc-shell .request-result-headers,
-        .doc-shell .request-result-body { color: #334155 !important; }
     </style>
 {% endblock %}
 {% block appBody %}
@@ -466,7 +398,7 @@
                                                             <code
                                                                 class="doc-code text-xs font-bold text-teal-800 dark:text-teal-300">
                                                                 {{ param.name }}
-                                                            </code><span class="ml-1 text-xs text-slate-400">
+                                                            </code><span class="ml-1 text-xs text-slate-600 dark:text-slate-300">
                                                                 {{ param.type }}
                                                             </span>
                                                             <p
@@ -489,7 +421,7 @@
                                                             <code
                                                                 class="doc-code text-xs font-bold text-sky-800 dark:text-sky-300">
                                                                 {{ param.name }}
-                                                            </code><span class="ml-1 text-xs text-slate-400">
+                                                            </code><span class="ml-1 text-xs text-slate-600 dark:text-slate-300">
                                                                 {{ param.type }}
                                                             </span>
                                                             <p
@@ -513,7 +445,7 @@
                                                                 <code
                                                                     class="doc-code text-xs font-bold text-amber-800 dark:text-amber-300">
                                                                     {{ param.name }}
-                                                                </code><span class="ml-1 text-xs text-slate-400">
+                                                                </code><span class="ml-1 text-xs text-slate-600 dark:text-slate-300">
                                                                     {{ param.type }}
                                                                 </span>
                                                                 <p

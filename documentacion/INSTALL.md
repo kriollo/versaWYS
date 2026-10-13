@@ -78,6 +78,10 @@ En `configs/` hay plantillas para NGINX (`nginx.conf.example`) y Apache (`apache
 
 Para desplegar con versaDeploy, copia `versa_deploy.example.yml` a `versa_deploy.yml` y completa los datos del servidor.
 
+### Qué debe quedar accesible desde el navegador
+
+El frontend compilado importa Vue y SweetAlert2 desde `/node_modules/<paquete>/dist/`. Por eso `node_modules` de producción (`pnpm install --production`) debe existir en el servidor, y las reglas incluidas (`.htaccess`, plantillas de `configs/` y el servidor de desarrollo) sirven de esa carpeta **solo archivos `.js`, `.mjs` y `.css`**. Si las páginas del panel aparecen en blanco, revisa en la pestaña de red del navegador que esas dos librerías carguen.
+
 ## Producción
 
 ```bash

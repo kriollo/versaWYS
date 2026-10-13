@@ -14,7 +14,17 @@ $uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 $projectRoot = __DIR__ . '/../../../';
 
 // Lista de carpetas sensibles que NO deben ser accesibles directamente
-$blockedDirectories = ['/app/', '/versaWYS/', '/vendor/', '/logs/', '/src/', '/configs/', '/scripts/', '/documentacion/', '/node_modules/'];
+$blockedDirectories = ['/app/', '/versaWYS/', '/vendor/', '/logs/', '/src/', '/configs/', '/scripts/', '/documentacion/'];
+
+// El frontend compilado importa Vue y otras librerías desde /node_modules/<paquete>/dist/.
+// De node_modules solo se sirven esos módulos JS y CSS; nada más (package.json, fuentes, binarios).
+if (
+    str_starts_with(strtolower($uri), '/node_modules/')
+    && preg_match('#^/node_modules/[\w@.\-/]+\.(js|mjs|css)$#i', $uri) !== 1
+) {
+    require_once $projectRoot . 'index.php';
+    return true;
+}
 
 // Verificar si la URI comienza con una carpeta bloqueada
 foreach ($blockedDirectories as $blockedDir) {

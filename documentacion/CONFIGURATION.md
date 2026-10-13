@@ -38,6 +38,15 @@ Los valores por defecto están en `versaWYS/kernel/config/config.default.php` y 
 
 - **A mano**: edita `config.json`. La conexión a la base de datos, las claves de sesión y el modo debug solo se cambian así o por CLI, nunca desde el navegador.
 
+## Apariencia del panel
+
+Los colores del panel se definen en `tailwind.config.js`:
+
+- **`brand`** es el color de marca: botones principales, enlaces, foco y elementos activos (`bg-brand`, `text-brand`, `ring-brand`…). Para adaptar el panel a un proyecto basta cambiar esa paleta y recompilar con `pnpm compile`.
+- **`gray`** usa grises neutros, para que las tarjetas y campos del tema oscuro queden en la misma gama que el fondo.
+
+El panel trae tema claro y oscuro; el usuario lo cambia desde la barra superior.
+
 ## Modo debug
 
 Con `build.debug` en `true` se muestran errores detallados (rutas de archivos, trazas y SQL) y la barra de depuración. La validación CSRF y los controles de rol siguen activos. No lo actives en un servidor accesible desde internet: en producción las respuestas de error solo llevan el mensaje y el detalle queda en los logs.

@@ -63,6 +63,9 @@ environments:
                 npm_command: 'pnpm install'
                 compile_command: 'pnpm run compile'
                 cleanup_dev_deps: true
+                # node_modules de producción debe quedar en el servidor: el navegador carga Vue y
+                # SweetAlert2 desde /node_modules/<paquete>/dist/
+                production_command: 'pnpm install --production'
                 reusable_paths:
                     - 'public/dashboard/js'
                     - 'public/dashboard/css'
