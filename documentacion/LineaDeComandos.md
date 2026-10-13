@@ -115,7 +115,42 @@ Comandos incluidos:
 | Comando | Qué hace |
 |---|---|
 | `app:mail:send` | Envía un correo (plantilla Twig o HTML). Lo usa el framework para enviar correos en segundo plano. |
-| `app:check:psr4` | Revisa que clases, namespaces y nombres de archivo coincidan (importante al pasar de Windows a Linux). |
-| `app:check:deploy` | Valida el proyecto antes de desplegar: rutas de Windows, finales de línea, permisos y credenciales en el código. |
+| `app:check:psr4` | Revisa que clases, namespaces y nombres de archivo coincidan; también referencias a clases del proyecto que no existen y `require`/`include` cuya ruta difiere en mayúsculas de lo que hay en disco. |
+| `app:check:deploy` | Revisión previa al despliegue. Ver más abajo. |
+
+### Revisión previa al despliegue
+
+```bash
+php versaCLI app:check:deploy                 # antes de subir cambios: revisa el código
+php versaCLI app:check:deploy --strict        # en CI: los avisos también hacen fallar
+php versaCLI app:check:deploy --production    # en el servidor: revisa además configuración y entorno
+```
+
+Termina con código 1 si encuentra algo que impida desplegar.
+
+| Revisión | Qué detecta | Nivel |
+|---|---|---|
+| Sintaxis PHP | Archivos que no se pueden cargar | Crítico |
+| PSR-4, clases y archivos | Namespaces que no coinciden con la ruta, clases inexistentes, `require` con otra capitalización | Crítico |
+| Rutas de la aplicación | Controladores, métodos o middlewares que no existen; documentación faltante | Crítico / aviso |
+| Plantillas Twig | `render`, `extends` o `include` a plantillas que no existen o con otra capitalización | Crítico |
+| Windows → Linux | Rutas `C:\`, comandos de Windows en llamadas al sistema, scripts con CRLF | Aviso / crítico |
+| Restos de depuración | `var_dump`, `dd`, `dump`, `print_r`, `phpinfo` | Aviso |
+| Credenciales en el código | Claves privadas y tokens de proveedores; contraseñas asignadas a mano | Crítico / aviso |
+| Repositorio | `config.json`, `.env` o `install.token` versionados en git | Crítico |
+| Configuración | `debug` activo, clave de sesión corta, cookies sin `secure`, CORS con `*`, cachés apagadas | Aviso; crítico con `--production` |
+| Entorno del servidor | Solo con `--production`: versión de PHP, extensiones, permisos de escritura, dependencias, frontend compilado, conexión a la base de datos y migraciones pendientes | Crítico |
+
+La configuración local no es la del servidor, por eso sin `--production` sus problemas son solo avisos.
+
+Un hallazgo intencional se silencia en el propio código:
+
+```php
+$ruta = 'C:\\xampp\\php\\cacert.pem'; // deploy-check:ignore
+
+// deploy-check:ignore-start
+...
+// deploy-check:ignore-end
+```
 
 Desde el código PHP puedes lanzar un comando con `versaWYS\kernel\cli\CommandExecutor::run()` o, sin esperar el resultado, con `runInBackground()`.

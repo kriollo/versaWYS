@@ -12,6 +12,12 @@ use versaWYS\kernel\cli\CLIErrorHandler;
 class CheckPsr4Command extends BaseCommand
 {
     private array $availableClasses = [];
+
+    /** @var array<string, true> Todas las clases, interfaces, traits y enums declarados, en minúsculas */
+    private array $declaredTypes = [];
+
+    /** @var list<string> Prefijos PSR-4 del proyecto, en minúsculas (app\, versawys\kernel\) */
+    private array $projectPrefixes = [];
     private array $classToFile = [];
     private array $classMethods = [];
     private array $classInheritance = [];
@@ -72,6 +78,7 @@ class CheckPsr4Command extends BaseCommand
 
             $dir = rtrim($absolutePath, DIRECTORY_SEPARATOR);
             $psr4Mappings[$prefix] = $dir;
+            $this->projectPrefixes[] = strtolower($prefix);
             $relPath = str_replace($projectRoot . DIRECTORY_SEPARATOR, '', $dir);
             echo "  • {$prefix} => {$relPath}\n";
             $this->buildClassIndex($dir, $prefix);
@@ -960,6 +967,7 @@ class CheckPsr4Command extends BaseCommand
 
                 $filePath = $file->getRealPath();
                 $declared = $this->parsePhpFileDetails($filePath);
+                $this->indexDeclaredTypes($filePath, (string) $declared['namespace']);
 
                 if ('' === $declared['class']) {
                     continue;
@@ -1057,6 +1065,16 @@ class CheckPsr4Command extends BaseCommand
                     $lowercaseFqcn = strtolower($fqcn);
 
                     if (!isset($this->availableClasses[$lowercaseFqcn])) {
+                        if ($this->isMissingProjectClass($fqcn)) {
+                            $issues[] = [
+                                'type' => 'class_not_found',
+                                'file' => str_replace($projectRoot . DIRECTORY_SEPARATOR, '', $filePath),
+                                'line' => $line,
+                                'used' => 'use ' . $fqcn,
+                                'resolved' => $fqcn,
+                            ];
+                        }
+
                         continue;
                     }
 
@@ -1166,37 +1184,9 @@ class CheckPsr4Command extends BaseCommand
                 $pathReferences = $this->extractFilePaths($filePath);
 
                 foreach ($pathReferences as $ref) {
-                    $path = $ref['path'];
-                    $line = $ref['line'];
-                    $type = $ref['type'];
-
-                    $resolvedPath = $this->resolvePath($path, dirname($filePath), $projectRoot);
-
-                    if ($resolvedPath === null) {
-                        continue;
-                    }
-
-                    if (!file_exists($resolvedPath)) {
-                        $issues[] = [
-                            'type' => 'path_not_found',
-                            'file' => str_replace($projectRoot . DIRECTORY_SEPARATOR, '', $filePath),
-                            'line' => $line,
-                            'path' => $path,
-                            'context' => $type,
-                        ];
-                        continue;
-                    }
-
-                    $caseIssue = $this->verifyPathCaseSensitivity(
-                        $resolvedPath,
-                        $path,
-                        $filePath,
-                        $line,
-                        $type,
-                        $projectRoot,
-                    );
-                    if ($caseIssue !== null) {
-                        $issues[] = $caseIssue;
+                    $issue = $this->checkPathReference($ref, $filePath, $projectRoot);
+                    if ($issue !== null) {
+                        $issues[] = $issue;
                     }
                 }
             }
@@ -1208,6 +1198,62 @@ class CheckPsr4Command extends BaseCommand
         }
 
         return $issues;
+    }
+
+    /**
+     * Una clase referenciada dentro de un namespace del proyecto que ningún archivo declara.
+     * En ejecución es un error fatal "Class not found"; ninguna comparación de mayúsculas lo detecta.
+     */
+    /**
+     * Registra todos los tipos que declara un archivo, no solo el principal: un enum o una clase
+     * auxiliar en el mismo archivo existen aunque no sigan PSR-4.
+     */
+    private function indexDeclaredTypes(string $file, string $namespace): void
+    {
+        $tokens = $this->getTokens($file);
+        foreach ($tokens as $i => $token) {
+            if (!is_array($token) || !in_array($token[0], [T_CLASS, T_INTERFACE, T_TRAIT, T_ENUM], strict: true)) {
+                continue;
+            }
+
+            // `new class` y `Foo::class` no son declaraciones
+            $prev = $this->getPrevSignificantTokenIndex($tokens, $i);
+            if ($prev !== null && is_array($tokens[$prev]) && in_array($tokens[$prev][0], [T_NEW, T_DOUBLE_COLON], strict: true)) {
+                continue;
+            }
+
+            $next = $this->getNextSignificantTokenIndex($tokens, $i);
+            if ($next !== null && is_array($tokens[$next]) && $tokens[$next][0] === T_STRING) {
+                $this->declaredTypes[strtolower(ltrim($namespace . '\\' . $tokens[$next][1], '\\'))] = true;
+            }
+        }
+    }
+
+    private function isMissingProjectClass(string $fqcn): bool
+    {
+        $lower = strtolower(ltrim($fqcn, '\\'));
+        if (
+            isset($this->availableClasses[$lower])
+            || isset($this->declaredTypes[$lower])
+            || in_array(basename(str_replace('\\', '/', $lower)), ['self', 'static', 'parent'], true)
+        ) {
+            return false;
+        }
+
+        // `use app\models;` importa un namespace, no una clase
+        foreach (array_keys($this->declaredTypes) as $declared) {
+            if (str_starts_with($declared, $lower . '\\')) {
+                return false;
+            }
+        }
+
+        foreach ($this->projectPrefixes as $prefix) {
+            if (str_starts_with($lower, $prefix)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function scanStaticClassReferences(string $dir, string $projectRoot): array
@@ -1232,6 +1278,16 @@ class CheckPsr4Command extends BaseCommand
                     $lowercaseFqcn = strtolower($ref['resolved_fqcn']);
 
                     if (!isset($this->availableClasses[$lowercaseFqcn])) {
+                        if ($this->isMissingProjectClass($ref['resolved_fqcn'])) {
+                            $issues[] = [
+                                'type' => 'class_not_found',
+                                'file' => str_replace($projectRoot . DIRECTORY_SEPARATOR, '', $filePath),
+                                'line' => $ref['line'],
+                                'used' => $ref['original'] . '::',
+                                'resolved' => $ref['resolved_fqcn'],
+                            ];
+                        }
+
                         continue;
                     }
 
@@ -1287,6 +1343,16 @@ class CheckPsr4Command extends BaseCommand
                     $lowercaseFqcn = strtolower($ref['resolved_fqcn']);
 
                     if (!isset($this->availableClasses[$lowercaseFqcn])) {
+                        if ($this->isMissingProjectClass($ref['resolved_fqcn'])) {
+                            $issues[] = [
+                                'type' => 'class_not_found',
+                                'file' => str_replace($projectRoot . DIRECTORY_SEPARATOR, '', $filePath),
+                                'line' => $ref['line'],
+                                'used' => 'new ' . $ref['original'],
+                                'resolved' => $ref['resolved_fqcn'],
+                            ];
+                        }
+
                         continue;
                     }
 
@@ -1380,8 +1446,9 @@ class CheckPsr4Command extends BaseCommand
                 continue;
             }
 
+            // Con su barra inicial, si la tiene: \Clase es un nombre global, no relativo al namespace
             $resolved = $this->resolveClassNameFromContext(
-                $normalizedOriginal,
+                $originalName,
                 $context['namespace'],
                 $context['uses'],
             );
@@ -1461,8 +1528,9 @@ class CheckPsr4Command extends BaseCommand
             $originalName = implode('', $nameParts);
             $normalizedOriginal = ltrim($originalName, '\\');
 
+            // Con su barra inicial, si la tiene: \Clase es un nombre global, no relativo al namespace
             $resolved = $this->resolveClassNameFromContext(
-                $normalizedOriginal,
+                $originalName,
                 $context['namespace'],
                 $context['uses'],
             );
@@ -1601,19 +1669,22 @@ class CheckPsr4Command extends BaseCommand
             return ltrim($name, '\\');
         }
 
+        // PHP compara los alias de `use` sin distinguir mayúsculas
+        $aliases = array_change_key_case($uses, CASE_LOWER);
+
         // Resolver alias de use (primera parte del nombre)
         if (str_contains($name, '\\')) {
             [$firstSegment, $rest] = explode('\\', $name, 2);
-            if (isset($uses[$firstSegment])) {
-                return $uses[$firstSegment] . '\\' . $rest;
+            if (isset($aliases[strtolower($firstSegment)])) {
+                return $aliases[strtolower($firstSegment)] . '\\' . $rest;
             }
 
             // Nombre calificado relativo al namespace actual
             return $namespace !== '' ? $namespace . '\\' . $name : $name;
         }
 
-        if (isset($uses[$name])) {
-            return $uses[$name];
+        if (isset($aliases[strtolower($name)])) {
+            return $aliases[strtolower($name)];
         }
 
         return $namespace !== '' ? $namespace . '\\' . $name : $name;
@@ -1682,117 +1753,148 @@ class CheckPsr4Command extends BaseCommand
 
             $path = $this->extractPathString($tokens, $i, $count);
             if ($path !== null) {
-                $paths[] = [
-                    'path' => $path,
-                    'line' => $line,
-                    'type' => $type,
-                ];
+                $paths[] = $path + ['line' => $line, 'type' => $type];
             }
         }
 
         return $paths;
     }
 
-    private function extractPathString(array $tokens, int $startIndex, int $count): ?string
+    /**
+     * Ruta literal que sigue a require/include o a una función de archivos: `'ruta'` o `__DIR__ . '/ruta'`,
+     * con o sin paréntesis. Cualquier otra expresión (variables, concatenaciones más largas) es dinámica
+     * y no se puede comprobar: devuelve null.
+     *
+     * @return array{path: string, from_dir: bool}|null
+     */
+    private function extractPathString(array $tokens, int $startIndex, int $count): ?array
     {
-        $i = $startIndex + 1;
+        $i = $this->getNextSignificantTokenIndex($tokens, $startIndex);
+        if ($i !== null && $tokens[$i] === '(') {
+            $i = $this->getNextSignificantTokenIndex($tokens, $i);
+        }
 
-        while ($i < $count) {
-            $t = $tokens[$i];
-            if (is_array($t) && $t[0] === T_WHITESPACE) {
-                ++$i;
-                continue;
+        $fromDir = false;
+        if ($i !== null && is_array($tokens[$i]) && $tokens[$i][0] === T_DIR) {
+            $dot = $this->getNextSignificantTokenIndex($tokens, $i);
+            if ($dot === null || $tokens[$dot] !== '.') {
+                return null;
             }
-            if ($t === '(') {
-                ++$i;
-                break;
-            }
-            ++$i;
+            $fromDir = true;
+            $i = $this->getNextSignificantTokenIndex($tokens, $dot);
         }
 
-        while ($i < $count && is_array($tokens[$i]) && $tokens[$i][0] === T_WHITESPACE) {
-            ++$i;
-        }
-
-        if ($i < $count && is_array($tokens[$i]) && $tokens[$i][0] === T_CONSTANT_ENCAPSED_STRING) {
-            $str = $tokens[$i][1];
-            return trim($str, '\'"');
-        }
-
-        return null;
-    }
-
-    private function resolvePath(string $path, string $baseDir, string $projectRoot): ?string
-    {
-        if (str_contains($path, '$') || str_contains($path, '{')) {
+        if ($i === null || !is_array($tokens[$i]) || $tokens[$i][0] !== T_CONSTANT_ENCAPSED_STRING) {
             return null;
         }
 
-        if ($path[0] === '/' || strlen($path) > 1 && $path[1] === ':') {
-            return $path;
+        $end = $this->getNextSignificantTokenIndex($tokens, $i);
+        if ($end !== null && !in_array($tokens[$end], [')', ';', ','], true)) {
+            return null;
         }
 
-        $resolved = $baseDir . DIRECTORY_SEPARATOR . $path;
-        $realPath = realpath($resolved);
-
-        return $realPath !== false ? $realPath : null;
+        return ['path' => trim($tokens[$i][1], '\'"'), 'from_dir' => $fromDir];
     }
 
-    private function verifyPathCaseSensitivity(
-        string $resolvedPath,
-        string $originalPath,
-        string $sourceFile,
-        int $line,
-        string $type,
-        string $projectRoot,
-    ): ?array {
-        $parts = explode(DIRECTORY_SEPARATOR, $resolvedPath);
-        $current = '';
-
-        foreach ($parts as $index => $part) {
-            if ($part === '') {
-                continue;
-            }
-
-            if ($current === '') {
-                $current = $part;
-                if (strlen($part) === 2 && $part[1] === ':') {
-                    continue;
-                }
-            } else {
-                $current .= DIRECTORY_SEPARATOR . $part;
-            }
-
-            if (!file_exists($current)) {
-                continue;
-            }
-
-            $parent = dirname($current);
-            if (!is_dir($parent)) {
-                continue;
-            }
-
-            $entries = scandir($parent);
-            foreach ($entries as $entry) {
-                if ($entry === '.' || $entry === '..') {
-                    continue;
-                }
-
-                if (strcasecmp($entry, $part) === 0 && $entry !== $part) {
-                    return [
-                        'type' => 'path_case_mismatch',
-                        'file' => str_replace($projectRoot . DIRECTORY_SEPARATOR, '', $sourceFile),
-                        'line' => $line,
-                        'path' => $originalPath,
-                        'expected_case' => $entry,
-                        'used_case' => $part,
-                        'context' => $type,
-                    ];
-                }
-            }
+    /**
+     * Comprueba una ruta literal contra el disco distinguiendo mayúsculas, como lo hará Linux.
+     *
+     * @param array{path: string, line: int, type: string, from_dir: bool} $ref
+     *
+     * @return array<string, mixed>|null
+     */
+    private function checkPathReference(array $ref, string $sourceFile, string $projectRoot): ?array
+    {
+        $path = $ref['path'];
+        if ($path === '' || preg_match('/[$\{*?]|:\/\//', $path) === 1) {
+            return null;
         }
 
-        return null;
+        $isAbsolute = $path[0] === '/' || preg_match('/^[A-Za-z]:[\\\\\/]/', $path) === 1;
+        $bases = match (true) {
+            $ref['from_dir'] => [dirname($sourceFile)],
+            $isAbsolute => [''],
+            // Una ruta relativa se resuelve desde la raíz del proyecto (index.php y versaCLI) y,
+            // en require/include, también desde la carpeta del propio archivo
+            default => [$projectRoot, dirname($sourceFile)],
+        };
+
+        $mismatch = null;
+        foreach ($bases as $base) {
+            [$found, $caseDiff] = self::locatePath($base === '' ? $path : $base . '/' . ltrim($path, '/'));
+            if ($found === null) {
+                continue;
+            }
+            if ($caseDiff === null) {
+                return null; // existe con la capitalización exacta
+            }
+            $mismatch ??= $caseDiff;
+        }
+
+        $common = [
+            'file' => str_replace($projectRoot . DIRECTORY_SEPARATOR, '', $sourceFile),
+            'line' => $ref['line'],
+            'path' => $path,
+            'context' => $ref['type'],
+        ];
+
+        if ($mismatch !== null) {
+            return $common + ['type' => 'path_case_mismatch', 'expected_case' => $mismatch['expected'], 'used_case' => $mismatch['used']];
+        }
+
+        // Que el archivo no exista solo es un error cuando se intenta cargar; file_exists, mkdir o
+        // file_put_contents trabajan precisamente con rutas que pueden no existir
+        return in_array($ref['type'], ['require', 'require_once', 'include', 'include_once'], true)
+            ? $common + ['type' => 'path_not_found']
+            : null;
+    }
+
+    /**
+     * Busca una ruta sin distinguir mayúsculas y dice dónde difiere de lo que hay en disco.
+     *
+     * @return array{0: ?string, 1: ?array{used: string, expected: string}}
+     */
+    public static function locatePath(string $path): array
+    {
+        $segments = explode('/', str_replace('\\', '/', $path));
+        $current = preg_match('/^[A-Za-z]:$/', $segments[0]) === 1 ? array_shift($segments) : '';
+        $mismatch = null;
+
+        foreach ($segments as $segment) {
+            if ($segment === '' || $segment === '.') {
+                continue;
+            }
+
+            if ($segment === '..') {
+                $current = dirname($current === '' ? '/' : $current);
+                $current = $current === '/' ? '' : $current;
+                continue;
+            }
+
+            $entries = @scandir($current === '' ? '/' : $current);
+            if ($entries === false) {
+                return [null, null];
+            }
+
+            if (!in_array($segment, $entries, true)) {
+                $actual = null;
+                foreach ($entries as $entry) {
+                    if (strcasecmp($entry, $segment) === 0) {
+                        $actual = $entry;
+                        break;
+                    }
+                }
+                if ($actual === null) {
+                    return [null, null];
+                }
+                $mismatch ??= ['used' => $segment, 'expected' => $actual];
+                $segment = $actual;
+            }
+
+            $current .= '/' . $segment;
+        }
+
+        return [$current, $mismatch];
     }
 
     private function parsePhpFileFQCN(string $file): array
@@ -1895,6 +1997,7 @@ class CheckPsr4Command extends BaseCommand
             'use_case_mismatch' => "Problema de mayúsculas/minúsculas en 'use' statements ({$count})",
             'static_case_mismatch' => "Problema de mayúsculas/minúsculas en llamadas estáticas Clase:: ({$count})",
             'new_case_mismatch' => "Problema de mayúsculas/minúsculas en instanciaciones new Clase ({$count})",
+            'class_not_found' => "Clase del proyecto que no existe ({$count})",
             'path_not_found' => "Rutas no encontradas en require/include ({$count})",
             'path_case_mismatch' => "Problema de mayúsculas/minúsculas en rutas de archivos ({$count})",
             'method_not_found' => "Método no encontrado ({$count})",
@@ -1953,6 +2056,13 @@ class CheckPsr4Command extends BaseCommand
                 echo '    Resuelto:    ' . CLIErrorHandler::colorize($issue['resolved'], 'yellow') . "\n";
                 echo '    Correcto:    ' . CLIErrorHandler::colorize($issue['correct'], 'green') . "\n";
                 echo "    Definido en: {$issue['definition']}\n";
+                break;
+
+            case 'class_not_found':
+                echo '  ' . CLIErrorHandler::colorize('✗', 'red') . " {$issue['file']}:{$issue['line']}\n";
+                echo '    Referencia: ' . CLIErrorHandler::colorize($issue['used'], 'cyan') . "\n";
+                echo '    Resuelto:   ' . CLIErrorHandler::colorize($issue['resolved'], 'yellow') . "\n";
+                echo '    ' . CLIErrorHandler::colorize('Ningún archivo del proyecto declara esta clase', 'red') . "\n";
                 break;
 
             case 'static_call_on_non_static':

@@ -253,3 +253,37 @@ describe('plantillas', function (): void {
         expect($offenders)->toBe([]);
     });
 });
+
+describe('revisión previa al despliegue', function (): void {
+    it('el proyecto no tiene nada que impida desplegar', function (): void {
+        [$exitCode, $output] = versaCli('app:check:deploy');
+
+        expect($exitCode)->toBe(0, $output);
+    });
+
+    it('localiza rutas distinguiendo mayúsculas, como Linux', function (): void {
+        $locate = versaWYS\kernel\cli\commands\CheckPsr4Command::locatePath(...);
+        $root = (string) getcwd();
+
+        [$found, $diff] = $locate($root . '/app/models/Users.php');
+        expect($found)->toBe($root . '/app/models/Users.php')->and($diff)->toBeNull();
+
+        [$found, $diff] = $locate($root . '/app/Models/users.php');
+        expect($found)->toBe($root . '/app/models/Users.php')->and($diff)->toBe(['used' => 'Models', 'expected' => 'models']);
+
+        expect($locate($root . '/app/models/NoExiste.php'))->toBe([null, null]);
+    });
+
+    it('distingue un secreto de un texto corriente', function (string $value, bool $expected): void {
+        $command = (new ReflectionClass(versaWYS\kernel\cli\commands\CheckDeployCommand::class))->newInstanceWithoutConstructor();
+
+        expect((new ReflectionMethod($command, 'looksLikeSecret'))->invoke($command, $value))->toBe($expected);
+    })->with([
+        ['SuperSecreta123', true],
+        ['abcdef1234567890abcdef', true],
+        ['required|min:8', false],
+        ['La contraseña no es válida', false],
+        ['password', false],
+        ['corta1A', false],
+    ]);
+});

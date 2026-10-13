@@ -69,7 +69,7 @@ class Functions
             });
         </script>
         ";
-        var_dump($data);
+        var_dump($data); // deploy-check:ignore (este es el helper de depuración)
         echo '</pre>';
     }
 
@@ -823,6 +823,7 @@ class Functions
         $phpDir = dirname(PHP_BINARY);
         $candidates = [];
 
+        // deploy-check:ignore-start (ubicaciones que solo se consultan en Windows)
         if ($isWindows) {
             // Windows: buscar en múltiples ubicaciones
             $programFiles = trim((string) getenv('ProgramFiles'));
@@ -877,6 +878,7 @@ class Functions
             // Chocolatey
             $candidates[] = 'C:\\ProgramData\\chocolatey\\lib\\git\\tools\\mingw64\\ssl\\certs\\ca-bundle.crt';
             $candidates[] = 'C:\\ProgramData\\chocolatey\\lib\\curl\\tools\\curl-ca-bundle.crt';
+            // deploy-check:ignore-end
         } else {
             // Linux/macOS: buscar en ubicaciones estándar
             $candidates = [

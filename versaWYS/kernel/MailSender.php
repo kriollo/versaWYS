@@ -74,7 +74,7 @@ class MailSender
     ): bool {
         global $config, $twig;
 
-        $email = (new EMail())
+        $email = (new Email())
             ->from(new Address($config['mail']['username'], $config['mail']['name_from']))
             ->to(new Address($to['email'], $to['name']))
             ->subject($subject);

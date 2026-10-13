@@ -82,6 +82,8 @@ environments:
             - 'php versaCLI route:compile'
             - 'php versaCLI config:templateCache:true'
             - 'php versaCLI command:refresh'
+            # Falla el despliegue si la configuración o el entorno del servidor no están listos
+            - 'php versaCLI app:check:deploy --production'
 
         services_reload:
             - 'sudo systemctl reload php8.4-fpm'
