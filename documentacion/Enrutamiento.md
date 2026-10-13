@@ -190,7 +190,30 @@ Disponible solo con `build.debug` en `true`. Muestra los archivos de `app/routes
 - si el Router **valida CSRF** en ella o si está exenta con `withoutCsrf()`;
 - **errores** (el controlador, el método o un middleware no existe) y **avisos** de documentación faltante.
 
+### El probador de rutas
+
 Cada ruta trae un probador que envía la petición al propio servidor con tu sesión y el token CSRF. Las peticiones que modifican datos piden confirmación, porque actúan sobre la base de datos real.
+
+**Petición**
+
+- **Parámetros**: un campo por cada `path-param` y `query-param` documentado. La URL final se actualiza mientras escribes.
+- **Cuerpo**: JSON, con un botón *Usar ejemplo* que arma el objeto a partir de las anotaciones `request-body` y otro para *Formatear*. Los campos `type:file` aparecen como selectores de archivo y la petición se envía como formulario.
+- **Encabezados**: adicionales, uno por línea (`Nombre: valor`).
+- **Copiar cURL** genera el comando equivalente, sin las cookies de sesión. **Ctrl + Enter** envía.
+
+**Respuesta**
+
+Muestra el estado, el tiempo y el tamaño, y elige la vista según lo que llegó:
+
+| Respuesta | Vista inicial |
+|---|---|
+| JSON con `"type": "html"` (la que devuelve una página Twig en navegación SPA) | **Vista previa**: el campo `content` renderizado |
+| HTML directo | **Vista previa** |
+| Otro JSON | **JSON**: árbol plegable con colores |
+| Imagen | **Vista previa** de la imagen |
+| Texto u otro | **Raw** |
+
+Las pestañas *JSON*, *Raw* y *Encabezados* siguen disponibles en todos los casos. La vista previa se dibuja en un marco aislado: usa los estilos del panel, pero no ejecuta scripts ni tiene acceso a tu sesión. En las páginas Vue (`"type": "vue"`) no hay HTML que previsualizar: el contenido lo dibuja el módulo indicado, y el probador lo señala.
 
 ### Revisar las rutas desde la terminal
 

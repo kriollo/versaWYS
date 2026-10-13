@@ -30,14 +30,22 @@ Router::group(
         Router::get('/modulesRoutes', [ModulesController::class, 'index']);
 
         // description: Obtiene una lista paginada de módulos.
+        // query-param name:page type:int description:Número de página (desde 1)
+        // query-param name:per_page type:int description:Filas por página (máximo 5000)
+        // query-param name:filter type:string description:Texto a buscar
+        // query-param name:order type:string description:Columna y dirección, por ejemplo nombre,asc
+        // query-param name:externalFilters type:string description:Filtros permitidos: estado=true o estado=false
         Router::get('/modules/getModulesPaginated', [
             ModulesController::class,
             'getModulesPaginated',
         ]);
 
-        // description: Obtiene los submódulos de un módulo.
-        // request-body name:id type:int description:ID del módulo
-        // request-body name:estado type:string description:Estado del módulo
+        // description: Obtiene una lista paginada de los submódulos de un módulo.
+        // query-param name:page type:int description:Número de página (desde 1)
+        // query-param name:per_page type:int description:Filas por página (máximo 5000)
+        // query-param name:filter type:string description:Texto a buscar
+        // query-param name:order type:string description:Columna y dirección, por ejemplo nombre,asc
+        // query-param name:externalFilters type:string description:Filtro por módulo: id_menu=ID del módulo
         Router::get('/modules/getSubModules', [ModulesController::class, 'getSubModules']);
     },
     [

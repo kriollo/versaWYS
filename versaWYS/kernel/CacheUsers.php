@@ -164,6 +164,9 @@ class CacheUsers
     private function loadFreshUserData(int $userId, int $empresaId, array $config): array
     {
         $user = (new Users())->findWithCompany($userId);
+        // Estos datos se guardan en la sesión y llegan a las plantillas y a las respuestas SPA:
+        // nunca deben incluir secretos del usuario
+        unset($user['password'], $user['restore_token']);
         $empresas = (new Empresas())->all('1');
         $empresaSelected = (new Empresas())->getEmpresaById($empresaId);
 
@@ -171,7 +174,7 @@ class CacheUsers
 
         // Cargar menú según rol
         $menu_user = [];
-        if ($user) {
+        if ($user !== []) {
             $menu_user = ($user['role'] ?? null) === 'superadmin'
                 ? (new Dashboard())->getMenuAdmin()
                 : (new Dashboard())->getMenuUser($userId, (int) ($user['id_perfil'] ?? 0));

@@ -50,6 +50,11 @@ Router::group(
     '/admin/users',
     function (): void {
         // description: Obtiene una lista paginada de usuarios.
+        // query-param name:page type:int description:Número de página (desde 1)
+        // query-param name:per_page type:int description:Filas por página (máximo 5000)
+        // query-param name:filter type:string description:Texto a buscar
+        // query-param name:order type:string description:Columna y dirección, por ejemplo nombre,asc
+        // query-param name:externalFilters type:string description:Filtros permitidos: status=true o status=false
         Router::get('/getUsersPaginated', [UsersController::class, 'getUsersPaginated']);
     },
     [

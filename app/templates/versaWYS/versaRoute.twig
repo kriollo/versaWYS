@@ -22,6 +22,47 @@
         translateY(0); } }
 
         @media (prefers-reduced-motion: reduce) { .doc-route, .doc-enter { animation: none; transition: none; } }
+
+        .rt-tab { margin-bottom: -1px; border-bottom: 2px solid transparent; padding: 0.5rem 0.75rem; font-size: 0.75rem;
+        font-weight: 700; color: #475569; }
+
+        .rt-tab:hover { color: #0f172a; }
+
+        .rt-tab[aria-selected='true'] { border-bottom-color: #0f766e; color: #0f766e; }
+
+        .dark .rt-tab { color: #cbd5e1; }
+
+        .dark .rt-tab:hover { color: #ffffff; }
+
+        .dark .rt-tab[aria-selected='true'] { border-bottom-color: #5eead4; color: #5eead4; }
+
+        .rt-count { margin-left: 0.25rem; font-weight: 400; opacity: 0.75; }
+
+        .rt-link { font-size: 0.75rem; font-weight: 700; color: #0f766e; }
+
+        .rt-link:hover { text-decoration: underline; }
+
+        .dark .rt-link { color: #5eead4; }
+
+        .rt-json details > summary { cursor: pointer; list-style: none; }
+
+        .rt-json details > summary::before { content: '▸'; display: inline-block; width: 1em; color: #64748b; }
+
+        .rt-json details[open] > summary::before { content: '▾'; }
+
+        .rt-json .rt-children { margin-left: 1.25em; border-left: 1px solid rgb(100 116 139 / 30%); padding-left: 0.75em; }
+
+        .rt-json .rt-leaf { padding-left: 1em; }
+
+        .rt-json { color: #334155; }
+
+        .rt-json .k { color: #7c2d12; } .rt-json .s { color: #166534; } .rt-json .n { color: #1d4ed8; } .rt-json .b {
+        color: #7e22ce; } .rt-json .z { color: #64748b; }
+
+        .dark .rt-json { color: #cbd5e1; }
+
+        .dark .rt-json .k { color: #fdba74; } .dark .rt-json .s { color: #86efac; } .dark .rt-json .n { color: #93c5fd; }
+        .dark .rt-json .b { color: #d8b4fe; } .dark .rt-json .z { color: #94a3b8; }
     </style>
 {% endblock %}
 {% block appBody %}
@@ -459,123 +500,16 @@
                                             {% endif %}
                                         </div>
                                     </div>
-                                    <div class="mt-6 border-t border-slate-200 pt-5 dark:border-slate-800">
-                                        <div class="flex flex-wrap items-start justify-between gap-3">
-                                            <div>
-                                                <h3 class="text-sm font-black text-slate-900 dark:text-white">
-                                                    Probar esta ruta
-                                                </h3>
-                                                <p class="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
-                                                    La petición se enviará a este mismo sitio con tu sesión actual.
-                                                </p>
-                                            </div>
-                                            <button
-                                                type="button"
-                                                class="send-route-request inline-flex items-center gap-2 rounded-lg bg-teal-700 px-4 py-2 text-xs font-bold text-white transition hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:cursor-wait disabled:opacity-60 dark:bg-teal-600 dark:hover:bg-teal-500">
-                                                <span aria-hidden="true">↗</span> Enviar petición
-                                            </button>
-                                        </div>
-                                        {% if (route.routeParams|length) > 0 or (route.queryParams|length) > 0 %}
-                                            <div class="mt-4 grid gap-4 sm:grid-cols-2">
-                                                {% if (route.routeParams|length) > 0 %}
-                                                    <div class="space-y-3">
-                                                        <h4
-                                                            class="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                                                            Parámetros de ruta
-                                                        </h4>
-                                                        {% for pathParam in route.routeParams %}
-                                                            <label
-                                                                class="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                                                {{ pathParam }}
-                                                                <input
-                                                                    type="text"
-                                                                    data-path-param="{{ pathParam|e('html_attr') }}"
-                                                                    class="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal text-slate-900 outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                                                                    placeholder="Valor para {{ pathParam|e(
-                                                                        'html_attr'
-                                                                    ) }}"
-                                                                    required />
-                                                            </label>
-                                                        {% endfor %}
-                                                    </div>
-                                                {% endif %}
-                                                {% if (route.queryParams|length) > 0 %}
-                                                    <div class="space-y-3">
-                                                        <h4
-                                                            class="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                                                            Parámetros de consulta
-                                                        </h4>
-                                                        {% for param in route.queryParams %}
-                                                            <label
-                                                                class="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                                                {{ param.name }}
-                                                                <input
-                                                                    type="text"
-                                                                    data-query-param="{{ param.name|e('html_attr') }}"
-                                                                    class="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal text-slate-900 outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                                                                    placeholder="{{ param.description|e(
-                                                                        'html_attr'
-                                                                    ) }}" />
-                                                            </label>
-                                                        {% endfor %}
-                                                    </div>
-                                                {% endif %}
-                                            </div>
-                                        {% endif %}
-                                        {% if route.method in ['POST', 'PUT', 'PATCH', 'DELETE'] %}
-                                            <div class="mt-4">
-                                                <label
-                                                    class="block text-xs font-semibold text-slate-700 dark:text-slate-300"
-                                                    for="requestBody-{{ loop.index }}">
-                                                    Cuerpo JSON <span class="font-normal text-slate-500">(opcional)</span>
-                                                </label>
-                                                <textarea
-                                                    id="requestBody-{{ loop.index }}"
-                                                    class="request-body doc-code mt-1.5 min-h-28 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs leading-5 text-slate-900 outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                                                    placeholder='{"campo": "valor"}'
-                                                    spellcheck="false"></textarea>
-                                                {% for param in route.requestBody %}
-                                                    {% if 'file' in param.type %}
-                                                        <label
-                                                            class="mt-3 block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                                            {{ param.name }}
-                                                            <span class="font-normal text-slate-500">
-                                                                · {{ param.description }}
-                                                            </span>
-                                                            <input
-                                                                type="file"
-                                                                data-file-param="{{ param.name|e('html_attr') }}"
-                                                                {{ param.type == 'file[]' ? 'multiple' : '' }}
-                                                                class="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white text-xs text-slate-700 file:mr-3 file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-xs file:font-bold file:text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:file:bg-slate-800 dark:file:text-slate-200" />
-                                                        </label>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                        <div
-                                            class="request-result mt-4 hidden overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
-                                            role="status"
-                                            aria-live="polite">
-                                            <div
-                                                class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-3 py-2.5 dark:border-slate-700">
-                                                <p
-                                                    class="request-result-status text-xs font-black text-slate-800 dark:text-slate-100"></p>
-                                                <p
-                                                    class="request-result-duration text-xs text-slate-500 dark:text-slate-400"></p>
-                                            </div>
-                                            <details
-                                                class="border-b border-slate-200 px-3 py-2 text-xs dark:border-slate-700">
-                                                <summary
-                                                    class="cursor-pointer font-bold text-slate-600 dark:text-slate-300">
-                                                    Encabezados de respuesta
-                                                </summary>
-                                                <pre
-                                                    class="request-result-headers doc-code mt-2 max-h-36 overflow-auto whitespace-pre-wrap break-all text-[11px] text-slate-600 dark:text-slate-400"></pre>
-                                            </details>
-                                            <pre
-                                                class="request-result-body doc-code max-h-96 overflow-auto whitespace-pre-wrap break-words p-3 text-xs leading-5 text-slate-700 dark:text-slate-300"></pre>
-                                        </div>
-                                    </div>
+                                    {# El probador se construye al abrir la tarjeta, a partir de la plantilla #route-tester-template #}
+                                    <div
+                                        class="route-tester mt-6 border-t border-slate-200 pt-5 dark:border-slate-800"
+                                        data-route="{{ {
+                                            method: route.method|upper,
+                                            url: route.url,
+                                            pathParams: route.routeParams,
+                                            queryParams: route.queryParams,
+                                            requestBody: route.requestBody
+                                        }|json_encode|e('html_attr') }}"></div>
                                 </div>
                             </article>
                         {% endfor %}
@@ -589,124 +523,752 @@
             {% endif %}
         </div>
     </div>
+    <template id="route-tester-template">
+        <div class="space-y-4">
+            {# Barra de petición #}
+            <div class="flex flex-wrap items-stretch gap-2">
+                <div
+                    class="flex min-w-0 flex-1 items-center gap-3 rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-950">
+                    <span class="rt-method doc-code text-xs font-black"></span>
+                    <code class="rt-url doc-code min-w-0 flex-1 truncate text-xs text-slate-800 dark:text-slate-200"></code>
+                </div>
+                <button
+                    type="button"
+                    class="rt-curl rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">
+                    Copiar cURL
+                </button>
+                <button
+                    type="button"
+                    title="Ctrl + Enter"
+                    class="rt-send inline-flex items-center gap-2 rounded-lg bg-teal-700 px-5 py-2 text-xs font-bold text-white transition hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus:ring-offset-slate-900">
+                    Enviar
+                </button>
+            </div>
+
+            {# Pestañas de la petición #}
+            <div>
+                <div class="flex gap-1 border-b border-slate-200 dark:border-slate-700" role="tablist">
+                    <button type="button" class="rt-tab" data-group="request" data-tab="params">
+                        Parámetros <span class="rt-count" data-count="params"></span>
+                    </button>
+                    <button type="button" class="rt-tab" data-group="request" data-tab="body">Cuerpo</button>
+                    <button type="button" class="rt-tab" data-group="request" data-tab="headers">Encabezados</button>
+                </div>
+                <div class="rt-pane pt-3" data-group="request" data-pane="params">
+                    <div class="rt-params grid gap-x-4 gap-y-3 sm:grid-cols-2"></div>
+                    <p class="rt-no-params hidden text-xs text-slate-500 dark:text-slate-400">
+                        Esta ruta no declara parámetros de ruta ni de consulta.
+                    </p>
+                </div>
+                <div class="rt-pane hidden pt-3" data-group="request" data-pane="body">
+                    <div class="rt-body-wrap">
+                        <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+                            <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">JSON</span>
+                            <span class="flex gap-2">
+                                <button type="button" class="rt-example rt-link">Usar ejemplo</button>
+                                <button type="button" class="rt-format rt-link">Formatear</button>
+                            </span>
+                        </div>
+                        <textarea
+                            class="rt-body doc-code min-h-32 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs leading-5 text-slate-900 outline-none focus:border-teal-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                            spellcheck="false"></textarea>
+                        <p class="rt-body-error mt-1 hidden text-xs font-semibold text-rose-700 dark:text-rose-300"></p>
+                        <div class="rt-files mt-3 space-y-3"></div>
+                    </div>
+                    <p class="rt-no-body hidden text-xs text-slate-500 dark:text-slate-400">
+                        Las peticiones GET no llevan cuerpo.
+                    </p>
+                </div>
+                <div class="rt-pane hidden pt-3" data-group="request" data-pane="headers">
+                    <textarea
+                        class="rt-headers doc-code min-h-20 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs leading-5 text-slate-900 outline-none focus:border-teal-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                        placeholder="X-Mi-Encabezado: valor"
+                        spellcheck="false"></textarea>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                        Uno por línea. Se envían siempre <code class="doc-code">Accept</code>,
+                        <code class="doc-code">X-Requested-With</code> y <code class="doc-code">X-CSRF-Token</code>, además
+                        de tu sesión.
+                    </p>
+                </div>
+            </div>
+
+            {# Respuesta #}
+            <div
+                class="rt-response hidden overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
+                aria-live="polite">
+                <div
+                    class="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-slate-200 px-3 py-2.5 dark:border-slate-700">
+                    <span class="rt-status rounded-md px-2 py-1 text-xs font-black"></span>
+                    <span class="rt-meta text-xs text-slate-600 dark:text-slate-300"></span>
+                    <span class="rt-note text-xs text-amber-700 dark:text-amber-300"></span>
+                    <button type="button" class="rt-copy rt-link ml-auto">Copiar respuesta</button>
+                </div>
+                <div class="flex gap-1 border-b border-slate-200 px-2 dark:border-slate-700" role="tablist">
+                    <button type="button" class="rt-tab" data-group="response" data-tab="preview">Vista previa</button>
+                    <button type="button" class="rt-tab" data-group="response" data-tab="json">JSON</button>
+                    <button type="button" class="rt-tab" data-group="response" data-tab="raw">Raw</button>
+                    <button type="button" class="rt-tab" data-group="response" data-tab="headers">
+                        Encabezados <span class="rt-count" data-count="headers"></span>
+                    </button>
+                </div>
+                <div class="rt-pane hidden" data-group="response" data-pane="preview"></div>
+                <div
+                    class="rt-pane rt-json doc-code hidden max-h-[32rem] overflow-auto p-3 text-xs leading-5"
+                    data-group="response"
+                    data-pane="json"></div>
+                <pre
+                    class="rt-pane rt-raw doc-code hidden max-h-[32rem] overflow-auto whitespace-pre-wrap break-words p-3 text-xs leading-5 text-slate-800 dark:text-slate-200"
+                    data-group="response"
+                    data-pane="raw"></pre>
+                <div class="rt-pane hidden max-h-[32rem] overflow-auto" data-group="response" data-pane="headers">
+                    <table class="w-full text-left text-xs">
+                        <tbody class="rt-headers-out"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </template>
 {% endblock %}
 {% block appScript %}
+    {# El script va en verbatim: es JavaScript plano, sin expresiones de Twig #}
     <!-- prettier-ignore -->
     <script>
-        (() => { const routesList = document.getElementById('routesList'); const searchInput =
-        document.getElementById('searchInput'); const methodFilter = document.getElementById('methodFilter'); const
-        filterButton = document.getElementById('filterRoutesButton'); const resultCount =
-        document.getElementById('routeResultCount'); const emptyMessage = document.getElementById('emptyRoutesMessage');
-        const maxResponseBytes = 1024 * 1024;
+{% verbatim %}
+        (() => {
+            const routesList = document.getElementById('routesList');
+            const searchInput = document.getElementById('searchInput');
+            const methodFilter = document.getElementById('methodFilter');
+            const filterButton = document.getElementById('filterRoutesButton');
+            const resultCount = document.getElementById('routeResultCount');
+            const emptyMessage = document.getElementById('emptyRoutesMessage');
+            const testerTemplate = document.getElementById('route-tester-template');
 
-        async function readResponseBody(response) { const contentType = response.headers.get('content-type') || ''; if
-        (!/json|text|xml|javascript|x-www-form-urlencoded/i.test(contentType)) {
-        return '[No se muestra el cuerpo binario (' + (contentType || 'tipo desconocido') + ').]'; }
-        if (!response.body) return '';
+            const MAX_RESPONSE_BYTES = 1024 * 1024;
+            const MAX_JSON_CHILDREN = 200;
+            const MAX_JSON_STRING = 300;
+            const STATUS_TEXT = {
+                200: 'OK', 201: 'Created', 204: 'No Content', 301: 'Moved Permanently', 302: 'Found', 304: 'Not Modified',
+                400: 'Bad Request', 401: 'Unauthorized', 403: 'Forbidden', 404: 'Not Found', 405: 'Method Not Allowed',
+                419: 'Session Expired', 422: 'Unprocessable Content', 429: 'Too Many Requests',
+                500: 'Internal Server Error', 502: 'Bad Gateway', 503: 'Service Unavailable',
+            };
+            const METHOD_COLORS = {
+                GET: 'text-emerald-700 dark:text-emerald-300',
+                POST: 'text-sky-700 dark:text-sky-300',
+                PUT: 'text-amber-700 dark:text-amber-300',
+                PATCH: 'text-violet-700 dark:text-violet-300',
+                DELETE: 'text-rose-700 dark:text-rose-300',
+            };
+            const INPUT_CLASS =
+                'mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal text-slate-900 ' +
+                'outline-none focus:border-teal-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100';
 
-        const reader = response.body.getReader(); const decoder = new TextDecoder(); let body = ''; let byteCount = 0;
-        while (true) { const { done, value } = await reader.read(); if (done) break; byteCount += value.byteLength; if
-        (byteCount > maxResponseBytes) { body += decoder.decode(value.subarray(0, Math.max(0, value.byteLength -
-        (byteCount - maxResponseBytes))), { stream: true }); await reader.cancel();
-        return body + '\n\n[Respuesta truncada después de 1 MB.]'; } body += decoder.decode(value, { stream: true }); }
-        return body +
-        decoder.decode(); }
+            const el = (tag, className, text) => {
+                const node = document.createElement(tag);
+                if (className) node.className = className;
+                if (text !== undefined) node.textContent = text;
+                return node;
+            };
 
-        async function sendRouteRequest(button) { const routeCard = button.closest('.route-item'); const result =
-        routeCard?.querySelector('.request-result'); if (!routeCard || !result) return;
+            const formatBytes = bytes => {
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+                return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+            };
 
-        const method = routeCard.dataset.method || 'GET'; const template = routeCard.dataset.routeTemplate || ''; let
-        path = template; for (const input of routeCard.querySelectorAll('[data-path-param]')) { const name =
-        input.dataset.pathParam || ''; const value = input.value.trim(); if (!value) { input.focus();
-        input.reportValidity(); return; } path = path.replace(`{${name}}`, encodeURIComponent(value)); } if
-        (/\{[^}]+\}/.test(path)) { result.classList.remove('hidden');
-        result.querySelector('.request-result-status').textContent = 'Faltan parámetros de ruta';
-        result.querySelector('.request-result-body').textContent = 'Completa los parámetros obligatorios '
-        + 'para construir la URL.'; return; }
+            // ------------------------------------------------------------------
+            // Pestañas: los botones [data-tab] muestran el panel [data-pane] de su mismo grupo
+            // ------------------------------------------------------------------
+            function selectTab(root, group, name) {
+                root.querySelectorAll(`.rt-tab[data-group="${group}"]`).forEach(tab => {
+                    tab.setAttribute('aria-selected', String(tab.dataset.tab === name));
+                });
+                root.querySelectorAll(`.rt-pane[data-group="${group}"]`).forEach(pane => {
+                    pane.classList.toggle('hidden', pane.dataset.pane !== name);
+                });
+            }
 
-        const url = new URL(path, window.location.origin); if (url.origin !== window.location.origin) {
-        result.classList.remove('hidden'); result.querySelector('.request-result-status').textContent = 'Destino inválido';
-        result.querySelector('.request-result-body').textContent = 'El probador solo envía peticiones '
-        + 'al mismo origen.'; return; }
+            function setTabVisible(root, group, name, visible) {
+                root.querySelector(`.rt-tab[data-group="${group}"][data-tab="${name}"]`)?.classList.toggle('hidden', !visible);
+            }
 
-        for (const input of routeCard.querySelectorAll('[data-query-param]')) { const value = input.value.trim(); if
-        (value) url.searchParams.set(input.dataset.queryParam || '', value); }
+            // ------------------------------------------------------------------
+            // Construcción del probador (una vez por tarjeta, al abrirla)
+            // ------------------------------------------------------------------
+            function exampleValue(type) {
+                const t = String(type || '').toLowerCase();
+                if (/int|float|number|decimal|numeric/.test(t)) return 0;
+                if (/bool/.test(t)) return false;
+                if (/array|\[\]/.test(t)) return [];
+                if (/object|json/.test(t)) return {};
+                return '';
+            }
 
-        const mutating = !['GET', 'HEAD', 'OPTIONS'].includes(method); const headers = new Headers({ Accept:
-        'application/json, text/plain, */*', 'X-Requested-With': 'XMLHttpRequest', }); const csrfToken =
-        document.querySelector('#csrf_token')?.value; if (csrfToken) headers.set('X-CSRF-Token', csrfToken);
+            function paramField(label, hint, attribute, name, required) {
+                const wrapper = el('label', 'block text-xs font-semibold text-slate-700 dark:text-slate-300');
+                wrapper.append(label);
+                if (required) wrapper.append(el('span', 'ml-1 font-bold text-rose-600 dark:text-rose-400', '*'));
+                const input = el('input', INPUT_CLASS);
+                input.type = 'text';
+                input.placeholder = hint || '';
+                input.required = required;
+                input.setAttribute(attribute, name);
+                wrapper.append(input);
+                return wrapper;
+            }
 
-        const request = { method, credentials: 'same-origin', redirect: 'error', headers }; if (!['GET', 'HEAD'].includes(method)) { const
-        bodyInput = routeCard.querySelector('.request-body'); const rawBody = bodyInput?.value.trim() || ''; let
-        bodyData = {}; if (rawBody) { try { bodyData = JSON.parse(rawBody); if (!bodyData || typeof bodyData !==
-        'object' || Array.isArray(bodyData)) { throw new Error('El cuerpo JSON debe ser un objeto.'); } } catch (error)
-        { result.classList.remove('hidden'); result.querySelector('.request-result-status').textContent = 'JSON inválido';
-        result.querySelector('.request-result-body').textContent = error instanceof Error ? error.message :
-        'Revisa el formato e inténtalo de nuevo.'; bodyInput?.focus(); return; } }
+            function buildTester(container) {
+                if (container.dataset.ready || !(testerTemplate instanceof HTMLTemplateElement)) return;
+                container.dataset.ready = '1';
 
-        const fileInputs = [...routeCard.querySelectorAll('[data-file-param]')]; const selectedFiles =
-        fileInputs.some(input => input.files?.length > 0); if (selectedFiles) { const formData = new FormData();
-        for (const [key, value] of Object.entries(bodyData)) { formData.append(key, typeof value === 'object' && value !==
-        null ? JSON.stringify(value) : String(value)); }
-        for (const input of fileInputs) { for (const file of input.files) {
-        formData.append(input.dataset.fileParam || '', file); } } request.body = formData; } else if (rawBody) {
-        headers.set('Content-Type', 'application/json'); request.body = JSON.stringify(bodyData); } }
+                const route = JSON.parse(container.dataset.route || '{}');
+                container.append(testerTemplate.content.cloneNode(true));
+                container.routeData = route;
 
-        if (
-        mutating && !window.confirm('Vas a enviar ' + method + ' ' + url.pathname + url.search
-        + '. Puede modificar datos reales y no se puede deshacer automáticamente. ¿Continuar?')
-        ) return;
+                const method = container.querySelector('.rt-method');
+                method.textContent = route.method;
+                method.className += ' ' + (METHOD_COLORS[route.method] || '');
 
-        const status = result.querySelector('.request-result-status'); const duration =
-        result.querySelector('.request-result-duration'); const headersOutput =
-        result.querySelector('.request-result-headers'); const bodyOutput =
-        result.querySelector('.request-result-body'); const originalLabel = button.textContent.trim(); const start =
-        performance.now(); button.disabled = true; button.textContent = 'Enviando…'; result.classList.remove('hidden');
-        status.textContent = `${method} ${url.pathname}${url.search}`; duration.textContent = 'En curso…';
-        headersOutput.textContent = ''; bodyOutput.textContent = '';
+                // Parámetros de ruta y de consulta
+                const params = container.querySelector('.rt-params');
+                const documented = Object.fromEntries((route.pathParams || []).map(name => [name, '']));
+                (route.pathParams || []).forEach(name => {
+                    params.append(paramField(name, 'Parámetro de ruta', 'data-path-param', name, true));
+                });
+                (route.queryParams || []).forEach(param => {
+                    if (param.name in documented) return;
+                    params.append(paramField(param.name, param.description, 'data-query-param', param.name, false));
+                });
+                const paramCount = params.children.length;
+                container.querySelector('[data-count="params"]').textContent = paramCount ? `(${paramCount})` : '';
+                container.querySelector('.rt-no-params').classList.toggle('hidden', paramCount > 0);
 
-        try { const response = await fetch(url, request); const body = await readResponseBody(response); const elapsed =
-        Math.round(performance.now() - start); status.textContent = `${response.status} ${response.statusText ||
-        ''}`.trim(); status.className = 'request-result-status text-xs font-black '
-        + (response.ok ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300');
-        duration.textContent = `${elapsed} ms`;
-        headersOutput.textContent = [...response.headers.entries()].map(([key, value]) => `${key}: ${value}`).join('\n')
-        || 'Sin encabezados visibles.'; bodyOutput.textContent = body || '(Respuesta sin contenido)'; } catch (error) {
-        status.textContent = 'Error de red';
-        status.className = 'request-result-status text-xs font-black text-rose-700 dark:text-rose-300';
-        duration.textContent = `${Math.round(performance.now() - start)} ms`;
-        bodyOutput.textContent = error instanceof Error ? error.message : 'No se pudo completar la petición.'; } finally
-        { button.disabled = false; button.textContent = originalLabel; } }
+                // Cuerpo: ejemplo generado desde las anotaciones request-body
+                const hasBody = !['GET', 'HEAD'].includes(route.method);
+                container.querySelector('.rt-body-wrap').classList.toggle('hidden', !hasBody);
+                container.querySelector('.rt-no-body').classList.toggle('hidden', hasBody);
 
-        function updateRoutes() { if (!routesList || !searchInput || !methodFilter) return;
+                const example = {};
+                const files = container.querySelector('.rt-files');
+                (route.requestBody || []).forEach(param => {
+                    if (String(param.type).includes('file')) {
+                        const wrapper = el('label', 'block text-xs font-semibold text-slate-700 dark:text-slate-300', param.name);
+                        wrapper.append(el('span', 'font-normal text-slate-500 dark:text-slate-400', ' · ' + param.description));
+                        const input = el(
+                            'input',
+                            'mt-1.5 block w-full rounded-lg border border-slate-300 bg-white text-xs text-slate-700 ' +
+                                'file:mr-3 file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-xs file:font-bold ' +
+                                'dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:file:bg-slate-800 dark:file:text-slate-200',
+                        );
+                        input.type = 'file';
+                        input.multiple = param.type === 'file[]';
+                        input.dataset.fileParam = param.name;
+                        wrapper.append(input);
+                        files.append(wrapper);
+                    } else {
+                        example[param.name] = exampleValue(param.type);
+                    }
+                });
+                const exampleText = JSON.stringify(example, null, 2);
+                const body = container.querySelector('.rt-body');
+                body.placeholder = Object.keys(example).length ? exampleText : '{\n  "campo": "valor"\n}';
+                container.querySelector('.rt-example').classList.toggle('hidden', Object.keys(example).length === 0);
+                container.querySelector('.rt-example').addEventListener('click', () => {
+                    body.value = exampleText;
+                    body.focus();
+                });
 
-        const term = searchInput.value.trim().toLocaleLowerCase(); const selectedMethod = methodFilter.value; let
-        visibleCount = 0;
+                selectTab(container, 'request', paramCount === 0 && hasBody ? 'body' : 'params');
+                updateUrl(container);
+            }
 
-        routesList.querySelectorAll('.route-item').forEach(item => { const matchesText = (item.dataset.search ||
-        '').includes(term); const matchesMethod = !selectedMethod || item.dataset.method === selectedMethod; const
-        visible = matchesText && matchesMethod; item.classList.toggle('hidden', !visible); if (visible) visibleCount++;
-        });
+            // ------------------------------------------------------------------
+            // Petición
+            // ------------------------------------------------------------------
+            /** Devuelve la URL final, o null si falta un parámetro de ruta (y enfoca el campo si se pide). */
+            function buildUrl(container, focusMissing) {
+                let path = container.routeData.url || '';
+                for (const input of container.querySelectorAll('[data-path-param]')) {
+                    const value = input.value.trim();
+                    if (!value) {
+                        if (focusMissing) {
+                            selectTab(container, 'request', 'params');
+                            input.focus();
+                            input.reportValidity();
+                        }
+                        return null;
+                    }
+                    path = path.replace('{' + input.dataset.pathParam + '}', encodeURIComponent(value));
+                }
 
-        routesList.querySelectorAll('.doc-group').forEach(group => { let sibling = group.nextElementSibling; let
-        hasVisibleRoute = false; while (sibling && !sibling.classList.contains('doc-group')) { if (
-        sibling.classList.contains('route-item') && !sibling.classList.contains('hidden') &&
-        sibling.getAttribute('data-group-key') === group.getAttribute('data-group-key') ) { hasVisibleRoute = true;
-        break; } sibling = sibling.nextElementSibling; } group.classList.toggle('hidden', !hasVisibleRoute); });
+                const url = new URL(path, window.location.origin);
+                for (const input of container.querySelectorAll('[data-query-param]')) {
+                    const value = input.value.trim();
+                    if (value) url.searchParams.set(input.dataset.queryParam, value);
+                }
+                return url;
+            }
 
-        if (resultCount) resultCount.textContent = `${visibleCount} ${visibleCount === 1 ? 'resultado' : 'resultados'}`;
-        emptyMessage?.classList.toggle('hidden', visibleCount > 0); }
+            function updateUrl(container) {
+                const url = buildUrl(container, false);
+                const display = container.querySelector('.rt-url');
+                display.textContent = url ? url.pathname + url.search : container.routeData.url;
+                display.title = display.textContent;
+            }
 
-        routesList?.addEventListener('click', event => { if (!(event.target instanceof Element)) return; const
-        sendButton = event.target.closest('.send-route-request'); if (sendButton instanceof HTMLButtonElement) {
-        event.preventDefault(); event.stopPropagation(); void sendRouteRequest(sendButton); return; } const toggle =
-        event.target.closest('.route-toggle'); if (!(toggle instanceof HTMLButtonElement)) return; const details =
-        toggle.parentElement?.querySelector('.route-details'); if (!details) return; const expanded =
-        toggle.getAttribute('aria-expanded') === 'true'; toggle.setAttribute('aria-expanded', String(!expanded));
-        details.classList.toggle('hidden', expanded);
-        toggle.querySelector('.route-chevron')?.classList.toggle('rotate-180', !expanded); });
+            function parseHeaders(container) {
+                const headers = {};
+                container
+                    .querySelector('.rt-headers')
+                    .value.split('\n')
+                    .forEach(line => {
+                        const separator = line.indexOf(':');
+                        if (separator > 0) headers[line.slice(0, separator).trim()] = line.slice(separator + 1).trim();
+                    });
+                return headers;
+            }
 
-        searchInput?.addEventListener('input', updateRoutes); methodFilter?.addEventListener('change', updateRoutes);
-        filterButton?.addEventListener('click', updateRoutes); updateRoutes(); })();
+            /** Lee y valida el cuerpo JSON. Devuelve { ok, text, data } o muestra el error en el propio campo. */
+            function readBody(container) {
+                const input = container.querySelector('.rt-body');
+                const error = container.querySelector('.rt-body-error');
+                const text = input.value.trim();
+                error.classList.add('hidden');
+                if (!text) return { ok: true, text: '', data: {} };
+
+                try {
+                    const data = JSON.parse(text);
+                    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+                        throw new Error('El cuerpo debe ser un objeto JSON.');
+                    }
+                    return { ok: true, text, data };
+                } catch (exception) {
+                    error.textContent = 'JSON inválido: ' + (exception instanceof Error ? exception.message : 'revisa el formato');
+                    error.classList.remove('hidden');
+                    selectTab(container, 'request', 'body');
+                    input.focus();
+                    return { ok: false };
+                }
+            }
+
+            function buildRequest(container, confirmMutation) {
+                const route = container.routeData;
+                const url = buildUrl(container, true);
+                if (!url) return null;
+
+                const headers = new Headers({
+                    Accept: 'application/json, text/plain, */*',
+                    'X-Requested-With': 'XMLHttpRequest',
+                });
+                const csrfToken = document.querySelector('#csrf_token')?.value;
+                if (csrfToken) headers.set('X-CSRF-Token', csrfToken);
+                for (const [name, value] of Object.entries(parseHeaders(container))) {
+                    try {
+                        headers.set(name, value);
+                    } catch {
+                        /* nombre de encabezado inválido: se ignora */
+                    }
+                }
+
+                const request = { method: route.method, credentials: 'same-origin', headers };
+                let curlBody = '';
+
+                if (!['GET', 'HEAD'].includes(route.method)) {
+                    const body = readBody(container);
+                    if (!body.ok) return null;
+
+                    const fileInputs = [...container.querySelectorAll('[data-file-param]')].filter(input => input.files.length);
+                    if (fileInputs.length) {
+                        const form = new FormData();
+                        for (const [key, value] of Object.entries(body.data)) {
+                            form.append(key, value !== null && typeof value === 'object' ? JSON.stringify(value) : String(value));
+                            curlBody += ` \\\n  -F ${shellQuote(key + '=' + String(value))}`;
+                        }
+                        for (const input of fileInputs) {
+                            for (const file of input.files) {
+                                form.append(input.dataset.fileParam, file);
+                                curlBody += ` \\\n  -F ${shellQuote(input.dataset.fileParam + '=@' + file.name)}`;
+                            }
+                        }
+                        request.body = form;
+                    } else if (body.text) {
+                        headers.set('Content-Type', 'application/json');
+                        request.body = JSON.stringify(body.data);
+                        curlBody = ` \\\n  --data ${shellQuote(request.body)}`;
+                    }
+
+                    if (
+                        confirmMutation &&
+                        !window.confirm(
+                            `Vas a enviar ${route.method} ${url.pathname}${url.search}.\n` +
+                                'Puede modificar datos reales y no se deshace automáticamente. ¿Continuar?',
+                        )
+                    ) {
+                        return null;
+                    }
+                }
+
+                return { url, request, headers, curlBody };
+            }
+
+            const shellQuote = value => "'" + String(value).replaceAll("'", "'\\''") + "'";
+
+            function copyCurl(container, button) {
+                const built = buildRequest(container, false);
+                if (!built) return;
+
+                let command = `curl -X ${container.routeData.method} ${shellQuote(built.url.href)}`;
+                built.headers.forEach((value, name) => {
+                    command += ` \\\n  -H ${shellQuote(name + ': ' + value)}`;
+                });
+                // Sin cookies: las de sesión son HttpOnly y no deben copiarse al portapapeles
+                command += built.curlBody;
+                copyText(command, button);
+            }
+
+            function copyText(text, button) {
+                const original = button.textContent;
+                const done = message => {
+                    button.textContent = message;
+                    setTimeout(() => (button.textContent = original), 1400);
+                };
+                navigator.clipboard.writeText(text).then(
+                    () => done('Copiado'),
+                    () => done('No se pudo copiar'),
+                );
+            }
+
+            // ------------------------------------------------------------------
+            // Respuesta
+            // ------------------------------------------------------------------
+            async function readText(response) {
+                if (!response.body) return { text: '', bytes: 0, truncated: false };
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let text = '';
+                let bytes = 0;
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    bytes += value.byteLength;
+                    if (bytes > MAX_RESPONSE_BYTES) {
+                        text += decoder.decode(value.subarray(0, value.byteLength - (bytes - MAX_RESPONSE_BYTES)), { stream: true });
+                        await reader.cancel();
+                        return { text, bytes, truncated: true };
+                    }
+                    text += decoder.decode(value, { stream: true });
+                }
+                return { text: text + decoder.decode(), bytes, truncated: false };
+            }
+
+            /** Árbol JSON plegable con <details>; los nodos se crean como texto, nunca como HTML. */
+            function jsonNode(key, value, depth) {
+                const label = () => (key === null ? '' : JSON.stringify(key));
+                const keyPart = parent => {
+                    if (key === null) return;
+                    parent.append(el('span', 'k', label()), ': ');
+                };
+
+                if (value !== null && typeof value === 'object') {
+                    const isArray = Array.isArray(value);
+                    const entries = isArray ? value.map((item, index) => [index, item]) : Object.entries(value);
+                    const details = el('details');
+                    details.open = depth < 2;
+                    const summary = el('summary');
+                    keyPart(summary);
+                    summary.append(
+                        isArray ? '[' : '{',
+                        el('span', 'z', ` ${entries.length} ${isArray ? 'elementos' : 'claves'} `),
+                        isArray ? ']' : '}',
+                    );
+                    details.append(summary);
+
+                    const children = el('div', 'rt-children');
+                    entries.slice(0, MAX_JSON_CHILDREN).forEach(([childKey, childValue]) => {
+                        children.append(jsonNode(isArray ? null : childKey, childValue, depth + 1));
+                    });
+                    if (entries.length > MAX_JSON_CHILDREN) {
+                        children.append(el('div', 'rt-leaf z', `… ${entries.length - MAX_JSON_CHILDREN} más (ver en Raw)`));
+                    }
+                    details.append(children);
+                    return details;
+                }
+
+                // Los textos muy largos (HTML, tokens, base64) se muestran plegados
+                if (typeof value === 'string' && value.length > MAX_JSON_STRING) {
+                    const details = el('details');
+                    const summary = el('summary');
+                    keyPart(summary);
+                    summary.append(
+                        el('span', 's', JSON.stringify(value.slice(0, 80)).slice(0, -1) + '…"'),
+                        el('span', 'z', ` ${value.length.toLocaleString('es')} caracteres`),
+                    );
+                    details.append(summary, el('div', 'rt-children s break-all', JSON.stringify(value)));
+                    return details;
+                }
+
+                const leaf = el('div', 'rt-leaf');
+                keyPart(leaf);
+                const type = value === null ? 'z' : typeof value === 'string' ? 's' : typeof value === 'number' ? 'n' : 'b';
+                leaf.append(el('span', type + ' break-all', typeof value === 'string' ? JSON.stringify(value) : String(value)));
+                return leaf;
+            }
+
+            /** HTML renderizado en un iframe aislado: sin scripts ni acceso a la sesión de esta página. */
+            function htmlPreview(html) {
+                const styles = [...document.querySelectorAll('link[rel="stylesheet"]')]
+                    .map(link => `<link rel="stylesheet" href="${link.href}">`)
+                    .join('');
+                const dark = document.documentElement.classList.contains('dark');
+                const frame = el('iframe', 'h-[32rem] w-full border-0 bg-white dark:bg-black');
+                frame.setAttribute('sandbox', '');
+                frame.setAttribute('title', 'Vista previa de la respuesta');
+                frame.srcdoc =
+                    `<!doctype html><html lang="es" class="${dark ? 'dark' : ''}"><head><meta charset="utf-8">` +
+                    `<base href="${window.location.origin}/" target="_blank">${styles}</head>` +
+                    `<body class="${dark ? 'bg-black text-gray-100' : 'bg-white text-gray-900'} p-4">${html}</body></html>`;
+                return frame;
+            }
+
+            function showResponse(container, { status, statusText, headers, text, bytes, truncated, elapsed, redirectedTo, image }) {
+                const panel = container.querySelector('.rt-response');
+                panel.classList.remove('hidden');
+
+                const statusBadge = container.querySelector('.rt-status');
+                const tone =
+                    status >= 500
+                        ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200'
+                        : status >= 400
+                          ? 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200'
+                          : status >= 300
+                            ? 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-200'
+                            : status >= 200
+                              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200'
+                              : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200';
+                statusBadge.className = 'rt-status rounded-md px-2 py-1 text-xs font-black ' + tone;
+                // El servidor de desarrollo de PHP no conoce todos los códigos: se usa un nombre propio
+        const reason = STATUS_TEXT[status] || (/unknown/i.test(statusText) ? '' : statusText);
+            statusBadge.textContent = status ? `${status} ${reason}`.trim() : statusText;
+                container.querySelector('.rt-meta').textContent = `${elapsed} ms · ${formatBytes(bytes)}`;
+
+                // Encabezados
+                const headerRows = container.querySelector('.rt-headers-out');
+                headerRows.replaceChildren();
+                headers.forEach(([name, value]) => {
+                    const row = el('tr', 'border-b border-slate-100 last:border-0 dark:border-slate-800');
+                    row.append(
+                        el('td', 'doc-code whitespace-nowrap px-3 py-1.5 align-top font-bold text-slate-700 dark:text-slate-200', name),
+                        el('td', 'doc-code break-all px-3 py-1.5 text-slate-700 dark:text-slate-300', value),
+                    );
+                    headerRows.append(row);
+                });
+                container.querySelector('[data-count="headers"]').textContent = headers.length ? `(${headers.length})` : '';
+
+                // Cuerpo: se detecta qué es para elegir cómo mostrarlo
+                const contentType = (headers.find(([name]) => name.toLowerCase() === 'content-type')?.[1] || '').toLowerCase();
+                let json;
+                let isJson = false;
+                if (!truncated && text && (contentType.includes('json') || /^\s*[[{]/.test(text))) {
+                    try {
+                        json = JSON.parse(text);
+                        isJson = true;
+                    } catch {
+                        /* no es JSON válido: se muestra como texto */
+                    }
+                }
+
+                const isVuePage = isJson && json && json.type === 'vue' && typeof json.module === 'string';
+                const notes = [];
+                if (redirectedTo) notes.push('Redirigida a ' + redirectedTo);
+                if (truncated) notes.push('Respuesta truncada a 1 MB');
+                if (isVuePage) notes.push('Página Vue: el contenido lo dibuja el módulo ' + json.module);
+                container.querySelector('.rt-note').textContent = notes.join(' · ');
+
+                container.querySelector('.rt-raw').textContent = text || '(Respuesta sin contenido)';
+                container.lastResponseText = text;
+
+                const jsonPane = container.querySelector('.rt-json');
+                jsonPane.replaceChildren();
+                if (isJson) jsonPane.append(jsonNode(null, json, 0));
+
+                // Vista previa: HTML de una respuesta SPA ({ type: "html", content }), HTML directo o imagen
+                const previewPane = container.querySelector('.rt-pane[data-pane="preview"]');
+                previewPane.replaceChildren();
+                let preview = null;
+                if (image) {
+                    const picture = el('img', 'mx-auto max-h-[32rem] p-3');
+                    picture.src = image;
+                    picture.alt = 'Imagen de la respuesta';
+                    preview = picture;
+                } else if (isJson && json && json.type === 'html' && typeof json.content === 'string') {
+                    preview = htmlPreview(json.content);
+                    const scripts = Array.isArray(json.scripts) ? json.scripts.length : 0;
+                    previewPane.append(
+                        el(
+                            'p',
+                            'border-b border-slate-200 px-3 py-2 text-xs text-slate-600 dark:border-slate-700 dark:text-slate-300',
+                            'Respuesta de navegación SPA (type: "html"): se muestra el campo content.' +
+                                (scripts ? ` Sus ${scripts} scripts no se ejecutan en la vista previa.` : ''),
+                        ),
+                    );
+                } else if (!isJson && contentType.includes('html') && text) {
+                    preview = htmlPreview(text);
+                }
+                if (preview) previewPane.append(preview);
+
+                setTabVisible(container, 'response', 'preview', Boolean(preview));
+                setTabVisible(container, 'response', 'json', isJson);
+                selectTab(container, 'response', preview ? 'preview' : isJson ? 'json' : 'raw');
+            }
+
+            async function send(container) {
+                const built = buildRequest(container, true);
+                if (!built) return;
+
+                const button = container.querySelector('.rt-send');
+                const started = performance.now();
+                button.disabled = true;
+                button.textContent = 'Enviando…';
+
+                try {
+                    const response = await fetch(built.url, built.request);
+                    const contentType = response.headers.get('content-type') || '';
+                    const base = {
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: [...response.headers.entries()],
+                        redirectedTo: response.redirected ? new URL(response.url).pathname : '',
+                    };
+
+                    if (contentType.startsWith('image/')) {
+                        const blob = await response.blob();
+                        showResponse(container, {
+                            ...base,
+                            text: `[Imagen ${contentType}]`,
+                            bytes: blob.size,
+                            truncated: false,
+                            image: URL.createObjectURL(blob),
+                            elapsed: Math.round(performance.now() - started),
+                        });
+                    } else if (contentType && !/json|text|xml|javascript|x-www-form-urlencoded/i.test(contentType)) {
+                        const blob = await response.blob();
+                        showResponse(container, {
+                            ...base,
+                            text: `[Contenido binario (${contentType}): no se muestra]`,
+                            bytes: blob.size,
+                            truncated: false,
+                            elapsed: Math.round(performance.now() - started),
+                        });
+                    } else {
+                        const body = await readText(response);
+                        showResponse(container, { ...base, ...body, elapsed: Math.round(performance.now() - started) });
+                    }
+                } catch (exception) {
+                    showResponse(container, {
+                        status: 0,
+                        statusText: 'Error de red',
+                        headers: [],
+                        text: exception instanceof Error ? exception.message : 'No se pudo completar la petición.',
+                        bytes: 0,
+                        truncated: false,
+                        elapsed: Math.round(performance.now() - started),
+                    });
+                } finally {
+                    button.disabled = false;
+                    button.textContent = 'Enviar';
+                }
+            }
+
+            // ------------------------------------------------------------------
+            // Filtro del listado
+            // ------------------------------------------------------------------
+            function updateRoutes() {
+                if (!routesList || !searchInput || !methodFilter) return;
+
+                const term = searchInput.value.trim().toLocaleLowerCase();
+                const selectedMethod = methodFilter.value;
+                let visibleCount = 0;
+
+                routesList.querySelectorAll('.route-item').forEach(item => {
+                    const visible =
+                        (item.dataset.search || '').includes(term) && (!selectedMethod || item.dataset.method === selectedMethod);
+                    item.classList.toggle('hidden', !visible);
+                    if (visible) visibleCount++;
+                });
+
+                routesList.querySelectorAll('.doc-group').forEach(group => {
+                    let sibling = group.nextElementSibling;
+                    let hasVisibleRoute = false;
+                    while (sibling && !sibling.classList.contains('doc-group')) {
+                        if (
+                            sibling.classList.contains('route-item') &&
+                            !sibling.classList.contains('hidden') &&
+                            sibling.getAttribute('data-group-key') === group.getAttribute('data-group-key')
+                        ) {
+                            hasVisibleRoute = true;
+                            break;
+                        }
+                        sibling = sibling.nextElementSibling;
+                    }
+                    group.classList.toggle('hidden', !hasVisibleRoute);
+                });
+
+                if (resultCount) resultCount.textContent = `${visibleCount} ${visibleCount === 1 ? 'resultado' : 'resultados'}`;
+                emptyMessage?.classList.toggle('hidden', visibleCount > 0);
+            }
+
+            // ------------------------------------------------------------------
+            // Eventos (delegados en el listado)
+            // ------------------------------------------------------------------
+            routesList?.addEventListener('click', event => {
+                if (!(event.target instanceof Element)) return;
+
+                const toggle = event.target.closest('.route-toggle');
+                if (toggle instanceof HTMLButtonElement) {
+                    const details = toggle.parentElement?.querySelector('.route-details');
+                    if (!details) return;
+                    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+                    toggle.setAttribute('aria-expanded', String(!expanded));
+                    details.classList.toggle('hidden', expanded);
+                    toggle.querySelector('.route-chevron')?.classList.toggle('rotate-180', !expanded);
+                    const tester = details.querySelector('.route-tester');
+                    if (tester && !expanded) buildTester(tester);
+                    return;
+                }
+
+                const tester = event.target.closest('.route-tester');
+                if (!tester) return;
+
+                const tab = event.target.closest('.rt-tab');
+                if (tab) return selectTab(tester, tab.dataset.group, tab.dataset.tab);
+                if (event.target.closest('.rt-send')) return void send(tester);
+                if (event.target.closest('.rt-curl')) return copyCurl(tester, event.target.closest('.rt-curl'));
+                if (event.target.closest('.rt-copy')) return copyText(tester.lastResponseText || '', event.target.closest('.rt-copy'));
+                if (event.target.closest('.rt-format')) {
+                    const body = readBody(tester);
+                    if (body.ok && body.text) tester.querySelector('.rt-body').value = JSON.stringify(body.data, null, 2);
+                }
+            });
+
+            routesList?.addEventListener('input', event => {
+                const tester = event.target instanceof Element ? event.target.closest('.route-tester') : null;
+                if (tester && event.target.matches('[data-path-param], [data-query-param]')) updateUrl(tester);
+            });
+
+            routesList?.addEventListener('keydown', event => {
+                const tester = event.target instanceof Element ? event.target.closest('.route-tester') : null;
+                if (tester && event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+                    event.preventDefault();
+                    void send(tester);
+                }
+            });
+
+            searchInput?.addEventListener('input', updateRoutes);
+            methodFilter?.addEventListener('change', updateRoutes);
+            filterButton?.addEventListener('click', updateRoutes);
+            updateRoutes();
+        })();
+{% endverbatim %}
     </script>
 {% endblock %}

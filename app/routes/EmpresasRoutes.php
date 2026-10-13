@@ -15,7 +15,12 @@ Router::group(
         // description: Muestra la lista de empresas en el panel de administración.
         Router::get('', [EmpresasController::class, 'index']);
 
-        // description: Lista las todas las empresas registradas en la base
+        // description: Obtiene una lista paginada de las empresas registradas.
+        // query-param name:page type:int description:Número de página (desde 1)
+        // query-param name:per_page type:int description:Filas por página (máximo 5000)
+        // query-param name:filter type:string description:Texto a buscar
+        // query-param name:order type:string description:Columna y dirección, por ejemplo nombre,asc
+        // query-param name:externalFilters type:string description:Filtros permitidos: estado=true o estado=false
         Router::get('/api/list', [EmpresasController::class, 'getEmpresasPaginated']);
 
         // description: API para guardar los datos de una empresa.
