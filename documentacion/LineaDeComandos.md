@@ -35,12 +35,10 @@ Los nombres que se pasan a generadores y borradores solo admiten letras, número
 | `config:debug:true\|false` | Activa o desactiva el modo debug. |
 | `config:templateCache:true\|false` | Activa o desactiva la caché de Twig. |
 | `config:merge <archivo.json>` | Aplica ajustes versionados sin secretos (CSP, CORS, correo) sobre `config.json`. Ver [Configuración](./CONFIGURATION.md). |
-| `cache:clear` | Limpia las cachés de rutas, Twig y rate limiting. La de rutas queda desactivada hasta el próximo `route:compile`. |
+| `cache:clear` | Limpia las cachés de Twig y rate limiting. |
 | `cache:status` | Estado de las cachés. |
-| `cache:routes`, `cache:twig` | Limpia solo una caché. |
-| `route:compile` | Compila todas las rutas en un solo archivo y ofrece activar `build.cacheRoute`. |
-| `route:cache` | Estado de la caché de rutas. |
-| `route:clear-cache` | Borra la caché de rutas y la desactiva. |
+| `cache:twig` | Limpia solo la caché de Twig. |
+| `route:compile`, `route:cache`, `route:clear-cache`, `cache:routes` | Ya no hacen nada: desde el kernel 2.10 las rutas no tienen caché (se leen de `app/routes`, igual de rápido y siempre al día). Se mantienen para no romper hooks antiguos y borran los archivos compilados que hayan quedado. |
 
 ## Base de datos
 
@@ -123,7 +121,7 @@ Comandos incluidos:
 
 | Comando | Qué hace |
 |---|---|
-| `app:deploy:finish` | El único hook `post_deploy` que necesita versaDeploy: `config:merge` de `versaWYS/config.compartida.json` (si existe), `migrate:up`, `cache:twig`, `route:compile`, activa la caché de plantillas, `command:refresh` y `app:check:deploy --production`. Se detiene en el primer paso que falle. |
+| `app:deploy:finish` | El único hook `post_deploy` que necesita versaDeploy: `config:merge` de `versaWYS/config.compartida.json` (si existe), `migrate:up`, `cache:twig`, activa la caché de plantillas, `command:refresh` y `app:check:deploy --production`. Se detiene en el primer paso que falle. |
 | `app:kernel:publish [--force]` | Crea `index.php`, `versaCLI`, los `.htaccess` y los ejemplos de `configs/` que falten, con la versión del kernel instalado. Muestra el diff de los que difieren (`-` proyecto, `+` kernel); `--force` los reemplaza. |
 
 ### Revisión previa al despliegue

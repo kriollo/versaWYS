@@ -81,10 +81,9 @@ El frontend compilado importa Vue y SweetAlert2 desde `/node_modules/<paquete>/d
 ```bash
 php versaCLI config:debug:false
 php versaCLI config:templateCache:true
-php versaCLI route:compile
 ```
 
-Con la caché de plantillas activa, Twig no detecta cambios en los `.twig`. Después de cada despliegue ejecuta `php versaCLI cache:twig` (y `route:compile` si cambiaron rutas); la plantilla de versaDeploy ya lo hace.
+Con la caché de plantillas activa, Twig no detecta cambios en los `.twig`. Después de cada despliegue ejecuta `php versaCLI cache:twig`; `app:deploy:finish` (el hook de la plantilla de versaDeploy) ya lo hace. Las rutas no tienen caché: se leen de `app/routes` y siempre están al día.
 
 ### PHP del servidor web
 

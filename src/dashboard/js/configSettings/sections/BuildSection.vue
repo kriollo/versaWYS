@@ -1,7 +1,6 @@
 <script setup lang="ts">
     import type { Ref } from 'vue';
 
-    import switchToggle from '@/dashboard/js/components/switchToggle.vue';
     import type { ConfigSettingsData } from '@/dashboard/js/configSettings/types';
 
     const model = defineModel({ required: true }) as Ref<ConfigSettingsData['build']>;
@@ -58,26 +57,6 @@
                     required
                     v-model="model.charset" />
             </div>
-        </div>
-
-        <div class="space-y-2 max-w-xs">
-            <label
-                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                for="build_cacheRouteMinifyLevel">
-                Nivel de minificación de caché de rutas
-            </label>
-            <select
-                id="build_cacheRouteMinifyLevel"
-                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-brand/30 focus:border-brand block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-brand/30 dark:focus:border-brand"
-                v-model="model.cacheRouteMinifyLevel">
-                <option value="none">Ninguna</option>
-                <option value="basic">Básica</option>
-                <option value="aggressive">Agresiva</option>
-            </select>
-        </div>
-
-        <div class="flex flex-wrap gap-8">
-            <switchToggle id="build_cacheRoute" label="Caché de rutas" type="success" v-model="model.cacheRoute" />
         </div>
     </div>
 </template>

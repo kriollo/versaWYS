@@ -26,7 +26,7 @@
 ✅ **8 Niveles de Log** - DEBUG, INFO, NOTICE, WARNING, ERROR, CRITICAL, ALERT, EMERGENCY  
 ✅ **Organización por Módulos** - Logs separados por módulo de la aplicación  
 ✅ **Contexto Rico** - Array de datos adicionales en cada log  
-✅ **Múltiples Handlers** - Archivo, Redis, Consola  
+✅ **Handlers** - Archivo y consola  
 ✅ **Rotación Automática** - Por tamaño y fecha  
 ✅ **Stack Traces** - Automáticos en errores  
 ✅ **Formato Flexible** - Texto plano o JSON  
@@ -46,7 +46,6 @@
         "dir": "./logs/",
         "min_level": "DEBUG",
         "default_module": "app",
-        "use_redis": true,
         "use_console": true,
         "format": "text",
         "max_file_size": 10485760,
@@ -64,7 +63,6 @@
 | `dir`                 | string | `./logs/`  | Directorio donde se guardan los logs |
 | `min_level`           | string | `DEBUG`    | Nivel mínimo de log a registrar      |
 | `default_module`      | string | `app`      | Módulo por defecto                   |
-| `use_redis`           | bool   | `false`    | Habilitar logging en Redis           |
 | `use_console`         | bool   | `false`    | Mostrar logs en consola (CLI)        |
 | `format`              | string | `text`     | Formato: `text` o `json`             |
 | `max_file_size`       | int    | `10485760` | Tamaño máximo por archivo (bytes)    |
@@ -87,7 +85,6 @@ Loggin::initialize([
         'dir' => './logs/',
         'min_level' => 'INFO',
         'format' => 'json',
-        'use_redis' => true,
     ],
 ]);
 ```
@@ -432,26 +429,7 @@ Loggin::info('Este log se guarda en archivo');
 // [2024-01-15 10:30:45] [INFO     ] [auth           ] Usuario autenticado | Context: {"user_id":123}
 ```
 
-### 2. Handler de Redis
-
-```php
-<?php
-// Habilitar en config.json
-{
-  "logging": {
-    "use_redis": true
-  }
-}
-
-// Los logs se guardan en listas de Redis:
-// Clave: logs:modulo:Y-m-d
-// Ejemplo: logs:auth:2024-01-15
-
-// Retención automática según retention_days
-// Límite de 1000 logs por día/módulo
-```
-
-### 3. Handler de Consola
+### 2. Handler de Consola
 
 ```php
 <?php
@@ -531,7 +509,6 @@ $warnings = Loggin::read('database', null, Loggin::WARNING);
 ```php
 <?php
 // Obtener estadísticas de logs
-$stats = Loggin::stats('auth', '2024-01-15');
 
 // Resultado:
 [
@@ -568,7 +545,6 @@ print_r($config);
     'log_dir' => './logs/',
     'min_level' => 'DEBUG',
     'default_module' => 'app',
-    'use_redis' => true,
     'use_console' => false,
     'format' => 'text',
     'max_file_size' => 10485760,
@@ -1105,7 +1081,6 @@ if (class_exists('versaWYS\kernel\model\RedisModel')) {
 // Desactivar Redis temporalmente
 {
   "logging": {
-    "use_redis": false
   }
 }
 ```
