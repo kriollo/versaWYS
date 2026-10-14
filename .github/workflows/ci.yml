@@ -17,7 +17,7 @@ jobs:
             run:
                 working-directory: versaWYS
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
             - uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php }}
@@ -32,7 +32,7 @@ jobs:
     frontend:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
             - uses: pnpm/action-setup@v4
               with:
                   version: 11
