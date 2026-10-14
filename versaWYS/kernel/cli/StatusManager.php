@@ -46,7 +46,7 @@ class StatusManager
 
         // Verificar configuración
         echo "\n" . CLIErrorHandler::colorize('⚙️  Configuración:', 'yellow') . "\n";
-        $configPath = 'versaWYS/kernel/config/config.json';
+        $configPath = ConfigManager::path();
         if (file_exists($configPath)) {
             echo "   ✅ Archivo de configuración encontrado\n";
             $config = json_decode(file_get_contents($configPath), true);
@@ -67,7 +67,7 @@ class StatusManager
         echo "\n" . CLIErrorHandler::colorize('🗄️  Base de Datos:', 'yellow') . "\n";
 
         try {
-            $configPath = 'versaWYS/kernel/config/config.json';
+            $configPath = ConfigManager::path();
             if (file_exists($configPath)) {
                 $config = json_decode(file_get_contents($configPath), true);
                 if (isset($config['database'])) {
@@ -397,7 +397,7 @@ class StatusManager
      */
     private static function readProjectConfig(): array
     {
-        $configPath = getcwd() . '/versaWYS/kernel/config/config.json';
+        $configPath = ConfigManager::path();
         if (!file_exists($configPath)) {
             return [];
         }

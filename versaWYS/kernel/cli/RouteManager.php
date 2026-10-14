@@ -778,7 +778,7 @@ class RouteManager
         CLIErrorHandler::info('Iniciando compilación de rutas...');
 
         // Cargar configuración
-        $configPath = __DIR__ . '/../config/config.json';
+        $configPath = ConfigManager::path();
         if (!file_exists($configPath)) {
             CLIErrorHandler::warning('Error: No se encontró el archivo de configuración.');
             return;
@@ -937,7 +937,7 @@ class RouteManager
         echo str_repeat('=', 50) . "\n";
 
         // Cargar configuración
-        $configPath = __DIR__ . '/../config/config.json';
+        $configPath = ConfigManager::path();
         if (!file_exists($configPath)) {
             CLIErrorHandler::warning('Error: No se encontró el archivo de configuración.');
             return;
@@ -1036,7 +1036,7 @@ class RouteManager
         CLIErrorHandler::info('Limpiando caché de rutas...');
 
         // Cargar configuración
-        $configPath = __DIR__ . '/../config/config.json';
+        $configPath = ConfigManager::path();
         if (!file_exists($configPath)) {
             CLIErrorHandler::warning('Error: No se encontró el archivo de configuración.');
             return;
@@ -1144,7 +1144,7 @@ class RouteManager
     private static function minifyPhpCode(string $code): string
     {
         // Obtener configuración de nivel de minificación
-        $configPath = __DIR__ . '/../config/config.json';
+        $configPath = ConfigManager::path();
         $aggressiveMinify = true; // Por defecto agresiva
 
         if (file_exists($configPath)) {

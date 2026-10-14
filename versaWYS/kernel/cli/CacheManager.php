@@ -74,7 +74,7 @@ class CacheManager
         echo str_repeat('═', 40) . "\n\n";
 
         // Leer configuración para obtener rutas correctas
-        $configPath = 'versaWYS/kernel/config/config.json';
+        $configPath = ConfigManager::path();
         $config = [];
         if (file_exists($configPath)) {
             $config = json_decode(file_get_contents($configPath), true) ?? [];
@@ -131,7 +131,7 @@ class CacheManager
     private static function clearTwigCache(bool $showMessage = true): bool
     {
         // Leer configuración para obtener la ruta correcta del cache de Twig
-        $configPath = 'versaWYS/kernel/config/config.json';
+        $configPath = ConfigManager::path();
         $config = [];
         if (file_exists($configPath)) {
             $config = json_decode(file_get_contents($configPath), true) ?? [];

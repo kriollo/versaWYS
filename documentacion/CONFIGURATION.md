@@ -54,3 +54,18 @@ Con `build.debug` en `true` se muestran errores detallados (rutas de archivos, t
 ## Variables de entorno
 
 Si existe un archivo `.env` en la raíz del proyecto, sus pares `CLAVE=valor` se cargan como variables de entorno (`getenv('CLAVE')`). No reemplazan a `config.json`.
+
+`VERSAWYS_CONFIG` permite usar otro archivo de configuración sin tocar `config.json` (staging, tests). La leen tanto la aplicación como `versaCLI`:
+
+```bash
+VERSAWYS_CONFIG=/ruta/config.staging.json php versaCLI migrate:up
+```
+
+Debe definirse en el entorno del proceso (servidor web o shell), no en `.env`.
+
+## Tests
+
+`composer test` (dentro de `versaWYS/`) ejecuta dos suites:
+
+- `tests/KernelTest.php`: pruebas unitarias del kernel y del CLI.
+- `tests/HttpTest.php`: levanta la aplicación con `php -S` contra una base SQLite temporal y verifica por HTTP las cabeceras, la sesión, los tokens (CSRF y JWT), los permisos y la forma de los errores. Necesita las extensiones `pdo_sqlite` y `curl`; no usa ni modifica `config.json`.

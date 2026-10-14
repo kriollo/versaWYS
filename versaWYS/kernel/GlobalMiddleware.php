@@ -245,6 +245,22 @@ class GlobalMiddleware
             : (new Users())->findWithCompany($idUser);
     }
 
+    /**
+     * Sin permiso: una navegación vuelve al panel; una petición que modifica datos recibe 403.
+     */
+    private function denyAccess(): never
+    {
+        global $request, $config;
+
+        if (strtoupper((string) $request->getMethod()) !== 'GET') {
+            Response::json(['success' => 0, 'message' => 'No tiene permisos para realizar esta acción'], 403);
+            exit();
+        }
+
+        Response::redirect('/' . $config['admin']['custom_url'] . '/dashboard');
+        exit();
+    }
+
     public function onlyAdmin(): ?bool
     {
         global $session, $debug, $config;
@@ -257,8 +273,7 @@ class GlobalMiddleware
         }
 
         if ($user['role'] !== 'admin' && $user['role'] !== 'superadmin') {
-            Response::redirect('/' . $config['admin']['custom_url'] . '/dashboard');
-            exit();
+            $this->denyAccess();
         }
 
         return null;
@@ -276,8 +291,7 @@ class GlobalMiddleware
         }
 
         if ($user['role'] !== 'superadmin') {
-            Response::redirect('/' . $config['admin']['custom_url'] . '/dashboard');
-            exit();
+            $this->denyAccess();
         }
 
         return null;
@@ -315,6 +329,11 @@ class GlobalMiddleware
     public function validatePolicyPassword(#[\SensitiveParameter] $password): bool
     {
         global $config;
+
+        // Un campo ausente o que no es texto no cumple la política (y no debe provocar un 500)
+        if (!is_string($password)) {
+            return false;
+        }
 
         // politicas de contraseñas por defecto
         $large = $config['auth']['password_policy']['large'] ?? 8;
@@ -378,8 +397,7 @@ class GlobalMiddleware
     {
         global $debug, $config;
         if (!$debug) {
-            Response::redirect('/' . $config['admin']['custom_url'] . '/dashboard');
-            exit();
+            $this->denyAccess();
         }
     }
 

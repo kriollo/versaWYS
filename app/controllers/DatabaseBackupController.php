@@ -44,6 +44,7 @@ class DatabaseBackupController extends GlobalControllers
                 'success' => 0,
                 'message' => 'Error al generar el respaldo de la base de datos.',
                 'error' => $exception->getMessage(),
+                'code' => 500,
             ];
         }
     }
@@ -102,6 +103,7 @@ class DatabaseBackupController extends GlobalControllers
                 'success' => 0,
                 'message' => 'Error al restaurar la base de datos.',
                 'error' => $exception->getMessage(),
+                'code' => 500,
             ];
         }
     }

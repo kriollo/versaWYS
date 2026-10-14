@@ -706,7 +706,7 @@ class Router
 
             return Response::json([
                 'success' => 0,
-                'message' => 'Error interno',
+                'message' => 'Recurso no encontrado',
             ], 404);
         }
 

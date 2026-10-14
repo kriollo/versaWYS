@@ -34,6 +34,12 @@ class Response
         }
 
         if (is_array($data) || is_object($data)) {
+            // En producción una respuesta de error no lleva el detalle técnico: es habitual que el
+            // controlador devuelva 'error' => $exception->getMessage(), que expone SQL y rutas.
+            if (in_array($data['success'] ?? 1, [0, false, '0'], true) && ($GLOBALS['config']['build']['debug'] ?? false) !== true) {
+                unset($data['error'], $data['exception'], $data['trace'], $data['file'], $data['line']);
+            }
+
             header('Content-Type: application/json');
             http_response_code($code);
 

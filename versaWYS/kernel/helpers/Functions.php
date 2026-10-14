@@ -187,7 +187,12 @@ class Functions
                         $errors[$field] = sprintf('El campo %s no existe', $field);
                     } elseif (isset($validations[$rulName])) {
                         // Ejecutar la validación correspondiente
-                        $error = $validations[$rulName]($field, $params[$field], $param);
+                        // Un valor de tipo inesperado (arreglo, null) es un dato inválido, no un error 500
+                        try {
+                            $error = $validations[$rulName]($field, $params[$field], $param);
+                        } catch (\Throwable) {
+                            $error = sprintf('El campo %s no es valido', $field);
+                        }
                         // Depuración: imprimir sólo si hay un error
                         if ($error) {
                             $errors[$field] = $error;

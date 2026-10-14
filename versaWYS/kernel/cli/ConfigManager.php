@@ -10,12 +10,22 @@ class ConfigManager
 {
     protected static string $pathConfig = 'versaWYS/kernel/config/config.json';
 
+    /**
+     * Ruta del archivo de configuración. VERSAWYS_CONFIG permite usar otro (tests, staging).
+     */
+    public static function path(): string
+    {
+        $path = getenv('VERSAWYS_CONFIG');
+
+        return is_string($path) && $path !== '' ? $path : self::$pathConfig;
+    }
+
     public static function getConfig(): array
     {
-        if (!file_exists(self::$pathConfig)) {
+        if (!file_exists(self::path())) {
             return [];
         }
-        $config = file_get_contents(self::$pathConfig);
+        $config = file_get_contents(self::path());
 
         return json_decode($config, true) ?? [];
     }
@@ -23,8 +33,8 @@ class ConfigManager
     public static function saveConfig(array $config): void
     {
         $config = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        file_put_contents(self::$pathConfig, $config);
-        chmod(self::$pathConfig, 0o660);
+        file_put_contents(self::path(), $config);
+        chmod(self::path(), 0o660);
     }
 
     public static function setDebug($params): void
@@ -88,8 +98,8 @@ class ConfigManager
 
     public static function initConfig(): void
     {
-        if (file_exists(self::$pathConfig)) {
-            CLIErrorHandler::info('El archivo de configuración ya existe en: ' . self::$pathConfig);
+        if (file_exists(self::path())) {
+            CLIErrorHandler::info('El archivo de configuración ya existe en: ' . self::path());
 
             return;
         }
@@ -101,16 +111,16 @@ class ConfigManager
         $template = json_encode($defaults, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         // Asegurarse de que el directorio de configuración exista
-        $configPath = self::$pathConfig;
+        $configPath = self::path();
         /** @var string $configDir */
         $configDir = dirname($configPath);
 
         try {
             CLIHelper::ensureDirectory($configDir, 0o775);
 
-            if (file_put_contents(self::$pathConfig, $template) !== false) {
-                chmod(self::$pathConfig, 0o660);
-                CLIErrorHandler::success('Archivo de configuración creado exitosamente en: ' . self::$pathConfig);
+            if (file_put_contents(self::path(), $template) !== false) {
+                chmod(self::path(), 0o660);
+                CLIErrorHandler::success('Archivo de configuración creado exitosamente en: ' . self::path());
 
                 // Token de un solo uso que exige el instalador web (/install)
                 $token = bin2hex(random_bytes(16));

@@ -60,6 +60,8 @@ class Users extends VersaORMModel
         // La empresa siempre la impone el servidor; los filtros del cliente solo pueden acotar más
         $filter = 'versa_users.id_empresa = ?' . (trim($where) !== '' ? ' AND ' . $where : '');
         $bindings = [$id_empresa, ...$bindings];
+        // `id` existe en las tres tablas del join
+        $order = (string) preg_replace('/^id\b/i', 'versa_users.id', $order);
 
         $result = $this
             ->qb()

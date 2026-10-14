@@ -13,7 +13,9 @@ use versaWYS\kernel\Request;
 use versaWYS\kernel\Session;
 use versaWYS\kernel\versaTwig;
 
-$configPath = __DIR__ . '/config.json';
+// VERSAWYS_CONFIG permite usar otro archivo (tests, staging) sin tocar config.json
+$configPath = getenv('VERSAWYS_CONFIG');
+$configPath = is_string($configPath) && $configPath !== '' ? $configPath : __DIR__ . '/config.json';
 if (!file_exists($configPath)) {
     throw new Exception('Configuration file not found: ' . $configPath);
 }

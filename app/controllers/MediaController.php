@@ -53,6 +53,7 @@ class MediaController extends GlobalControllers
                 'success' => 0,
                 'message' => 'Error al obtener carpetas.',
                 'error' => $exception->getMessage(),
+                'code' => 500,
             ];
         }
     }
@@ -95,6 +96,7 @@ class MediaController extends GlobalControllers
                 'success' => 0,
                 'message' => 'Error al crear carpeta.',
                 'error' => $exception->getMessage(),
+                'code' => 500,
             ];
         }
     }
@@ -128,6 +130,7 @@ class MediaController extends GlobalControllers
                 'success' => 0,
                 'message' => 'Error al renombrar carpeta.',
                 'error' => $exception->getMessage(),
+                'code' => 500,
             ];
         }
     }
@@ -160,6 +163,7 @@ class MediaController extends GlobalControllers
                 'success' => 0,
                 'message' => 'Error al eliminar carpeta.',
                 'error' => $exception->getMessage(),
+                'code' => 500,
             ];
         }
     }
@@ -195,6 +199,7 @@ class MediaController extends GlobalControllers
                 'success' => 0,
                 'message' => 'Error al mover archivo.',
                 'error' => $exception->getMessage(),
+                'code' => 500,
             ];
         }
     }
@@ -237,6 +242,7 @@ class MediaController extends GlobalControllers
                 'success' => 0,
                 'message' => 'Error al obtener archivos multimedia.',
                 'error' => $exception->getMessage(),
+                'code' => 500,
             ];
         }
     }
@@ -361,6 +367,7 @@ class MediaController extends GlobalControllers
                 'success' => 0,
                 'message' => 'Error al subir archivos multimedia.',
                 'error' => $exception->getMessage(),
+                'code' => 500,
             ];
         }
     }
@@ -394,6 +401,7 @@ class MediaController extends GlobalControllers
                 return [
                     'success' => 0,
                     'message' => 'No fue posible eliminar el archivo físico del servidor.',
+                    'error' => $exception->getMessage(),
                     'code' => 500,
                 ];
             }
@@ -408,6 +416,7 @@ class MediaController extends GlobalControllers
                 return [
                     'success' => 0,
                     'message' => 'Se eliminó el archivo físico, pero no se pudo actualizar su estado en la base de datos.',
+                    'error' => $exception->getMessage(),
                     'code' => 500,
                 ];
             }
@@ -421,6 +430,7 @@ class MediaController extends GlobalControllers
                 'success' => 0,
                 'message' => 'Error al eliminar archivo multimedia.',
                 'error' => $exception->getMessage(),
+                'code' => 500,
             ];
         }
     }
@@ -466,6 +476,7 @@ class MediaController extends GlobalControllers
                 'success' => 0,
                 'message' => 'Error al renombrar archivo multimedia.',
                 'error' => $exception->getMessage(),
+                'code' => 500,
             ];
         }
     }

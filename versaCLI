@@ -14,7 +14,7 @@ require_once __DIR__ . '/versaWYS/kernel/autoload.php';
 use versaWYS\kernel\cli\CommandLineInterface;
 
 // Ruta absoluta al archivo de configuración
-$absolutePathConfig = __DIR__ . '/versaWYS/kernel/config/config.json';
+$absolutePathConfig = getenv('VERSAWYS_CONFIG') ?: __DIR__ . '/versaWYS/kernel/config/config.json';
 $config = null; // Inicializar $config a null
 
 // Obtener el comando principal (ej: 'config:init', 'migrate:up')
