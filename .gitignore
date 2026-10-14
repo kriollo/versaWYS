@@ -25,3 +25,6 @@ pnpm-lock.yaml
 /versaWYS/.phpunit.cache
 /versa_deploy.yml
 /logs/
+.claude/
+.agents/
+skills-lock.json
