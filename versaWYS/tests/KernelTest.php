@@ -433,3 +433,39 @@ describe('contraseñas', function (): void {
             ->and(Functions::needsRehash(password_hash('x', PASSWORD_BCRYPT, ['cost' => 4])))->toBeTrue();
     });
 });
+
+describe('security.sanitize_input', function (): void {
+    beforeEach(function (): void {
+        $this->saved = [$_SERVER, $_POST, $GLOBALS['config'] ?? null];
+        $_SERVER = ['REQUEST_METHOD' => 'POST', 'REMOTE_ADDR' => '127.0.0.1'];
+        $_POST = ['nombre' => "O'Brien & Cía", 'nota' => 'select from tabla'];
+    });
+
+    afterEach(function (): void {
+        [$_SERVER, $_POST, $GLOBALS['config']] = $this->saved;
+    });
+
+    it('sin la clave, o en true, reescribe la entrada como antes (compatibilidad)', function (): void {
+        $GLOBALS['config'] = [];
+        $params = (new versaWYS\kernel\Request())->getAllParams();
+
+        expect($params['nombre'])->not->toBe("O'Brien & Cía")->and($params['nota'])->toBe('tabla');
+    });
+
+    it('en false entrega exactamente lo que envió el cliente', function (): void {
+        $GLOBALS['config'] = ['security' => ['sanitize_input' => false]];
+
+        expect((new versaWYS\kernel\Request())->getAllParams())->toBe(['nombre' => "O'Brien & Cía", 'nota' => 'select from tabla']);
+    });
+
+    it('config:init crea los proyectos nuevos en false', function (): void {
+        $dir = sys_get_temp_dir() . '/versawys_init_' . getmypid();
+        @mkdir($dir, 0o700, true);
+        exec('VERSAWYS_CONFIG=' . escapeshellarg($dir . '/config.json') . ' php versaCLI config:init 2>&1 < /dev/null');
+        $config = json_decode((string) file_get_contents($dir . '/config.json'), true);
+        array_map(unlink(...), glob($dir . '/*') ?: []);
+        rmdir($dir);
+
+        expect($config['security']['sanitize_input'])->toBeFalse();
+    });
+});
