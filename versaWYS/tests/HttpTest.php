@@ -450,6 +450,47 @@ describe('entrada sin reescribir', function (): void {
     });
 });
 
+describe('método QUERY', function (): void {
+    // php -S responde 501 a QUERY: se envía como POST con X-HTTP-Method-Override, como en desarrollo
+    it('responde con los filtros en el cuerpo JSON y sin token CSRF (es de solo lectura)', function (): void {
+        [$jar] = loginAs('admin@test.cl');
+        $expected = api('GET', '/admin/users/getUsersPaginated?page=1&per_page=1', $jar)['json'];
+
+        $res = api(
+            'POST',
+            '/admin/users/getUsersPaginated',
+            $jar,
+            json_encode(['page' => 1, 'per_page' => 1]),
+            ['X-HTTP-Method-Override: QUERY', 'Content-Type: application/json; charset=utf-8'],
+        );
+
+        expect($res['status'])->toBe(200)
+            ->and($res['json'])->toBe($expected)
+            ->and($res['headers'])->toContain('Accept-Query: application/json');
+    });
+
+    it('un POST sin override a una ruta solo GET/QUERY responde 405 y lo anuncia en Allow', function (): void {
+        [$jar] = loginAs('admin@test.cl');
+        $res = api('POST', '/admin/users/getUsersPaginated', $jar, json_encode(['page' => 1]), ['Content-Type: application/json']);
+
+        expect($res['status'])->toBe(405)->and($res['headers'])->toMatch('/^Allow: .*GET.*QUERY/mi');
+    });
+
+    it('lee el cuerpo JSON de PUT/PATCH aunque el Content-Type traiga charset', function (): void {
+        [$jar, $csrf] = loginAs('admin@test.cl');
+
+        $res = api(
+            'PATCH',
+            '/admin/perfiles/changeState',
+            $jar,
+            json_encode(['id' => 1, 'estado' => 1]),
+            ['Content-Type: application/json; charset=utf-8', 'X-CSRF-Token: ' . $csrf],
+        );
+
+        expect($res['status'])->not->toBe(422)->and($res['json']['success'] ?? 0)->toBe(1);
+    });
+});
+
 describe('/up', function (): void {
     it('responde 200 sin sesión y, al propio servidor, cómo corre PHP en el servidor web', function (): void {
         $res = api('GET', '/up');
