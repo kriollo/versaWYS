@@ -452,7 +452,7 @@ describe('entrada de la petición', function (): void {
         expect((new versaWYS\kernel\Request())->getAllParams())->toBe(['nombre' => "O'Brien & Cía", 'nota' => 'select from tabla']);
     });
 
-    it('config:init crea los proyectos nuevos con nonce de CSP y sin la clave security', function (): void {
+    it('config:init crea los proyectos nuevos con nonce de CSP, sin eval y sin la clave security', function (): void {
         $dir = sys_get_temp_dir() . '/versawys_init_' . getmypid();
         @mkdir($dir, 0o700, true);
         exec('VERSAWYS_CONFIG=' . escapeshellarg($dir . '/config.json') . ' php versaCLI config:init 2>&1 < /dev/null');
@@ -461,7 +461,8 @@ describe('entrada de la petición', function (): void {
         rmdir($dir);
 
         expect($config)->not->toHaveKey('security')
-            ->and($config['csp']['nonce'])->toBeTrue();
+            ->and($config['csp']['nonce'])->toBeTrue()
+            ->and($config['csp']['unsafe_eval'])->toBeFalse();
     });
 });
 

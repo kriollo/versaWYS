@@ -1,5 +1,4 @@
-import { html } from 'code-tag';
-import { createApp, provide, ref, type Ref } from 'vue';
+import { createApp, h, provide, ref, type Ref } from 'vue';
 
 import { getCsrfTokenRef, initCsrfToken } from '@/dashboard/js/composables/csrfStore';
 import { $dom } from '@/dashboard/js/composables/dom';
@@ -89,9 +88,8 @@ const loadModule = async (): Promise<void> => {
                     };
                 },
                 name: 'App',
-                template: html`
-                    <${component} :key="componentKey" />
-                `,
+                // Sin template en texto: Vue no compila en el navegador y la CSP no necesita 'unsafe-eval'
+                render: () => h(moduleResponse.default, { key: componentKey.value }),
             });
 
             // Configuración de la aplicación según el modo de depuración

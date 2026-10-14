@@ -114,6 +114,7 @@ beforeAll(function (): void {
     // Caché de Twig como en producción, en una carpeta propia de esta ejecución: nunca plantillas viejas
     $config['twig']['compiled_dir'] = $dir . '/twig';
     $config['csp']['nonce'] = true;
+    $config['csp']['unsafe_eval'] = false; // como una instalación nueva (config:init)
     $config['websocket_service']['ws_url'] = 'ws://localhost:8083/ws';
     $config['logging']['dir'] = $dir . '/logs/';
     $config['rate_limiting']['cache_dir'] = $dir . '/rate_limits/';
@@ -183,6 +184,12 @@ describe('respuestas y cabeceras', function (): void {
             ->toContain('Referrer-Policy:')
             ->toContain("Content-Security-Policy: default-src 'self'")
             ->not->toContain('X-Powered-By');
+    });
+
+    it('con csp.unsafe_eval en false la CSP no permite eval', function (): void {
+        preg_match('/^Content-Security-Policy:.*$/mi', http('GET', '/admin/login')['headers'], $m);
+
+        expect($m[0] ?? '')->toContain('script-src')->not->toContain('unsafe-eval');
     });
 
     it('la CSP permite conectarse al websocket configurado', function (): void {
