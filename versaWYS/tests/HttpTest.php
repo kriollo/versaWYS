@@ -112,6 +112,7 @@ beforeAll(function (): void {
     $config['session']['user_cookie']['key_encript'] = bin2hex(random_bytes(32));
     $config['session']['user_cookie']['secure'] = false; // el servidor de prueba es HTTP
     $config['twig']['cache'] = false;
+    $config['security']['sanitize_input'] = false; // como una instalación nueva (config:init)
     $config['logging']['dir'] = $dir . '/logs/';
     $config['rate_limiting']['cache_dir'] = $dir . '/rate_limits/';
     // Toda la suite sale de una misma IP: solo el límite de login se deja al alcance de un test
@@ -424,6 +425,26 @@ describe('seguridad del kernel', function (): void {
         expect($new)->not->toBe($old)
             ->and(password_verify(HTTP_TEST_PASSWORD, $new))->toBeTrue()
             ->and(password_needs_rehash($new, PASSWORD_DEFAULT))->toBeFalse();
+    });
+});
+
+describe('entrada sin reescribir', function (): void {
+    it('guarda el texto tal como se envió: apóstrofos, & y palabras como select', function (): void {
+        [$jar, $csrf] = loginAs('admin@test.cl');
+        $nombre = "O'Brien & Cía <select from> 2";
+
+        $res = api('POST', '/admin/perfiles/save', $jar, ['_csrf_token' => $csrf, 'nombre' => $nombre, 'estado' => 1]);
+        $guardado = httpDb()->query('SELECT nombre FROM versa_perfil ORDER BY id DESC LIMIT 1')->fetchColumn();
+
+        expect($res['json']['success'] ?? 0)->toBe(1)->and($guardado)->toBe($nombre);
+    });
+
+    it('y lo muestra escapado: el HTML enviado no se ejecuta en la página', function (): void {
+        [$jar] = loginAs('admin@test.cl');
+
+        expect(http('GET', '/admin/usuarios/addUser', $jar)['body'])
+            ->toContain('O&#039;Brien &amp; Cía &lt;select from&gt; 2')
+            ->not->toContain('<select from>');
     });
 });
 
