@@ -111,7 +111,8 @@ beforeAll(function (): void {
     $config['session']['key'] = bin2hex(random_bytes(32));
     $config['session']['user_cookie']['key_encript'] = bin2hex(random_bytes(32));
     $config['session']['user_cookie']['secure'] = false; // el servidor de prueba es HTTP
-    $config['twig']['cache'] = false;
+    // Caché de Twig como en producción, en una carpeta propia de esta ejecución: nunca plantillas viejas
+    $config['twig']['compiled_dir'] = $dir . '/twig';
     $config['security']['sanitize_input'] = false; // como una instalación nueva (config:init)
     $config['logging']['dir'] = $dir . '/logs/';
     $config['rate_limiting']['cache_dir'] = $dir . '/rate_limits/';
@@ -143,7 +144,8 @@ beforeAll(function (): void {
     fclose($probe);
 
     $server = proc_open(
-        ['php', '-S', '127.0.0.1:' . $port, '-t', '.', dirname((string) (new ReflectionClass(versaWYS\kernel\cli\ServerManager::class))->getFileName()) . '/routerServe.php'],
+        // Sin Xdebug (si está instalado): producción no lo tiene y deforma los tiempos
+        ['php', '-d', 'xdebug.mode=off', '-S', '127.0.0.1:' . $port, '-t', '.', dirname((string) (new ReflectionClass(versaWYS\kernel\cli\ServerManager::class))->getFileName()) . '/routerServe.php'],
         [['file', '/dev/null', 'r'], ['file', $dir . '/server.log', 'a'], ['file', $dir . '/server.log', 'a']],
         $pipes,
     );
@@ -505,6 +507,43 @@ describe('cuentas inactivas', function (): void {
             ->and((int) httpDb()->query("SELECT status FROM versa_users WHERE email = 'inactivo@test.cl'")->fetchColumn())->toBe(0);
         loginAs('superinactivo@test.cl');
     });
+});
+
+// Medición, no prueba: no corre con la suite. `vendor/bin/pest --group=bench`
+describe('benchmark', function (): void {
+    it('mide la latencia de una página Twig, una API con sesión y un 404', function (): void {
+        [$jar] = loginAs('admin@test.cl');
+        $routes = [
+            'página Twig (login)' => fn (): array => http('GET', '/admin/login'),
+            'API JSON con sesión' => fn (): array => api('GET', '/admin/users/getUsersPaginated?page=1&per_page=10', $jar),
+            'ruta inexistente (404)' => fn (): array => http('GET', '/no-existe/' . random_int(1, 9)),
+        ];
+        $rounds = (int) (getenv('BENCH_ROUNDS') ?: 300);
+
+        $report = sprintf("\n  %-26s %8s %8s %8s\n", 'Ruta', 'p50 ms', 'p95 ms', 'req/s');
+        foreach ($routes as $name => $request) {
+            for ($i = 0; $i < 20; $i++) {
+                $request(); // calentar OPcache y cachés
+            }
+            $times = [];
+            for ($i = 0; $i < $rounds; $i++) {
+                $start = hrtime(true);
+                $request();
+                $times[] = (hrtime(true) - $start) / 1e6;
+            }
+            sort($times);
+            $report .= sprintf(
+                "  %-26s %8.2f %8.2f %8.0f\n",
+                $name,
+                $times[intdiv($rounds, 2)],
+                $times[(int) floor($rounds * 0.95)],
+                $rounds / (array_sum($times) / 1000),
+            );
+        }
+        fwrite(STDERR, $report);
+
+        expect($times)->toHaveCount($rounds);
+    })->group('bench');
 });
 
 describe('límite de intentos', function (): void {
