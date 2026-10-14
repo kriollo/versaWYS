@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b7cce3a0178df4ec363e6762bf22c737",
+    "content-hash": "e3e25e0d6c79534c44ac008087c04877",
     "packages": [
         {
             "name": "doctrine/lexer",
@@ -1562,16 +1562,16 @@
         },
         {
             "name": "versawys/kernel",
-            "version": "v3.3.0",
+            "version": "v3.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kriollo/versawys-kernel.git",
-                "reference": "b937d3175d4164705aa450d1c878f507e20e885b"
+                "reference": "f58e0546e84233af6c2d0592cda31f56283c5aef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kriollo/versawys-kernel/zipball/b937d3175d4164705aa450d1c878f507e20e885b",
-                "reference": "b937d3175d4164705aa450d1c878f507e20e885b",
+                "url": "https://api.github.com/repos/kriollo/versawys-kernel/zipball/f58e0546e84233af6c2d0592cda31f56283c5aef",
+                "reference": "f58e0546e84233af6c2d0592cda31f56283c5aef",
                 "shasum": ""
             },
             "require": {
@@ -1587,10 +1587,13 @@
                 "versaorm/versaorm-php": "^1.9 || ^2.0"
             },
             "require-dev": {
-                "laravel/pint": "^1.30",
-                "phpstan/phpstan": "^2.2",
-                "phpstan/phpstan-strict-rules": "^2.0",
-                "phpunit/phpunit": "^11.5"
+                "carthage-software/mago": "^1.57",
+                "friendsofphp/php-cs-fixer": "^3.95.27",
+                "laravel/pint": "^1.32.1",
+                "phpstan/phpstan": "^2.3.1",
+                "phpstan/phpstan-strict-rules": "^2.1.0",
+                "phpunit/phpunit": "^11.5.57",
+                "rector/rector": "^2.7"
             },
             "type": "library",
             "autoload": {
@@ -1621,7 +1624,7 @@
                 "issues": "https://github.com/kriollo/versawys-kernel/issues",
                 "source": "https://github.com/kriollo/versawys-kernel"
             },
-            "time": "2026-10-14T17:42:49+00:00"
+            "time": "2026-10-14T23:02:17+00:00"
         }
     ],
     "packages-dev": [
