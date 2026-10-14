@@ -3,7 +3,7 @@
 version: 2
 updates:
     - package-ecosystem: composer
-      directory: /versaWYS
+      directory: /
       schedule:
           interval: weekly
       groups:

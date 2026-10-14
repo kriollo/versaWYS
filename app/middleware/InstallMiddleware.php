@@ -66,8 +66,29 @@ class InstallMiddleware extends GlobalMiddleware
     {
         global $request;
 
-        $params = $request->getAllParams();
+        $errors = $this->errors($request->getAllParams());
+        if ($errors !== []) {
+            return [
+                'success' => 0,
+                'message' => 'Revisa los datos ingresados.',
+                'errors' => $errors,
+                'code' => 422,
+            ];
+        }
 
+        return true;
+    }
+
+    /**
+     * Errores de los datos de instalación (vacío si están bien). Lo usan el asistente web y
+     * `versaCLI app:install`.
+     *
+     * @param array<string, mixed> $params
+     *
+     * @return array<string, string>
+     */
+    public function errors(array $params): array
+    {
         $errors = Functions::validateParams($params, [
             'db_host' => 'required',
             'db_port' => 'required|integer',
@@ -98,15 +119,6 @@ class InstallMiddleware extends GlobalMiddleware
             $errors['admin_password'] = $this->getMessagePolicyPassword();
         }
 
-        if ($errors !== []) {
-            return [
-                'success' => 0,
-                'message' => 'Revisa los datos ingresados.',
-                'errors' => $errors,
-                'code' => 422,
-            ];
-        }
-
-        return true;
+        return $errors;
     }
 }

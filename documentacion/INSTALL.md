@@ -10,67 +10,61 @@
 
 Puedes revisar el estado del entorno en cualquier momento con `php versaCLI status`.
 
-## Instalación paso a paso
+## Inicio rápido
 
-### 1. Obtener el código
+Crea una base de datos **vacía** (MySQL o PostgreSQL) y luego:
 
 ```bash
-git clone https://github.com/kriollo/versaWYS.git mi-proyecto
-cd mi-proyecto
+composer create-project versawys/versawys mi-proyecto   # instala y crea versaWYS/config/config.json
+cd mi-proyecto && pnpm install && pnpm compile
+php versaCLI app:install                                  # pregunta la base de datos, la empresa y el superadministrador
+php versaCLI serve                                        # http://localhost:8000/admin/login
 ```
 
-### 2. Instalar dependencias
+> En desarrollo local sin HTTPS, cambia `session.user_cookie.secure` a `false` en `config.json`; de lo contrario el navegador no enviará la cookie de sesión.
+
+## Instalación paso a paso
+
+### 1. Obtener el código e instalar dependencias
 
 ```bash
-cd versaWYS && composer install && cd ..
+composer create-project versawys/versawys mi-proyecto
+cd mi-proyecto
 pnpm install
 ```
 
-### 3. Crear la configuración
+`create-project` ejecuta `php versaCLI config:init`, que genera `versaWYS/config/config.json` con claves de sesión aleatorias y el **token del instalador web** (también queda en `versaWYS/config/install.token`).
 
-```bash
-php versaCLI config:init
-```
+Si clonas el repositorio en vez de usar `create-project`: `git clone https://github.com/kriollo/versaWYS.git mi-proyecto && cd mi-proyecto && composer install && php versaCLI config:init`.
 
-Genera `versaWYS/config/config.json` con claves de sesión aleatorias y muestra el **token del instalador web**. El token también queda en `versaWYS/config/install.token`.
-
-### 4. Compilar el frontend
+### 2. Compilar el frontend
 
 ```bash
 pnpm compile      # producción
 pnpm watch        # desarrollo, con recarga en caliente
 ```
 
-### 5. Ejecutar el instalador web
+### 3. Instalar la aplicación
 
-Crea una base de datos **vacía**, levanta el servidor y abre `/install`:
+Las dos vías hacen lo mismo:
+- prueban la conexión y guardan los datos en `config.json`;
+- ejecutan las migraciones y los seeders;
+- crean la empresa y el superadministrador;
+- escriben `installed.lock`.
 
-```bash
-php versaCLI serve
-# http://localhost:8000/install
-```
+Desde ese momento ninguna de las dos vuelve a ejecutarse.
 
-El asistente pide los datos de la base de datos, de la empresa, del usuario superadministrador y el token del paso 3. Con eso:
-
-1. prueba la conexión y guarda los datos en `config.json`;
-2. ejecuta las migraciones y los seeders;
-3. crea la empresa y el superadministrador;
-4. escribe `installed.lock` y elimina el token.
-
-Desde ese momento `/install` deja de estar disponible y puedes entrar por `/admin/login`.
-
-> En desarrollo local sin HTTPS, cambia `session.user_cookie.secure` a `false` en `config.json`; de lo contrario el navegador no enviará la cookie de sesión.
-
-### Instalación sin el asistente
-
-Si prefieres la terminal, completa la sección `database` de `config.json` y ejecuta:
+**Desde la terminal** (también sirve en servidores sin navegador):
 
 ```bash
-php versaCLI migrate:up
-php versaCLI seeder:runAll
+php versaCLI app:install
 ```
 
-Los seeders no crean usuarios: el superadministrador se crea con el instalador web.
+Pregunta cada dato; las contraseñas no se muestran al escribirlas. Para un script, todo va como opciones: `php versaCLI app:install --db-driver=postgresql --db-host=localhost --db-port=5432 --db-name=... --db-user=... --db-pass=... --empresa-nombre=... --empresa-rut=... --admin-name=... --admin-email=... --admin-password=...`
+
+**Desde el navegador**: `php versaCLI serve` y abre `http://localhost:8000/install`. El asistente pide además el token del paso 1, y lo elimina al terminar.
+
+Luego entra por `/admin/login`.
 
 ## Servidor web
 

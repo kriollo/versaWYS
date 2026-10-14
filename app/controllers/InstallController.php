@@ -31,9 +31,25 @@ class InstallController
 
     public function run(): array
     {
-        global $request, $config;
+        global $request;
 
-        $params = $request->getAllParams();
+        // La contraseña de la BD llega sin sanear: debe ser exacta (la del admin sí pasa por
+        // getAllParams, igual que en el login, para que ambos hashes coincidan)
+        return $this->install(['db_pass' => (string) ($request->getRawParams()['db_pass'] ?? '')] + $request->getAllParams());
+    }
+
+    /**
+     * Configura la base de datos, migra, siembra y crea la empresa y el superadministrador. Los
+     * datos ya vienen validados (InstallMiddleware::errors). La usan el asistente web y
+     * `versaCLI app:install`.
+     *
+     * @param array<string, mixed> $params
+     *
+     * @return array<string, mixed>
+     */
+    public function install(array $params): array
+    {
+        global $config;
 
         $newConfig = ConfigManager::getConfig();
         $newConfig['database'] = [
@@ -42,9 +58,7 @@ class InstallController
             'port' => (int) $params['db_port'],
             'database' => $params['db_name'],
             'username' => $params['db_user'],
-            // Sin sanear: la contraseña de la BD debe llegar exacta (la del admin sí pasa por
-            // getAllParams, igual que en el login, para que ambos hashes coincidan)
-            'password' => (string) ($request->getRawParams()['db_pass'] ?? ''),
+            'password' => (string) ($params['db_pass'] ?? ''),
         ] + ($newConfig['database'] ?? []);
 
         try {
