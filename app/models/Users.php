@@ -320,6 +320,16 @@ class Users extends VersaORMModel
         return $this->qb()->where('id_empresa', '=', $idEmpresa)->where('status', '=', true)->count();
     }
 
+    /**
+     * Reemplaza el hash por uno con el algoritmo y costo actuales, sin tocar la expiración.
+     */
+    public function rehashPassword(int $idUser, #[SensitiveParameter] string $password): void
+    {
+        $user = $this->load('versa_users', $idUser, 'id');
+        $user->password = Functions::hash($password);
+        $user->store();
+    }
+
     private function setUpdatePassword(#[SensitiveParameter] string $newPassword): array
     {
         global $config;

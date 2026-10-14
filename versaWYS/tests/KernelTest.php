@@ -364,3 +364,72 @@ describe('config:merge', function (): void {
         expect($exitCode)->toBe(1)->and($output)->toContain('No se pudo leer');
     });
 });
+
+describe('Request detrás de proxies', function (): void {
+    beforeEach(function (): void {
+        $this->server = $_SERVER;
+        $this->config = $GLOBALS['config'] ?? null;
+    });
+
+    afterEach(function (): void {
+        $_SERVER = $this->server;
+        $GLOBALS['config'] = $this->config;
+    });
+
+    $forged = [
+        'REQUEST_METHOD' => 'GET',
+        'HTTP_HOST' => 'app.example.cl',
+        'HTTP_X_FORWARDED_HOST' => 'atacante.example',
+        'HTTP_X_FORWARDED_PROTO' => 'https',
+        'HTTP_X_FORWARDED_FOR' => '198.51.100.7, 10.0.0.5',
+    ];
+
+    it('no cree las cabeceras X-Forwarded-* de un cliente cualquiera', function () use ($forged): void {
+        $GLOBALS['config'] = ['trusted_proxies' => [], 'build' => []];
+        $_SERVER = ['REMOTE_ADDR' => '203.0.113.9'] + $forged;
+        $request = new versaWYS\kernel\Request();
+
+        expect($request->getBaseUrl())->toBe('http://app.example.cl')->and($request->getIp())->toBe('203.0.113.9');
+    });
+
+    it('sí las cree si la petición llega desde trusted_proxies', function () use ($forged): void {
+        $GLOBALS['config'] = ['trusted_proxies' => ['10.0.0.0/8'], 'build' => []];
+        $_SERVER = ['REMOTE_ADDR' => '10.1.2.3'] + $forged;
+        $request = new versaWYS\kernel\Request();
+
+        expect($request->getBaseUrl())->toBe('https://atacante.example')->and($request->getIp())->toBe('198.51.100.7');
+    });
+
+    it('build.base_url manda sobre la petición', function () use ($forged): void {
+        $GLOBALS['config'] = ['trusted_proxies' => ['10.0.0.0/8'], 'build' => ['base_url' => 'https://app.example.cl/']];
+        $_SERVER = ['REMOTE_ADDR' => '10.1.2.3'] + $forged;
+
+        expect((new versaWYS\kernel\Request())->getBaseUrl())->toBe('https://app.example.cl');
+    });
+
+    it('reconoce IPs sueltas y rangos CIDR IPv4 e IPv6', function (string $ip, bool $trusted): void {
+        $GLOBALS['config'] = ['trusted_proxies' => ['192.168.1.0/24', '2001:db8::/32', '127.0.0.1', '172.16.0.0/12']];
+
+        expect(versaWYS\kernel\Request::isTrustedProxy($ip))->toBe($trusted);
+    })->with([
+        ['192.168.1.200', true],
+        ['192.168.2.1', false],
+        ['172.31.255.1', true],
+        ['172.32.0.1', false],
+        ['2001:db8::1', true],
+        ['2001:db9::1', false],
+        ['127.0.0.1', true],
+        ['::ffff:127.0.0.1', false],
+        ['no-es-ip', false],
+    ]);
+});
+
+describe('contraseñas', function (): void {
+    it('hash usa el algoritmo por defecto de PHP y needsRehash detecta los hashes antiguos', function (): void {
+        $hash = Functions::hash('Clave#Segura2026');
+
+        expect(password_get_info($hash)['algo'])->toBe(PASSWORD_DEFAULT)
+            ->and(Functions::needsRehash($hash))->toBeFalse()
+            ->and(Functions::needsRehash(password_hash('x', PASSWORD_BCRYPT, ['cost' => 4])))->toBeTrue();
+    });
+});
