@@ -1,6 +1,5 @@
 /app/templates/.cache/*
 /versaWYS/vendor/*
-/versaWYS/composer.lock
 /public/dashboard/store/*
 /public/dashboard/**/*.js
 /public/dashboard/**/*.css
@@ -10,7 +9,6 @@
 .idea
 node_modules
 package-lock.json
-pnpm-lock.yaml
 /versaWYS/kernel/config/config.json
 /versaWYS/logs/*
 /versaWYS/cache/*
