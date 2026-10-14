@@ -49,7 +49,7 @@ ${safeStack}</pre
                     : ''}
                 <button
                     style="margin-top: 1rem; padding: 0.5rem 1rem; background-color: #fff; color: #333; border: 1px solid #333; cursor: pointer; border-radius: 4px;"
-                    onclick="window.location.reload()">
+                    data-reload>
                     🔄 Reintentar
                 </button>
             </div>
