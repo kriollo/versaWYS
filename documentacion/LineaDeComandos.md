@@ -34,6 +34,7 @@ Los nombres que se pasan a generadores y borradores solo admiten letras, número
 | `config:init` | Crea `config.json` con claves aleatorias y el token del instalador web. |
 | `config:debug:true\|false` | Activa o desactiva el modo debug. |
 | `config:templateCache:true\|false` | Activa o desactiva la caché de Twig. |
+| `config:merge <archivo.json>` | Aplica ajustes versionados sin secretos (CSP, CORS, correo) sobre `config.json`. Ver [Configuración](./CONFIGURATION.md). |
 | `cache:clear` | Limpia las cachés de rutas, Twig y rate limiting. La de rutas queda desactivada hasta el próximo `route:compile`. |
 | `cache:status` | Estado de las cachés. |
 | `cache:routes`, `cache:twig` | Limpia solo una caché. |
@@ -117,6 +118,13 @@ Comandos incluidos:
 | `app:mail:send` | Envía un correo (plantilla Twig o HTML). Lo usa el framework para enviar correos en segundo plano. |
 | `app:check:psr4` | Revisa que clases, namespaces y nombres de archivo coincidan; también referencias a clases del proyecto que no existen y `require`/`include` cuya ruta difiere en mayúsculas de lo que hay en disco. |
 | `app:check:deploy` | Revisión previa al despliegue. Ver más abajo. |
+
+### Despliegue y archivos base
+
+| Comando | Qué hace |
+|---|---|
+| `app:deploy:finish` | El único hook `post_deploy` que necesita versaDeploy: `config:merge` de `versaWYS/config.compartida.json` (si existe), `migrate:up`, `cache:twig`, `route:compile`, activa la caché de plantillas, `command:refresh` y `app:check:deploy --production`. Se detiene en el primer paso que falle. |
+| `app:kernel:publish [--force]` | Crea `index.php`, `versaCLI`, los `.htaccess` y los ejemplos de `configs/` que falten, con la versión del kernel instalado. Muestra el diff de los que difieren (`-` proyecto, `+` kernel); `--force` los reemplaza. |
 
 ### Revisión previa al despliegue
 

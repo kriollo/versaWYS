@@ -74,16 +74,11 @@ environments:
             python:
                 enabled: false
 
-        # Se ejecutan en el servidor después de activar el release
+        # Se ejecutan en el servidor después de activar el release. app:deploy:finish aplica
+        # versaWYS/config.compartida.json, migra, limpia cachés y termina con
+        # app:check:deploy --production: si algo falla, el despliegue falla
         post_deploy:
-            - 'php versaCLI migrate:up'
-            # La caché de Twig es compartida entre releases: sin limpiarla se servirían plantillas antiguas
-            - 'php versaCLI cache:twig'
-            - 'php versaCLI route:compile'
-            - 'php versaCLI config:templateCache:true'
-            - 'php versaCLI command:refresh'
-            # Falla el despliegue si la configuración o el entorno del servidor no están listos
-            - 'php versaCLI app:check:deploy --production'
+            - 'php versaCLI app:deploy:finish'
 
         services_reload:
             - 'sudo systemctl reload php8.4-fpm'
