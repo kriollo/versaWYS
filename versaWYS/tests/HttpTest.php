@@ -530,12 +530,18 @@ describe('CSP con nonce', function (): void {
 });
 
 describe('/up', function (): void {
-    it('responde 200 sin sesión y, al propio servidor, cómo corre PHP en el servidor web', function (): void {
+    it('responde 200 sin sesión y solo el estado, aunque la petición venga del propio servidor', function (): void {
+        // Detrás de un proxy en el mismo servidor todas las visitas llegan desde 127.0.0.1
         $res = api('GET', '/up');
 
-        expect($res['status'])->toBe(200)
-            ->and($res['json']['status'])->toBe('ok')
-            ->and($res['json'])->toHaveKeys(['kernel', 'php', 'opcache', 'xdebug'])
+        expect($res['status'])->toBe(200)->and($res['json'])->toBe(['status' => 'ok']);
+    });
+
+    it('con la firma de session.key entrega cómo corre PHP en el servidor web', function (): void {
+        $key = json_decode((string) file_get_contents(httpEnv()['dir'] . '/config.json'), true)['session']['key'];
+        $res = api('GET', '/up', headers: ['X-Versawys-Health: ' . hash_hmac('sha256', 'versawys:/up', $key)]);
+
+        expect($res['json'])->toHaveKeys(['kernel', 'php', 'opcache', 'xdebug'])
             ->and($res['json']['xdebug'])->toBeFalse();
     });
 });
