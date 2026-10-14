@@ -334,3 +334,33 @@ describe('kernel empaquetable', function (): void {
         expect($offending)->toBe([]);
     });
 });
+
+describe('config:merge', function (): void {
+    it('aplica un JSON versionado sobre config.json: las listas se reemplazan enteras y repetirlo no cambia nada', function (): void {
+        $dir = sys_get_temp_dir() . '/versawys_merge_' . getmypid();
+        @mkdir($dir, 0o700, true);
+        file_put_contents($dir . '/config.json', json_encode([
+            'session' => ['key' => 'secreta'],
+            'csp' => ['script-src' => ['a.example', 'b.example', 'c.example']],
+        ]));
+        file_put_contents($dir . '/extra.json', json_encode(['csp' => ['script-src' => ['nuevo.example'], 'form-action' => ['pago.example']]]));
+        $env = 'VERSAWYS_CONFIG=' . escapeshellarg($dir . '/config.json') . ' ';
+
+        exec($env . 'php versaCLI config:merge ' . escapeshellarg($dir . '/extra.json') . ' 2>&1 < /dev/null', $output, $exitCode);
+        $first = file_get_contents($dir . '/config.json');
+        exec($env . 'php versaCLI config:merge ' . escapeshellarg($dir . '/extra.json') . ' 2>&1 < /dev/null');
+        $config = json_decode((string) file_get_contents($dir . '/config.json'), true);
+
+        expect($exitCode)->toBe(0)
+            ->and($config['session']['key'])->toBe('secreta')
+            ->and($config['csp']['script-src'])->toBe(['nuevo.example'])
+            ->and($config['csp']['form-action'])->toBe(['pago.example'])
+            ->and(file_get_contents($dir . '/config.json'))->toBe($first);
+    });
+
+    it('falla con código 1 si el archivo no existe', function (): void {
+        [$exitCode, $output] = versaCli('config:merge /no/existe.json');
+
+        expect($exitCode)->toBe(1)->and($output)->toContain('No se pudo leer');
+    });
+});

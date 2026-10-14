@@ -69,3 +69,22 @@ Debe definirse en el entorno del proceso (servidor web o shell), no en `.env`.
 
 - `tests/KernelTest.php`: pruebas unitarias del kernel y del CLI.
 - `tests/HttpTest.php`: levanta la aplicación con `php -S` contra una base SQLite temporal y verifica por HTTP las cabeceras, la sesión, los tokens (CSRF y JWT), los permisos y la forma de los errores. Necesita las extensiones `pdo_sqlite` y `curl`; no usa ni modifica `config.json`.
+
+## Ajustes versionados: `config:merge`
+
+`config.json` tiene secretos y no se versiona. Los ajustes **sin secretos** que dependen del proyecto, como los orígenes extra de la CSP, CORS u opciones de correo, pueden vivir en un JSON versionado y aplicarse en cada despliegue:
+
+```json
+{
+    "csp": {
+        "script-src": ["https://accounts.google.com"],
+        "form-action": ["https://webpay3g.transbank.cl"]
+    }
+}
+```
+
+```bash
+php versaCLI config:merge versaWYS/config.compartida.json
+```
+
+Se fusiona con el `config.json` de la máquina sin tocar el resto: las listas se reemplazan enteras y aplicarlo dos veces no cambia nada. Si el archivo no existe o no es JSON válido, termina con código 1 y el despliegue se detiene. En versaDeploy va como primer hook de `post_deploy`.
