@@ -392,6 +392,30 @@ describe('peticiones y errores controlados', function (): void {
     });
 });
 
+describe('cuentas inactivas', function (): void {
+    it('desactiva al ingresar las cuentas sin uso en auth.inactive_account_days, salvo el superadministrador', function (): void {
+        $insert = httpDb()->prepare(
+            'INSERT INTO versa_users (id_empresa, tokenid, name, email, password, expiration_pass, role, status, id_perfil, last_login)
+             VALUES (1, ?, ?, ?, ?, ?, ?, 1, 1, ?)',
+        );
+        $longAgo = date('Y-m-d H:i:s', strtotime('-400 days'));
+        foreach ([['Inactivo', 'inactivo@test.cl', 'user'], ['Super inactivo', 'superinactivo@test.cl', 'superadmin']] as [$name, $email, $role]) {
+            $insert->execute([bin2hex(random_bytes(16)), $name, $email, Functions::hash(HTTP_TEST_PASSWORD), date('Y-m-d', strtotime('+90 days')), $role, $longAgo]);
+        }
+
+        $jar = newJar();
+        $login = api('POST', '/admin/login/autentication', $jar, [
+            '_csrf_token' => csrfFrom('/admin/login', $jar),
+            'email' => 'inactivo@test.cl',
+            'password' => HTTP_TEST_PASSWORD,
+        ]);
+
+        expect($login['json']['success'] ?? 1)->toBe(0)
+            ->and((int) httpDb()->query("SELECT status FROM versa_users WHERE email = 'inactivo@test.cl'")->fetchColumn())->toBe(0);
+        loginAs('superinactivo@test.cl');
+    });
+});
+
 describe('límite de intentos', function (): void {
     // Último a propósito: deja bloqueada la IP de la suite para el login
     it('bloquea el login tras demasiados intentos', function (): void {
