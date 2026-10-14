@@ -60,7 +60,7 @@ environments:
                 composer_command: 'composer install --no-dev --optimize-autoloader'
             frontend:
                 enabled: true
-                npm_command: 'pnpm install'
+                npm_command: 'pnpm install --frozen-lockfile'
                 compile_command: 'pnpm run compile'
                 cleanup_dev_deps: true
                 # node_modules de producción debe quedar en el servidor: el navegador carga Vue y

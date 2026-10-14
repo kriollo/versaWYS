@@ -8,6 +8,11 @@ on:
 jobs:
     php:
         runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                # El lock se resuelve para PHP 8.3 (config.platform): debe instalar en todas las soportadas
+                php: ['8.3', '8.4']
         defaults:
             run:
                 working-directory: versaWYS
@@ -15,10 +20,12 @@ jobs:
             - uses: actions/checkout@v4
             - uses: shivammathur/setup-php@v2
               with:
-                  php-version: '8.4'
+                  php-version: ${{ matrix.php }}
                   extensions: intl, mbstring, pdo_mysql, pdo_pgsql, pdo_sqlite, curl, fileinfo, zip
                   coverage: none
+            # Desde composer.lock: lo mismo que se despliega
             - run: composer install --no-interaction --no-progress
+            - run: composer audit
             # pint (formato) y pest (tests); el análisis estático del kernel corre en versawys-kernel
             - run: composer check
 
@@ -28,10 +35,13 @@ jobs:
             - uses: actions/checkout@v4
             - uses: pnpm/action-setup@v4
               with:
-                  version: 10
+                  version: 11
             - uses: actions/setup-node@v4
               with:
                   node-version: 22
-            - run: pnpm install --no-frozen-lockfile
+            # Falla si pnpm-lock.yaml no corresponde a package.json
+            - run: pnpm install --frozen-lockfile
+            # Solo dependencias que llegan al navegador; las de compilación las vigila Dependabot
+            - run: pnpm audit --prod
             - run: pnpm lint
             - run: pnpm compile
