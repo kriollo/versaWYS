@@ -632,7 +632,7 @@
 {% block appScript %}
     {# El script va en verbatim: es JavaScript plano, sin expresiones de Twig #}
     <!-- prettier-ignore -->
-    <script>
+    <script nonce="{{ csp_nonce() }}">
 {% verbatim %}
         (() => {
             const routesList = document.getElementById('routesList');

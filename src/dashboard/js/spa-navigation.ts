@@ -800,6 +800,8 @@ class SPANavigation {
 
             const script = document.createElement('script');
             script.type = isModule ? 'module' : 'text/javascript';
+            // Con csp.nonce, un script inline solo corre si lleva el nonce de la página
+            script.nonce = document.querySelector<HTMLMetaElement>('meta[name="csp-nonce"]')?.content ?? '';
             script.textContent = cleanContent;
             document.head.append(script);
 

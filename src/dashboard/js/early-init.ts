@@ -66,3 +66,16 @@ const cleanupEarlyStyles = (): void => {
     // También limpiar cuando se ejecute el script principal
     window.addEventListener('load', cleanupEarlyStyles);
 })();
+
+// Sin manejadores inline (onclick=, onchange=): la CSP con nonce los bloquea. Delegación en el documento,
+// así también funcionan en el contenido que carga el SPA
+document.addEventListener('click', event => {
+    if ((event.target as Element | null)?.closest('[data-history-back]')) {
+        event.preventDefault();
+        history.back();
+    }
+});
+document.addEventListener('change', event => {
+    const field = (event.target as Element | null)?.closest<HTMLSelectElement | HTMLInputElement>('[data-auto-submit]');
+    field?.form?.submit();
+});

@@ -190,7 +190,7 @@
 		</form>
 	</div>
 
-	<script>
+	<script nonce="{{ csp_nonce() }}">
 		const form = document.getElementById('installForm');
 		const alertBox = document.getElementById('alert');
 		const submitBtn = document.getElementById('submitBtn');
