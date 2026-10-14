@@ -65,6 +65,8 @@ if (process.env.DISCOVER) {
     await navigate(`${base}${PANEL}/dashboard`);
     pages = await evaluate(`[...new Set([...document.querySelectorAll('a[href]')].map(a => a.getAttribute('href')).filter(h => h.startsWith(${JSON.stringify(PANEL + '/')}) && !/logout|login|download|export/.test(h)))]`);
 }
+// EXTRA: rutas fuera del panel separadas por coma (tienda, páginas públicas)
+pages.push(...(process.env.EXTRA ?? '').split(',').filter(Boolean));
 for (const path of [...pages, `${PANEL}/no-existe`]) {
     await step(path, () => navigate(base + path));
 }

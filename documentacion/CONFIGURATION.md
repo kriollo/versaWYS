@@ -99,4 +99,4 @@ VERSAWYS_CONFIG=/tmp/config-csp.json php -S 127.0.0.1:8790 -t . versaWYS/vendor/
 PANEL=/admin EMAIL=admin@ejemplo.cl PASS='...' DISCOVER=1 node versaWYS/tests/csp-check.mjs http://127.0.0.1:8790 /tmp/csp
 ```
 
-Termina con código 1 si encuentra problemas. Necesita Google Chrome y Node 22 (no instala nada).
+Para revisar también páginas fuera del panel (una tienda, formularios públicos), `EXTRA=/tienda,/contacto` las agrega al recorrido. Termina con código 1 si encuentra problemas. Necesita Google Chrome y Node 22 (no instala nada).
