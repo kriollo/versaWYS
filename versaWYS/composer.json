@@ -1,17 +1,12 @@
 {
     "require": {
         "php": ">=8.3",
-        "ext-intl": "*",
-        "twig/twig": "3.28.0",
-        "firebase/php-jwt": "7.1.0",
-        "symfony/mailer": "8.1.2",
-        "twig/cssinliner-extra": "3.26.0",
-        "twig/extra-bundle": "3.24.0",
-        "versaorm/versaorm-php": "^1.9.0"
+        "twig/twig": "^3.28",
+        "versaorm/versaorm-php": "^2.0",
+        "versawys/kernel": "^2.1"
     },
     "autoload": {
         "psr-4": {
-            "versaWYS\\kernel\\": "../versaWYS/kernel/",
             "app\\": "../app/"
         }
     },
@@ -24,8 +19,6 @@
         "friendsoftwig/twigcs": "^6.6.1",
         "laravel/pint": "^1.30.5",
         "pestphp/pest": "^5.1.0",
-        "phpstan/phpstan": "^2.2.8",
-        "phpstan/phpstan-strict-rules": "^2.0.12",
         "rector/rector": "^2.6.1"
     },
     "config": {
@@ -33,18 +26,15 @@
             "pestphp/pest-plugin": true
         }
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
+    "minimum-stability": "stable",
     "scripts": {
         "pint": "pint",
         "pint:check": "pint --test",
         "rector:check": "rector process --dry-run --ansi",
         "rector:fix": "rector process --ansi",
-        "stan": "phpstan analyse --ansi --memory-limit=1G",
         "test": "pest",
         "check": [
             "@pint:check",
-            "@stan",
             "@test"
         ],
         "fix": [
