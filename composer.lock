@@ -1562,16 +1562,16 @@
         },
         {
             "name": "versawys/kernel",
-            "version": "v3.2.0",
+            "version": "v3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kriollo/versawys-kernel.git",
-                "reference": "0f3b0fc60142bc7df23daa962bdf5ba3ba2ec7de"
+                "reference": "f616170a4790dc8c44507783c58f7161e98f471a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kriollo/versawys-kernel/zipball/0f3b0fc60142bc7df23daa962bdf5ba3ba2ec7de",
-                "reference": "0f3b0fc60142bc7df23daa962bdf5ba3ba2ec7de",
+                "url": "https://api.github.com/repos/kriollo/versawys-kernel/zipball/f616170a4790dc8c44507783c58f7161e98f471a",
+                "reference": "f616170a4790dc8c44507783c58f7161e98f471a",
                 "shasum": ""
             },
             "require": {
@@ -1621,7 +1621,7 @@
                 "issues": "https://github.com/kriollo/versawys-kernel/issues",
                 "source": "https://github.com/kriollo/versawys-kernel"
             },
-            "time": "2026-10-14T17:03:26+00:00"
+            "time": "2026-10-14T17:18:42+00:00"
         }
     ],
     "packages-dev": [
