@@ -56,6 +56,12 @@ Router::group(
         // query-param name:order type:string description:Columna y dirección, por ejemplo nombre,asc
         // query-param name:externalFilters type:string description:Filtros permitidos: status=true o status=false
         Router::get('/getUsersPaginated', [UsersController::class, 'getUsersPaginated']);
+
+        // description: Lo mismo con los filtros en el cuerpo (método QUERY): no quedan en la URL ni en los logs.
+        // request-body name:page type:int description:Número de página (desde 1)
+        // request-body name:per_page type:int description:Filas por página (máximo 5000)
+        // request-body name:filter type:string description:Texto a buscar
+        Router::query('/getUsersPaginated', [UsersController::class, 'getUsersPaginated']);
     },
     [
         [AuthMiddleware::class, 'checkSession'],

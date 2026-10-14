@@ -48,6 +48,30 @@ Router::patch('/users/{id}', [UserController::class, 'modify']);
 Router::delete('/users/{id}', [UserController::class, 'destroy']);
 ```
 
+### Método `QUERY`
+
+`QUERY` es el método HTTP del IETF para **consultas con cuerpo**: tan seguro e idempotente como GET, pero los filtros viajan en el cuerpo y no en la URL. Sirve para búsquedas largas y para datos que no deben quedar en los logs del servidor.
+
+```php
+Router::query('/admin/users/getUsersPaginated', [UsersController::class, 'getUsersPaginated']);
+```
+
+- No exige token CSRF, igual que GET: no cambia estado.
+- El controlador lee el cuerpo (JSON o formulario) con `$request->get()` / `getAllParams()`, como en cualquier otro método.
+- La respuesta incluye `Accept-Query: application/json, application/x-www-form-urlencoded`.
+
+**`php versaCLI serve` (`php -S`) no acepta `QUERY`: responde 501.** En desarrollo, o detrás de un proxy que no lo deje pasar, envía un POST con la cabecera `X-HTTP-Method-Override: QUERY` (o el campo `_method=QUERY`):
+
+```js
+fetch('/admin/users/getUsersPaginated', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-HTTP-Method-Override': 'QUERY' },
+    body: JSON.stringify({ page: 1, per_page: 20, filter: 'ana' }),
+});
+```
+
+Apache y nginx suelen pasar `QUERY` a PHP-FPM sin configuración extra. Si el sitio responde 405 o 501 a `QUERY` y no al override, el servidor o un proxy lo está bloqueando.
+
 ## Parámetros de Ruta Dinámicos
 
 El enrutador de versaWYS-PHP permite definir rutas con segmentos dinámicos. Estos segmentos se encierran entre llaves `{}` en el patrón de la ruta. Los valores de estos segmentos se capturan de la URL de la petición y se pasan como argumentos al método del controlador, en el mismo orden en que aparecen en la definición de la ruta.
