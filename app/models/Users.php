@@ -310,6 +310,8 @@ class Users extends VersaORMModel
                     ->format('Y-m-d H:i:s'),
             )
             ->where('status', '=', true)
+            // El superadministrador nunca se desactiva: podría ser la única cuenta capaz de reactivar a las demás
+            ->where('role', '!=', 'superadmin')
             ->update(['status' => false]);
     }
 

@@ -57,12 +57,19 @@ class DashBoardController extends GlobalControllers
      */
     public function autentication(): void
     {
-        global $request, $session;
+        global $request, $session, $config;
 
         try {
             $params = $request->getAllParams();
 
             $userModel = new Models\Users();
+
+            // auth.inactive_account_days: las cuentas sin ingresar en ese plazo quedan desactivadas
+            $inactiveDays = (int) ($config['auth']['inactive_account_days'] ?? 0);
+            if ($inactiveDays > 0) {
+                $userModel->updateStatusInactiveAccount($inactiveDays);
+            }
+
             $user = $userModel->findUserByEmail($params['email']);
 
             if (
