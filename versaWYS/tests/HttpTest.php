@@ -115,6 +115,7 @@ beforeAll(function (): void {
     $config['twig']['compiled_dir'] = $dir . '/twig';
     $config['security']['sanitize_input'] = false; // como una instalación nueva (config:init)
     $config['csp']['nonce'] = true;
+    $config['websocket_service']['ws_url'] = 'ws://localhost:8083/ws';
     $config['logging']['dir'] = $dir . '/logs/';
     $config['rate_limiting']['cache_dir'] = $dir . '/rate_limits/';
     // Toda la suite sale de una misma IP: solo el límite de login se deja al alcance de un test
@@ -183,6 +184,12 @@ describe('respuestas y cabeceras', function (): void {
             ->toContain('Referrer-Policy:')
             ->toContain("Content-Security-Policy: default-src 'self'")
             ->not->toContain('X-Powered-By');
+    });
+
+    it('la CSP permite conectarse al websocket configurado', function (): void {
+        preg_match('/^Content-Security-Policy:.*$/mi', http('GET', '/admin/login')['headers'], $m);
+
+        expect($m[0] ?? '')->toMatch("~connect-src 'self' blob: ws://localhost:8083[ ;]~");
     });
 
     it('la cookie de sesión es HttpOnly y SameSite', function (): void {
