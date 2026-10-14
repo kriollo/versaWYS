@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
+use versaWYS\kernel\cli\ConfigManager;
 use versaWYS\kernel\GlobalMiddleware;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Response;
@@ -13,9 +14,15 @@ use versaWYS\kernel\Response;
  */
 class InstallMiddleware extends GlobalMiddleware
 {
-    public const string LOCK_FILE = 'versaWYS/kernel/config/installed.lock';
+    public static function lockFile(): string
+    {
+        return ConfigManager::dir() . '/installed.lock';
+    }
 
-    public const string TOKEN_FILE = 'versaWYS/kernel/config/install.token';
+    public static function tokenFile(): string
+    {
+        return ConfigManager::dir() . '/install.token';
+    }
 
     public const array DRIVERS = ['mysql', 'postgresql'];
 
@@ -26,7 +33,7 @@ class InstallMiddleware extends GlobalMiddleware
     {
         global $config;
 
-        if (file_exists(self::LOCK_FILE)) {
+        if (file_exists(self::lockFile())) {
             Response::redirect('/' . $config['admin']['custom_url'] . '/login');
             exit();
         }
@@ -41,7 +48,7 @@ class InstallMiddleware extends GlobalMiddleware
     {
         global $request;
 
-        $expected = file_exists(self::TOKEN_FILE) ? trim((string) file_get_contents(self::TOKEN_FILE)) : '';
+        $expected = file_exists(self::tokenFile()) ? trim((string) file_get_contents(self::tokenFile())) : '';
         $received = trim((string) $request->get('install_token', ''));
 
         if ($expected === '' || $received === '' || !hash_equals($expected, $received)) {

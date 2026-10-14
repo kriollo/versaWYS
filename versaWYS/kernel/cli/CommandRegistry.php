@@ -15,7 +15,6 @@ use versaWYS\kernel\Loggin;
 class CommandRegistry
 {
     private const APP_COMMANDS_DIR = 'app/commands';
-    private const KERNEL_COMMANDS_DIR = 'versaWYS/kernel/cli/commands';
 
     private const CACHE_FILE = 'versaWYS/cache/commands.php';
 
@@ -29,8 +28,9 @@ class CommandRegistry
         $commands = [];
 
         $dirs = [
-            ['path' => self::APP_COMMANDS_DIR, 'namespace' => 'app\\commands\\'],
-            ['path' => self::KERNEL_COMMANDS_DIR, 'namespace' => 'versaWYS\\kernel\\cli\\commands\\'],
+            ['path' => self::APP_COMMANDS_DIR, 'namespace' => 'app\\commands\\', 'kernel' => false],
+            // Junto a esta clase: el kernel puede vivir en vendor
+            ['path' => __DIR__ . '/commands', 'namespace' => 'versaWYS\\kernel\\cli\\commands\\', 'kernel' => true],
         ];
 
         foreach ($dirs as $dirInfo) {
@@ -61,7 +61,7 @@ class CommandRegistry
 
                     $commandName = self::classNameToCommandName($className);
                     // If command name collides, prefer app command over kernel
-                    if (isset($commands[$commandName]) && $dirInfo['path'] === self::KERNEL_COMMANDS_DIR) {
+                    if (isset($commands[$commandName]) && $dirInfo['kernel']) {
                         continue;
                     }
 

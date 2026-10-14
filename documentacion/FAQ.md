@@ -8,7 +8,7 @@ Ejecuta en la terminal:
 ```bash
 php versaCLI config:init
 ```
-Esto generará el archivo `versaWYS/kernel/config/config.json` necesario para que el framework funcione.
+Esto generará el archivo `versaWYS/config/config.json` necesario para que el framework funcione.
 
 ## ¿Cómo ejecuto migraciones y seeders?
 Utiliza la [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md):

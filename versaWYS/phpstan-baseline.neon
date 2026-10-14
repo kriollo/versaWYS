@@ -1315,12 +1315,6 @@ parameters:
 			path: kernel/Session.php
 
 		-
-			message: '#^Dynamic call to static method versaWYS\\kernel\\ErrorHandler\:\:handleException\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 6
-			path: kernel/autoload.php
-
-		-
 			message: '#^Method versaWYS\\kernel\\cli\\ApplicationCommandManager\:\:handleAppCommand\(\) has parameter \$params with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

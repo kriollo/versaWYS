@@ -73,7 +73,7 @@ class OrmFactory
                         . "   • Base de datos: %s\n\n"
                         . "💡 Soluciones:\n"
                         . "   1. Crear la base de datos: CREATE DATABASE %s;\n"
-                        . "   2. Verificar el nombre en versaWYS/kernel/config/config.json\n"
+                        . "   2. Verificar el nombre en config.json\n"
                         . '   3. Ejecutar: php versaCLI migrate:up (después de crear la BD)',
                         $dbInfo['database'],
                         $dbInfo['driver'],
@@ -97,7 +97,7 @@ class OrmFactory
                         . "   • Puerto: %s\n\n"
                         . "💡 Soluciones:\n"
                         . "   1. Verificar que el servidor %s esté ejecutándose\n"
-                        . "   2. Revisar host y puerto en versaWYS/kernel/config/config.json\n"
+                        . "   2. Revisar host y puerto en config.json\n"
                         . '   3. Verificar reglas de firewall',
                         $dbInfo['driver'],
                         $dbInfo['host'],
@@ -117,7 +117,7 @@ class OrmFactory
                         . "   • Usuario: %s\n"
                         . "   • Base de datos: %s\n\n"
                         . "💡 Soluciones:\n"
-                        . "   1. Verificar usuario y contraseña en versaWYS/kernel/config/config.json\n"
+                        . "   1. Verificar usuario y contraseña en config.json\n"
                         . '   2. Verificar permisos del usuario en la base de datos',
                         $config['username'] ?? 'unknown',
                         $dbInfo['database'],
@@ -136,7 +136,7 @@ class OrmFactory
                     . "   • Host: %s\n"
                     . "   • Puerto: %s\n"
                     . "   • Base de datos: %s\n\n"
-                    . '💡 Revisar configuración en: versaWYS/kernel/config/config.json',
+                    . '💡 Revisar configuración en: config.json',
                     $errorMsg,
                     $dbInfo['driver'],
                     $dbInfo['host'],

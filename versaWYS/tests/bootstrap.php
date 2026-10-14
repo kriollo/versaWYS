@@ -6,9 +6,8 @@ declare(strict_types=1);
 chdir(dirname(__DIR__, 2));
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../kernel/autoload.php';
 
 // versaCLI exige un config.json: en un checkout limpio (CI) se genera el de por defecto
-if (!file_exists('versaWYS/kernel/config/config.json')) {
+if (!file_exists(versaWYS\kernel\cli\ConfigManager::path())) {
     exec('php versaCLI config:init');
 }

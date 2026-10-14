@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../autoload.php';
-
 use VersaORM\VersaModel;
+use versaWYS\kernel\cli\ConfigManager;
 use versaWYS\kernel\Cookie;
 use versaWYS\kernel\Loggin;
 use versaWYS\kernel\model\OrmFactory;
 use versaWYS\kernel\Request;
+use versaWYS\kernel\Router;
 use versaWYS\kernel\Session;
 use versaWYS\kernel\versaTwig;
 
-// VERSAWYS_CONFIG permite usar otro archivo (tests, staging) sin tocar config.json
-$configPath = getenv('VERSAWYS_CONFIG');
-$configPath = is_string($configPath) && $configPath !== '' ? $configPath : __DIR__ . '/config.json';
+// Este archivo se carga desde App::run(): sus variables son el estado global que usa el kernel
+global $config, $session, $twig, $cookie, $debug, $request;
+
+$configPath = ConfigManager::path();
 if (!file_exists($configPath)) {
     throw new Exception('Configuration file not found: ' . $configPath);
 }
@@ -24,7 +24,7 @@ $config = json_decode(file_get_contents($configPath), true);
 if (json_last_error() !== JSON_ERROR_NONE) {
     throw new Exception('Error parsing configuration file: ' . json_last_error_msg());
 }
-$config = array_replace_recursive(require __DIR__ . '/config.default.php', $config);
+$config = array_replace_recursive(ConfigManager::defaults(), $config);
 
 if (version_compare(PHP_VERSION, '8.3.0', '<')) {
     Loggin::error('Error inicializando VersaORM: La versión de PHP debe ser 8.3 o superior.', 'VersaWYS');
@@ -35,7 +35,7 @@ if (!extension_loaded('intl')) {
     throw new Exception('La extensión PHP "intl" no está cargada. Por favor, instálala para continuar.');
 }
 
-registerRoutes('app/routes');
+Router::loadRoutes('app/routes');
 
 $session = new Session($config['session']['lifetime']);
 
@@ -44,7 +44,7 @@ $twig->addGlobal('session', $session);
 $twig->addGlobal('config', $config);
 
 // Cargar variables de entorno desde .env si existe en la raíz
-$envPath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . '.env';
+$envPath = getcwd() . DIRECTORY_SEPARATOR . '.env';
 if (file_exists($envPath)) {
     $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
@@ -116,7 +116,7 @@ if (($config['database']['database'] ?? '') !== '') {
                     'type' => 'Database Configuration Error',
                     'message' => $errorMsg,
                     'timestamp' => date('Y-m-d H:i:s'),
-                    'real_file' => 'versaWYS/kernel/config/config.json',
+                    'real_file' => $configPath,
                     'context' => [
                         'framework' => $config['framework'] ?? 'versaWYS-PHP',
                         'mode' => 'Debug (desarrollo)',

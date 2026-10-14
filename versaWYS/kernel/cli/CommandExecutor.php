@@ -118,15 +118,7 @@ class CommandExecutor
      */
     private static function getCliPath(): string
     {
-        // Intentar desde el directorio actual del kernel
-        $kernelPath = __DIR__;
-        $cliPath = realpath($kernelPath . '/../../../versaCLI');
-
-        if ($cliPath !== false && file_exists($cliPath)) {
-            return $cliPath;
-        }
-
-        // Fallback: buscar desde el directorio de trabajo actual
+        // El directorio de trabajo es la raíz del proyecto (web y CLI)
         $cliPath = realpath(getcwd() . '/versaCLI');
 
         if ($cliPath !== false && file_exists($cliPath)) {
@@ -143,7 +135,7 @@ class CommandExecutor
         }
 
         // Si no se encuentra, lanzar excepción
-        throw new \RuntimeException('No se pudo localizar el archivo versaCLI. Ruta del kernel: ' . $kernelPath);
+        throw new \RuntimeException('No se pudo localizar el archivo versaCLI desde ' . getcwd());
     }
 
     /**

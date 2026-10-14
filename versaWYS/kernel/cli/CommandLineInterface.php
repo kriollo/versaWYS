@@ -30,6 +30,50 @@ class CommandLineInterface
         $this->args = array_values($this->args); // Re-indexar array
     }
 
+    /**
+     * Punto de entrada del script versaCLI del proyecto.
+     *
+     * @param array<int, string> $argv
+     */
+    public static function main(string $root, array $argv): never
+    {
+        // Permitir que el grupo tenga permisos de escritura en todos los archivos/dirs que PHP cree
+        umask(0002);
+
+        // El CLI usa rutas relativas a la raíz del proyecto: fijarla permite invocarlo desde cualquier directorio (cron)
+        chdir($root);
+
+        $configPath = ConfigManager::path();
+
+        if (!file_exists($configPath) && ($argv[1] ?? null) !== 'config:init') {
+            echo "Advertencia: El archivo de configuración ('{$configPath}') no existe.\n";
+            echo "Puede crearlo ejecutando: php versaCLI config:init\n\n";
+            echo '¿Desea intentar crear el archivo de configuración ahora? (s/n): ';
+
+            if (strtolower(trim((string) fgets(STDIN))) !== 's') {
+                echo "Operación cancelada. El archivo de configuración es necesario para la mayoría de las operaciones.\n";
+                exit(1);
+            }
+
+            echo "\nRedirigiendo para ejecutar 'config:init'...\n";
+            $argv = [$argv[0], 'config:init'];
+        }
+
+        if (file_exists($configPath)) {
+            // Los comandos leen la configuración con `global $config`
+            $GLOBALS['config'] = json_decode((string) file_get_contents($configPath), true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                echo "Error: El archivo de configuración JSON en '{$configPath}' está corrupto: " . json_last_error_msg() . "\n";
+                echo "Considere eliminarlo y ejecutar 'php versaCLI config:init' para generar uno nuevo.\n";
+                exit(1);
+            }
+        }
+
+        (new self($argv))->run();
+
+        exit(CLIErrorHandler::$failed ? 1 : 0);
+    }
+
     public function run(): void
     {
         // Configurar manejo de errores para CLI

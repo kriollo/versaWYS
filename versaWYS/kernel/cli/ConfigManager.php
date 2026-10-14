@@ -8,7 +8,16 @@ use versaWYS\kernel\helpers as helpers;
 
 class ConfigManager
 {
-    protected static string $pathConfig = 'versaWYS/kernel/config/config.json';
+    private const string LEGACY_DIR = 'versaWYS/kernel/config';
+
+    /**
+     * Carpeta del proyecto con config.json, installed.lock e install.token. Los proyectos que
+     * nacieron con el kernel copiado la tienen dentro de él: se respeta mientras exista.
+     */
+    public static function dir(): string
+    {
+        return is_file(self::LEGACY_DIR . '/config.json') ? self::LEGACY_DIR : 'versaWYS/config';
+    }
 
     /**
      * Ruta del archivo de configuración. VERSAWYS_CONFIG permite usar otro (tests, staging).
@@ -17,7 +26,17 @@ class ConfigManager
     {
         $path = getenv('VERSAWYS_CONFIG');
 
-        return is_string($path) && $path !== '' ? $path : self::$pathConfig;
+        return is_string($path) && $path !== '' ? $path : self::dir() . '/config.json';
+    }
+
+    /**
+     * Valores por defecto: config.json solo declara lo que cambia.
+     *
+     * @return array<string, mixed>
+     */
+    public static function defaults(): array
+    {
+        return require __DIR__ . '/../config/config.default.php';
     }
 
     public static function getConfig(): array
@@ -105,7 +124,7 @@ class ConfigManager
         }
 
         // Misma fuente que usa el runtime para los valores por defecto: no pueden divergir
-        $defaults = require __DIR__ . '/../config/config.default.php';
+        $defaults = self::defaults();
         $defaults['session']['key'] = bin2hex(random_bytes(32));
         $defaults['session']['user_cookie']['key_encript'] = bin2hex(random_bytes(32));
         $template = json_encode($defaults, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);

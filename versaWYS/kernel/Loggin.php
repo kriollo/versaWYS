@@ -127,7 +127,7 @@ class Loggin
 
         $logConfig = $config['logging'] ?? [];
 
-        self::$logDir = $logConfig['dir'] ?? __DIR__ . '/../../logs/';
+        self::$logDir = $logConfig['dir'] ?? getcwd() . '/versaWYS/logs/';
         self::$minLevel = $logConfig['min_level'] ?? self::DEBUG;
         self::$defaultModule = $logConfig['default_module'] ?? 'app';
         self::$useRedis = $logConfig['use_redis'] ?? false;

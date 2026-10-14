@@ -16,6 +16,7 @@ pnpm-lock.yaml
 /versaWYS/cache/*
 /versaWYS/kernel/config/installed.lock
 /versaWYS/kernel/config/install.token
+/versaWYS/config/
 /public/dashboard/img/avatars/*
 /public/dashboard/img/logos/*
 /public/dashboard/store/*

@@ -44,8 +44,7 @@ class CheckDeployCommand extends BaseCommand
         $this->verbose = array_intersect(['--verbose', '-v', '--debug'], $flags) !== [];
         $this->strict = in_array('--strict', $flags, true);
         $this->production = in_array('--production', $flags, true);
-        $root = realpath(__DIR__ . '/../../../../');
-        $this->root = $root === false ? dirname(__DIR__, 4) : $root;
+        $this->root = (string) getcwd();
 
         $phases = [
             'Sintaxis PHP' => $this->checkSyntax(...),
@@ -366,7 +365,7 @@ class CheckDeployCommand extends BaseCommand
     private function checkRepository(): void
     {
         $gitignore = is_file($this->root . '/.gitignore') ? (string) file_get_contents($this->root . '/.gitignore') : '';
-        foreach (['.env' => '.env', 'config.json' => 'versaWYS/kernel/config/config.json'] as $needle => $path) {
+        foreach (['.env' => '.env', 'config.json' => ConfigManager::dir() . '/config.json'] as $needle => $path) {
             if (!str_contains($gitignore, $needle)) {
                 $this->add('critical', "{$path} no está en .gitignore.", hint: 'Contiene credenciales: agregarlo a .gitignore.');
             }
@@ -376,7 +375,7 @@ class CheckDeployCommand extends BaseCommand
             return;
         }
 
-        $secretFiles = ['versaWYS/kernel/config/config.json', 'versaWYS/kernel/config/install.token', '.env'];
+        $secretFiles = [ConfigManager::dir() . '/config.json', ConfigManager::dir() . '/install.token', '.env'];
         exec('git -C ' . escapeshellarg($this->root) . ' ls-files -- ' . implode(' ', array_map(escapeshellarg(...), $secretFiles)) . ' 2>/dev/null', $tracked);
         foreach ($tracked as $file) {
             $this->add(
@@ -393,7 +392,7 @@ class CheckDeployCommand extends BaseCommand
      */
     private function checkConfig(): void
     {
-        $configFile = $this->root . '/versaWYS/kernel/config/config.json';
+        $configFile = $this->root . '/' . ConfigManager::dir() . '/config.json';
         if (!is_file($configFile)) {
             $this->add($this->production ? 'critical' : 'info', 'No existe config.json.', hint: 'Crearlo con: php versaCLI config:init');
 
@@ -403,7 +402,7 @@ class CheckDeployCommand extends BaseCommand
         $config = $this->projectConfig();
         $serious = $this->production ? 'critical' : 'warning';
         $minor = $this->production ? 'warning' : 'info';
-        $file = 'versaWYS/kernel/config/config.json';
+        $file = ConfigManager::dir() . '/config.json';
 
         $rules = [
             [$serious, ($config['build']['debug'] ?? false) === true, 'build.debug está activo: expone rutas, trazas y SQL en los errores.', 'php versaCLI config:debug:false'],
@@ -490,7 +489,7 @@ class CheckDeployCommand extends BaseCommand
         }
 
         // Instalación y base de datos
-        if (is_file($this->root . '/versaWYS/kernel/config/install.token')) {
+        if (is_file($this->root . '/' . ConfigManager::dir() . '/install.token')) {
             $this->add('warning', 'Existe install.token: el instalador web (/install) sigue disponible para quien tenga el token.', hint: 'Completar la instalación o borrar el archivo.');
         }
         if (($config['build']['cacheRoute'] ?? false) === true && !is_file($this->root . '/' . trim((string) $config['build']['cacheRouteFile'], './'))) {
@@ -593,7 +592,7 @@ class CheckDeployCommand extends BaseCommand
      */
     private function projectConfig(): array
     {
-        return array_replace_recursive(require $this->root . '/versaWYS/kernel/config/config.default.php', ConfigManager::getConfig());
+        return array_replace_recursive(ConfigManager::defaults(), ConfigManager::getConfig());
     }
 
     /**

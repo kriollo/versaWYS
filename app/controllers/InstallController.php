@@ -88,9 +88,9 @@ class InstallController
             ];
         }
 
-        file_put_contents(InstallMiddleware::LOCK_FILE, json_encode(['installed_at' => date('Y-m-d H:i:s')]));
-        if (file_exists(InstallMiddleware::TOKEN_FILE)) {
-            unlink(InstallMiddleware::TOKEN_FILE);
+        file_put_contents(InstallMiddleware::lockFile(), json_encode(['installed_at' => date('Y-m-d H:i:s')]));
+        if (file_exists(InstallMiddleware::tokenFile())) {
+            unlink(InstallMiddleware::tokenFile());
         }
 
         return [

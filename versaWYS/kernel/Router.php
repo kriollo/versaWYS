@@ -38,6 +38,72 @@ class Router
     protected string $lastRouteMethod = '';
 
     /**
+     * Carga las rutas de la aplicación: la caché compilada si está activa, o los archivos de $path.
+     */
+    public static function loadRoutes(string $path): void
+    {
+        global $config;
+
+        if ($config['build']['cacheRoute'] ?? false) {
+            $cacheFile = $config['build']['cacheRouteFile'] ?? './versaWYS/cache/routes.compiled.php';
+
+            // Primero el archivo minificado, luego el original
+            foreach ([str_replace('.compiled.php', '.compiled.min.php', $cacheFile), $cacheFile] as $file) {
+                if (file_exists($file) && self::requireRoutes($file)) {
+                    return;
+                }
+            }
+        }
+
+        self::loadRoutesFrom($path);
+    }
+
+    private static function loadRoutesFrom(string $path): void
+    {
+        $files = is_dir($path) ? scandir($path) : false;
+        if ($files === false) {
+            self::routeLoadError('Cannot read routes directory: ' . $path);
+
+            return;
+        }
+
+        foreach (array_diff($files, ['.', '..']) as $file) {
+            $fullPath = $path . '/' . $file;
+            if (is_dir($fullPath)) {
+                self::loadRoutesFrom($fullPath);
+            } else {
+                self::requireRoutes($fullPath);
+            }
+        }
+    }
+
+    private static function requireRoutes(string $file): bool
+    {
+        try {
+            require_once $file;
+
+            return true;
+        } catch (Throwable $e) {
+            self::routeLoadError(sprintf("Error loading route file '%s': %s", $file, $e->getMessage()));
+
+            return false;
+        }
+    }
+
+    /**
+     * En producción un archivo de rutas roto se registra y se sigue con el resto; en debug se muestra.
+     */
+    private static function routeLoadError(string $message): void
+    {
+        global $config;
+
+        error_log($message);
+        if ($config['build']['debug'] ?? false) {
+            ErrorHandler::handleException(new \RuntimeException($message));
+        }
+    }
+
+    /**
      * Normalizes a URL by removing leading and trailing slashes and extracting the path.
      * Ahora incluye sanitización de seguridad contra inyección SQL.
      *

@@ -4,7 +4,7 @@
 
 ### 1. Configuración Básica
 
-Ya está configurado en `versaWYS/kernel/config/config.json`:
+Ya está configurado en `versaWYS/config/config.json`:
 
 ```json
 {
@@ -459,7 +459,7 @@ error_log(print_r($data, true))   → Loggin::debug('Data', 'modulo', $data)
 
 - **Documentación Completa**: `versaWYS/kernel/Loggin.md`
 - **Clase**: `versaWYS/kernel/Loggin.php`
-- **Configuración**: `versaWYS/kernel/config/config.json`
+- **Configuración**: `versaWYS/config/config.json`
 
 ## Cheatsheet
 

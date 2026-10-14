@@ -10,8 +10,8 @@ declare(strict_types=1);
 // Obtener la URI solicitada
 $uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
-// Directorio raíz del proyecto (3 niveles arriba desde versaWYS/kernel/cli/)
-$projectRoot = __DIR__ . '/../../../';
+// Directorio raíz del proyecto: el que sirve `php -S -t` (el kernel puede vivir en vendor)
+$projectRoot = $_SERVER['DOCUMENT_ROOT'] . '/';
 
 // Lista de carpetas sensibles que NO deben ser accesibles directamente
 $blockedDirectories = ['/app/', '/versaWYS/', '/vendor/', '/logs/', '/src/', '/configs/', '/scripts/', '/documentacion/'];

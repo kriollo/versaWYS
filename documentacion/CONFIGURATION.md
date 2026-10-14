@@ -1,6 +1,6 @@
 # Configuración
 
-Toda la configuración vive en `versaWYS/kernel/config/config.json`. El archivo **no se versiona**: se crea con `php versaCLI config:init`.
+Toda la configuración vive en `versaWYS/config/config.json`. El archivo **no se versiona**: se crea con `php versaCLI config:init`. Los proyectos creados antes de que el kernel fuera un paquete lo tienen en `versaWYS/kernel/config/config.json`: mientras ese archivo exista se sigue usando (junto con `installed.lock` e `install.token` de la misma carpeta), así que no hay que moverlo en los servidores.
 
 Los valores por defecto están en `versaWYS/kernel/config/config.default.php` y se fusionan con tu `config.json` en cada arranque, así que `config.json` solo necesita declarar lo que cambia. Ese mismo archivo es la referencia completa de claves disponibles.
 

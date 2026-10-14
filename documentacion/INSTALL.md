@@ -32,7 +32,7 @@ pnpm install
 php versaCLI config:init
 ```
 
-Genera `versaWYS/kernel/config/config.json` con claves de sesión aleatorias y muestra el **token del instalador web**. El token también queda en `versaWYS/kernel/config/install.token`.
+Genera `versaWYS/config/config.json` con claves de sesión aleatorias y muestra el **token del instalador web**. El token también queda en `versaWYS/config/install.token`.
 
 ### 4. Compilar el frontend
 
