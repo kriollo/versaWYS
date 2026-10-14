@@ -18,7 +18,7 @@
     "require-dev": {
         "friendsoftwig/twigcs": "^6.6.1",
         "laravel/pint": "^1.30.5",
-        "pestphp/pest": "^5.1.0",
+        "pestphp/pest": "^4.1 || ^5.1",
         "rector/rector": "^2.6.1"
     },
     "config": {
