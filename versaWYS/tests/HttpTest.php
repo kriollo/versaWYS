@@ -450,12 +450,24 @@ describe('entrada sin reescribir', function (): void {
     });
 });
 
+describe('/up', function (): void {
+    it('responde 200 sin sesión y, al propio servidor, cómo corre PHP en el servidor web', function (): void {
+        $res = api('GET', '/up');
+
+        expect($res['status'])->toBe(200)
+            ->and($res['json']['status'])->toBe('ok')
+            ->and($res['json'])->toHaveKeys(['kernel', 'php', 'opcache', 'xdebug'])
+            ->and($res['json']['xdebug'])->toBeFalse();
+    });
+});
+
 describe('app:check:deploy --url', function (): void {
-    it('no encuentra archivos internos expuestos en el sitio', function (): void {
+    it('no encuentra archivos internos expuestos en el sitio y lee /up', function (): void {
         exec('php versaCLI app:check:deploy --url=' . escapeshellarg(httpEnv()['url']) . ' 2>&1 < /dev/null', $output);
         $output = implode("\n", $output);
 
-        expect($output)->toContain('Archivos expuestos en la web')->not->toContain('responde 200');
+        expect($output)->toContain('Archivos expuestos en la web')->not->toContain('responde 200')
+            ->not->toContain('Xdebug está activo')->not->toContain('No se pudo leer la configuración de PHP');
     });
 
     it('detecta un archivo interno que el servidor entrega', function (): void {
