@@ -14,7 +14,7 @@ function versaCli(string $args): array
 }
 
 describe('config.default.php', function (): void {
-    $defaults = require 'versaWYS/kernel/config/config.default.php';
+    $defaults = versaWYS\kernel\cli\ConfigManager::defaults();
 
     it('nace con valores seguros', function () use ($defaults): void {
         expect($defaults['build']['debug'])->toBeFalse()
@@ -312,5 +312,25 @@ describe('documentación de rutas: comentarios', function (): void {
 
         expect(array_column($routes[0]['middleware'], 'class_method'))->toBe(['checkSession'])
             ->and($routes[0]['issues'])->toBe([]);
+    });
+});
+
+describe('kernel empaquetable', function (): void {
+    it('no asume vivir en versaWYS/kernel: así funciona instalado en vendor', function (): void {
+        // Permitido: leer proyectos anteriores al paquete y saltar frames del kernel en las trazas
+        $allowed = ['cli/ConfigManager.php', 'cli/commands/CheckDeployCommand.php', 'cli/commands/CheckPsr4Command.php', 'model/VersaORMModel.php'];
+        $kernel = dirname((string) (new ReflectionClass(versaWYS\kernel\App::class))->getFileName());
+        $offending = [];
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($kernel, FilesystemIterator::SKIP_DOTS)) as $file) {
+            $relative = substr($file->getPathname(), strlen($kernel) + 1);
+            if ($file->getExtension() !== 'php' || str_starts_with($relative, 'vendor/') || in_array($relative, $allowed, true)) {
+                continue;
+            }
+            if (preg_match("#versaWYS/kernel/|__DIR__ \\. '/\\.\\./\\.\\./#", (string) file_get_contents($file->getPathname())) === 1) {
+                $offending[] = $relative;
+            }
+        }
+
+        expect($offending)->toBe([]);
     });
 });

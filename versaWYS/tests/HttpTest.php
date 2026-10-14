@@ -106,7 +106,7 @@ beforeAll(function (): void {
     $dir = sys_get_temp_dir() . '/versawys_http_' . getmypid();
     @mkdir($dir, 0o700, true);
 
-    $config = require 'versaWYS/kernel/config/config.default.php';
+    $config = versaWYS\kernel\cli\ConfigManager::defaults();
     $config['database'] = ['driver' => 'sqlite', 'database' => $dir . '/test.sqlite', 'log_path' => $dir . '/orm/'] + $config['database'];
     $config['session']['key'] = bin2hex(random_bytes(32));
     $config['session']['user_cookie']['key_encript'] = bin2hex(random_bytes(32));
@@ -142,7 +142,7 @@ beforeAll(function (): void {
     fclose($probe);
 
     $server = proc_open(
-        ['php', '-S', '127.0.0.1:' . $port, '-t', '.', 'versaWYS/kernel/cli/routerServe.php'],
+        ['php', '-S', '127.0.0.1:' . $port, '-t', '.', dirname((string) (new ReflectionClass(versaWYS\kernel\cli\ServerManager::class))->getFileName()) . '/routerServe.php'],
         [['file', '/dev/null', 'r'], ['file', $dir . '/server.log', 'a'], ['file', $dir . '/server.log', 'a']],
         $pipes,
     );
@@ -191,6 +191,7 @@ describe('respuestas y cabeceras', function (): void {
         expect(http('GET', $path)['status'])->toBeIn([403, 404]);
     })->with([
         '/versaWYS/kernel/config/config.json',
+        '/versaWYS/config/config.json',
         '/versaWYS/kernel/config/config.default.php',
         '/versaWYS/composer.json',
         '/app/routes/UsersRoutes.php',
@@ -274,7 +275,10 @@ describe('sesión y tokens', function (): void {
 
     it('rechaza un token JWT manipulado', function (): void {
         [$jar] = loginAs('admin@test.cl');
-        $forged = substr(cookieValue($jar, 'tknHash'), 0, -2) . 'xx';
+        // Se altera un carácter interior de la firma: los últimos no usan todos sus bits y
+        // cambiarlos puede dejar la firma intacta
+        $forged = cookieValue($jar, 'tknHash');
+        $forged[-10] = $forged[-10] === 'A' ? 'B' : 'A';
 
         $res = api('GET', '/admin/users/getUsersPaginated', null, null, ['Cookie: tknHash=' . $forged]);
 

@@ -29,7 +29,7 @@ environments:
             - 'versaWYS/logs'
             - 'versaWYS/cache'
             - 'versaWYS/.phpunit.cache'
-            - 'versaWYS/kernel/config/install.token'
+            - 'versaWYS/config/install.token'
             - 'public/dashboard/img/avatars'
             - 'public/dashboard/img/logos'
             - 'public/dashboard/store'
@@ -42,8 +42,8 @@ environments:
 
         # Se conservan tal como están en el servidor entre despliegues
         preserved_paths:
-            - 'versaWYS/kernel/config/config.json'
-            - 'versaWYS/kernel/config/installed.lock'
+            - 'versaWYS/config/config.json'
+            - 'versaWYS/config/installed.lock'
 
         # Compartidas entre releases (subidas de usuarios, logs y caché)
         shared_paths:

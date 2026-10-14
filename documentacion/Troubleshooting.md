@@ -11,7 +11,7 @@ Esta guía te ayudará a identificar y resolver los problemas más comunes al tr
 
 **Solución:**
 - Ejecuta: `php versaCLI config:init` para crear el archivo.
-- Verifica permisos de escritura en la carpeta `versaWYS/kernel/config/`.
+- Verifica permisos de escritura en la carpeta `versaWYS/config/`.
 
 ---
 

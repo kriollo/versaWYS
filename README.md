@@ -38,7 +38,7 @@ Toda la documentación detallada se encuentra en la carpeta [`/documentacion`](.
 - `app/`: código de tu aplicación (controladores, modelos, rutas, middlewares, migraciones, seeders, plantillas).
 - `public/`: archivos públicos y assets (CSS, JS, imágenes).
 - `src/`: código fuente frontend (Vue.js, estilos, scripts modernos).
-- `versaWYS/`: núcleo del framework y dependencias.
+- `versaWYS/`: `composer.json`, dependencias (`vendor/`), configuración, caché, logs y pruebas. El núcleo del framework es el paquete [`versawys/kernel`](https://github.com/kriollo/versawys-kernel) y se actualiza con `composer update versawys/kernel`.
 - `documentacion/`: toda la documentación oficial.
 - `versaCLI`: script CLI para generación de código, migraciones, seeders, etc.
 

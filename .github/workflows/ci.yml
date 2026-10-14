@@ -19,7 +19,7 @@ jobs:
                   extensions: intl, mbstring, pdo_mysql, pdo_pgsql, pdo_sqlite, curl, fileinfo, zip
                   coverage: none
             - run: composer install --no-interaction --no-progress
-            # pint (formato), phpstan (análisis estático) y pest (tests)
+            # pint (formato) y pest (tests); el análisis estático del kernel corre en versawys-kernel
             - run: composer check
 
     frontend:

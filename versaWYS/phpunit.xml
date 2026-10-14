@@ -16,7 +16,6 @@
 
     <source>
         <include>
-            <directory>kernel</directory>
             <directory>../app</directory>
         </include>
         <exclude>
