@@ -114,6 +114,7 @@ beforeAll(function (): void {
     // Caché de Twig como en producción, en una carpeta propia de esta ejecución: nunca plantillas viejas
     $config['twig']['compiled_dir'] = $dir . '/twig';
     $config['security']['sanitize_input'] = false; // como una instalación nueva (config:init)
+    $config['build']['cacheRouteFile'] = $dir . '/routes.compiled.php'; // route:compile (deploy:finish) no escribe en el proyecto
     $config['logging']['dir'] = $dir . '/logs/';
     $config['rate_limiting']['cache_dir'] = $dir . '/rate_limits/';
     // Toda la suite sale de una misma IP: solo el límite de login se deja al alcance de un test
@@ -597,6 +598,20 @@ describe('benchmark', function (): void {
 
         expect($times)->toHaveCount($rounds);
     })->group('bench');
+});
+
+describe('app:deploy:finish', function (): void {
+    it('corre los pasos en orden y se detiene en el primero que falla', function (): void {
+        // En este entorno la revisión final falla (cookie sin secure): debe detenerse ahí con código 1
+        exec('php versaCLI app:deploy:finish 2>&1 < /dev/null', $output, $exitCode);
+        $output = implode("\n", $output);
+
+        expect($exitCode)->toBe(1)
+            ->and($output)->toContain('No hay versaWYS/config.compartida.json: se omite')
+            ->and(strpos($output, 'Migraciones pendientes'))->toBeLessThan(strpos($output, 'Registro de comandos'))
+            ->and($output)->toContain('Falló «php versaCLI app:check:deploy --production»')
+            ->not->toContain('Despliegue terminado');
+    });
 });
 
 describe('límite de intentos', function (): void {

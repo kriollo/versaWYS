@@ -469,3 +469,13 @@ describe('security.sanitize_input', function (): void {
         expect($config['security']['sanitize_input'])->toBeFalse();
     });
 });
+
+describe('app:kernel:publish', function (): void {
+    it('el esqueleto tiene los archivos base del kernel al día', function (): void {
+        [$exitCode, $output] = versaCli('app:kernel:publish');
+
+        expect($exitCode)->toBe(0)
+            ->and($output)->toContain('index.php')->toContain('.htaccess')
+            ->not->toContain('difiere')->not->toContain('(creado)');
+    });
+});
