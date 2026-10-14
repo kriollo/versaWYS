@@ -427,6 +427,41 @@ describe('seguridad del kernel', function (): void {
     });
 });
 
+describe('app:check:deploy --url', function (): void {
+    it('no encuentra archivos internos expuestos en el sitio', function (): void {
+        exec('php versaCLI app:check:deploy --url=' . escapeshellarg(httpEnv()['url']) . ' 2>&1 < /dev/null', $output);
+        $output = implode("\n", $output);
+
+        expect($output)->toContain('Archivos expuestos en la web')->not->toContain('responde 200');
+    });
+
+    it('detecta un archivo interno que el servidor entrega', function (): void {
+        // Un servidor sin reglas: entrega cualquier archivo que exista
+        $dir = httpEnv()['dir'] . '/sitio_sin_reglas';
+        @mkdir($dir);
+        file_put_contents($dir . '/.env', 'SECRETO=1');
+        $probe = stream_socket_server('tcp://127.0.0.1:0');
+        $port = (int) substr(strrchr((string) stream_socket_get_name($probe, false), ':'), 1);
+        fclose($probe);
+        $server = proc_open(['php', '-S', '127.0.0.1:' . $port, '-t', $dir], [1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']], $pipes);
+        // Mientras arranca, cada intento de conexión fallido emite un warning: no es parte de la prueba
+        set_error_handler(static fn (): bool => true);
+        for ($i = 0; $i < 50 && fsockopen('127.0.0.1', $port) === false; $i++) {
+            usleep(100_000);
+        }
+        restore_error_handler();
+
+        try {
+            exec('php versaCLI app:check:deploy --url=http://127.0.0.1:' . $port . ' 2>&1 < /dev/null', $output, $exitCode);
+        } finally {
+            proc_terminate($server);
+            proc_close($server);
+        }
+
+        expect($exitCode)->toBe(1)->and(implode("\n", $output))->toContain('/.env responde 200');
+    });
+});
+
 describe('cuentas inactivas', function (): void {
     it('desactiva al ingresar las cuentas sin uso en auth.inactive_account_days, salvo el superadministrador', function (): void {
         $insert = httpDb()->prepare(
