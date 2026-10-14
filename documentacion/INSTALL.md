@@ -92,4 +92,14 @@ php versaCLI route:compile
 
 Con la caché de plantillas activa, Twig no detecta cambios en los `.twig`. Después de cada despliegue ejecuta `php versaCLI cache:twig` (y `route:compile` si cambiaron rutas); la plantilla de versaDeploy ya lo hace.
 
+### PHP del servidor web
+
+Lo que más pesa en el rendimiento es cómo corre PHP en el servidor, no el código. Medido con `vendor/bin/pest --group=bench`: una página tarda **1,4 ms** con OPcache y sin Xdebug, y **15 ms** con Xdebug activo y sin caché de Twig.
+
+- **OPcache activo** (`opcache.enable=1`) en el `php.ini` de FPM o Apache. Con versaDeploy, que recarga php-fpm después de cada despliegue, puede usarse `opcache.validate_timestamps=0`.
+- **Sin Xdebug** en producción.
+- `twig.cache` activo (`php versaCLI config:templateCache:true`).
+
+El PHP de la terminal suele tener otro `php.ini` que el del servidor web. Por eso `app:check:deploy --production` le pregunta a **`/up`** cómo corre PHP en el servidor web. `/up` responde `{"status":"ok"}` a cualquiera y da el detalle solo a peticiones del propio servidor; también sirve para monitorear el sitio.
+
 Consulta la [Guía de Configuración](./CONFIGURATION.md) para el resto de opciones.
