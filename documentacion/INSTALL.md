@@ -93,6 +93,6 @@ Lo que más pesa en el rendimiento es cómo corre PHP en el servidor, no el cód
 - **Sin Xdebug** en producción.
 - `twig.cache` activo (`php versaCLI config:templateCache:true`).
 
-El PHP de la terminal suele tener otro `php.ini` que el del servidor web. Por eso `app:check:deploy --production` le pregunta a **`/up`** cómo corre PHP en el servidor web. `/up` responde `{"status":"ok"}` a cualquiera y da el detalle solo a peticiones del propio servidor; también sirve para monitorear el sitio.
+El PHP de la terminal suele tener otro `php.ini` que el del servidor web. Por eso `app:check:deploy --production` le pregunta a **`/up`** cómo corre PHP en el servidor web. `/up` responde `{"status":"ok"}` a cualquiera; el detalle solo lo entrega a quien envía la cabecera firmada con `session.key`, como hace `app:check:deploy` (la terminal y el servidor web deben usar el mismo `config.json`); también sirve para monitorear el sitio.
 
 Consulta la [Guía de Configuración](./CONFIGURATION.md) para el resto de opciones.
