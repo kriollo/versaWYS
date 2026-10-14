@@ -133,6 +133,7 @@ Termina con código 1 si encuentra algo que impida desplegar.
 | Sintaxis PHP | Archivos que no se pueden cargar | Crítico |
 | PSR-4, clases y archivos | Namespaces que no coinciden con la ruta, clases inexistentes, `require` con otra capitalización | Crítico |
 | Rutas de la aplicación | Controladores, métodos o middlewares que no existen; documentación faltante | Crítico / aviso |
+| Contrato kernel ↔ app | Métodos de `app/models` y `app/services` que el kernel llama y el proyecto no tiene | Crítico |
 | Plantillas Twig | `render`, `extends` o `include` a plantillas que no existen o con otra capitalización | Crítico |
 | Windows → Linux | Rutas `C:\`, comandos de Windows en llamadas al sistema, scripts con CRLF | Aviso / crítico |
 | Restos de depuración | `var_dump`, `dd`, `dump`, `print_r`, `phpinfo` | Aviso |
@@ -140,6 +141,7 @@ Termina con código 1 si encuentra algo que impida desplegar.
 | Repositorio | `config.json`, `.env` o `install.token` versionados en git | Crítico |
 | Configuración | `debug` activo, clave de sesión corta, cookies sin `secure`, CORS con `*`, cachés apagadas | Aviso; crítico con `--production` |
 | Entorno del servidor | Solo con `--production`: versión de PHP, extensiones, permisos de escritura, dependencias, frontend compilado, conexión a la base de datos y migraciones pendientes | Crítico |
+| Archivos expuestos en la web | Con `--url=https://...` (o `build.base_url` y `--production`): pide al sitio `.env`, `.git/config`, `config.json`, `composer.*`, `vendor/`, `logs/`, `versaCLI`, `node_modules/` y archivos de `app/routes`; ninguno debe responder 200 | Crítico |
 
 La configuración local no es la del servidor, por eso sin `--production` sus problemas son solo avisos.
 
