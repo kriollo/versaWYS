@@ -182,7 +182,16 @@ describe('respuestas y cabeceras', function (): void {
             ->toContain('X-Content-Type-Options: nosniff')
             ->toContain('Referrer-Policy:')
             ->toContain("Content-Security-Policy: default-src 'self'")
+            ->toContain('X-XSS-Protection: 0')
+            ->toContain('Permissions-Policy: camera=(self), microphone=(self), geolocation=(self), payment=()')
             ->not->toContain('X-Powered-By');
+    });
+
+    it('con nonce, script-src no permite scripts inline sin nonce', function (): void {
+        preg_match('/^Content-Security-Policy:.*$/mi', http('GET', '/admin/login')['headers'], $m);
+        preg_match("/script-src [^;]*/", $m[0] ?? '', $scriptSrc);
+
+        expect($scriptSrc[0] ?? '')->toContain("'nonce-")->not->toContain("'unsafe-inline'");
     });
 
     it('con csp.unsafe_eval en false la CSP no permite eval', function (): void {
