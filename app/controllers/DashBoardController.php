@@ -94,6 +94,11 @@ class DashBoardController extends GlobalControllers
 
             $userModel->updateLastLogin($user['id']);
 
+            // Hash de un algoritmo o costo anterior: único momento en que se tiene la contraseña para renovarlo
+            if (Functions::needsRehash($user['password'])) {
+                $userModel->rehashPassword((int) $user['id'], $params['password']);
+            }
+
             $session->set('id_user', $user['id']);
             $session->set('empresa_id', $user['id_empresa']);
 

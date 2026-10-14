@@ -392,6 +392,41 @@ describe('peticiones y errores controlados', function (): void {
     });
 });
 
+describe('seguridad del kernel', function (): void {
+    it('un fallo interno en una página HTML responde 500, no 404, y sin filtrar SQL', function (): void {
+        [$jar] = loginAs('admin@test.cl');
+
+        httpDb()->exec('ALTER TABLE versa_perfil RENAME TO versa_perfil_off');
+        try {
+            $res = http('GET', '/admin/usuarios/addUser', $jar);
+        } finally {
+            httpDb()->exec('ALTER TABLE versa_perfil_off RENAME TO versa_perfil');
+        }
+
+        expect($res['status'])->toBe(500)
+            ->and($res['body'])->not->toContain('SQLSTATE')->not->toContain('versa_perfil')->not->toContain(getcwd());
+    });
+
+    it('aísla la ventana de otros orígenes sin romper los popups de OAuth', function (): void {
+        expect(http('GET', '/admin/login')['headers'])->toContain('Cross-Origin-Opener-Policy: same-origin-allow-popups');
+    });
+
+    it('al iniciar sesión renueva un hash de contraseña antiguo', function (): void {
+        $old = password_hash(HTTP_TEST_PASSWORD, PASSWORD_BCRYPT, ['cost' => 4]);
+        httpDb()->prepare(
+            'INSERT INTO versa_users (id_empresa, tokenid, name, email, password, expiration_pass, role, status, id_perfil)
+             VALUES (1, ?, ?, ?, ?, ?, ?, 1, 1)',
+        )->execute([bin2hex(random_bytes(16)), 'Hash antiguo', 'hashantiguo@test.cl', $old, date('Y-m-d', strtotime('+90 days')), 'user']);
+
+        loginAs('hashantiguo@test.cl');
+        $new = (string) httpDb()->query("SELECT password FROM versa_users WHERE email = 'hashantiguo@test.cl'")->fetchColumn();
+
+        expect($new)->not->toBe($old)
+            ->and(password_verify(HTTP_TEST_PASSWORD, $new))->toBeTrue()
+            ->and(password_needs_rehash($new, PASSWORD_DEFAULT))->toBeFalse();
+    });
+});
+
 describe('cuentas inactivas', function (): void {
     it('desactiva al ingresar las cuentas sin uso en auth.inactive_account_days, salvo el superadministrador', function (): void {
         $insert = httpDb()->prepare(

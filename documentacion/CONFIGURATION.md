@@ -10,7 +10,8 @@ Los valores por defecto están en `versaWYS/kernel/config/config.default.php` y 
 |---|---|
 | `database` | Conexión: `driver` (`mysql` o `postgresql`), `host`, `port`, `database`, `username`, `password`, `charset`, `collation`. |
 | `admin` | `custom_url`: prefijo público del panel (las rutas se declaran como `/admin/...` y se sirven bajo este prefijo). `hide_default`: responde 404 en `/admin` cuando hay un prefijo propio. |
-| `build` | `debug`, `name`, `version`, `timezone`, `locale`, `charset`, `cacheRoute` y `cacheRouteFile`. `version` se usa como parámetro de caché de los assets. |
+| `build` | `debug`, `name`, `version`, `timezone`, `locale`, `charset`, `cacheRoute` y `cacheRouteFile`. `version` se usa como parámetro de caché de los assets. `base_url`: URL pública (`https://app.ejemplo.cl`) con la que se arman los enlaces de los correos; en producción conviene fijarla, porque si queda vacía se deduce de la cabecera `Host` de la petición. |
+| `trusted_proxies` | IPs o rangos CIDR de los proxies propios (balanceador, Cloudflare). Solo desde ellos se aceptan `X-Forwarded-For`, `-Proto` y `-Host`; sin esto, cualquiera podría falsificarlas. Vacío por defecto. |
 | `twig` | `cache`, `compiled_dir`, `templates_dir`, `strict_variables`, `auto_escape`. |
 | `auth` | `expiration_days_password`, `inactive_account_days` y `password_policy` (largo mínimo, mayúsculas, minúsculas, números, caracteres especiales). |
 | `session` | `key` (firma de los JWT), `lifetime` y `user_cookie` (`domain`, `secure`, `http_only`, `same_site`, `lifetime_remember`). |
