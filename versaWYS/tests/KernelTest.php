@@ -434,7 +434,7 @@ describe('contraseñas', function (): void {
     });
 });
 
-describe('security.sanitize_input', function (): void {
+describe('entrada de la petición', function (): void {
     beforeEach(function (): void {
         $this->saved = [$_SERVER, $_POST, $GLOBALS['config'] ?? null];
         $_SERVER = ['REQUEST_METHOD' => 'POST', 'REMOTE_ADDR' => '127.0.0.1'];
@@ -445,20 +445,14 @@ describe('security.sanitize_input', function (): void {
         [$_SERVER, $_POST, $GLOBALS['config']] = $this->saved;
     });
 
-    it('sin la clave, o en true, reescribe la entrada como antes (compatibilidad)', function (): void {
-        $GLOBALS['config'] = [];
-        $params = (new versaWYS\kernel\Request())->getAllParams();
-
-        expect($params['nombre'])->not->toBe("O'Brien & Cía")->and($params['nota'])->toBe('tabla');
-    });
-
-    it('en false entrega exactamente lo que envió el cliente', function (): void {
-        $GLOBALS['config'] = ['security' => ['sanitize_input' => false]];
+    it('getAllParams entrega lo que envió el cliente, aunque config.json traiga la clave de 2.x', function (): void {
+        // security.sanitize_input se eliminó en 3.0: un proyecto que actualiza puede tenerla todavía en true
+        $GLOBALS['config'] = ['security' => ['sanitize_input' => true]];
 
         expect((new versaWYS\kernel\Request())->getAllParams())->toBe(['nombre' => "O'Brien & Cía", 'nota' => 'select from tabla']);
     });
 
-    it('config:init crea los proyectos nuevos sin reescribir la entrada y con nonce de CSP', function (): void {
+    it('config:init crea los proyectos nuevos con nonce de CSP y sin la clave security', function (): void {
         $dir = sys_get_temp_dir() . '/versawys_init_' . getmypid();
         @mkdir($dir, 0o700, true);
         exec('VERSAWYS_CONFIG=' . escapeshellarg($dir . '/config.json') . ' php versaCLI config:init 2>&1 < /dev/null');
@@ -466,7 +460,7 @@ describe('security.sanitize_input', function (): void {
         array_map(unlink(...), glob($dir . '/*') ?: []);
         rmdir($dir);
 
-        expect($config['security']['sanitize_input'])->toBeFalse()
+        expect($config)->not->toHaveKey('security')
             ->and($config['csp']['nonce'])->toBeTrue();
     });
 });

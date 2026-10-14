@@ -113,7 +113,6 @@ beforeAll(function (): void {
     $config['session']['user_cookie']['secure'] = false; // el servidor de prueba es HTTP
     // Caché de Twig como en producción, en una carpeta propia de esta ejecución: nunca plantillas viejas
     $config['twig']['compiled_dir'] = $dir . '/twig';
-    $config['security']['sanitize_input'] = false; // como una instalación nueva (config:init)
     $config['csp']['nonce'] = true;
     $config['websocket_service']['ws_url'] = 'ws://localhost:8083/ws';
     $config['logging']['dir'] = $dir . '/logs/';

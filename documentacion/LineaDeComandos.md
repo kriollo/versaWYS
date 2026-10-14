@@ -38,7 +38,6 @@ Los nombres que se pasan a generadores y borradores solo admiten letras, número
 | `cache:clear` | Limpia las cachés de Twig y rate limiting. |
 | `cache:status` | Estado de las cachés. |
 | `cache:twig` | Limpia solo la caché de Twig. |
-| `route:compile`, `route:cache`, `route:clear-cache`, `cache:routes` | Ya no hacen nada: desde el kernel 2.10 las rutas no tienen caché (se leen de `app/routes`, igual de rápido y siempre al día). Se mantienen para no romper hooks antiguos y borran los archivos compilados que hayan quedado. |
 
 ## Base de datos
 
