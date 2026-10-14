@@ -89,3 +89,15 @@ php versaCLI config:merge versaWYS/config.compartida.json
 ```
 
 Se fusiona con el `config.json` de la máquina sin tocar el resto: las listas se reemplazan enteras y aplicarlo dos veces no cambia nada. Si el archivo no existe o no es JSON válido, termina con código 1 y el despliegue se detiene. En versaDeploy va como primer hook de `post_deploy`.
+
+## Verificar la CSP en el navegador
+
+Al activar `csp.nonce` en un proyecto, cualquier `<script>` sin nonce o manejador inline (`onclick=`) deja de funcionar. `versaWYS/tests/csp-check.mjs` lo comprueba con Chrome sin interfaz: inicia sesión, recorre las pantallas del menú, la navegación SPA, el 404 y los botones del panel, y lista cada bloqueo de CSP y error de JavaScript.
+
+```bash
+# Servidor con build.debug=false, csp.enabled y csp.nonce en true (en debug no se envía CSP)
+VERSAWYS_CONFIG=/tmp/config-csp.json php -S 127.0.0.1:8790 -t . versaWYS/vendor/versawys/kernel/src/cli/routerServe.php &
+PANEL=/admin EMAIL=admin@ejemplo.cl PASS='...' DISCOVER=1 node versaWYS/tests/csp-check.mjs http://127.0.0.1:8790 /tmp/csp
+```
+
+Termina con código 1 si encuentra problemas. Necesita Google Chrome y Node 22 (no instala nada).
