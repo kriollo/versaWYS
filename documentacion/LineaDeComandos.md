@@ -14,8 +14,9 @@ php versaCLI migrate       # ayuda de un módulo
 |---|---|
 | `--verbose`, `-v` | Muestra el detalle de lo que se ejecuta. |
 | `--force` | Omite la confirmación de los comandos destructivos (`migrate:refresh`, `migrate:dropAll`). Pensado para despliegues automáticos. |
+| `--no-interaction`, `-n` | Toda pregunta toma su valor por defecto sin esperar respuesta; una confirmación es "no". Para scripts y procesos que no tienen terminal. |
 
-Un comando que falla o no existe termina con código de salida 1, así que puede usarse en scripts y CI.
+Un comando que falla o no existe, o una operación destructiva cancelada, termina con código de salida 1, así que puede usarse en scripts y CI.
 
 Los nombres que se pasan a generadores y borradores solo admiten letras, números, `_`, `-` y `.`.
 
