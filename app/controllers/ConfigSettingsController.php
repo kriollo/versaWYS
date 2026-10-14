@@ -69,8 +69,6 @@ class ConfigSettingsController extends GlobalControllers
                     'version' => $config['build']['version'] ?? '',
                     'timezone' => $config['build']['timezone'] ?? '',
                     'charset' => $config['build']['charset'] ?? '',
-                    'cacheRoute' => (bool) ($config['build']['cacheRoute'] ?? false),
-                    'cacheRouteMinifyLevel' => $config['build']['cacheRouteMinifyLevel'] ?? 'none',
                     'debug' => (bool) ($config['build']['debug'] ?? false),
                 ],
                 'admin' => [
@@ -129,8 +127,6 @@ class ConfigSettingsController extends GlobalControllers
         $config['build']['version'] = (string) $params['build']['version'];
         $config['build']['timezone'] = (string) $params['build']['timezone'];
         $config['build']['charset'] = (string) $params['build']['charset'];
-        $config['build']['cacheRoute'] = $this->toBool($params['build']['cacheRoute'] ?? false);
-        $config['build']['cacheRouteMinifyLevel'] = (string) $params['build']['cacheRouteMinifyLevel'];
 
         $config['admin']['custom_url'] = (string) $params['admin']['custom_url'];
         $config['admin']['hide_default'] = $this->toBool($params['admin']['hide_default'] ?? false);

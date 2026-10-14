@@ -8,8 +8,6 @@ use versaWYS\kernel\helpers\Functions;
 
 class ConfigSettingsMiddleware
 {
-    private const array ALLOWED_CACHE_ROUTE_MINIFY_LEVELS = ['none', 'basic', 'aggressive'];
-
     public function validateSaveSettingsParams(): true|array
     {
         global $request;
@@ -63,13 +61,6 @@ class ConfigSettingsMiddleware
         }
         if (preg_match('/^[A-Za-z0-9_\-]+$/', (string) $flat['admin_custom_url']) !== 1) {
             $errors['admin_custom_url'] = 'La URL del panel solo admite letras, números, guiones y guion bajo';
-        }
-
-        $cacheLevel = $params['build']['cacheRouteMinifyLevel'] ?? null;
-        if (!in_array($cacheLevel, self::ALLOWED_CACHE_ROUTE_MINIFY_LEVELS, true)) {
-            $errors['build_cacheRouteMinifyLevel'] =
-                'El nivel de minificación de caché de rutas debe ser uno de: '
-                . implode(', ', self::ALLOWED_CACHE_ROUTE_MINIFY_LEVELS);
         }
 
         if ($errors !== []) {

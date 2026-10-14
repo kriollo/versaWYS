@@ -114,7 +114,6 @@ beforeAll(function (): void {
     // Caché de Twig como en producción, en una carpeta propia de esta ejecución: nunca plantillas viejas
     $config['twig']['compiled_dir'] = $dir . '/twig';
     $config['security']['sanitize_input'] = false; // como una instalación nueva (config:init)
-    $config['build']['cacheRouteFile'] = $dir . '/routes.compiled.php'; // route:compile (deploy:finish) no escribe en el proyecto
     $config['logging']['dir'] = $dir . '/logs/';
     $config['rate_limiting']['cache_dir'] = $dir . '/rate_limits/';
     // Toda la suite sale de una misma IP: solo el límite de login se deja al alcance de un test

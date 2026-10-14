@@ -12,7 +12,6 @@ Ya está configurado en `versaWYS/config/config.json`:
         "dir": "./logs/",
         "min_level": "DEBUG",
         "default_module": "app",
-        "use_redis": false,
         "use_console": false,
         "format": "text",
         "max_file_size": 10485760,
@@ -303,21 +302,6 @@ $logs = Loggin::read('auth', '2024-01-15');
 // Filtrar por nivel
 $errors = Loggin::read('auth', '2024-01-15', Loggin::ERROR);
 
-// Estadísticas
-$stats = Loggin::stats('auth', '2024-01-15');
-print_r($stats);
-/*
-Array (
-    [total] => 1523
-    [by_level] => Array (
-        [DEBUG] => 500
-        [INFO] => 800
-        [WARNING] => 150
-        [ERROR] => 20
-        [CRITICAL] => 3
-    )
-)
-*/
 ```
 
 ## Ver Logs en Tiempo Real
@@ -353,28 +337,10 @@ Get-Content logs/auth_2024_01_15.log -Wait -Tail 50
 {
     "logging": {
         "min_level": "INFO",
-        "use_redis": true,
         "format": "json"
     }
 }
 ```
-
-## Habilitar Redis
-
-```json
-{
-    "logging": {
-        "use_redis": true
-    }
-}
-```
-
-Los logs se guardarán también en Redis:
-
-- Clave: `logs:modulo:Y-m-d`
-- Ejemplo: `logs:auth:2024-01-15`
-- Límite: 1000 logs por día/módulo
-- TTL: Según `retention_days`
 
 ## Handler Personalizado
 
@@ -481,7 +447,6 @@ Loggin::performance($operation, $duration);
 
 // Consultas
 Loggin::read($module, $date, $level);
-Loggin::stats($module, $date);
 Loggin::getConfig();
 ```
 

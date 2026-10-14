@@ -40,8 +40,6 @@
                 version: '',
                 timezone: '',
                 charset: '',
-                cacheRoute: false,
-                cacheRouteMinifyLevel: 'none',
             },
             admin: { custom_url: '', hide_default: false, redirect_404: false },
         }),
