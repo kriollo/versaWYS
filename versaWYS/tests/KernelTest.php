@@ -48,10 +48,10 @@ describe('versaCLI', function (): void {
     ]);
 
     it('no ejecuta comandos destructivos sin confirmación', function (string $command): void {
-        // stdin vacío equivale a responder "no"
-        [, $output] = versaCli($command);
+        // stdin vacío equivale a responder "no"; código 1 porque lo pedido no se hizo
+        [$exitCode, $output] = versaCli($command);
 
-        expect($output)->toContain('Operación cancelada');
+        expect($output)->toContain('Operación cancelada')->and($exitCode)->toBe(1);
     })->with(['migrate:dropAll', 'migrate:refresh']);
 });
 

@@ -109,7 +109,6 @@ beforeAll(function (): void {
     $config = versaWYS\kernel\cli\ConfigManager::defaults();
     $config['database'] = ['driver' => 'sqlite', 'database' => $dir . '/test.sqlite', 'log_path' => $dir . '/orm/'] + $config['database'];
     $config['session']['key'] = bin2hex(random_bytes(32));
-    $config['session']['user_cookie']['key_encript'] = bin2hex(random_bytes(32));
     $config['session']['user_cookie']['secure'] = false; // el servidor de prueba es HTTP
     // Caché de Twig como en producción, en una carpeta propia de esta ejecución: nunca plantillas viejas
     $config['twig']['compiled_dir'] = $dir . '/twig';
