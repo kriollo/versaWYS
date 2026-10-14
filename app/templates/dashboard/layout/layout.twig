@@ -10,7 +10,8 @@
 		<meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-		<script src="{{ getAssets('dashboard', 'js', 'early-init.js') }}"></script>
+		<meta name="csp-nonce" content="{{ csp_nonce() }}"/>
+	<script nonce="{{ csp_nonce() }}" src="{{ getAssets('dashboard', 'js', 'early-init.js') }}"></script>
 
 		<link href="{{ assets_url('/public/vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet"/>
 
@@ -46,7 +47,7 @@
 		}
 	</style>
 
-	<script>
+	<script nonce="{{ csp_nonce() }}">
 		window.AppConfig = {
 timezone: "{{ config.build.timezone }}",
 version: "{{ config.build.debug ? 'now'|date('U') : config.build.version }}"
@@ -57,12 +58,12 @@ version: "{{ config.build.debug ? 'now'|date('U') : config.build.version }}"
 <body class="bg-gray-50 dark:bg-[#050505] min-h-screen flex flex-col font-sans transition-colors duration-200">
 	<div id="content-general"> {% block appBody %}{% endblock %}
 		</div>
-		<script src="{{ assets_url('/public/vendor/flowbite/flowbite.min.js') }}"></script>
+		<script nonce="{{ csp_nonce() }}" src="{{ assets_url('/public/vendor/flowbite/flowbite.min.js') }}"></script>
 		<input type="hidden" id="urlActual" name="urlActual" value="{{ url_actual|escape('html_attr') }}" class="hidden"/>
 
 		{% if config['build']['debug'] == '0' %}
 			<!--        {# modo producción #}
-																		            {# <script type="importmap">
+																		            {# <script nonce="{{ csp_nonce() }}" type="importmap">
 																						{
 																							"imports": {
 																								"vue": "{{ assets_url('node_modules/vue/dist/vue.esm-browser.prod.js') }}",
@@ -72,7 +73,7 @@ version: "{{ config.build.debug ? 'now'|date('U') : config.build.version }}"
 																					</script> #}        -->
 			{% else %}
 			<!--        {# modo debug #}
-																		            {# <script type="importmap">
+																		            {# <script nonce="{{ csp_nonce() }}" type="importmap">
 																						{
 																							"imports": {
 																								"vue": "{{ assets_url('node_modules/vue/dist/vue.esm-browser.js') }}",
@@ -82,9 +83,9 @@ version: "{{ config.build.debug ? 'now'|date('U') : config.build.version }}"
 																					</script> #}        -->
 		{% endif %}
 
-		<script type="module" src="{{ getAssets('dashboard', 'js', '/spa-navigation.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}"></script>
-		<script type="module" src="{{ getAssets('dashboard', 'js', '/dashboard.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}" defer></script>
-		<script type="module" src="{{ getAssets('dashboard', 'js', '/sidebar-hover.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}" defer></script>
+		<script nonce="{{ csp_nonce() }}" type="module" src="{{ getAssets('dashboard', 'js', '/spa-navigation.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}"></script>
+		<script nonce="{{ csp_nonce() }}" type="module" src="{{ getAssets('dashboard', 'js', '/dashboard.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}" defer></script>
+		<script nonce="{{ csp_nonce() }}" type="module" src="{{ getAssets('dashboard', 'js', '/sidebar-hover.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}" defer></script>
 
 		{% block appScript %}{% endblock %}
 	</body>

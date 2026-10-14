@@ -72,5 +72,5 @@
     </div>
 {% endblock %}
 {% block appScript %}
-    <script type="module" src="{{ getAssets('dashboard', 'js', '/login/login.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}"></script>
+    <script nonce="{{ csp_nonce() }}" type="module" src="{{ getAssets('dashboard', 'js', '/login/login.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}"></script>
 {% endblock %}

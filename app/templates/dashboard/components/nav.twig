@@ -64,7 +64,7 @@
                                 name="selectEmpresa"
                                 id="selectEmpresa"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand focus:border-brand block w-full p-2.5 dark:bg-[#1a1a1a] dark:border-gray-700 dark:placeholder-gray-400 dark:text-gray-200 dark:focus:ring-brand dark:focus:border-brand transition-colors"
-                                onchange="this.form.submit()">
+                                data-auto-submit>
                                 {% set empresaSelectedToken = empresaSelected.token_empresa
                                     ?? current_user.token_empresa
                                 %}

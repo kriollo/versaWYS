@@ -114,6 +114,7 @@ beforeAll(function (): void {
     // Caché de Twig como en producción, en una carpeta propia de esta ejecución: nunca plantillas viejas
     $config['twig']['compiled_dir'] = $dir . '/twig';
     $config['security']['sanitize_input'] = false; // como una instalación nueva (config:init)
+    $config['csp']['nonce'] = true;
     $config['logging']['dir'] = $dir . '/logs/';
     $config['rate_limiting']['cache_dir'] = $dir . '/rate_limits/';
     // Toda la suite sale de una misma IP: solo el límite de login se deja al alcance de un test
@@ -488,6 +489,30 @@ describe('método QUERY', function (): void {
         );
 
         expect($res['status'])->not->toBe(422)->and($res['json']['success'] ?? 0)->toBe(1);
+    });
+});
+
+describe('CSP con nonce', function (): void {
+    it('cada <script> de la página lleva el nonce de la cabecera, y no hay manejadores inline', function (string $page): void {
+        // Con sesión, /admin/login redirige al panel: esa página se pide sin sesión
+        $jar = $page === '/admin/login' ? null : loginAs('admin@test.cl')[0];
+        $res = http('GET', $page, $jar);
+        preg_match("/Content-Security-Policy:.*'nonce-([^']+)'/i", $res['headers'], $header);
+        $nonce = $header[1] ?? '';
+
+        preg_match_all('/<script\\b[^>]*>/i', $res['body'], $scripts);
+        $sinNonce = array_filter($scripts[0], static fn (string $tag): bool => !str_contains($tag, 'nonce="' . $nonce . '"'));
+
+        expect($nonce)->not->toBe('')
+            ->and($scripts[0])->not->toBe([])
+            ->and($sinNonce)->toBe([])
+            ->and($res['body'])->not->toMatch('/<[^>]+\\son(click|change|load|submit|input)=/i');
+    })->with(['/admin/login', '/admin/dashboard', '/admin/usuarios/addUser', '/admin/perfiluser', '/admin/no-existe']);
+
+    it('el nonce cambia en cada petición', function (): void {
+        $nonce = static fn (): string => preg_match("/'nonce-([^']+)'/", http('GET', '/admin/login')['headers'], $m) === 1 ? $m[1] : '';
+
+        expect($nonce())->not->toBe($nonce());
     });
 });
 

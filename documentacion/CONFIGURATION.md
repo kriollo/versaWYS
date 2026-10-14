@@ -18,7 +18,7 @@ Los valores por defecto están en `versaWYS/kernel/config/config.default.php` y 
 | `login_attempt` | `max` intentos y `time` de bloqueo en segundos. |
 | `mail` | SMTP: `host`, `port`, `transport`, `secure` (`tls`, `ssl` o vacío), `name_from`, `username`, `password`. El certificado del servidor se verifica; `verify_peer: false` lo desactiva para un SMTP interno autofirmado. |
 | `cors` | `allowed_origins`: orígenes externos autorizados a llamar a la API con credenciales. Vacío por defecto. |
-| `csp` | `enabled` y orígenes extra por directiva, por ejemplo `"connect-src": ["https://api.ejemplo.com"]`. |
+| `csp` | `enabled`, `nonce` y orígenes extra por directiva, por ejemplo `"connect-src": ["https://api.ejemplo.com"]`. Con `nonce: true` (el valor de las instalaciones nuevas), cada `<script>` inline necesita `nonce="{{ csp_nonce() }}"` y los scripts que crea el JavaScript usan el valor de `<meta name="csp-nonce">`. No se permiten manejadores inline (`onclick=`, `onchange=`): el panel usa `data-history-back` y `data-auto-submit`. |
 | `security` | `sanitize_input`: con `true`, `getAllParams()` reescribe la entrada (escapa el HTML dos veces y borra frases que parecen SQL), lo que altera los datos guardados. Las instalaciones nuevas nacen con `false`: el escape se hace al mostrar (Twig y Vue escapan por defecto). En un proyecto existente, pasarlo a `false` después de revisar que ningún `\|raw` ni `v-html` muestre datos de usuarios sin sanitizar. |
 | `rate_limiting` | `enabled` y reglas `global`, `api`, `login`, `upload`, `sensitive` (`requests` por `window` segundos). |
 | `logging` | `dir`, `min_level`, `format` (`json` o `text`), `max_file_size`, `retention_days`. Ver [Logging](./Logging_Quickstart.md). |

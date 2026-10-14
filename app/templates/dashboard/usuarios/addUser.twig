@@ -126,9 +126,9 @@
 {% endblock %}
 {% block appScript %}
 	{# Variable global para SessionManager - indica si hay una sesión activa #}
-	<script>
+	<script nonce="{{ csp_nonce() }}">
 		window.versaSessionActive = {{ hasActiveSession ? 'true' : 'false' }};
 	</script>
 
-	<script type="module" src="{{ getAssets('dashboard', 'js', '/usuarios/addUser.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}"></script>
+	<script nonce="{{ csp_nonce() }}" type="module" src="{{ getAssets('dashboard', 'js', '/usuarios/addUser.js') }}?v={{ config.build.debug ? 'now'|date('U') : config.build.version }}"></script>
 {% endblock %}
