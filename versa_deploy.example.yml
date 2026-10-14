@@ -56,7 +56,9 @@ environments:
         builds:
             php:
                 enabled: true
-                root: 'versaWYS'
+                # Carpeta del composer.json: la raíz en proyectos creados con composer create-project,
+                # 'versaWYS' en los anteriores
+                root: '.'
                 composer_command: 'composer install --no-dev --optimize-autoloader'
             frontend:
                 enabled: true

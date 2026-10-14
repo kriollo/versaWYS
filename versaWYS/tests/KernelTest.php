@@ -479,3 +479,40 @@ describe('app:kernel:publish', function (): void {
             ->not->toContain('difiere')->not->toContain('(creado)');
     });
 });
+
+describe('Functions::validateParams', function (): void {
+    it('valida enteros con int e integer, con o sin parámetro', function (mixed $value, string $rule, bool $valid): void {
+        expect(Functions::validateParams(['a' => $value], ['a' => $rule]) === [])->toBe($valid);
+    })->with([
+        ['5', 'int', true],
+        [5, 'integer', true],
+        ['5', 'required|integer', true],
+        ['x', 'integer', false],
+        ['1.5', 'int', false],
+        ['0', 'int:positive', false],
+        ['7', 'int:1-10', true],
+        ['11', 'int:1-10', false],
+    ]);
+
+    it('string acepta texto y números (inputs numéricos en JSON), no arreglos ni booleanos', function (): void {
+        expect(Functions::validateParams(['a' => 'hola'], ['a' => 'string']))->toBe([])
+            ->and(Functions::validateParams(['a' => 2024], ['a' => 'string']))->toBe([])
+            ->and(Functions::validateParams(['a' => ['x']], ['a' => 'string']))->toHaveKey('a')
+            ->and(Functions::validateParams(['a' => true], ['a' => 'string']))->toHaveKey('a');
+    });
+
+    it('una regla desconocida es un error, no un dato que pasa sin validar', function (): void {
+        expect(Functions::validateParams(['a' => 'lo que sea'], ['a' => 'required|entero']))
+            ->toBe(['a' => 'Regla de validación desconocida para a: entero']);
+    });
+});
+
+describe('app:install', function (): void {
+    it('rechaza datos inválidos con código 1 y lista los errores', function (): void {
+        [$exitCode, $output] = versaCli('app:install --db-driver=oracle --db-host=x --db-port=5432 --db-name=a --db-user=b --db-pass=c'
+            . ' --empresa-nombre=E --empresa-rut=11.111.111-2 --admin-name=A --admin-email=no-es-correo --admin-password=corta');
+
+        expect($exitCode)->toBe(1)
+            ->and($output)->toContain('db_driver')->toContain('empresa_rut')->toContain('admin_email')->toContain('admin_password');
+    })->skip(fn (): bool => file_exists(app\middleware\InstallMiddleware::lockFile()), 'el proyecto local ya está instalado');
+});

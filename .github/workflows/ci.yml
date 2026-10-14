@@ -13,9 +13,6 @@ jobs:
             matrix:
                 # El lock se resuelve para PHP 8.3 (config.platform): debe instalar en todas las soportadas
                 php: ['8.3', '8.4']
-        defaults:
-            run:
-                working-directory: versaWYS
         steps:
             - uses: actions/checkout@v7
             - uses: shivammathur/setup-php@v2

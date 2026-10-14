@@ -1,0 +1,56 @@
+{
+    "name": "versawys/versawys",
+    "description": "Esqueleto de proyecto versaWYS-PHP: panel de administración en Vue 3 + TypeScript sobre el kernel versawys/kernel.",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.3",
+        "twig/twig": "^3.28",
+        "versaorm/versaorm-php": "^2.0",
+        "versawys/kernel": "^2.9"
+    },
+    "require-dev": {
+        "friendsoftwig/twigcs": "^6.6.1",
+        "laravel/pint": "^1.30.5",
+        "pestphp/pest": "^4.1 || ^5.1",
+        "rector/rector": "^2.6.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "app\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "versaWYS/tests/"
+        }
+    },
+    "config": {
+        "vendor-dir": "versaWYS/vendor",
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        },
+        "platform": {
+            "php": "8.3.0"
+        }
+    },
+    "minimum-stability": "stable",
+    "scripts": {
+        "post-create-project-cmd": [
+            "@php versaCLI config:init"
+        ],
+        "pint": "pint --config versaWYS/pint.json versaWYS",
+        "pint:check": "pint --config versaWYS/pint.json --test versaWYS",
+        "rector:check": "rector process --config versaWYS/rector.php --dry-run --ansi",
+        "rector:fix": "rector process --config versaWYS/rector.php --ansi",
+        "test": "pest --configuration versaWYS/phpunit.xml",
+        "check": [
+            "@pint:check",
+            "@test"
+        ],
+        "fix": [
+            "@pint",
+            "@rector:fix"
+        ]
+    }
+}
