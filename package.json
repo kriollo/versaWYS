@@ -38,6 +38,6 @@
         "oxlint": "1.88.0",
         "prettier": "3.9.10",
         "tailwindcss": "4.3.3",
-        "versacompiler": "2.7.3"
+        "versacompiler": "2.7.4"
     }
 }
