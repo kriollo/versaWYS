@@ -2,9 +2,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "npm: tailwindcss - versaCompileJS",
+            "label": "npm: tailwindcss - versaCompileCSS",
             "type": "npm",
-            "script": "dashboard",
+            "script": "versaCompileCSS",
             "detail": "compiler tailwindcss",
             "problemMatcher": ["$go"]
         },

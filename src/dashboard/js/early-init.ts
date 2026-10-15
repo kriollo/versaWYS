@@ -68,7 +68,7 @@ const cleanupEarlyStyles = (): void => {
 })();
 
 // Sin manejadores inline (onclick=, onchange=): la CSP con nonce los bloquea. Delegación en el documento,
-// así también funcionan en el contenido que carga el SPA
+// Así también funcionan en el contenido que carga el SPA
 document.addEventListener('click', event => {
     const target = event.target as Element | null;
     if (target?.closest('[data-history-back]')) {

@@ -111,7 +111,7 @@ const loadModule = async (): Promise<void> => {
             app.config.performance = true;
             app.config.compilerOptions.whitespace = 'condense';
 
-            // mount() vacía el contenedor: el token CSRF que versaFetch lee del DOM tiene que quedar fuera
+            // Mount() vacía el contenedor: el token CSRF que versaFetch lee del DOM tiene que quedar fuera
             if ($csrfToken && $contenedor.contains($csrfToken)) {
                 $contenedor.before($csrfToken);
             }
