@@ -1,6 +1,6 @@
 {
     "name": "versawys-php",
-    "version": "3.4.0",
+    "version": "3.5.0",
     "description": "versaWYS-PHP es un framework PHP versátil, simple, ligero, rápido y fácil de usar. Ofrece enrutamiento para aplicaciones web y APIs REST, VersaORM para la base de datos, Twig para plantillas y un panel de administración en Vue 3 + TypeScript.",
     "type": "module",
     "author": "Jorge Jara H.(jjara@wys.cl)",
