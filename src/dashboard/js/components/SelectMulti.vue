@@ -114,11 +114,11 @@
         <!-- Botón disparador -->
         <button
             type="button"
-            class="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-brand/50 min-w-[160px]"
+            class="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-2 focus:ring-brand/50 min-w-[160px]"
             @click="isOpen = !isOpen">
             <span class="flex-1 text-left truncate">{{ triggerLabel }}</span>
             <svg
-                class="w-3 h-3 flex-shrink-0 transition-transform duration-200"
+                class="w-3 h-3 shrink-0 transition-transform duration-200"
                 :class="isOpen ? 'rotate-180' : ''"
                 fill="none"
                 viewBox="0 0 10 6"
@@ -142,7 +142,7 @@
                 <button
                     type="button"
                     :aria-label="`Quitar ${item.label}`"
-                    class="hover:text-brand/60 focus:outline-none"
+                    class="hover:text-brand/60 focus:outline-hidden"
                     @click.stop="remove(item.value)">
                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                         <path
@@ -173,7 +173,7 @@
                     :class="isSelected(opt.value) ? 'bg-brand/5 dark:bg-brand/10' : ''">
                     <!-- Checkbox estilizado -->
                     <span
-                        class="flex-shrink-0 w-4.5 h-4.5 rounded border-2 flex items-center justify-center transition-all duration-150"
+                        class="shrink-0 w-4.5 h-4.5 rounded-sm border-2 flex items-center justify-center transition-all duration-150"
                         :class="
                             isSelected(opt.value)
                                 ? 'bg-brand border-brand'

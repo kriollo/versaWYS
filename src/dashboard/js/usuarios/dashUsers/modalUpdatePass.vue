@@ -158,7 +158,7 @@
                     </label>
                     <span
                         id="togglePasswordNew"
-                        class="absolute end-0 flex items-center cursor-pointer pr-2 top-[60%]"
+                        class="absolute inset-e-0 flex items-center cursor-pointer pr-2 top-[60%]"
                         @click="tooglePassword('new_password', 'imgShowPassNew', 'imgHiddenPassNew')">
                         <svg
                             id="imgShowPassNew"
@@ -201,7 +201,7 @@
                     </label>
                     <span
                         id="togglePasswordConfirmNew"
-                        class="absolute end-0 flex items-center cursor-pointer pr-2 top-[60%]"
+                        class="absolute inset-e-0 flex items-center cursor-pointer pr-2 top-[60%]"
                         @click="
                             tooglePassword('comfirm_new_password', 'imgShowPassConfirmNew', 'imgHiddenPassConfirmNew')
                         ">
@@ -242,13 +242,13 @@
         <template #modalFooter>
             <button
                 type="button"
-                class="text-white bg-brand-600 hover:bg-brand-700 focus:ring-4 focus:outline-none focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600"
+                class="text-white bg-brand-600 hover:bg-brand-700 focus:ring-4 focus:outline-hidden focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600"
                 @click="sendResetPass()">
                 Actualizar Contraseña
             </button>
             <button
                 type="button"
-                class="text-white bg-corporate-orange-700 hover:bg-corporate-orange-800 focus:ring-4 focus:outline-none focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-corporate-orange-600 dark:hover:bg-corporate-orange-700 dark:focus:ring-corporate-orange-800"
+                class="text-white bg-corporate-orange-700 hover:bg-corporate-orange-800 focus:ring-4 focus:outline-hidden focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-corporate-orange-600 dark:hover:bg-corporate-orange-700 dark:focus:ring-corporate-orange-800"
                 @click="accion({ accion: 'closeModal' })">
                 Cancelar
             </button>

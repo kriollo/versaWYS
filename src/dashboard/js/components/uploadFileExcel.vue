@@ -155,7 +155,7 @@
             <button
                 type="button"
                 @click="accion({ accion: 'closeModal' })"
-                class="text-xs text-gray-400 dark:text-white border border-transparent p-2 bg-brand rounded-md shadow-sm hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand/30">
+                class="text-xs text-gray-400 dark:text-white border border-transparent p-2 bg-brand rounded-md shadow-xs hover:bg-brand-600 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-brand/30">
                 Cerrar
             </button>
         </template>

@@ -41,12 +41,14 @@ Los valores por defecto están en `versaWYS/kernel/config/config.default.php` y 
 
 ## Apariencia del panel
 
-Los colores del panel se definen en `tailwind.config.js`:
+Los colores del panel se definen en el bloque `@theme` de `src/dashboard/css/dashboard.css` (Tailwind 4: ya no hay `tailwind.config.js`):
 
-- **`brand`** es el color de marca: botones principales, enlaces, foco y elementos activos (`bg-brand`, `text-brand`, `ring-brand`…). Para adaptar el panel a un proyecto basta cambiar esa paleta y recompilar con `pnpm compile`.
+- **`brand`** (`--color-brand-*`) es el color de marca: botones principales, enlaces, foco y elementos activos (`bg-brand`, `text-brand`, `ring-brand`…). Para adaptar el panel a un proyecto basta cambiar esa paleta y recompilar con `pnpm compile`.
 - **`gray`** usa grises neutros, para que las tarjetas y campos del tema oscuro queden en la misma gama que el fondo.
 
 El panel trae tema claro y oscuro; el usuario lo cambia desde la barra superior.
+
+En el mismo `dashboard.css` están el modo oscuro por la clase `.dark` (`@custom-variant dark`) y las clases que se arman en tiempo de ejecución (`@source inline(...)`, lo que en Tailwind 3 era `safelist`). Tailwind 4 encuentra solo las clases en los archivos del proyecto que git no ignora. `public/vendor/flowbite/flowbite.min.css` trae solo la base y los componentes de Flowbite (formularios, tooltips, gráficos) en la capa `flowbite`, la de menor prioridad: el CSS del panel siempre la sobrescribe.
 
 ## Modo debug
 

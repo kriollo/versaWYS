@@ -213,13 +213,13 @@
         <template v-slot:modalFooter>
             <button
                 type="button"
-                class="text-white bg-brand-600 hover:bg-brand-700 focus:ring-4 focus:outline-none focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600"
+                class="text-white bg-brand-600 hover:bg-brand-700 focus:ring-4 focus:outline-hidden focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600"
                 @click="accion({ accion: 'closeModal' })">
                 Cancelar
             </button>
             <button
                 type="button"
-                class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-hidden focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
                 @click="saveModule">
                 Guardar
             </button>

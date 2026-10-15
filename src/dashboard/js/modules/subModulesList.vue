@@ -184,7 +184,7 @@
                     <div class="flex justify-end gap-2">
                         <button
                             type="button"
-                            class="text-white bg-brand-600 hover:bg-brand-700 focus:ring-4 focus:outline-none focus:ring-brand/30 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600"
+                            class="text-white bg-brand-600 hover:bg-brand-700 focus:ring-4 focus:outline-hidden focus:ring-brand/30 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600"
                             @click="accion({ accion: 'create' })">
                             Crear
                         </button>
@@ -195,7 +195,7 @@
         <template #modalFooter>
             <button
                 type="button"
-                class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+                class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-hidden focus:ring-gray-300 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
                 @click="accion({ accion: 'closeModal' })">
                 Cerrar
             </button>

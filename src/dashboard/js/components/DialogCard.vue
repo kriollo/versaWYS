@@ -26,7 +26,7 @@
                 maxWidth,
                 scrollBody ? 'flex flex-col max-h-[80vh]' : '',
             ]">
-            <div class="flex items-center justify-between p-4 border-b dark:border-gray-700 flex-shrink-0">
+            <div class="flex items-center justify-between p-4 border-b dark:border-gray-700 shrink-0">
                 <div class="min-w-0">
                     <h2 class="text-base font-semibold text-gray-900 dark:text-white">{{ title }}</h2>
                     <p v-if="subtitle" class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-sm">
@@ -34,7 +34,7 @@
                     </p>
                 </div>
                 <button
-                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 flex-shrink-0 ml-4"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 shrink-0 ml-4"
                     @click="emit('close')">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -48,7 +48,7 @@
             <div :class="scrollBody ? 'flex-1 overflow-y-auto' : ''">
                 <slot />
             </div>
-            <div v-if="$slots.footer" class="flex-shrink-0">
+            <div v-if="$slots.footer" class="shrink-0">
                 <slot name="footer" />
             </div>
         </div>

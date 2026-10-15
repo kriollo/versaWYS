@@ -1014,7 +1014,7 @@
 
         <!-- Header y Filtros -->
         <div
-            class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 space-y-6">
+            class="bg-white dark:bg-gray-900 rounded-2xl shadow-xs border border-gray-100 dark:border-gray-800 p-6 space-y-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="flex flex-wrap items-center gap-2 p-1 bg-gray-50 dark:bg-gray-800/50 rounded-xl w-fit">
                     <button
@@ -1024,7 +1024,7 @@
                         class="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
                         :class="
                             selectedType === type.value
-                                ? 'bg-white dark:bg-gray-700 text-brand shadow-sm ring-1 ring-black/5 dark:ring-white/10'
+                                ? 'bg-white dark:bg-gray-700 text-brand shadow-xs ring-1 ring-black/5 dark:ring-white/10'
                                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                         ">
                         <i :class="['bi', type.icon]"></i>
@@ -1126,7 +1126,7 @@
                         v-model="newFolderName"
                         type="text"
                         placeholder="Nombre carpeta"
-                        class="text-sm px-3 py-1.5 rounded-xl border border-brand bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none w-40"
+                        class="text-sm px-3 py-1.5 rounded-xl border border-brand bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-hidden w-40"
                         @keyup.enter="createFolder"
                         @keyup.esc="showNewFolderInput = false"
                         autofocus />
@@ -1161,7 +1161,7 @@
                             v-model="searchTerm"
                             type="text"
                             placeholder="Buscar por nombre de archivo..."
-                            class="w-full pl-9 pr-9 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:border-brand" />
+                            class="w-full pl-9 pr-9 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:border-brand" />
                         <button
                             v-if="searchTerm"
                             @click="clearSearch"
@@ -1178,7 +1178,7 @@
 
                     <select
                         v-model.number="perPage"
-                        class="px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 focus:outline-none focus:border-brand">
+                        class="px-3 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 focus:outline-hidden focus:border-brand">
                         <option :value="12">12 por página</option>
                         <option :value="24">24 por página</option>
                         <option :value="48">48 por página</option>
@@ -1192,7 +1192,7 @@
                             @click="viewMode = 'grid'"
                             :class="
                                 viewMode === 'grid'
-                                    ? 'bg-white dark:bg-gray-700 text-brand shadow-sm'
+                                    ? 'bg-white dark:bg-gray-700 text-brand shadow-xs'
                                     : 'text-gray-500 dark:text-gray-400 hover:text-brand'
                             "
                             class="px-3 py-1.5 text-xs rounded-lg transition-colors">
@@ -1203,7 +1203,7 @@
                             @click="viewMode = 'list'"
                             :class="
                                 viewMode === 'list'
-                                    ? 'bg-white dark:bg-gray-700 text-brand shadow-sm'
+                                    ? 'bg-white dark:bg-gray-700 text-brand shadow-xs'
                                     : 'text-gray-500 dark:text-gray-400 hover:text-brand'
                             "
                             class="px-3 py-1.5 text-xs rounded-lg transition-colors">
@@ -1245,7 +1245,7 @@
                 </p>
                 <select
                     v-model="bulkMoveTargetFolderId"
-                    class="w-full sm:w-72 text-xs px-2 py-1.5 rounded-lg border border-amber-300 dark:border-amber-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none">
+                    class="w-full sm:w-72 text-xs px-2 py-1.5 rounded-lg border border-amber-300 dark:border-amber-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden">
                     <option value="root">Raíz (sin carpeta)</option>
                     <option v-for="f in allFolders" :key="`bulk-${f.id}`" :value="f.id">{{ f.name }}</option>
                 </select>
@@ -1292,7 +1292,7 @@
                     <div
                         v-for="folder in folders"
                         :key="`folder-${folder.id}`"
-                        class="group relative bg-yellow-50 dark:bg-yellow-900/10 rounded-2xl border border-yellow-100 dark:border-yellow-800/30 shadow-sm hover:shadow-xl hover:shadow-yellow-100/50 dark:hover:shadow-yellow-900/10 hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+                        class="group relative bg-yellow-50 dark:bg-yellow-900/10 rounded-2xl border border-yellow-100 dark:border-yellow-800/30 shadow-xs hover:shadow-xl hover:shadow-yellow-100/50 dark:hover:shadow-yellow-900/10 hover:-translate-y-1 transition-all duration-300 overflow-hidden">
                         <div
                             class="aspect-square flex flex-col items-center justify-center gap-2 p-4 cursor-pointer"
                             @click="navigateToFolder(folder)">
@@ -1304,7 +1304,7 @@
                                 <input
                                     v-model="renameFolderText"
                                     type="text"
-                                    class="w-full text-xs px-2 py-1.5 rounded-lg border border-brand bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none"
+                                    class="w-full text-xs px-2 py-1.5 rounded-lg border border-brand bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden"
                                     @keyup.enter="saveRenameFolder(folder.id)"
                                     @keyup.esc="cancelRenameFolder"
                                     autofocus />
@@ -1368,7 +1368,7 @@
                                 ? 'ring-2 ring-brand/40 border-brand/40'
                                 : 'border-gray-100 dark:border-gray-800'
                         "
-                        class="group relative bg-white dark:bg-gray-900 rounded-2xl border shadow-sm hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-brand/5 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                        class="group relative bg-white dark:bg-gray-900 rounded-2xl border shadow-xs hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-brand/5 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
                         @click="handleAssetContainerClick($event, asset.id)">
                         <div class="absolute top-2 left-2 z-20">
                             <input
@@ -1422,7 +1422,7 @@
                                 <input
                                     v-model="renameText"
                                     type="text"
-                                    class="w-full text-xs px-2 py-1.5 rounded-lg border border-brand bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none"
+                                    class="w-full text-xs px-2 py-1.5 rounded-lg border border-brand bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden"
                                     @keyup.enter="saveRename(asset.id)"
                                     @keyup.esc="cancelRename"
                                     autofocus />
@@ -1441,7 +1441,7 @@
                             <div v-else-if="movingAssetId === asset.id" class="space-y-2">
                                 <select
                                     v-model="moveTargetFolderId"
-                                    class="w-full text-xs px-2 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none">
+                                    class="w-full text-xs px-2 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden">
                                     <option value="root">Raíz (sin carpeta)</option>
                                     <option v-for="f in allFolders" :key="f.id" :value="f.id">{{ f.name }}</option>
                                 </select>
@@ -1490,7 +1490,7 @@
                                 <input
                                     v-model="renameFolderText"
                                     type="text"
-                                    class="w-full text-xs px-2 py-1.5 rounded-lg border border-brand bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none"
+                                    class="w-full text-xs px-2 py-1.5 rounded-lg border border-brand bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden"
                                     @keyup.enter="saveRenameFolder(folder.id)"
                                     @keyup.esc="cancelRenameFolder"
                                     autofocus />
@@ -1553,7 +1553,7 @@
                                 <input
                                     v-model="renameText"
                                     type="text"
-                                    class="w-full text-xs px-2 py-1.5 rounded-lg border border-brand bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none"
+                                    class="w-full text-xs px-2 py-1.5 rounded-lg border border-brand bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden"
                                     @keyup.enter="saveRename(asset.id)"
                                     @keyup.esc="cancelRename"
                                     autofocus />
@@ -1565,7 +1565,7 @@
                             <div v-else-if="movingAssetId === asset.id" class="flex items-center gap-2">
                                 <select
                                     v-model="moveTargetFolderId"
-                                    class="w-full text-xs px-2 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none">
+                                    class="w-full text-xs px-2 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden">
                                     <option value="root">Raíz (sin carpeta)</option>
                                     <option v-for="f in allFolders" :key="f.id" :value="f.id">{{ f.name }}</option>
                                 </select>

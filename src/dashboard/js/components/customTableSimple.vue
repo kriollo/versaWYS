@@ -284,7 +284,7 @@
             <!-- input buscar -->
             <div v-if="showSearch" class="relative">
                 <button
-                    class="absolute inset-y-0 rtl:inset-r-0 end-0 flex items-center pe-3 cursor-pointer"
+                    class="absolute inset-y-0 rtl:inset-r-0 inset-e-0 flex items-center pe-3 cursor-pointer"
                     title="Click para buscar"
                     @click="setFilter">
                     <svg
@@ -303,7 +303,7 @@
 
                 <button
                     v-if="data.meta.filter"
-                    class="absolute inset-y-0 rtl:inset-r-0 end-5 flex items-center pe-3 cursor-pointer"
+                    class="absolute inset-y-0 rtl:inset-r-0 inset-e-5 flex items-center pe-3 cursor-pointer"
                     title="Limpiar filtro"
                     @click="clearFiler">
                     <svg

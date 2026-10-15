@@ -92,7 +92,7 @@
                 "
                 type="button"
                 title="Guardar"
-                class="p-2.5 text-sm font-medium h-full text-white bg-green-700 rounded-none border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                class="p-2.5 text-sm font-medium h-full text-white bg-green-700 rounded-none border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-hidden focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
                 <i class="bi bi-floppy"></i>
             </button>
             <button
@@ -106,7 +106,7 @@
                 "
                 type="button"
                 title="Cancelar"
-                class="p-2.5 text-sm font-medium h-full text-white bg-orange-700 rounded-r-lg border border-orange-700 hover:bg-orange-800 focus:ring-4 focus:outline-none focus:ring-orange-300 dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800">
+                class="p-2.5 text-sm font-medium h-full text-white bg-orange-700 rounded-r-lg border border-orange-700 hover:bg-orange-800 focus:ring-4 focus:outline-hidden focus:ring-orange-300 dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800">
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>

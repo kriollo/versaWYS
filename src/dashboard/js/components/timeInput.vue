@@ -100,7 +100,7 @@
             <select
                 :value="currentHour"
                 @change="onHourChange(($event.target as HTMLSelectElement).value)"
-                class="bg-transparent text-sm font-mono font-bold text-gray-900 dark:text-white outline-none cursor-pointer"
+                class="bg-transparent text-sm font-mono font-bold text-gray-900 dark:text-white outline-hidden cursor-pointer"
                 :disabled="disabled">
                 <option v-for="h in hours" :key="h" :value="h">{{ h }}</option>
             </select>
@@ -108,7 +108,7 @@
             <select
                 :value="currentMinute"
                 @change="onMinuteChange(($event.target as HTMLSelectElement).value)"
-                class="bg-transparent text-sm font-mono font-bold text-gray-900 dark:text-white outline-none cursor-pointer"
+                class="bg-transparent text-sm font-mono font-bold text-gray-900 dark:text-white outline-hidden cursor-pointer"
                 :disabled="disabled">
                 <option v-for="m in minutes" :key="m" :value="m" :disabled="!isMinuteAvailable(currentHour, m)">
                     {{ m }}

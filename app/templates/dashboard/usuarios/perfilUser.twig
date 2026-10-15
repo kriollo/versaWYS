@@ -27,9 +27,9 @@
 
 			<div class="grid justify-center content-center pt-20">
 				{% if expiratePass %}
-					<div class="w-full max-w-xl p-6 space-y-8 sm:p-8 bg-[#fff3cd] rounded-lg shadow dark:bg-[#ffc107]/20 border border-[#ffc107]/30 mb-4">
+					<div class="w-full max-w-xl p-6 space-y-8 sm:p-8 bg-[#fff3cd] rounded-lg shadow-sm dark:bg-[#ffc107]/20 border border-[#ffc107]/30 mb-4">
 						<div class="flex items center space-x-4">
-							<div class="flex-shrink-0">
+							<div class="shrink-0">
 								<svg class="w-[43px] h-[43px] text-red-700 dark:text-red-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewbox="0 0 24 24">
 									<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 13V8m0 8h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
 								</svg>
@@ -46,9 +46,9 @@
 					</div>
 				{% endif %}
 
-				<div class="w-full max-w-xl p-6 space-y-8 sm:p-8 bg-white rounded-lg shadow dark:bg-gray-800">
+				<div class="w-full max-w-xl p-6 space-y-8 sm:p-8 bg-white rounded-lg shadow-sm dark:bg-gray-800">
 					<div class="flex items-center space-x-4">
-						<div class="flex-shrink-0">
+						<div class="shrink-0">
 							{% if owner_user.avatar != null %}
 								<img class="w-20 h-20 rounded-full" src="{{ getAssets('dashboard', 'avatars', '/' ~ owner_user.avatar) }}" alt="{{ owner_user.name }}"/>
 							{% else %}
@@ -75,18 +75,18 @@
 						</div>
 					</div>
 					<div class="flex justify-between space-x-2">
-						<label for="fileAvatar" id="labelFile" class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-brand rounded-lg hover:bg-brand-600 focus:ring-4 focus:outline-none focus:ring-brand/50 dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand/50 cursor-pointer">
+						<label for="fileAvatar" id="labelFile" class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-brand rounded-lg hover:bg-brand-600 focus:ring-4 focus:outline-hidden focus:ring-brand/50 dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand/50 cursor-pointer">
 							Cambiar Avatar
 						</label>
 
-						<button id="dropdownSearchButton" data-dropdown-toggle="dropdownSearch" class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-brand rounded-lg hover:bg-brand-600 focus:ring-4 focus:outline-none focus:ring-brand/50 dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand/50" type="button">
+						<button id="dropdownSearchButton" data-dropdown-toggle="dropdownSearch" class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-brand rounded-lg hover:bg-brand-600 focus:ring-4 focus:outline-hidden focus:ring-brand/50 dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand/50" type="button">
 							Cambiar contraseña<svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 10 6">
 								<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
 							</svg>
 						</button>
 					</div>
 
-					<div id="dropdownSearch" class="z-10 hidden bg-white rounded-lg shadow w-60 dark:bg-gray-700 p-3">
+					<div id="dropdownSearch" class="z-10 hidden bg-white rounded-lg shadow-sm w-60 dark:bg-gray-700 p-3">
 						<form method="POST" class="flex flex-col space-y-4" id="formResetPassword" action="{{ getPanelUrl('login/resetPassByUser') }}">
 							{{ csrf_field('csrf_token_password')|raw }}
 
@@ -95,15 +95,15 @@
 								<label for="password" class="text-sm font-medium text-gray-900 dark:text-white">
 									Nueva Contraseña
 								</label>
-								<input type="password" name="password" id="password" autocomplete="off" placeholder="••••••••" class="w-full px-4 py-2 text-sm text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent" required/>
+								<input type="password" name="password" id="password" autocomplete="off" placeholder="••••••••" class="w-full px-4 py-2 text-sm text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-brand focus:border-transparent" required/>
 							</div>
 							<div class="flex flex-col space-y-2">
 								<label for="password_confirmation" class="text-sm font-medium text-gray-900 dark:text-white">
 									Confirmar Contraseña
 								</label>
-								<input type="password" name="password_confirmation" id="password_confirmation" autocomplete="off" placeholder="••••••••" class="w-full px-4 py-2 text-sm text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent" required/>
+								<input type="password" name="password_confirmation" id="password_confirmation" autocomplete="off" placeholder="••••••••" class="w-full px-4 py-2 text-sm text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-brand focus:border-transparent" required/>
 							</div>
-							<button id="resetPassword" class="w-full px-4 py-2 text-sm font-semibold text-white bg-brand rounded-lg hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-opacity-50">
+							<button id="resetPassword" class="w-full px-4 py-2 text-sm font-semibold text-white bg-brand rounded-lg hover:bg-brand-600 focus:outline-hidden focus:ring-2 focus:ring-brand/50">
 								Cambiar Contraseña
 							</button>
 						</form>

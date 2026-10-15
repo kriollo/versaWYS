@@ -133,7 +133,7 @@
             <div class="flex justify-between items-center pb-2">
                 <a
                     @click="newPerfil"
-                    class="text-white bg-brand hover:bg-brand-600 focus:ring-4 focus:outline-none focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600 cursor-pointer">
+                    class="text-white bg-brand hover:bg-brand-600 focus:ring-4 focus:outline-hidden focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600 cursor-pointer">
                     <svg
                         class="w-[20px] h-[20px] text-gray-800 dark:text-white"
                         aria-hidden="true"
@@ -147,7 +147,7 @@
                     <span class="max-lg:hidden ms-2">Nuevo Perfil</span>
                 </a>
             </div>
-            <div class="grid lg:grid-cols-[1fr,2fr] gap-4 grid-cols-1">
+            <div class="grid lg:grid-cols-[1fr_2fr] gap-4 grid-cols-1">
                 <listPerfilesSide :refreshData="refreshData" />
                 <perfilSide @accion="accion" />
             </div>

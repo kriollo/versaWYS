@@ -228,7 +228,7 @@
                     <!-- Preview -->
                     <div class="flex items-center gap-4 mb-3">
                         <div
-                            class="w-16 h-16 rounded-full border-2 border-gray-200 dark:border-gray-600 overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+                            class="w-16 h-16 rounded-full border-2 border-gray-200 dark:border-gray-600 overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
                             <img
                                 v-if="logoPreviewUrl || logoActualUrl"
                                 :src="logoPreviewUrl || logoActualUrl"
@@ -269,7 +269,7 @@
             <div class="flex justify-end">
                 <button
                     type="button"
-                    class="text-white bg-brand-600 hover:bg-brand-700 focus:ring-4 focus:outline-none focus:ring-brand/30 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600"
+                    class="text-white bg-brand-600 hover:bg-brand-700 focus:ring-4 focus:outline-hidden focus:ring-brand/30 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600"
                     @click="saveEmpresa">
                     Guardar
                 </button>
@@ -277,7 +277,7 @@
             <div class="flex justify-end">
                 <button
                     type="button"
-                    class="text-white bg-corporate-orange-700 hover:bg-corporate-orange-800 focus:ring-4 focus:outline-none focus:ring-corporate-orange-300 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-corporate-orange-600 dark:hover:bg-corporate-orange-700 dark:focus:ring-corporate-orange-800"
+                    class="text-white bg-corporate-orange-700 hover:bg-corporate-orange-800 focus:ring-4 focus:outline-hidden focus:ring-corporate-orange-300 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-corporate-orange-600 dark:hover:bg-corporate-orange-700 dark:focus:ring-corporate-orange-800"
                     @click="accion({ accion: 'closeModal' })">
                     Cancelar
                 </button>

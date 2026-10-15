@@ -1271,7 +1271,7 @@ class SPANavigation {
             loader.className = 'spa-loader';
 
             loader.innerHTML = `
-                <div class="spa-loader-backdrop bg-black bg-opacity-50 backdrop-blur-sm">
+                <div class="spa-loader-backdrop bg-black/50 backdrop-blur-xs">
                     <div class="spa-loader-container bg-white dark:bg-gray-800 rounded-xl p-8 shadow-2xl">
                         <div class="spa-loader-spinner flex gap-2 mb-4">
                             <div class="spa-loader-circle w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>

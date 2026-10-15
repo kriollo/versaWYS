@@ -106,7 +106,7 @@
             <button
                 :id="'dropdownButton' + from"
                 :data-dropdown-toggle-component="'dropdownList' + from"
-                class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+                class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-hidden hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
                 type="button">
                 {{ model }}
                 <svg class="w-2.5 h-2.5 ms-2.5" fill="none" viewBox="0 0 10 6" xmlns="http://www.w3.org/2000/svg">
@@ -121,7 +121,7 @@
             <!-- Dropdown menu -->
             <div
                 :id="'dropdownList' + from"
-                class="z-50 bg-white rounded-lg shadow dark:bg-gray-700 hidden transition-opacity duration-300 ease-in-out opacity-0">
+                class="z-50 bg-white rounded-lg shadow-sm dark:bg-gray-700 hidden transition-opacity duration-300 ease-in-out opacity-0">
                 <ul
                     class="text-sm text-gray-700 dark:text-gray-200 grid justify-center cursor-pointer"
                     aria-labelledby="dropdownPerPage">

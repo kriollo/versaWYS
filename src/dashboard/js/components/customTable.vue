@@ -634,7 +634,7 @@
                     return 'bg-brand/10 border-b border-brand dark:bg-brand/5 dark:border-brand/50';
                 }
             }
-            return 'bg-white border-b border-gray-100 dark:bg-[#0a0a0a] dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-200';
+            return 'bg-white border-b border-gray-100 dark:bg-gray-950 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-200';
         }
         if (
             itemSelected.value?.fieldCompare !== undefined &&
@@ -643,7 +643,7 @@
             // Update for new design: selected row style
             return 'bg-brand/10 border-b border-brand dark:bg-brand/5 dark:border-brand/50';
         }
-        return 'bg-white border-b border-gray-100 dark:bg-[#0a0a0a] dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-200';
+        return 'bg-white border-b border-gray-100 dark:bg-gray-950 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-200';
     };
 
     //Funcion para convertir fecha
@@ -689,7 +689,7 @@
 
         <div
             v-if="showPerPage || showExportExcel || showSearch"
-            class="flex items-center justify-between flex-wrap gap-4 bg-white dark:bg-[#0a0a0a] p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+            class="flex items-center justify-between flex-wrap gap-4 bg-white dark:bg-gray-950 p-4 rounded-2xl shadow-xs border border-gray-100 dark:border-gray-800">
             <div class="flex items-center gap-4">
                 <!-- Dropdown por Pagina -->
                 <dropDown
@@ -716,7 +716,7 @@
                     class="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl transition-all border"
                     :class="
                         shouldUseResponsiveMode
-                            ? 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-[#0a0a0a] dark:text-gray-300 dark:border-gray-800 dark:hover:bg-gray-900'
+                            ? 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-gray-950 dark:text-gray-300 dark:border-gray-800 dark:hover:bg-gray-900'
                             : 'bg-brand text-white border-brand shadow-lg shadow-brand/20'
                     "
                     :title="
@@ -751,7 +751,7 @@
                 <input
                     type="text"
                     :class="[
-                        'block w-full md:w-80 p-3 pl-10 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand focus:border-brand dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-white dark:focus:ring-brand dark:focus:border-brand outline-none transition-all placeholder-gray-500',
+                        'block w-full md:w-80 p-3 pl-10 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand focus:border-brand dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-white dark:focus:ring-brand dark:focus:border-brand outline-hidden transition-all placeholder-gray-500',
                         data.meta.filter ? 'pr-10' : 'pr-3',
                     ]"
                     :id="idTable + '_table-search-users'"
@@ -779,13 +779,13 @@
 
         <!-- Table Container -->
         <div
-            class="relative overflow-x-auto rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl bg-white dark:bg-[#0a0a0a] w-full">
+            class="relative overflow-x-auto rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl bg-white dark:bg-gray-950 w-full">
             <table
                 :id="'table_' + idTable"
                 class="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
                 <caption
                     v-if="tablaTitle !== ''"
-                    class="p-5 text-lg font-bold text-left text-gray-900 bg-white dark:text-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800">
+                    class="p-5 text-lg font-bold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800">
                     <div class="flex justify-between items-center w-full">
                         <div class="flex items-center gap-2">
                             <div class="w-1 h-6 bg-brand rounded-full"></div>
@@ -898,7 +898,7 @@
                                 class="text-center align-middle w-12 py-2 px-2">
                                 <button
                                     @click="toggleRowExpansion(row, index)"
-                                    class="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm border border-black/5 dark:border-white/5"
+                                    class="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 shadow-xs border border-black/5 dark:border-white/5"
                                     :class="
                                         expandedRows[row.id ?? index]
                                             ? 'bg-red-500 text-white rotate-180 hover:bg-red-600'
@@ -1079,7 +1079,7 @@
                                     <div class="relative group/img">
                                         <img
                                             :src="row[col.field]"
-                                            class="w-10 h-10 rounded-xl object-cover border border-black/10 dark:border-white/10 shadow-sm"
+                                            class="w-10 h-10 rounded-xl object-cover border border-black/10 dark:border-white/10 shadow-xs"
                                             @error="
                                                 (e: any) =>
                                                     (e.target.src =
@@ -1401,7 +1401,7 @@
         <!-- Pagination -->
         <nav class="flex flex-col md:flex-row justify-between items-center w-full px-2 gap-4">
             <div
-                class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-[#0a0a0a] px-4 py-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-950 px-4 py-2 rounded-xl shadow-xs border border-gray-100 dark:border-gray-800">
                 <span>Mostrando</span>
                 <span class="font-bold text-gray-900 dark:text-white">{{ data.meta.from || 0 }}</span>
                 <span>al</span>
@@ -1412,7 +1412,7 @@
             </div>
 
             <ul
-                class="inline-flex items-center -space-x-px text-sm bg-white dark:bg-[#0a0a0a] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-1">
+                class="inline-flex items-center -space-x-px text-sm bg-white dark:bg-gray-950 rounded-xl shadow-xs border border-gray-100 dark:border-gray-800 p-1">
                 <template v-if="Array.isArray(getLimitPages)">
                     <li>
                         <a
@@ -1441,7 +1441,7 @@
                     <li v-for="page in safeLimitPages">
                         <a
                             v-if="data.meta.page == page"
-                            class="flex items-center justify-center w-8 h-8 mx-0.5 text-black bg-brand font-bold rounded-lg shadow-sm cursor-default"
+                            class="flex items-center justify-center w-8 h-8 mx-0.5 text-black bg-brand font-bold rounded-lg shadow-xs cursor-default"
                             aria-current="page">
                             {{ page }}
                         </a>

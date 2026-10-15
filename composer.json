@@ -5,14 +5,14 @@
     "license": "MIT",
     "require": {
         "php": ">=8.3",
-        "twig/twig": "^3.28",
-        "versaorm/versaorm-php": "^2.0",
+        "twig/twig": "^3.30",
+        "versaorm/versaorm-php": "^2.0.1",
         "versawys/kernel": "^3.4.0"
     },
     "require-dev": {
         "friendsoftwig/twigcs": "^6.6.1",
         "pestphp/pest": "^4.1 || ^5.1",
-        "rector/rector": "^2.6.1",
+        "rector/rector": "^2.7",
         "carthage-software/mago": "^1.57"
     },
     "autoload": {
