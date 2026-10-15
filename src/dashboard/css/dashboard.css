@@ -11,6 +11,9 @@ layer(base);
 /* Modo oscuro por la clase .dark en <html> (en v3 era darkMode: 'class') */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* El kernel (en vendor, que git ignora y Tailwind no revisa solo) arma clases en PHP: barra de debug, páginas de error */
+@source '../../../versaWYS/vendor/versawys/kernel';
+
 /* Clases que se arman en tiempo de ejecución y no aparecen completas en el código (en v3 era safelist) */
 @source inline("w-64 w-1/2 rounded-l-lg rounded-r-lg bg-gray-200 grid-cols-4 grid-cols-7 h-6 leading-6 h-9 leading-9 shadow-lg max-w-md max-w-lg max-w-xl max-w-2xl max-w-3xl max-w-4xl max-w-5xl max-w-6xl max-w-7xl");
 
