@@ -28,6 +28,7 @@ Inspirado en la necesidad de un arranque rápido de proyectos y una curva de apr
 - [Contenedor de dependencias](./Contenedor.md)
 - [Validación de datos](./Validacion.md)
 - [Autorización](./Autorizacion.md)
+- [Caché, colas y archivos](./Cache_Colas_Archivos.md)
 - [Documentación de Rutas Interactiva](./RutasInteractivas.md)
 - [Estructura de Directorios](./EstructuraDeDirectorios.md)
 - [Guía de Contribución](./Guia_Contribucion.md)

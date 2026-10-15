@@ -12,6 +12,7 @@ package-lock.json
 /versaWYS/kernel/config/config.json
 /versaWYS/logs/*
 /versaWYS/cache/*
+/versaWYS/storage/*
 /versaWYS/kernel/config/installed.lock
 /versaWYS/kernel/config/install.token
 /versaWYS/config/
