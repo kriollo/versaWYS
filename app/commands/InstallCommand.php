@@ -6,7 +6,6 @@ namespace app\commands;
 
 use app\controllers\InstallController;
 use app\middleware\InstallMiddleware;
-use versaWYS\kernel\cli\BaseCommand;
 use versaWYS\kernel\cli\CLIErrorHandler;
 use versaWYS\kernel\cli\CLIHelper;
 use versaWYS\kernel\cli\ConfigManager;
@@ -16,7 +15,7 @@ use versaWYS\kernel\cli\ConfigManager;
  * falte o lo toma de las opciones (--db-host=...), para servidores sin navegador. No pide el token
  * de /install: quien tiene la terminal ya tiene acceso al servidor.
  */
-class InstallCommand extends BaseCommand
+class InstallCommand extends ConsoleCommand
 {
     /** @var array<string, array{0: string, 1: string}> parámetro => [pregunta, valor por defecto] */
     private const array FIELDS = [
@@ -52,7 +51,7 @@ class InstallCommand extends BaseCommand
         // El instalador usa la configuración completa, como en una petición web
         $config = array_replace_recursive(ConfigManager::defaults(), ConfigManager::getConfig());
 
-        $values = $this->options([...$params, ...($_SERVER['argv'] ?? [])]);
+        $values = $this->fieldOptions([...$params, ...($_SERVER['argv'] ?? [])]);
         foreach (self::FIELDS as $field => [$question, $default]) {
             if (isset($values[$field])) {
                 continue;
@@ -68,7 +67,7 @@ class InstallCommand extends BaseCommand
             }
         }
         // Por opciones no se repite la contraseña; en modo interactivo se pide de nuevo
-        $values['admin_password_confirm'] ??= isset($this->options($_SERVER['argv'] ?? [])['admin_password'])
+        $values['admin_password_confirm'] ??= isset($this->fieldOptions($_SERVER['argv'] ?? [])['admin_password'])
             ? $values['admin_password']
             : $this->askSecret('Repite la contraseña del superadministrador');
 
@@ -104,7 +103,7 @@ class InstallCommand extends BaseCommand
      *
      * @return array<string, string>
      */
-    private function options(array $args): array
+    private function fieldOptions(array $args): array
     {
         $values = [];
         foreach ($args as $arg) {
@@ -117,22 +116,6 @@ class InstallCommand extends BaseCommand
         }
 
         return $values;
-    }
-
-    private function askSecret(string $question): string
-    {
-        echo CLIErrorHandler::colorize($question, 'green') . ': ';
-        $tty = function_exists('posix_isatty') && posix_isatty(STDIN);
-        if ($tty) {
-            shell_exec('stty -echo');
-        }
-        $value = trim((string) fgets(STDIN));
-        if ($tty) {
-            shell_exec('stty echo');
-            echo "\n";
-        }
-
-        return $value;
     }
 
     #[\Override]
