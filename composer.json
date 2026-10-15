@@ -7,7 +7,7 @@
         "php": ">=8.3",
         "twig/twig": "^3.28",
         "versaorm/versaorm-php": "^2.0",
-        "versawys/kernel": "^3.3.1"
+        "versawys/kernel": "^3.3.2"
     },
     "require-dev": {
         "friendsoftwig/twigcs": "^6.6.1",
