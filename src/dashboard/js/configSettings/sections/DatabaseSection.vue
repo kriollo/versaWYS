@@ -2,11 +2,13 @@
     import Swal from 'sweetalert2';
     import { ref } from 'vue';
 
-    import { useDatabaseBackup } from '@/dashboard/js/configSettings/composables/useDatabaseBackup';
+    import { type QueryResult, useDatabaseBackup } from '@/dashboard/js/configSettings/composables/useDatabaseBackup';
     import { versaAlert } from '@/dashboard/js/functions';
 
     const CONFIRM_PHRASE = 'RESTAURAR',
-        { exporting, importing, exportDatabase, importDatabase } = useDatabaseBackup(),
+        // En cualquier parte de la consulta: 'SELECT 1; DROP TABLE x' también pide confirmación
+        DESTRUCTIVE_QUERY_PATTERN = /\b(UPDATE|DELETE|DROP|TRUNCATE|ALTER|INSERT|CREATE|GRANT|REVOKE)\b/i,
+        { exporting, importing, running, exportDatabase, importDatabase, runQuery } = useDatabaseBackup(),
         fileInput = ref<HTMLInputElement | null>(null),
         selectedFile = ref<File | null>(null);
 
@@ -74,6 +76,57 @@
             type: 'success',
         });
     }
+
+    const queryText = ref(''),
+        queryResult = ref<QueryResult | null>(null),
+        queryError = ref('');
+
+    function formatCell(value: unknown): string {
+        if (value === null || value === undefined) {
+            return 'NULL';
+        }
+        if (typeof value === 'object') {
+            return JSON.stringify(value);
+        }
+
+        return String(value);
+    }
+
+    async function handleRunQuery(): Promise<void> {
+        const sql = queryText.value.trim();
+        if (sql === '') {
+            return;
+        }
+
+        if (DESTRUCTIVE_QUERY_PATTERN.test(sql)) {
+            const { isConfirmed } = await Swal.fire({
+                title: '¿Ejecutar esta consulta?',
+                html: 'Esta consulta <strong>modifica datos</strong> y no se puede deshacer.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ejecutar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#dc2626',
+            });
+
+            if (!isConfirmed) {
+                return;
+            }
+        }
+
+        queryError.value = '';
+        queryResult.value = null;
+
+        const result = await runQuery(sql);
+
+        if (!result.success || !result.data || result.data.type === 'error') {
+            queryError.value = result.data?.message ?? result.message ?? 'Error al ejecutar la consulta.';
+
+            return;
+        }
+
+        queryResult.value = result.data;
+    }
 </script>
 
 <template>
@@ -122,6 +175,81 @@
                     class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 {{ importing ? 'Restaurando...' : 'Restaurar base de datos' }}
             </button>
+        </div>
+
+        <hr class="border-gray-200 dark:border-gray-700" />
+
+        <!-- Consulta SQL -->
+        <div class="space-y-2">
+            <h3 class="text-sm font-medium text-gray-900 dark:text-white">Ejecutar consulta SQL</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                Ejecuta una consulta directa (SELECT, UPDATE, DELETE, etc.) contra la base de datos actual.
+            </p>
+            <textarea
+                v-model="queryText"
+                rows="5"
+                placeholder="SELECT * FROM versa_users LIMIT 10;"
+                class="block w-full font-mono text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 p-2.5 focus:ring-brand/30 focus:border-brand dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400" />
+            <button
+                type="button"
+                :disabled="!queryText.trim() || running"
+                class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center gap-2 disabled:opacity-50 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+                @click="handleRunQuery">
+                <div
+                    v-if="running"
+                    class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                {{ running ? 'Ejecutando...' : 'Ejecutar' }}
+            </button>
+
+            <!-- Error -->
+            <div
+                v-if="queryError"
+                class="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+                {{ queryError }}
+            </div>
+
+            <!-- Resultado: ack (no-select) -->
+            <div
+                v-if="queryResult && queryResult.type === 'ack'"
+                class="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
+                {{ queryResult.message }}
+            </div>
+
+            <!-- Resultado: filas -->
+            <div v-else-if="queryResult && queryResult.type === 'rows'" class="space-y-2">
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ queryResult.total }} fila{{ queryResult.total !== 1 ? 's' : '' }}
+                    <template v-if="queryResult.truncated">
+                        (mostrando las primeras {{ queryResult.rows.length }})
+                    </template>
+                </p>
+                <div
+                    v-if="queryResult.rows.length > 0"
+                    class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg max-h-96">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-gray-50 dark:bg-gray-700/50 sticky top-0">
+                            <tr>
+                                <th
+                                    v-for="col in queryResult.columns"
+                                    :key="col"
+                                    class="px-3 py-2 font-semibold text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                    {{ col }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                            <tr v-for="(row, idx) in queryResult.rows" :key="idx">
+                                <td
+                                    v-for="col in queryResult.columns"
+                                    :key="col"
+                                    class="px-3 py-2 text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                                    {{ formatCell(row[col]) }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </template>

@@ -55,6 +55,10 @@ const step = async (name, fn) => {
     await fn();
     const screen = await evaluate(errorScreen);
     if (screen) current.push('pantalla de error: ' + screen);
+    // Dos builds de Vue en la misma página (archivos compilados en modo dev y prod mezclados): v-model y los
+    // slots dejan de funcionar sin error visible. Se arregla compilando todo de nuevo (pnpm compile).
+    const vues = await evaluate(`[...new Set(performance.getEntriesByType('resource').map(e => e.name.split('?')[0]).filter(n => /\\/vue\\.esm-browser/.test(n)))]`);
+    if ((vues ?? []).length > 1) current.push('dos builds de Vue: ' + vues.join(' y '));
     current.push(`(url: ${await evaluate('location.pathname')})`);
     report.push([name, [...new Set(current)]]);
 };
