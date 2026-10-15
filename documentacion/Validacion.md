@@ -35,7 +35,7 @@ Se combinan con `|` y se evalúan en orden.
 
 | Regla | Valida |
 |---|---|
-| `required` | El campo existe y no está vacío |
+| `required` | El campo existe y no está vacío ("El campo X es obligatorio") |
 | `nullable` | El campo puede faltar o venir vacío; si viene con valor, se aplican las demás reglas |
 | `string` | Texto o número; nunca arreglo, objeto ni booleano |
 | `numeric` | Un número, entero o decimal (`"12.5"` incluido) |
@@ -50,7 +50,7 @@ Se combinan con `|` y se evalúan en orden.
 | `time` | Una hora `HH:MM` o `HH:MM:SS` |
 | `array` | Un arreglo, o un texto con un arreglo JSON |
 
-Sin `nullable`, un campo que no llega es un error ("El campo X no existe"). Una regla mal escrita también es un error, así que un dato nunca pasa sin validar.
+Sin `nullable`, un campo que no llega es un error ("El campo X es obligatorio"). Una regla mal escrita también es un error, así que un dato nunca pasa sin validar.
 
 ## Datos anidados
 
