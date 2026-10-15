@@ -2,3 +2,6 @@ allowBuilds:
   # Trae binarios precompilados; su script solo compila desde el código fuente si faltan
   '@parcel/watcher': false
   esbuild: true
+# pnpm 11 rechaza versiones con menos de 24 h publicadas; versacompiler es nuestro y se publica junto con sus cambios
+minimumReleaseAgeExclude:
+  - versacompiler
