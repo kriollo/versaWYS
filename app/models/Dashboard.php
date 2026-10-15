@@ -72,7 +72,7 @@ class Dashboard extends VersaORMModel
                 AND ap.perfil_id = ?
                 INNER JOIN versa_perfildetalleuser AS vpu
                     ON vpu.menu_id = am.id
-                AND vpu.submenu_id = CASE WHEN am.submenu = true THEN asm.id ELSE 0 END
+                AND COALESCE(vpu.submenu_id, 0) = CASE WHEN am.submenu = true THEN asm.id ELSE 0 END
                 AND vpu.id_user = ?
                 WHERE am.estado = true
                 ORDER BY

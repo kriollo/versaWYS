@@ -155,7 +155,8 @@ class Perfil extends VersaORMModel
                     $perfilDetalle = $this->dispense('versa_perfildetalle');
                     $perfilDetalle->perfil_id = (int) $params['id'];
                     $perfilDetalle->menu_id = (int) $value2['id_menu'];
-                    $perfilDetalle->submenu_id = 0;
+                    // Sin submenú: NULL, porque submenu_id es una llave foránea a versa_submenu
+                    $perfilDetalle->submenu_id = null;
                     $this->executeWithErrorHandling($perfilDetalle->store(...), [
                         'operation' => 'versa_perfildetalle',
                         'table' => 'versa_perfildetalle',
