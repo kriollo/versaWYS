@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use app\services\MailService;
+use versaWYS\kernel\ContentType;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Testing\TestClient;
 
@@ -117,6 +119,28 @@ describe('TestClient', function (): void {
 
         $admin->get('/admin/dashboard')->assertOk();
         $otro->get('/admin/dashboard')->assertRedirect('/admin/login');
+    });
+
+    it('el correo de prueba usa el MailService del contenedor: en la prueba, uno que no envía', function (): void {
+        $enviados = new ArrayObject();
+        $admin = app('admin@app.test');
+        $admin->container()->instance(MailService::class, new class ($enviados) extends MailService {
+            public function __construct(private readonly ArrayObject $enviados) {}
+
+            public function enviar(array $to, string $asunto, string $cuerpo, ContentType $tipo = ContentType::HTML, array $imagenesEmbed = []): bool
+            {
+                $this->enviados[] = [$to['email'], $asunto];
+
+                return true;
+            }
+        });
+
+        try {
+            $admin->postJson('/admin/configuracion/testMail')->assertOk()->assertJsonPath('success', 1);
+            expect($enviados->getArrayCopy())->toBe([['admin@app.test', 'Correo de prueba']]);
+        } finally {
+            $admin->container()->forget(MailService::class);
+        }
     });
 
     it('después del logout la sesión ya no sirve', function (): void {

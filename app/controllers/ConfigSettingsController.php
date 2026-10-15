@@ -140,9 +140,10 @@ class ConfigSettingsController extends GlobalControllers
     /**
      * Envía un correo de prueba al usuario en sesión con la configuración guardada.
      */
-    public function testMail(): array
+    public function testMail(MailService $mail): array
     {
-        $sent = (new MailService())->enviar(
+        // Por inyección: en las pruebas el contenedor entrega un MailService que no envía nada
+        $sent = $mail->enviar(
             ['email' => $this->user['email'], 'name' => $this->user['name']],
             'Correo de prueba',
             '<p>La configuración de correo saliente funciona correctamente.</p>',

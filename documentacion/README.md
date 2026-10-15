@@ -25,6 +25,7 @@ Inspirado en la necesidad de un arranque rápido de proyectos y una curva de apr
 - [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md)
 - [Seguridad del Framework](./Seguridad_Principios_Basicos.md)
 - [Pruebas de la aplicación (TestClient)](./Pruebas.md)
+- [Contenedor de dependencias](./Contenedor.md)
 - [Validación de datos](./Validacion.md)
 - [Documentación de Rutas Interactiva](./RutasInteractivas.md)
 - [Estructura de Directorios](./EstructuraDeDirectorios.md)
