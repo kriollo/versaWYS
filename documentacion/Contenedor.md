@@ -28,6 +28,12 @@ class TablerosController extends GlobalControllers
 
 Lo mismo vale en los métodos de un middleware.
 
+El contenedor también crea:
+
+- las [Form Requests](./Validacion.md#form-requests), que se validan antes de llamar al método;
+- las clases de política de `Gate` ([Autorización](./Autorizacion.md));
+- los trabajos de la cola, para que un `Job` reciba servicios en su constructor ([Caché, colas y archivos](./Cache_Colas_Archivos.md)).
+
 ## Qué entrega el kernel
 
 | Tipo | Qué es |
@@ -55,6 +61,8 @@ return static function (Container $container): void {
 - `bind`: un objeto nuevo cada vez que se pide.
 - `singleton`: uno solo por proceso.
 - `instance`: registra uno ya creado.
+
+El mismo archivo es el lugar de los permisos (`Gate::define`, `Gate::before`). Ver [Autorización](./Autorizacion.md).
 
 ## En pruebas
 

@@ -17,7 +17,7 @@ Estos son los directorios principales que encontrarás en la raíz de un proyect
     *   **Vue.js**: El framework Vue está disponible como dependencia principal (`vue` en `package.json`), permitiendo el desarrollo de componentes SPA o widgets modernos.
     *   **versaCompiler**: El comando `npm run watch` o `npx versacompiler` compila y transpila los archivos JS/CSS de `src/` hacia los directorios públicos, facilitando el flujo de trabajo frontend.
 
-*   **`versaWYS/`**: `composer.json` y `vendor/` (Composer), `config/` (`config.json`, que no se versiona), `cache/`, `logs/` y `tests/`. El núcleo del framework es el paquete [`versawys/kernel`](https://github.com/kriollo/versawys-kernel) y se instala en `vendor/versawys/kernel`: no se edita a mano, se actualiza con `composer update versawys/kernel`. Los proyectos creados antes de la versión 2.1 tienen la configuración en `kernel/config/`, que sigue funcionando.
+*   **`versaWYS/`**: `composer.json` y `vendor/` (Composer), `config/` (`config.json`, que no se versiona), `cache/` (también la de `Cache`, en `cache/data/`), `logs/`, `storage/` (archivos de `Storage`, no se versiona ni lo sirve la web) y `tests/`. El núcleo del framework es el paquete [`versawys/kernel`](https://github.com/kriollo/versawys-kernel) y se instala en `vendor/versawys/kernel`: no se edita a mano, se actualiza con `composer update versawys/kernel`. Los proyectos creados antes de la versión 2.1 tienen la configuración en `kernel/config/`, que sigue funcionando.
 
 *   **`documentacion/`**: Aquí es donde reside toda la documentación del proyecto, incluyendo la que estás leyendo ahora. Contiene archivos Markdown que explican cómo usar el framework, su API, y otros aspectos relevantes.
 
@@ -38,6 +38,14 @@ El directorio `app/` es donde reside la mayor parte de tu código de aplicación
 
 *   **`controllers/`**: Contiene las clases de tus controladores. Los controladores son responsables de recibir las solicitudes, interactuar con los modelos para obtener o modificar datos, y luego pasar esos datos a las plantillas para generar la respuesta HTTP.
     *   Ejemplo: `UsuarioController.php`, `ProductoController.php`.
+
+*   **`requests/`** (opcional): las [Form Requests](./Validacion.md#form-requests), una clase por acción con sus reglas de validación.
+    *   Ejemplo: `GuardarTablero.php`.
+
+*   **`jobs/`** (opcional): los trabajos de la [cola](./Cache_Colas_Archivos.md#colas-queue), clases que implementan `versaWYS\kernel\Job`.
+    *   Ejemplo: `EnviarBienvenida.php`.
+
+*   **`container.php`** (archivo): registra servicios en el [contenedor](./Contenedor.md) y define los permisos de `Gate`.
 
 *   **`migrations/`**: Aquí se guardan todos los archivos de migración de la base de datos. Cada archivo de migración contiene métodos para aplicar (`up`) y revertir (`down`) cambios en el esquema de tu base de datos, permitiendo un control de versiones del mismo.
     *   Ejemplo: `2023_10_27_100000_create_users_table.php`.

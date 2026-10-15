@@ -65,4 +65,9 @@ Para el resto, `$respuesta->status`, `->body`, `->header('Location')` y `->json(
 - **Que un usuario de otra empresa no ve ni modifica los datos:** dos `login()` con usuarios de empresas distintas. Es el error que más daño hace y el que menos se nota a mano.
 - Que la validación responde 422 con los errores por campo, y no 500.
 - Que las rutas que modifican datos exigen CSRF.
-- Que un usuario sin el permiso no entra: `onlyUserWithAccess`, `onlyAdmin`, `onlySuperAdmin`.
+- Que un usuario sin el permiso no entra: `onlyUserWithAccess`, `onlyAdmin`, `onlySuperAdmin`, y que `Gate::authorize` responde 403.
+- Que un `int $id` con texto (`/tableros/abc`) responde 404.
+
+Con `queue.driver: "sync"` en el `config.json` de la prueba, `Queue::push` ejecuta el trabajo en el acto y la prueba puede revisar su efecto. Para probar un trabajo que no debe ejecutarse, deja `database` y revisa la tabla `versa_jobs`.
+
+`versaTodo` (la app de ejemplo hecha con el framework) tiene una suite completa de un módulo en `versaWYS/tests/TablerosTest.php`. Usa una SQLite desechable con las migraciones y seeders del proyecto.
