@@ -69,6 +69,8 @@ const loadModule = async (): Promise<void> => {
         const moduleResponse = await import(`@/${validatedModule}.js?v=${(window as any).AppConfig?.version ?? Date.now()}`);
         if (moduleResponse) {
             // Montar el módulo en el contenedor
+            // Fuera de setup(): render() también lo usa
+            const componentKey = ref(Date.now());
             const app = createApp({
                 components: { [component]: moduleResponse.default },
                 setup(): unknown {
@@ -76,7 +78,6 @@ const loadModule = async (): Promise<void> => {
                     if (debug.value) {
                         console.log('Debug mode is enabled');
                     }
-                    const componentKey = ref(Date.now());
                     for (const key in public_provider) {
                         if (Object.hasOwn(public_provider, key)) {
                             provide(key, public_provider[key as keyof PublicProvider]);
@@ -93,13 +94,14 @@ const loadModule = async (): Promise<void> => {
             });
 
             // Configuración de la aplicación según el modo de depuración
-            if (debug) {
+            if (debug.value) {
                 app.config.warnHandler = function warnHandler(msg, vm, trace): void {
                     // Console.warn(msg, vm, trace);
                     handleHMRError(msg, trace);
                 };
                 app.config.errorHandler = function errorHandler(err, vm, info): void {
-                    // Console.error(err, vm, info);
+                    // También a la consola: las pruebas en navegador detectan el error por ahí
+                    console.error('[Vue]', err);
                     handleHMRError(err instanceof Error ? err.stack || 'Unknown stack' : 'Unknown error', info);
                 };
                 app.config.compilerOptions.comments = true;
@@ -108,6 +110,11 @@ const loadModule = async (): Promise<void> => {
             }
             app.config.performance = true;
             app.config.compilerOptions.whitespace = 'condense';
+
+            // mount() vacía el contenedor: el token CSRF que versaFetch lee del DOM tiene que quedar fuera
+            if ($csrfToken && $contenedor.contains($csrfToken)) {
+                $contenedor.before($csrfToken);
+            }
 
             app.mount($contenedor, true);
         }

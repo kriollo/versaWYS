@@ -48,7 +48,16 @@ const navigate = async url => { const loaded = new Promise(r => loadWaiters.push
 await send('Page.enable'); await send('Runtime.enable'); await send('Log.enable');
 
 const report = [];
-const step = async (name, fn) => { current = []; await fn(); current.push(`(url: ${await evaluate('location.pathname')})`); report.push([name, [...new Set(current)]]); };
+// Un módulo Vue que no monta deja una pantalla de error aunque no haya excepción en la consola
+const errorScreen = `(document.querySelector('#versa-hmr-error-overlay, #error-container')?.innerText ?? '').replace(/\\s+/g, ' ').slice(0, 160)`;
+const step = async (name, fn) => {
+    current = [];
+    await fn();
+    const screen = await evaluate(errorScreen);
+    if (screen) current.push('pantalla de error: ' + screen);
+    current.push(`(url: ${await evaluate('location.pathname')})`);
+    report.push([name, [...new Set(current)]]);
+};
 
 await step('login (carga)', () => navigate(`${base}${PANEL}/login`));
 await step('login (enviar)', async () => {
