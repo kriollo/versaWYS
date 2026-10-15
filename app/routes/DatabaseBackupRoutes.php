@@ -32,6 +32,12 @@ Router::group(
         Router::post('/import', [DatabaseBackupController::class, 'importDatabase'])->middleware([
             [AuthMiddleware::class, 'validateCSRFToken'],
         ]);
+
+        // description: Consola SQL: ejecuta la consulta y devuelve hasta 500 filas. Queda registrada en el log.
+        // request-body name:query type:string description:Sentencia SQL a ejecutar
+        Router::post('/query', [DatabaseBackupController::class, 'runQuery'])->middleware([
+            [AuthMiddleware::class, 'validateCSRFToken'],
+        ]);
     },
     [
         [AuthMiddleware::class, 'checkSession'],

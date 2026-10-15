@@ -9,17 +9,30 @@ interface ExportPrepareResult {
     size_bytes: number;
 }
 
+export interface QueryResult {
+    // Error: la base rechazó la consulta (el mensaje viene en message)
+    type: 'rows' | 'ack' | 'error';
+    columns: string[];
+    rows: Record<string, unknown>[];
+    total: number;
+    truncated: boolean;
+    message?: string;
+}
+
 export function useDatabaseBackup(): {
     exporting: Ref<boolean>;
     importing: Ref<boolean>;
+    running: Ref<boolean>;
     exportDatabase: () => Promise<{ success: boolean; message?: string }>;
     importDatabase: (file: File) => Promise<{ success: boolean; message?: string }>;
+    runQuery: (query: string) => Promise<{ success: boolean; message?: string; data?: QueryResult }>;
 } {
     const panelUrl = inject<string>('panelUrl', '') || getPanelUrl(),
         csrfToken = inject<Ref<string>>('csrf_token', ref('')),
         apiBase = `/${panelUrl}/configuracion/database`,
         exporting = ref(false),
-        importing = ref(false);
+        importing = ref(false),
+        running = ref(false);
 
     async function exportDatabase(): Promise<{ success: boolean; message?: string }> {
         exporting.value = true;
@@ -65,7 +78,26 @@ export function useDatabaseBackup(): {
         }
     }
 
-    return { exporting, importing, exportDatabase, importDatabase };
+    async function runQuery(query: string): Promise<{ success: boolean; message?: string; data?: QueryResult }> {
+        running.value = true;
+        try {
+            const res = await versaFetch({
+                url: `${apiBase}/query`,
+                method: 'POST',
+                data: { query, csrf_token: csrfToken.value },
+            });
+
+            return {
+                success: res.success === API_RESPONSE_CODES.SUCCESS,
+                message: (res as unknown as { message?: string }).message,
+                data: res.data as QueryResult | undefined,
+            };
+        } finally {
+            running.value = false;
+        }
+    }
+
+    return { exporting, importing, running, exportDatabase, importDatabase, runQuery };
 }
 
 export default useDatabaseBackup;

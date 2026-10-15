@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace app\controllers;
 
 use app\services\DatabaseBackupService;
+use app\services\DatabaseQueryService;
 use Exception;
 use SensitiveParameter;
 use versaWYS\kernel\File;
 use versaWYS\kernel\GlobalControllers;
+use versaWYS\kernel\Loggin;
 
 class DatabaseBackupController extends GlobalControllers
 {
@@ -106,5 +108,30 @@ class DatabaseBackupController extends GlobalControllers
                 'code' => 500,
             ];
         }
+    }
+
+    /**
+     * Consola SQL del panel: ejecuta la consulta tal cual (solo superadmin, con CSRF) y deja registro.
+     */
+    public function runQuery(): array
+    {
+        global $request;
+
+        $sql = trim((string) $request->get('query', ''));
+        // Auditoría: quién ejecutó qué, aunque la consulta falle
+        Loggin::warning('Consola SQL', 'database', [
+            'id_user' => $this->id_user,
+            'email' => $this->user['email'] ?? '',
+            'query' => $sql,
+        ]);
+
+        $result = (new DatabaseQueryService())->run($sql);
+
+        // El error de la base va como resultado y no como fallo: en producción el kernel oculta los mensajes
+        // de error con SQL, y aquí quien pregunta es un superadmin que ya puede ejecutar cualquier consulta
+        return [
+            'success' => 1,
+            'data' => $result['success'] ? $result : ['type' => 'error', 'message' => $result['message']],
+        ];
     }
 }
