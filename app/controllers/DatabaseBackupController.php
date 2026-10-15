@@ -119,7 +119,11 @@ class DatabaseBackupController extends GlobalControllers
 
         $sql = trim((string) $request->get('query', ''));
         // Auditoría: quién ejecutó qué, aunque la consulta falle
-        Loggin::warning('Consola SQL', 'database', ['id_user' => $this->id_user, 'email' => $this->user['email'] ?? '', 'query' => $sql]);
+        Loggin::warning('Consola SQL', 'database', [
+            'id_user' => $this->id_user,
+            'email' => $this->user['email'] ?? '',
+            'query' => $sql,
+        ]);
 
         $result = (new DatabaseQueryService())->run($sql);
 

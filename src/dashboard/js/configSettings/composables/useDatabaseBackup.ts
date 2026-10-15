@@ -10,7 +10,7 @@ interface ExportPrepareResult {
 }
 
 export interface QueryResult {
-    // error: la base rechazó la consulta (el mensaje viene en message)
+    // Error: la base rechazó la consulta (el mensaje viene en message)
     type: 'rows' | 'ack' | 'error';
     columns: string[];
     rows: Record<string, unknown>[];
