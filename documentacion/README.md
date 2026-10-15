@@ -24,6 +24,8 @@ Inspirado en la necesidad de un arranque rápido de proyectos y una curva de apr
 - [ORM y Base de Datos (VersaORM, Migraciones y Seeders)](./ORM_y_BaseDeDatos.md)
 - [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md)
 - [Seguridad del Framework](./Seguridad_Principios_Basicos.md)
+- [Pruebas de la aplicación (TestClient)](./Pruebas.md)
+- [Validación de datos](./Validacion.md)
 - [Documentación de Rutas Interactiva](./RutasInteractivas.md)
 - [Estructura de Directorios](./EstructuraDeDirectorios.md)
 - [Guía de Contribución](./Guia_Contribucion.md)

@@ -15,7 +15,7 @@ class EmpresasMiddleware
 
         $params = $request->getAllParams();
 
-        $params['nombre'] = Functions::cleanString($params['nombre']);
+        $params['nombre'] = Functions::cleanString((string) ($params['nombre'] ?? ''));
         if (!isset($params['email'])) {
             $params['email'] = '';
         }
@@ -45,7 +45,7 @@ class EmpresasMiddleware
         global $request;
 
         $params = $request->getAllParams();
-        $params['nombre'] = Functions::cleanString($params['nombre']);
+        $params['nombre'] = Functions::cleanString((string) ($params['nombre'] ?? ''));
         if (!isset($params['email'])) {
             $params['email'] = '';
         }
@@ -76,7 +76,7 @@ class EmpresasMiddleware
         global $request;
 
         $params = $request->getAllParams();
-        $params['id'] = Functions::cleanString((string) $params['id']);
+        $params['id'] = Functions::cleanString((string) ($params['id'] ?? ''));
 
         $result = Functions::validateParams($params, [
             'id' => 'required|integer',
