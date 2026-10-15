@@ -78,7 +78,7 @@
                 class="w-9 h-9 rounded-lg text-xs font-bold transition-all duration-200 select-none"
                 :class="
                     isActive(day.num)
-                        ? 'bg-brand text-black shadow-sm shadow-brand/30 scale-105'
+                        ? 'bg-brand text-black shadow-xs shadow-brand/30 scale-105'
                         : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 ">
                 {{ day.label }}

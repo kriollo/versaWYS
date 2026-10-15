@@ -224,7 +224,8 @@ describe('respuesta SPA', function (): void {
 
 describe('apariencia del panel', function (): void {
     it('define en Tailwind las paletas propias que usan las plantillas y componentes', function (): void {
-        $config = (string) file_get_contents('tailwind.config.js');
+        // Tailwind 4: las paletas están en el @theme de dashboard.css
+        $config = (string) file_get_contents('src/dashboard/css/dashboard.css');
         $sources = '';
         foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator('app/templates', FilesystemIterator::SKIP_DOTS)) as $file) {
             $sources .= file_get_contents($file->getPathname());
@@ -233,7 +234,7 @@ describe('apariencia del panel', function (): void {
         // Sin la paleta en la configuración, clases como bg-brand no generan ningún estilo
         foreach (['brand', 'corporate-orange'] as $palette) {
             if (preg_match('/\b(?:bg|text|border|ring)-' . $palette . '\b/', $sources) === 1 || $palette === 'corporate-orange') {
-                expect($config)->toMatch('/[\'"]?' . preg_quote($palette, '/') . '[\'"]?\s*:\s*\{/');
+                expect($config)->toMatch('/--color-' . preg_quote($palette, '/') . '(-500)?\s*:/');
             }
         }
     });

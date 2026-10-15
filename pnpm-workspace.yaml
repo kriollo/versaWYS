@@ -1,2 +1,4 @@
 allowBuilds:
-    esbuild: true
+  # Trae binarios precompilados; su script solo compila desde el código fuente si faltan
+  '@parcel/watcher': false
+  esbuild: true

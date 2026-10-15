@@ -137,7 +137,7 @@
             <template v-slot:buttons>
                 <div class="flex justify-between gap-2">
                     <a
-                        class="text-white bg-brand hover:bg-brand-600 focus:ring-4 focus:outline-none focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600 cursor-pointer"
+                        class="text-white bg-brand hover:bg-brand-600 focus:ring-4 focus:outline-hidden focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600 cursor-pointer"
                         :href="`/${panelUrl}/usuarios/addUser`">
                         <svg
                             class="w-[20px] h-[20px] text-gray-800 dark:text-white"
@@ -157,7 +157,7 @@
                     <!--<div class="flex justify-end gap-2">
                         <button
                             type="button"
-                            class="text-white bg-brand-600 hover:bg-brand-700 focus:ring-4 focus:outline-none focus:ring-brand/30 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600"
+                            class="text-white bg-brand-600 hover:bg-brand-700 focus:ring-4 focus:outline-hidden focus:ring-brand/30 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600"
                             :class="
                                 buttonSelected === 'Todos'
                                     ? 'ring-4 ring-brand-600 font-bold text-current underline underline-offset-8'
@@ -168,7 +168,7 @@
                         </button>
                         <button
                             type="button"
-                            class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-brand/30 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                            class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-hidden focus:ring-brand/30 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
                             :class="
                                 buttonSelected === 'Activos'
                                     ? 'ring-4 ring-green-800 font-bold text-current  underline underline-offset-8'
@@ -179,7 +179,7 @@
                         </button>
                         <button
                             type="button"
-                            class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-brand/30 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+                            class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-hidden focus:ring-brand/30 rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
                             :class="
                                 buttonSelected === 'Inactivos'
                                     ? 'ring-4 ring-red-800 font-bold text-current  underline underline-offset-8'
@@ -195,7 +195,7 @@
                             class="px-4 py-2 rounded-lg text-sm font-bold transition-all"
                             :class="
                                 buttonSelected === 'Todos'
-                                    ? 'bg-white dark:bg-black text-black dark:text-white shadow-sm'
+                                    ? 'bg-white dark:bg-black text-black dark:text-white shadow-xs'
                                     : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
                             "
                             @click="buttonSelected = 'Todos'">
@@ -206,7 +206,7 @@
                             class="px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
                             :class="
                                 buttonSelected === 'Activos'
-                                    ? 'bg-white dark:bg-black text-green-600 shadow-sm'
+                                    ? 'bg-white dark:bg-black text-green-600 shadow-xs'
                                     : 'text-gray-500 hover:text-green-600'
                             "
                             @click="buttonSelected = 'Activos'">
@@ -218,7 +218,7 @@
                             class="px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
                             :class="
                                 buttonSelected === 'Inactivos'
-                                    ? 'bg-white dark:bg-black text-red-500 shadow-sm'
+                                    ? 'bg-white dark:bg-black text-red-500 shadow-xs'
                                     : 'text-gray-500 hover:text-red-500'
                             "
                             @click="buttonSelected = 'Inactivos'">

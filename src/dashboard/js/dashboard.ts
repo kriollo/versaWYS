@@ -443,7 +443,7 @@ class DashboardManager {
             link.classList.remove(...ACTIVE_CLASSES.link);
 
             // Remover clases activas del icono dentro del link
-            const $icon = link.querySelector('.flex-shrink-0') as HTMLElement;
+            const $icon = link.querySelector('.shrink-0') as HTMLElement;
             if ($icon) {
                 $icon.classList.remove(...ACTIVE_CLASSES.icon);
                 $icon.classList.add(...ACTIVE_CLASSES.iconInactive);
@@ -532,7 +532,7 @@ class DashboardManager {
             link.classList.add(...ACTIVE_CLASSES.link);
 
             // Añadir clases activas al icono
-            const $icon = link.querySelector('.flex-shrink-0') as HTMLElement;
+            const $icon = link.querySelector('.shrink-0') as HTMLElement;
             if ($icon) {
                 $icon.classList.remove(...ACTIVE_CLASSES.iconInactive);
                 $icon.classList.add(...ACTIVE_CLASSES.icon);

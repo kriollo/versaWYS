@@ -325,7 +325,7 @@
         :showModal="show"
         idModal="mediaStorePickerModal"
         size="max-w-4xl"
-        zIndexClass="z-[70]"
+        zIndexClass="z-70"
         :drag="true"
         :resizable="true"
         :blurBackground="false"
@@ -349,7 +349,7 @@
                         class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200"
                         :class="
                             selectedType === type.value
-                                ? 'bg-white dark:bg-gray-700 text-brand shadow-sm ring-1 ring-black/5 dark:ring-white/10'
+                                ? 'bg-white dark:bg-gray-700 text-brand shadow-xs ring-1 ring-black/5 dark:ring-white/10'
                                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                         ">
                         <i :class="['bi', type.icon]"></i>
@@ -436,7 +436,7 @@
                             v-model="newFolderName"
                             type="text"
                             placeholder="Nombre carpeta"
-                            class="text-xs px-2 py-1 rounded-lg border border-brand bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none w-32"
+                            class="text-xs px-2 py-1 rounded-lg border border-brand bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-hidden w-32"
                             @keyup.enter="createFolder"
                             @keyup.esc="showNewFolderInput = false"
                             autofocus />
@@ -483,7 +483,7 @@
                         <div
                             v-for="folder in folders"
                             :key="`folder-${folder.id}`"
-                            class="group relative bg-yellow-50 dark:bg-yellow-900/10 rounded-xl border border-yellow-100 dark:border-yellow-800/30 shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer"
+                            class="group relative bg-yellow-50 dark:bg-yellow-900/10 rounded-xl border border-yellow-100 dark:border-yellow-800/30 shadow-xs hover:shadow-md transition-all overflow-hidden cursor-pointer"
                             @click="navigateToFolder(folder)">
                             <div class="aspect-square flex flex-col items-center justify-center gap-2 p-3">
                                 <i class="bi bi-folder-fill text-3xl text-yellow-400"></i>
@@ -501,7 +501,7 @@
                         <div
                             v-for="asset in assets"
                             :key="asset.id"
-                            class="group relative bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer"
+                            class="group relative bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 shadow-xs hover:shadow-md transition-all overflow-hidden cursor-pointer"
                             @click="selectAsset(asset)">
                             <div class="aspect-square relative">
                                 <MediaThumbnail

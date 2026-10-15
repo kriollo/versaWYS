@@ -163,7 +163,7 @@
 </script>
 
 <template>
-    <div class="bg-white dark:bg-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-gray-800 p-4 select-none">
+    <div class="bg-white dark:bg-gray-950 rounded-2xl border border-gray-100 dark:border-gray-800 p-4 select-none">
         <!-- Header: nav mes -->
         <div class="flex items-center justify-between mb-4">
             <button
@@ -208,7 +208,7 @@
                         : isDisabled(cell.date)
                           ? 'text-gray-300 dark:text-gray-700 cursor-not-allowed'
                           : isSelected(cell.date)
-                            ? 'bg-brand text-black font-bold shadow-sm shadow-brand/30'
+                            ? 'bg-brand text-black font-bold shadow-xs shadow-brand/30'
                             : isToday(cell.date)
                               ? 'border-2 border-brand text-brand font-bold hover:bg-brand/10'
                               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer',

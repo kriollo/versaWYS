@@ -172,10 +172,10 @@
         <transition name="raycast-fade">
             <div
                 v-if="isOpen"
-                class="raycast-overlay fixed inset-0 z-[9999] flex items-start justify-center pt-[15vh]"
+                class="raycast-overlay fixed inset-0 z-9999 flex items-start justify-center pt-[15vh]"
                 @click.self="closeLauncher">
                 <!-- Backdrop blur -->
-                <div class="absolute inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm"></div>
+                <div class="absolute inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-xs"></div>
 
                 <!-- Launcher panel -->
                 <transition name="raycast-scale">
@@ -202,7 +202,7 @@
                                 @keydown="handleKeydown"
                                 type="text"
                                 :placeholder="placeholder"
-                                class="flex-1 bg-transparent border-none outline-none text-gray-900 dark:text-white text-lg placeholder-gray-400 dark:placeholder-gray-500"
+                                class="flex-1 bg-transparent border-none outline-hidden text-gray-900 dark:text-white text-lg placeholder-gray-400 dark:placeholder-gray-500"
                                 autocomplete="off" />
                             <kbd
                                 class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -287,7 +287,7 @@
                                     <!-- Indicador de selección -->
                                     <div v-if="selectedIndex === index" class="flex items-center gap-2">
                                         <span class="text-xs text-white/70">Abrir</span>
-                                        <kbd class="px-1.5 py-0.5 bg-white/20 text-white text-xs rounded">↵</kbd>
+                                        <kbd class="px-1.5 py-0.5 bg-white/20 text-white text-xs rounded-sm">↵</kbd>
                                     </div>
                                 </div>
                             </div>
@@ -299,25 +299,25 @@
                             <div class="flex items-center gap-4 text-xs text-gray-600 dark:text-gray-400">
                                 <span class="flex items-center gap-1">
                                     <kbd
-                                        class="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded border border-gray-300 dark:border-gray-600 shadow-sm">
+                                        class="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-sm border border-gray-300 dark:border-gray-600 shadow-xs">
                                         ↑
                                     </kbd>
                                     <kbd
-                                        class="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded border border-gray-300 dark:border-gray-600 shadow-sm">
+                                        class="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-sm border border-gray-300 dark:border-gray-600 shadow-xs">
                                         ↓
                                     </kbd>
                                     <span>Navegar</span>
                                 </span>
                                 <span class="flex items-center gap-1">
                                     <kbd
-                                        class="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded border border-gray-300 dark:border-gray-600 shadow-sm">
+                                        class="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-sm border border-gray-300 dark:border-gray-600 shadow-xs">
                                         ↵
                                     </kbd>
                                     <span>Abrir</span>
                                 </span>
                                 <span class="flex items-center gap-1">
                                     <kbd
-                                        class="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded border border-gray-300 dark:border-gray-600 shadow-sm">
+                                        class="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-sm border border-gray-300 dark:border-gray-600 shadow-xs">
                                         ESC
                                     </kbd>
                                     <span>Cerrar</span>

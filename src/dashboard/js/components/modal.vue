@@ -345,7 +345,7 @@
             :class="[
                 zIndexClass,
                 {
-                    'backdrop-blur': blurBackground,
+                    'backdrop-blur-sm': blurBackground,
                 },
             ]"
             :id="idModal"
@@ -356,7 +356,7 @@
             @keydown.esc.stop="emit('accion', { accion: 'closeModal' })">
             <div class="relative p-4 w-full max-h-full my-auto" :class="size" ref="modalContent">
                 <!-- Modal content -->
-                <div class="relative bg-white rounded-lg shadow dark:bg-[#050505]">
+                <div class="relative bg-white rounded-lg shadow-sm dark:bg-[#050505]">
                     <!-- Modal header -->
                     <div
                         class="p-4 md:p-3 border-b rounded-t dark:border-gray-600"

@@ -126,7 +126,7 @@
             <template v-slot:buttons>
                 <div class="flex justify-between gap-2 px-2">
                     <button
-                        class="text-white bg-brand hover:bg-brand-600 focus:ring-4 focus:outline-none focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600 cursor-pointer"
+                        class="text-white bg-brand hover:bg-brand-600 focus:ring-4 focus:outline-hidden focus:ring-brand/30 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-brand dark:hover:bg-brand-600 dark:focus:ring-brand-600 cursor-pointer"
                         @click="showModalForm.showModalEmpresa = true">
                         <svg
                             class="w-[20px] h-[20px] text-gray-800 dark:text-white"
@@ -150,7 +150,7 @@
                             class="px-4 py-2 rounded-lg text-sm font-bold transition-all"
                             :class="
                                 buttonSelected === 'Todos'
-                                    ? 'bg-white dark:bg-black text-black dark:text-white shadow-sm'
+                                    ? 'bg-white dark:bg-black text-black dark:text-white shadow-xs'
                                     : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
                             "
                             @click="
@@ -164,7 +164,7 @@
                             class="px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
                             :class="
                                 buttonSelected === 'Activos'
-                                    ? 'bg-white dark:bg-black text-green-600 shadow-sm'
+                                    ? 'bg-white dark:bg-black text-green-600 shadow-xs'
                                     : 'text-gray-500 hover:text-green-600'
                             "
                             @click="
@@ -179,7 +179,7 @@
                             class="px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
                             :class="
                                 buttonSelected === 'Inactivos'
-                                    ? 'bg-white dark:bg-black text-red-500 shadow-sm'
+                                    ? 'bg-white dark:bg-black text-red-500 shadow-xs'
                                     : 'text-gray-500 hover:text-red-500'
                             "
                             @click="
