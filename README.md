@@ -42,7 +42,8 @@ Toda la documentación detallada se encuentra en la carpeta [`/documentacion`](.
 - [Enrutamiento](./documentacion/Enrutamiento.md): cómo funcionan las rutas y middlewares.
 - [ORM y Base de Datos](./documentacion/ORM_y_BaseDeDatos.md): modelos con VersaORM, migraciones y seeders.
 - [Interfaz de Línea de Comandos (CLI)](./documentacion/LineaDeComandos.md): automatización y utilidades.
-- [Validación de datos](./documentacion/Validacion.md): reglas de `validateParams`.
+- [Validación de datos](./documentacion/Validacion.md): reglas, datos anidados y Form Requests.
+- [Autorización](./documentacion/Autorizacion.md): aislamiento por empresa (`Tenant`) y permisos (`Gate`).
 - [Seguridad](./documentacion/Seguridad_Principios_Basicos.md): buenas prácticas y protección.
 - [Estructura de Directorios](./documentacion/EstructuraDeDirectorios.md): organización del proyecto.
 - [Preguntas Frecuentes (FAQ)](./documentacion/FAQ.md)

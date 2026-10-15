@@ -27,6 +27,7 @@ Inspirado en la necesidad de un arranque rápido de proyectos y una curva de apr
 - [Pruebas de la aplicación (TestClient)](./Pruebas.md)
 - [Contenedor de dependencias](./Contenedor.md)
 - [Validación de datos](./Validacion.md)
+- [Autorización](./Autorizacion.md)
 - [Documentación de Rutas Interactiva](./RutasInteractivas.md)
 - [Estructura de Directorios](./EstructuraDeDirectorios.md)
 - [Guía de Contribución](./Guia_Contribucion.md)
