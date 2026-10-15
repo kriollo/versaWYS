@@ -51,7 +51,7 @@ Esta guía te ayudará a identificar y resolver los problemas más comunes al tr
 **`v-model` o `provide/inject` dejan de funcionar sin un error claro:** hay dos copias de Vue en la página. Una parte de los archivos se compiló para producción (`pnpm compile` usa `vue.esm-browser.prod.js`) y otra para desarrollo (`vue.esm-browser.js`).
 
 - Para dejar todo en un modo, corre `pnpm compileDev` (desarrollo) o `pnpm compile` (producción).
-- Con versacompiler posterior a 2.7.3, `pnpm watch` recompila al iniciar lo que quedó en el otro modo.
+- Desde versacompiler 2.7.4, `pnpm watch` recompila al iniciar lo que quedó en el otro modo.
 - Con un archivo compilado, `grep -rho "vue[a-z.-]*esm-browser[a-z.]*js" public/dashboard/js | sort | uniq -c` debe mostrar una sola variante.
 
 ---
