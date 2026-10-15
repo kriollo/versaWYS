@@ -44,6 +44,7 @@ Toda la documentación detallada se encuentra en la carpeta [`/documentacion`](.
 - [Interfaz de Línea de Comandos (CLI)](./documentacion/LineaDeComandos.md): automatización y utilidades.
 - [Validación de datos](./documentacion/Validacion.md): reglas, datos anidados y Form Requests.
 - [Autorización](./documentacion/Autorizacion.md): aislamiento por empresa (`Tenant`) y permisos (`Gate`).
+- [Caché, colas y archivos](./documentacion/Cache_Colas_Archivos.md): `Cache`, `Queue` con `app:queue:work`, `Storage`.
 - [Seguridad](./documentacion/Seguridad_Principios_Basicos.md): buenas prácticas y protección.
 - [Estructura de Directorios](./documentacion/EstructuraDeDirectorios.md): organización del proyecto.
 - [Preguntas Frecuentes (FAQ)](./documentacion/FAQ.md)
