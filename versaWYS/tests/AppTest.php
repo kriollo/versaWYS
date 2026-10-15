@@ -150,3 +150,35 @@ describe('TestClient', function (): void {
         $admin->get('/admin/dashboard')->assertRedirect('/admin/login');
     });
 });
+
+describe('usuarios por consola', function (): void {
+    $cli = static function (string ...$args): array {
+        $env = 'VERSAWYS_CONFIG=' . escapeshellarg(appTestDir() . '/config.json');
+        exec("{$env} php versaCLI " . implode(' ', array_map(escapeshellarg(...), $args)) . ' 2>&1 < /dev/null', $output, $code);
+
+        return [$code, implode("\n", $output)];
+    };
+
+    it('crea un usuario que puede entrar, lo lista sin la clave y le cambia la clave', function () use ($cli): void {
+        $cli('command:refresh');
+        [$code] = $cli('app:user:create', '--name=Consola', '--email=consola@app.test', '--role=admin', '--empresa=1', '--perfil=1', '--password=' . APP_TEST_PASSWORD);
+        expect($code)->toBe(0);
+        app('consola@app.test'); // login() falla si la clave no sirve
+
+        [, $lista] = $cli('app:user:list');
+        expect($lista)->toContain('consola@app.test')->not->toContain('$2y$')->not->toContain('$argon');
+
+        [$code] = $cli('app:user:password', 'consola@app.test', '--password=Nueva#Clave2027');
+        expect($code)->toBe(0);
+        TestClient::boot(dirname(__DIR__, 2))->login('consola@app.test', 'Nueva#Clave2027');
+        expect(fn() => app('consola@app.test'))->toThrow(RuntimeException::class);
+    });
+
+    it('rechaza un correo repetido y una clave fuera de la política', function () use ($cli): void {
+        [$code, $out] = $cli('app:user:create', '--name=X', '--email=admin@app.test', '--role=user', '--empresa=1', '--password=' . APP_TEST_PASSWORD);
+        expect($code)->toBe(1)->and($out)->toContain('Ya existe un usuario con ese correo');
+
+        [$code] = $cli('app:user:create', '--name=X', '--email=nuevo@app.test', '--role=user', '--empresa=1', '--password=123');
+        expect($code)->toBe(1);
+    });
+});
