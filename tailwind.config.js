@@ -3,7 +3,6 @@ import colors from 'tailwindcss/colors.js';
 /** @type {import('tailwindcss').Config} */
 
 export default {
-    mode: 'jit',
     content: [
         './app/**/*.php',
         './app/templates/**/*.twig',
@@ -15,32 +14,6 @@ export default {
         './public/vendor/flowbite/*.js',
         './versaWYS/kernel/**/*.php',
     ],
-    safelist: [
-        'w-64',
-        'w-1/2',
-        'rounded-l-lg',
-        'rounded-r-lg',
-        'bg-gray-200',
-        'grid-cols-4',
-        'grid-cols-7',
-        'h-6',
-        'leading-6',
-        'h-9',
-        'leading-9',
-        'shadow-lg',
-        'bg-opacity-50',
-        'dark:bg-opacity-80',
-        'max-w-md',
-        'max-w-lg',
-        'max-w-xl',
-        'max-w-2xl',
-        'max-w-3xl',
-        'max-w-4xl',
-        'max-w-5xl',
-        'max-w-6xl',
-        'max-w-7xl',
-    ],
-    darkMode: 'class',
     theme: {
         extend: {
             colors: {
@@ -202,7 +175,6 @@ export default {
             transitionProperty: {
                 width: 'width',
             },
-            textDecoration: ['active'],
             minWidth: {
                 kanban: '28rem',
             },
@@ -220,5 +192,4 @@ export default {
             },
         },
     },
-    plugins: ['prettier-plugin-tailwindcss'],
 };
