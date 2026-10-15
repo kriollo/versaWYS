@@ -25,9 +25,11 @@ abstract class ConsoleCommand extends BaseCommand
     {
         $values = [];
         foreach ([...$args, ...($_SERVER['argv'] ?? [])] as $arg) {
-            if (is_string($arg) && preg_match('/^--([a-z-]+)(?:=(.*))?$/s', $arg, $m) === 1) {
-                $values[str_replace('-', '_', $m[1])] = $m[2] ?? '1';
+            if (!is_string($arg) || preg_match('/^--([a-z-]+)(?:=(.*))?$/s', $arg, $m) !== 1) {
+                continue;
             }
+
+            $values[str_replace('-', '_', $m[1])] = $m[2] ?? '1';
         }
 
         return $values;
@@ -64,7 +66,7 @@ abstract class ConsoleCommand extends BaseCommand
     protected function newPassword(array $options): ?string
     {
         $password = $options['password'] ?? $this->askSecret('Contraseña nueva');
-        if (!isset($options['password']) && $this->askSecret('Repite la contraseña') !== $password) {
+        if (!isset($options['password']) && !hash_equals($password, $this->askSecret('Repite la contraseña'))) {
             $this->error('Las contraseñas no coinciden.');
 
             return null;

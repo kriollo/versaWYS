@@ -43,10 +43,16 @@ class UserCreateCommand extends ConsoleCommand
         if (!isset($errors['email']) && $orm->table('versa_users')->where('email', '=', $data['email'])->count() > 0) {
             $errors['email'] = 'Ya existe un usuario con ese correo';
         }
-        if (!isset($errors['empresa']) && $orm->table('empresas')->where('id', '=', (int) $data['empresa'])->count() === 0) {
+        if (
+            !isset($errors['empresa'])
+            && $orm->table('empresas')->where('id', '=', (int) $data['empresa'])->count() === 0
+        ) {
             $errors['empresa'] = 'La empresa no existe (ver app:user:list)';
         }
-        if (!isset($errors['perfil']) && $orm->table('versa_perfil')->where('id', '=', (int) $data['perfil'])->count() === 0) {
+        if (
+            !isset($errors['perfil'])
+            && $orm->table('versa_perfil')->where('id', '=', (int) $data['perfil'])->count() === 0
+        ) {
             $errors['perfil'] = 'El perfil no existe';
         }
         if ($errors !== []) {

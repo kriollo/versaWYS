@@ -112,7 +112,25 @@ Esta guía te ayudará a identificar y resolver los problemas más comunes al tr
 
 ---
 
-## 10. Un error muestra una página roja con código
+## 10. Nadie recuerda la clave del administrador
+
+Desde la terminal del servidor:
+
+```bash
+php versaCLI app:user:list                                   # para ver el correo
+php versaCLI app:user:password admin@empresa.cl --activar    # clave nueva; --activar si la cuenta quedó inactiva
+```
+
+Si el login sigue bloqueado por intentos fallidos:
+
+- espera `login_attempt.time` segundos;
+- o corre `php versaCLI cache:clear`, que borra el conteo por IP del rate limiting.
+
+Ver [Línea de comandos](./LineaDeComandos.md#usuarios-desde-la-terminal).
+
+---
+
+## 11. Un error muestra una página roja con código
 
 Es la página de error del modo debug (`build.debug: true`). Muestra el mensaje, el código alrededor de la línea que falló en cada archivo de la aplicación y los datos de la petición. Las API reciben lo mismo en JSON, con `code`.
 
@@ -120,7 +138,7 @@ En producción (`php versaCLI config:debug:false`) el usuario ve un error 500 ge
 
 ---
 
-## 11. Otros problemas
+## 12. Otros problemas
 - Consulta la [FAQ](./FAQ.md) para dudas comunes.
 - Revisa la documentación de cada sección.
 - Si el problema persiste, abre un issue en el [repositorio oficial](https://github.com/kriollo/versaWYS).

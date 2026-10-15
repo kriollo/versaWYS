@@ -43,17 +43,25 @@ class UserPasswordCommand extends ConsoleCommand
         (new Users())->updatePassword($email, $password);
         $this->success("Contraseña de {$email} actualizada.");
 
-        if (!(bool) $users[0]['status']) {
-            if (isset($o['activar'])) {
-                $this->versaOrm->table('versa_users')->where('email', '=', $email)->update([
-                    'status' => true,
-                    'last_login' => date('Y-m-d H:i:s'),
-                ]);
-                $this->success('Cuenta reactivada.');
-            } else {
-                $this->warning('La cuenta está inactiva: agrega --activar para reactivarla.');
-            }
+        if ((bool) $users[0]['status']) {
+            return 0;
         }
+
+        if (!isset($o['activar'])) {
+            $this->warning('La cuenta está inactiva: agrega --activar para reactivarla.');
+
+            return 0;
+        }
+
+        // last_login al día: si no, la revisión de cuentas inactivas la volvería a desactivar
+        $this->versaOrm
+            ->table('versa_users')
+            ->where('email', '=', $email)
+            ->update([
+                'status' => true,
+                'last_login' => date('Y-m-d H:i:s'),
+            ]);
+        $this->success('Cuenta reactivada.');
 
         return 0;
     }

@@ -61,3 +61,7 @@ Revisa la carpeta `app/` (modelos, controladores, rutas) y los ejemplos en la do
 ---
 
 ¿Tienes otra pregunta? ¡Sugiere una nueva entrada para la FAQ!
+
+## ¿Cómo creo un usuario o recupero la clave del administrador sin entrar al panel?
+
+Con `php versaCLI app:user:create`, `app:user:list` y `app:user:password <correo>`. Ver [Usuarios desde la terminal](./LineaDeComandos.md#usuarios-desde-la-terminal).

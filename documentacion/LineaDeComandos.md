@@ -120,9 +120,30 @@ Comandos incluidos:
 | `app:mail:send` | Envía un correo (plantilla Twig o HTML). Lo usa el framework para enviar correos en segundo plano. |
 | `app:check:psr4` | Revisa que clases, namespaces y nombres de archivo coincidan; también referencias a clases del proyecto que no existen y `require`/`include` cuya ruta difiere en mayúsculas de lo que hay en disco. |
 | `app:check:deploy` | Revisión previa al despliegue. Ver más abajo. |
+| `app:install` | Instala la aplicación desde la terminal: base de datos, migraciones, empresa y superadministrador. |
+| `app:user:list [--empresa=ID]` | Lista los usuarios con rol, perfil, empresa, estado y último ingreso. Nunca muestra contraseñas. |
+| `app:user:create` | Crea un usuario del panel. Ver «Usuarios desde la terminal». |
+| `app:user:password <correo> [--activar]` | Cambia la contraseña de un usuario; `--activar` además reactiva la cuenta. |
 | `app:queue:work [cola] [--stop-when-empty]` | Procesa la cola de trabajos. Sin la opción no termina (systemd o supervisor); con ella, la vacía y termina (cron). Ver [Caché, colas y archivos](./Cache_Colas_Archivos.md). |
 | `app:queue:failed` | Lista los trabajos que agotaron sus intentos, con su último error. |
 | `app:queue:retry <id\|all>` | Vuelve a encolar un trabajo fallido, o todos. |
+
+### Usuarios desde la terminal
+
+Sirve para recuperar el acceso cuando nadie recuerda la clave del administrador, o para crear usuarios en un servidor:
+
+```bash
+php versaCLI app:user:list
+php versaCLI app:user:password admin@empresa.cl            # pide la clave nueva dos veces, sin mostrarla
+php versaCLI app:user:password admin@empresa.cl --activar  # si además la cuenta quedó inactiva
+php versaCLI app:user:create                               # pregunta nombre, correo, rol, empresa, perfil y clave
+php versaCLI app:user:create --name="Ana" --email=ana@empresa.cl --role=admin --empresa=1 --perfil=1
+```
+
+- **Política:** la clave nueva cumple la misma política que en el panel (`auth.password_policy`) y vence según `auth.expiration_days_password`.
+- **Recuperación pendiente:** cambiar la clave también anula un enlace de recuperación que estuviera pendiente.
+- **Roles y perfiles:** el rol es `user`, `admin` o `superadmin`. El perfil por defecto es 1 (Personalizado) para administradores y 2 (Usuario) para el resto.
+- **En scripts:** `--password=...` evita la pregunta, pero la clave queda en el historial de la terminal. Mejor escríbela cuando la pida.
 
 ### Despliegue y archivos base
 
