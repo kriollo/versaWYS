@@ -63,7 +63,9 @@ La regla general: **la entrada se guarda tal como llega y se escapa al mostrarla
 - **Contraseñas** con `Functions::hash()` (`PASSWORD_DEFAULT`). En el login, si `Functions::needsRehash()` indica un algoritmo o costo anterior, se guarda un hash nuevo: es el único momento en que se tiene la contraseña.
 - **Al autenticar** se renuevan el id de sesión y el token CSRF; al cerrar sesión el JWT queda revocado aunque alguien conserve la cookie.
 - **Rate limiting:** el login se limita por IP y por cuenta (reglas en `rate_limiting`).
-- **Aislamiento por empresa:** usa siempre `$this->empresaSelected['id']` de la sesión; nunca un id de empresa enviado por el cliente.
+- **Aislamiento por empresa:** usa siempre la empresa de la sesión (`Tenant::id()` o `$this->empresaSelected['id']`), nunca un id de empresa enviado por el cliente. Al buscar por id, `Tenant::ensure($fila)` responde 404 si la fila es de otra empresa.
+- **Permisos por acción:** `Gate::authorize('habilidad', $fila)` responde 403. Una habilidad no definida niega. Ver [Autorización](./Autorizacion.md).
+- **Validación:** una [Form Request](./Validacion.md#form-requests) impide que el controlador corra con datos inválidos.
 
 ---
 
@@ -90,6 +92,7 @@ La regla general: **la entrada se guarda tal como llega y se escapa al mostrarla
 
   Con `--url=https://tu-sitio` pide además `.env`, `.git/config`, `config.json`, `vendor/` y `logs/` al sitio real, y falla si alguno responde.
 - **Subida de archivos:** `File::getType()` devuelve el tipo detectado en el contenido, no el que declara el navegador, y ningún archivo se guarda con extensión ejecutable ni como oculto. Valida igual contra una lista de tipos permitidos.
+- **Archivos privados** (facturas, respaldos): guárdalos con `Storage`, en `versaWYS/storage`, fuera de lo que sirve la web, y entrégalos después de revisar el permiso.
 - Mantén el kernel al día: `composer update versawys/kernel`. Dependabot abre el PR en cada versión nueva.
 
 ¿Dudas? Consulta la [Guía de Configuración](./CONFIGURATION.md), la [Guía de Enrutamiento](./Enrutamiento.md) o la [Interfaz de Línea de Comandos](./LineaDeComandos.md).

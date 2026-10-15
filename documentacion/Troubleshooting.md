@@ -44,9 +44,15 @@ Esta guía te ayudará a identificar y resolver los problemas más comunes al tr
 - Modificas archivos en `src/` pero no cambian en el navegador.
 
 **Solución:**
-- Ejecuta `npm run watch` para recompilar automáticamente.
+- Ejecuta `pnpm watch` para recompilar automáticamente (modo desarrollo: Vue muestra todos sus avisos).
 - Borra la caché del navegador.
 - Verifica que los archivos generados estén en `public/` y que el HTML los esté cargando correctamente.
+
+**`v-model` o `provide/inject` dejan de funcionar sin un error claro:** hay dos copias de Vue en la página. Una parte de los archivos se compiló para producción (`pnpm compile` usa `vue.esm-browser.prod.js`) y otra para desarrollo (`vue.esm-browser.js`).
+
+- Para dejar todo en un modo, corre `pnpm compileDev` (desarrollo) o `pnpm compile` (producción).
+- Con versacompiler posterior a 2.7.3, `pnpm watch` recompila al iniciar lo que quedó en el otro modo.
+- Con un archivo compilado, `grep -rho "vue[a-z.-]*esm-browser[a-z.]*js" public/dashboard/js | sort | uniq -c` debe mostrar una sola variante.
 
 ---
 
@@ -106,7 +112,15 @@ Esta guía te ayudará a identificar y resolver los problemas más comunes al tr
 
 ---
 
-## 10. Otros problemas
+## 10. Un error muestra una página roja con código
+
+Es la página de error del modo debug (`build.debug: true`). Muestra el mensaje, el código alrededor de la línea que falló en cada archivo de la aplicación y los datos de la petición. Las API reciben lo mismo en JSON, con `code`.
+
+En producción (`php versaCLI config:debug:false`) el usuario ve un error 500 genérico y el detalle queda en `versaWYS/logs/`.
+
+---
+
+## 11. Otros problemas
 - Consulta la [FAQ](./FAQ.md) para dudas comunes.
 - Revisa la documentación de cada sección.
 - Si el problema persiste, abre un issue en el [repositorio oficial](https://github.com/kriollo/versaWYS).

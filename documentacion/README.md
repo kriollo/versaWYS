@@ -16,6 +16,15 @@ versaWYS-PHP es un framework PHP MVC (Modelo-Vista-Controlador) moderno y ligero
 
 Inspirado en la necesidad de un arranque rápido de proyectos y una curva de aprendizaje suave, versaWYS-PHP integra componentes robustos y populares de la comunidad PHP, como VersaORM para el acceso a datos y Twig para un sistema de plantillas elegante y seguro.
 
+El núcleo es el paquete [`versawys/kernel`](https://github.com/kriollo/versawys-kernel). Trae:
+
+- pruebas de la aplicación sin servidor;
+- un contenedor de dependencias optativo;
+- validación con Form Requests y autorización por empresa y por acción;
+- caché, una cola de trabajos y almacenamiento de archivos.
+
+Su `ROADMAP.md` resume qué cubre y cuáles son sus límites conocidos.
+
 ## Guías Detalladas
 
 - [Guía de Instalación](./INSTALL.md)
@@ -29,7 +38,10 @@ Inspirado en la necesidad de un arranque rápido de proyectos y una curva de apr
 - [Validación de datos](./Validacion.md)
 - [Autorización](./Autorizacion.md)
 - [Caché, colas y archivos](./Cache_Colas_Archivos.md)
-- [Documentación de Rutas Interactiva](./RutasInteractivas.md)
+- [Documentación interactiva de rutas (`/doc`)](./Enrutamiento.md#la-página-doc)
+- [Logging](./Logging_Quickstart.md) y [referencia completa](./Logging.md)
+- [Redis (RedisModel)](./RedisModel.md)
+- [Solución de problemas](./Troubleshooting.md)
 - [Estructura de Directorios](./EstructuraDeDirectorios.md)
 - [Guía de Contribución](./Guia_Contribucion.md)
 - [Preguntas Frecuentes (FAQ)](./FAQ.md)
