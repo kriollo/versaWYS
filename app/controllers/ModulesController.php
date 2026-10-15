@@ -38,7 +38,13 @@ class ModulesController extends GlobalControllers
     {
         global $request;
 
-        $params = $this->getParamsPaginate($request, ['seccion', 'nombre', 'descripcion'], true, 'posicion,asc', ['estado']);
+        $params = $this->getParamsPaginate(
+            $request,
+            ['seccion', 'nombre', 'descripcion'],
+            true,
+            'posicion,asc',
+            ['estado'],
+        );
         $filter = $params['filter'] ?? '';
         $order = $params['order'] ?: 'posicion ASC, seccion ASC';
         $modelo = new Models\Pagination();

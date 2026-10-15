@@ -56,7 +56,11 @@ class ConfigSettingsMiddleware
         if (!in_array($flat['build_timezone'], timezone_identifiers_list(), strict: true)) {
             $errors['build_timezone'] = 'La zona horaria no es válida';
         }
-        if (!in_array(strtoupper((string) $flat['build_charset']), array_map(strtoupper(...), mb_list_encodings()), strict: true)) {
+        if (!in_array(
+            strtoupper((string) $flat['build_charset']),
+            array_map(strtoupper(...), mb_list_encodings()),
+            strict: true,
+        )) {
             $errors['build_charset'] = 'El charset no es válido';
         }
         if (preg_match('/^[A-Za-z0-9_\-]+$/', (string) $flat['admin_custom_url']) !== 1) {

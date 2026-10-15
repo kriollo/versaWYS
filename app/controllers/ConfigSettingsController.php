@@ -148,9 +148,15 @@ class ConfigSettingsController extends GlobalControllers
             '<p>La configuración de correo saliente funciona correctamente.</p>',
         );
 
-        return $sent
-            ? ['success' => 1, 'message' => 'Correo de prueba enviado a ' . $this->user['email']]
-            : ['success' => 0, 'message' => 'No se pudo enviar el correo de prueba. Revise el log de correo.', 'code' => 502];
+        return (
+            $sent
+                ? ['success' => 1, 'message' => 'Correo de prueba enviado a ' . $this->user['email']]
+                : [
+                    'success' => 0,
+                    'message' => 'No se pudo enviar el correo de prueba. Revise el log de correo.',
+                    'code' => 502,
+                ]
+        );
     }
 
     private function toBool(mixed $value): bool

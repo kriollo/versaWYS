@@ -60,7 +60,9 @@ class InstallCommand extends BaseCommand
             if ($field === 'db_port') {
                 $default = ($values['db_driver'] ?? '') === 'postgresql' ? '5432' : '3306';
             }
-            $values[$field] = in_array($field, self::SECRETS, true) ? $this->askSecret($question) : CLIHelper::ask($question, $default);
+            $values[$field] = in_array($field, self::SECRETS, true)
+                ? $this->askSecret($question)
+                : CLIHelper::ask($question, $default);
             if ($values[$field] === '') {
                 $values[$field] = $default;
             }
@@ -142,10 +144,15 @@ class InstallCommand extends BaseCommand
     #[\Override]
     public function getHelp(): string
     {
-        $options = implode(' ', array_map(static fn (string $f): string => '--' . str_replace('_', '-', $f) . '=...', array_keys(self::FIELDS)));
+        $options = implode(' ', array_map(
+            static fn(string $f): string => '--' . str_replace('_', '-', $f) . '=...',
+            array_keys(self::FIELDS),
+        ));
 
-        return "Uso: php versaCLI app:install [opciones]\n\n"
+        return (
+            "Uso: php versaCLI app:install [opciones]\n\n"
             . "Sin opciones pregunta cada dato. Para servidores sin navegador o scripts:\n  {$options}\n\n"
-            . "La base de datos debe existir y estar vacía. Si la aplicación ya está instalada (installed.lock), no hace nada.\n";
+            . "La base de datos debe existir y estar vacía. Si la aplicación ya está instalada (installed.lock), no hace nada.\n"
+        );
     }
 }

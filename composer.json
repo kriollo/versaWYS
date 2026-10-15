@@ -11,9 +11,9 @@
     },
     "require-dev": {
         "friendsoftwig/twigcs": "^6.6.1",
-        "laravel/pint": "^1.30.5",
         "pestphp/pest": "^4.1 || ^5.1",
-        "rector/rector": "^2.6.1"
+        "rector/rector": "^2.6.1",
+        "carthage-software/mago": "^1.57"
     },
     "autoload": {
         "psr-4": {
@@ -28,7 +28,8 @@
     "config": {
         "vendor-dir": "versaWYS/vendor",
         "allow-plugins": {
-            "pestphp/pest-plugin": true
+            "pestphp/pest-plugin": true,
+            "carthage-software/mago": true
         },
         "platform": {
             "php": "8.3.0"
@@ -39,18 +40,20 @@
         "post-create-project-cmd": [
             "@php versaCLI config:init"
         ],
-        "pint": "pint --config versaWYS/pint.json versaWYS",
-        "pint:check": "pint --config versaWYS/pint.json --test versaWYS",
+        "mago:fmt": "mago fmt",
+        "mago:fmt:check": "mago fmt --dry-run",
+        "mago:lint": "mago lint",
+        "mago:lint:fix": "mago lint --fix --unsafe --format-after-fix",
         "rector:check": "rector process --config versaWYS/rector.php --dry-run --ansi",
         "rector:fix": "rector process --config versaWYS/rector.php --ansi",
         "test": "pest --configuration versaWYS/phpunit.xml",
         "check": [
-            "@pint:check",
+            "@mago:fmt:check",
             "@test"
         ],
         "fix": [
-            "@pint",
-            "@rector:fix"
+            "@rector:fix",
+            "@mago:fmt"
         ]
     }
 }

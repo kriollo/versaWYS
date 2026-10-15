@@ -63,14 +63,18 @@ class UsersController extends GlobalControllers
         try {
             global $request;
 
-            $params = $this->getParamsPaginate($request, [
-                'name',
-                'versa_users.email',
-                'role',
-                'versa_users.pagina_inicio',
-                'vp.nombre',
-                'e.nombre',
-            ], allowedFilters: ['status' => 'versa_users.status']);
+            $params = $this->getParamsPaginate(
+                $request,
+                [
+                    'name',
+                    'versa_users.email',
+                    'role',
+                    'versa_users.pagina_inicio',
+                    'vp.nombre',
+                    'e.nombre',
+                ],
+                allowedFilters: ['status' => 'versa_users.status'],
+            );
             $filter = $params['filter'] ?? '';
             $order = $params['order'] ? '' . $params['order'] : 'id DESC';
             $result = (new Users())->getUsersPaginate(
@@ -370,7 +374,7 @@ class UsersController extends GlobalControllers
         $isSuperAdmin = ($this->user['role'] ?? '') === 'superadmin';
         $role = (string) ($params['rol'] ?? 'user');
 
-        if (!in_array($role, self::ROLES, strict: true) || ($role === 'superadmin' && !$isSuperAdmin)) {
+        if (!in_array($role, self::ROLES, strict: true) || $role === 'superadmin' && !$isSuperAdmin) {
             return null;
         }
 
