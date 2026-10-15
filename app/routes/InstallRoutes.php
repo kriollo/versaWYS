@@ -30,7 +30,7 @@ Router::get('/install', [InstallController::class, 'index'])->middleware([
 // request-body name:admin_password_confirm type:string description:Repetición de la contraseña
 Router::post('/install/run', [InstallController::class, 'run'])->middleware([
     [InstallMiddleware::class, 'checkNotInstalled'],
-    [AuthMiddleware::class, 'validateCSRFToken'],
+    [AuthMiddleware::class,    'validateCSRFToken'],
     [InstallMiddleware::class, 'checkInstallToken'],
     [InstallMiddleware::class, 'validateParams'],
 ]);

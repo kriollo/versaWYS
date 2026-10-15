@@ -40,9 +40,7 @@ class Dashboard extends VersaORMModel
             ->where('versa_menu.estado', '=', 1)
             // Simular condición del ON original (vsm.estado = 1) sin perder filas sin submenú
             ->whereRaw('(versa_submenu.estado = ? OR versa_submenu.id IS NULL)', [true])
-            ->orderByRaw(
-                'UPPER(TRIM(versa_menu.seccion)) ASC, versa_menu.posicion ASC, versa_submenu.posicion ASC',
-            );
+            ->orderByRaw('UPPER(TRIM(versa_menu.seccion)) ASC, versa_menu.posicion ASC, versa_submenu.posicion ASC');
 
         return $qb->collect();
     }

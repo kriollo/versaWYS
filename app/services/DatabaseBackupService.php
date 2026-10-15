@@ -32,7 +32,14 @@ class DatabaseBackupService
         $absolutePath = self::BACKUP_DIR . DIRECTORY_SEPARATOR . $filename;
 
         $result = $this->isMysql()
-            ? $this->runProcess(['mysqldump', ...$this->connectionArgs(), '--single-transaction', '--routines', '--result-file=' . $absolutePath, $this->db()['database'] ?? ''])
+            ? $this->runProcess([
+                'mysqldump',
+                ...$this->connectionArgs(),
+                '--single-transaction',
+                '--routines',
+                '--result-file=' . $absolutePath,
+                $this->db()['database'] ?? '',
+            ])
             : $this->runProcess([
                 'pg_dump',
                 ...$this->connectionArgs(),
@@ -96,7 +103,10 @@ class DatabaseBackupService
 
         $result = $this->isMysql()
             // El cliente mysql lee el dump por stdin
-            ? $this->runProcess(['mysql', ...$this->connectionArgs(), $this->db()['database'] ?? ''], $uploadedFile->getTmpName())
+            ? $this->runProcess(
+                ['mysql', ...$this->connectionArgs(), $this->db()['database'] ?? ''],
+                $uploadedFile->getTmpName(),
+            )
             : $this->runProcess([
                 'psql',
                 ...$this->connectionArgs(),
@@ -135,9 +145,15 @@ class DatabaseBackupService
             '--port=' . (string) ($db['port'] ?? ''),
         ];
 
-        return $this->isMysql()
-            ? [...$args, '--protocol=TCP', '--user=' . (string) ($db['username'] ?? '')]
-            : [...$args, '--username=' . (string) ($db['username'] ?? ''), '--dbname=' . (string) ($db['database'] ?? '')];
+        return (
+            $this->isMysql()
+                ? [...$args, '--protocol=TCP', '--user=' . (string) ($db['username'] ?? '')]
+                : [
+                    ...$args,
+                    '--username=' . (string) ($db['username'] ?? ''),
+                    '--dbname=' . (string) ($db['database'] ?? ''),
+                ]
+        );
     }
 
     private function ensureBackupDir(): void

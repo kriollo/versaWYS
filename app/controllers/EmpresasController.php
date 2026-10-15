@@ -33,10 +33,14 @@ class EmpresasController extends GlobalControllers
     public function getEmpresasPaginated(): array
     {
         global $request;
-        $params = $this->getParamsPaginate($request, ['rut', 'empresas.nombre', 'email'], allowedFilters: [
-            'estado' => 'empresas.estado',
-            'empresas.estado',
-        ]);
+        $params = $this->getParamsPaginate(
+            $request,
+            ['rut', 'empresas.nombre', 'email'],
+            allowedFilters: [
+                'estado' => 'empresas.estado',
+                'empresas.estado',
+            ],
+        );
         $filter = $params['filter'] ?? '';
         $order = $params['order'] ?? 'id DESC';
         $modelo = new Models\Empresas();
@@ -206,7 +210,12 @@ class EmpresasController extends GlobalControllers
                     global $config;
                     $token = Users::newResetToken(7 * 86400);
                     $userModel->saveTokenResetPass($params['email'], $token);
-                    $activationUrl = sprintf('%s/%s/reset-password?token=%s', $request->getBaseUrl(), $config['admin']['custom_url'], $token);
+                    $activationUrl = sprintf(
+                        '%s/%s/reset-password?token=%s',
+                        $request->getBaseUrl(),
+                        $config['admin']['custom_url'],
+                        $token,
+                    );
                 }
             }
 
@@ -370,5 +379,4 @@ class EmpresasController extends GlobalControllers
             ];
         }
     }
-
 }

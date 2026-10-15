@@ -23,7 +23,7 @@ jobs:
             # Desde composer.lock: lo mismo que se despliega
             - run: composer install --no-interaction --no-progress
             - run: composer audit
-            # pint (formato) y pest (tests); el análisis estático del kernel corre en versawys-kernel
+            # mago fmt (formato, el mismo de los proyectos) y pest (tests); el análisis estático del kernel corre en versawys-kernel
             - run: composer check
 
     frontend:
