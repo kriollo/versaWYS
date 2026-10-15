@@ -52,11 +52,68 @@ Se combinan con `|` y se evalúan en orden.
 
 Sin `nullable`, un campo que no llega es un error ("El campo X es obligatorio"). Una regla mal escrita también es un error, así que un dato nunca pasa sin validar.
 
-## Datos anidados
+## Datos anidados y arreglos
 
-Las reglas se aplican a claves de primer nivel. Para validar datos anidados, aplánalos antes, como hace `ConfigSettingsMiddleware`:
+`Validator::make()` acepta rutas con punto y `*` para cada elemento de un arreglo. Las reglas pueden ir en texto o en arreglo, y un closure es una regla propia: devuelve el mensaje de error, o `null` si el valor es válido.
 
 ```php
-$plano = ['mail_port' => $params['mail']['port'] ?? null];
-$errores = Functions::validateParams($plano, ['mail_port' => 'required|int:1-65535']);
+use versaWYS\kernel\Validator;
+
+$v = Validator::make($request->getAllParams(), [
+    'cliente.email' => 'required|email',
+    'items' => 'required|array',
+    'items.*.cantidad' => ['required', 'int:positive'],
+    'items.*.sku' => ['required', static fn(string $campo, mixed $valor): ?string =>
+        Productos::existe($valor) ? null : "El producto {$valor} no existe"],
+], [
+    'items.*.cantidad.required' => 'Indica la cantidad',
+]);
+
+if ($v->fails()) {
+    return ['success' => 0, 'message' => 'Los datos enviados no son correctos', 'errors' => $v->errors(), 'code' => 422];
+}
+$datos = $v->validated(); // solo los campos con reglas, tal como llegaron
 ```
+
+Los errores usan la ruta completa: `['items.1.cantidad' => 'Indica la cantidad']`. Un mensaje propio se busca por `campo.regla`, después por la ruta con `*` y al final por el campo solo. `Functions::validateParams()` es `Validator::make(...)->errors()`.
+
+## Form Requests
+
+Para no repetir las reglas en un middleware, se escriben en una clase y el controlador la recibe como parámetro. El contenedor la valida antes de llamar al método: si falla, responde 422 con `errors` y el método no se ejecuta.
+
+```php
+namespace app\requests;
+
+use versaWYS\kernel\FormRequest;
+
+final class GuardarTablero extends FormRequest
+{
+    public function rules(): array
+    {
+        return ['nombre' => 'required|max:120', 'descripcion' => 'nullable|string'];
+    }
+
+    public function messages(): array
+    {
+        return ['nombre.required' => 'Ponle un nombre al tablero'];
+    }
+
+    // Opcional: false responde 403
+    public function authorize(): bool
+    {
+        return true;
+    }
+}
+```
+
+```php
+public function crear(GuardarTablero $datos): array
+{
+    $id = $this->modelo->guardar($this->idEmpresa, $datos->validated());
+    // $datos->input('nombre') para un campo
+}
+```
+
+Se combina con los parámetros de la ruta en cualquier orden: `editar(GuardarTablero $datos, int $id)`.
+
+Los permisos (quién puede hacer qué) se explican en [Autorizacion.md](Autorizacion.md).
