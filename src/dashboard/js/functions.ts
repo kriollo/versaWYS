@@ -522,19 +522,21 @@ export const sanitizeSvgContent = (svgContent: string): string => {
     for (const element of container.querySelectorAll('*')) {
         if (!SVG_ALLOWED_TAGS.has(element.localName.toLowerCase())) {
             element.remove();
-            continue;
-        }
-
-        // Element.attributes es una colección viva: se copia antes de quitar atributos
-        for (const attribute of [...element.attributes]) {
-            const name = attribute.name.toLowerCase();
-            if (
-                name.startsWith('on') ||
-                name === 'style' ||
-                name.endsWith('href') ||
-                /javascript:|data:/i.test(attribute.value)
-            ) {
-                element.removeAttribute(attribute.name);
+        } else {
+            // Se recorre hacia atrás para quitar atributos de la colección viva sin omitir elementos
+            for (let index = element.attributes.length - 1; index >= 0; index--) {
+                const attribute = element.attributes.item(index);
+                if (attribute) {
+                    const name = attribute.name.toLowerCase();
+                    if (
+                        name.startsWith('on') ||
+                        name === 'style' ||
+                        name.endsWith('href') ||
+                        /javascript:|data:/i.test(attribute.value)
+                    ) {
+                        element.removeAttribute(attribute.name);
+                    }
+                }
             }
         }
     }

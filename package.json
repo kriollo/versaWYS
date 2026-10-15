@@ -7,6 +7,8 @@
     "license": "MIT",
     "scripts": {
         "watch": "versacompiler -w --tailwind --verbose",
+        "vlint": "versacompiler --linter -t",
+        "vtlint": "versacompiler --all -t",
         "compile": "pnpm run versaCompileCSS && pnpm run versaCompileJS",
         "compileDev": "versacompiler --all --cc --verbose --tailwind --linter -t -y",
         "compileCI": "versacompiler --all --cc -y --ci",
