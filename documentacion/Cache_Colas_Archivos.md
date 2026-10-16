@@ -64,10 +64,10 @@ Queue::push(RecordarPago::class, ['id' => $id], delay: 3600, tries: 5);
 | `php versaCLI app:queue:failed` | Trabajos fallidos con su último error |
 | `php versaCLI app:queue:retry 12` / `all` | Los vuelve a encolar |
 
-Cron más simple:
+Lo más simple es procesarla como una [tarea programada](./Tareas_Programadas.md), en `app/schedule.php`:
 
-```
-* * * * * cd /var/www/mi-app && php versaCLI app:queue:work --stop-when-empty >> versaWYS/logs/queue.log 2>&1
+```php
+$schedule->command('app:queue:work --stop-when-empty')->everyMinute()->withoutOverlapping();
 ```
 
 Un trabajo tomado por un worker que murió se vuelve a tomar a los 10 minutos.

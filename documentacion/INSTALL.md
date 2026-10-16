@@ -95,13 +95,14 @@ Lo que más pesa en el rendimiento es cómo corre PHP en el servidor, no el cód
 
 El PHP de la terminal suele tener otro `php.ini` que el del servidor web. Por eso `app:check:deploy --production` le pregunta a **`/up`** cómo corre PHP en el servidor web. `/up` responde `{"status":"ok"}` a cualquiera; el detalle solo lo entrega a quien envía la cabecera firmada con `session.key`, como hace `app:check:deploy` (la terminal y el servidor web deben usar el mismo `config.json`); también sirve para monitorear el sitio.
 
-### Cola de trabajos
+### Tareas programadas y cola de trabajos
 
-Si el proyecto usa `Queue`, algo tiene que procesarla:
+Una sola línea en el crontab del servidor ejecuta todas las tareas de `app/schedule.php`:
 
-- un cron cada minuto con `php versaCLI app:queue:work --stop-when-empty`;
-- o `php versaCLI app:queue:work` como servicio de systemd o supervisor, que lo reinicie si termina.
+```cron
+* * * * * php /var/www/mi-proyecto/current/versaCLI app:schedule:run >> /dev/null 2>&1
+```
 
-Después de un despliegue, reinicia ese servicio para que tome el código nuevo; el cron lo toma solo. Ver [Caché, colas y archivos](./Cache_Colas_Archivos.md).
+Si el proyecto usa `Queue`, la cola se procesa como una tarea más (`$schedule->command('app:queue:work --stop-when-empty')->everyMinute()->withoutOverlapping()`). Si la cola es muy activa, usa `php versaCLI app:queue:work` como servicio de systemd o supervisor y reinícialo en cada despliegue. Ver [Tareas programadas](./Tareas_Programadas.md) y [Caché, colas y archivos](./Cache_Colas_Archivos.md).
 
 Consulta la [Guía de Configuración](./CONFIGURATION.md) para el resto de opciones.

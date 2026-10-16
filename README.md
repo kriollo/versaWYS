@@ -46,6 +46,7 @@ Toda la documentación detallada se encuentra en la carpeta [`/documentacion`](.
 - [Autorización](./documentacion/Autorizacion.md): aislamiento por empresa (`Tenant`) y permisos (`Gate`).
 - [Caché, colas y archivos](./documentacion/Cache_Colas_Archivos.md): `Cache`, `Queue` con `app:queue:work`, `Storage`.
 - [Profiler](./documentacion/Profiler.md): tiempos, SQL, N+1 y excepciones de cada petición en `/_profiler` (solo en debug).
+- [Tareas programadas](./documentacion/Tareas_Programadas.md): `app/schedule.php` y una sola línea en el crontab.
 - [Seguridad](./documentacion/Seguridad_Principios_Basicos.md): buenas prácticas y protección.
 - [Estructura de Directorios](./documentacion/EstructuraDeDirectorios.md): organización del proyecto.
 - [Preguntas Frecuentes (FAQ)](./documentacion/FAQ.md)

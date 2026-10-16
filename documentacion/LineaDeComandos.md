@@ -105,11 +105,17 @@ php versaCLI cron:list
 php versaCLI cron:run:LimpiarTemporales
 ```
 
-No hay planificador interno: cada tarea se agenda en el crontab del sistema. La cola de trabajos se procesa igual:
+Las tareas se programan en `app/schedule.php` y el crontab del servidor tiene una sola línea. Ver [Tareas programadas](./Tareas_Programadas.md).
 
 ```cron
-* * * * * cd /var/www/mi-proyecto/current && php versaCLI app:queue:work --stop-when-empty
+* * * * * php /var/www/mi-proyecto/current/versaCLI app:schedule:run >> /dev/null 2>&1
 ```
+
+| Comando | Qué hace |
+|---|---|
+| `app:schedule:run` | Lanza las tareas de este minuto, cada una en su proceso (va en el crontab) |
+| `app:schedule:list` | Cada tarea con su id, frecuencia, próxima ejecución y resultado de la última |
+| `app:schedule:exec <id>` | Ejecuta una tarea ahora, para probarla |
 
 ```cron
 0 3 * * * php /var/www/mi-proyecto/current/versaCLI cron:run:LimpiarTemporales
