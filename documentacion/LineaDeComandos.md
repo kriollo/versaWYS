@@ -8,6 +8,19 @@ php versaCLI help          # lista completa
 php versaCLI migrate       # ayuda de un módulo
 ```
 
+### Sin escribir `php`
+
+- **Sin instalar nada:** `./versaCLI help` funciona porque el archivo es ejecutable. Si al clonar se perdió el permiso, corre una vez `chmod +x versaCLI`.
+- **Instalación global, una vez por máquina:**
+
+  ```bash
+  cp versaWYS/vendor/bin/versaCLI ~/.local/bin/versaCLI   # ~/.local/bin debe estar en el PATH
+  ```
+
+  Después, `versaCLI <comando>` funciona en cualquier carpeta de cualquier proyecto versaWYS, también en una subcarpeta como `app/controllers`. Busca hacia arriba la carpeta del proyecto y ejecuta su propio `versaCLI`, así que cada proyecto usa su versión del kernel.
+
+Los ejemplos de esta guía usan `php versaCLI`, que funciona en todos los sistemas, también en Windows.
+
 ## Opciones globales
 
 | Opción | Efecto |
