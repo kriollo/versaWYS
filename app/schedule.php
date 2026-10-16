@@ -14,8 +14,9 @@ use versaWYS\kernel\Schedule;
  * línea exacta para este servidor, cada tarea con su próxima ejecución y el resultado de la última.
  */
 return static function (Schedule $schedule): void {
-    // Una clase de app/cron (php versaCLI cron:make:LimpiarTemporales), cada noche:
-    // $schedule->cron(\app\cron\LimpiarTemporales::class)->dailyAt('03:00');
+    // Borra los archivos temporales con más de un día. Cada minuto para verla correr en el panel;
+    // en un proyecto real basta una vez al día: ->dailyAt('03:00')
+    $schedule->cron(\app\cron\LimpiarTemporales::class)->everyMinute()->withoutOverlapping();
 
     // La cola de trabajos, si el proyecto usa Queue: cada minuto y sin solaparse
     // $schedule->command('app:queue:work --stop-when-empty')->everyMinute()->withoutOverlapping();
