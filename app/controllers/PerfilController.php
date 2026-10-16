@@ -52,11 +52,7 @@ class PerfilController extends GlobalControllers
         $id = $modelo->savePerfil($params);
 
         if ($id === 0) {
-            Response::json([
-                'success' => 0,
-                'message' => 'Error al guardar el perfil',
-                'code' => 500,
-            ]);
+            Response::json(['success' => 0, 'message' => 'Error al guardar el perfil'], 500);
 
             return;
         }
@@ -76,11 +72,7 @@ class PerfilController extends GlobalControllers
         $id = (new Models\Perfil())->changeState($params);
 
         if ($id === 0) {
-            Response::json([
-                'success' => 0,
-                'message' => 'Error al cambiar el estado del perfil',
-                'code' => 500,
-            ]);
+            Response::json(['success' => 0, 'message' => 'Perfil no encontrado'], 404);
 
             return;
         }
@@ -94,13 +86,9 @@ class PerfilController extends GlobalControllers
 
     public function getPerfil(int|string|null $slug = null): void
     {
-        $perfil = (new Models\Perfil())->getPerfil((int) $slug);
+        $perfil = (new Models\Perfil())->getPerfil((int) $slug, (int) $this->empresaSelected['id']);
         if ($perfil === null) {
-            Response::json([
-                'success' => 0,
-                'message' => 'Perfil no encontrado',
-                'code' => 404,
-            ]);
+            Response::json(['success' => 0, 'message' => 'Perfil no encontrado'], 404);
 
             return;
         }
@@ -187,11 +175,7 @@ class PerfilController extends GlobalControllers
         (new CacheUsers())->updateMenuVersion();
 
         if ($id === 0) {
-            Response::json([
-                'success' => 0,
-                'message' => 'Error al guardar el perfil',
-                'code' => 500,
-            ]);
+            Response::json(['success' => 0, 'message' => 'Perfil no encontrado'], 404);
 
             return;
         }
