@@ -24,7 +24,7 @@ Cache::forget("resumen_{$idEmpresa}");   // cuando cambian los datos
 
 ## Colas: `Queue`
 
-Lo que no tiene que hacer esperar al usuario (correos, reportes, llamadas a otros servicios) se encola y lo ejecuta un proceso aparte.
+Lo que no tiene que hacer esperar al usuario (correos, reportes, llamadas a otros servicios) se encola y lo ejecuta un proceso aparte. `php versaCLI job:make:EnviarBienvenida` crea la clase del trabajo.
 
 ```php
 namespace app\jobs;

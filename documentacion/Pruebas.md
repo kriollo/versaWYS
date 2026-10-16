@@ -10,6 +10,33 @@ Se comporta como un navegador:
 - guarda las cookies entre peticiones, incluida la de sesión;
 - en cada POST, PUT, PATCH y DELETE manda el token CSRF de la sesión, como el panel. La protección sigue activa: con `withoutCsrfToken()` se prueba que una ruta lo exige.
 
+## Base de datos de prueba: `TestDatabase`
+
+`versaWYS\kernel\Testing\TestDatabase` crea una SQLite desechable con las migraciones y los seeders del proyecto, arranca `TestClient` con ella y la borra al terminar. Nunca toca la base de desarrollo.
+
+```php
+use versaWYS\kernel\Testing\TestDatabase;
+
+beforeAll(fn() => TestDatabase::boot());
+
+it('otra empresa no ve los tableros', function (): void {
+    $admin = TestDatabase::login(TestDatabase::user('admin', TestDatabase::empresa()));
+    $otra = TestDatabase::login(TestDatabase::user('admin', TestDatabase::empresa()));
+    // ...
+});
+```
+
+| Método | Qué hace |
+|---|---|
+| `boot()` | Prepara la base (una sola por proceso, compartida por toda la suite) y devuelve un cliente |
+| `user($rol = 'admin', $empresa = 1)` | Crea un usuario activo con correo único; devuelve el correo |
+| `empresa($nombre)` | Crea una empresa con RUT válido; devuelve su id |
+| `login($correo)` | Un cliente con la sesión de ese usuario, por el login real del panel |
+| `pdo()` | Conexión directa, para preparar datos o revisar lo guardado |
+| `configPath()` | El `config.json` de la prueba, para correr `versaCLI` contra la misma base |
+
+Todos los usuarios usan la contraseña `TestDatabase::PASSWORD`. Como la base es una sola para toda la suite, cada prueba crea sus propios usuarios y empresas: así no depende de lo que hagan las demás. `php versaCLI test:make:Clientes` crea un archivo de pruebas listo para empezar.
+
 ## Un ejemplo
 
 ```php
@@ -40,7 +67,7 @@ it('valida los datos', function (): void {
 
 `TestClient::boot()` arranca la aplicación **una vez por proceso**: configuración, rutas, Twig y base de datos. Las llamadas siguientes devuelven un navegador nuevo, sin cookies, sobre la misma aplicación.
 
-El segundo argumento es la ruta de otro `config.json` (se pasa como `VERSAWYS_CONFIG`). Úsalo para que las pruebas usen una base de datos propia y nunca la de desarrollo. `versaWYS/tests/AppTest.php` del esqueleto prepara una SQLite desechable con las migraciones y los seeders.
+El segundo argumento es la ruta de otro `config.json` (se pasa como `VERSAWYS_CONFIG`). Lo más simple es no pasarlo y usar `TestDatabase`, como `versaWYS/tests/AppTest.php` del esqueleto.
 
 ## Peticiones
 

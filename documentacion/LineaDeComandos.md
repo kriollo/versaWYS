@@ -83,10 +83,28 @@ Más detalle en [ORM y Base de Datos](./ORM_y_BaseDeDatos.md).
 | `route:check` | Revisa todas las rutas sin ejecutarlas. Falla (código 1) si un controlador, método o middleware no existe; con `--strict` también si falta documentación. |
 | `front:makeTwig:<nombre>` | Plantilla Twig. |
 | `front:makeVue:<nombre>` | Componente Vue. |
-| `RCMD:<nombre>` | Ruta + controlador + modelo + middleware. |
-| `versaMODULE:twig\|vue:<nombre>` | Lo anterior más la vista Twig o el componente Vue. |
+| `RCMD:<nombre>` | Módulo completo sin frontend (ver abajo). |
+| `versaMODULE:twig\|vue:<nombre>` | Módulo completo más la vista Twig o el componente Vue. |
+| `request:make:<nombre>` | `app/requests/<Nombre>.php`: una [Form Request](./Validacion.md#form-requests). |
+| `job:make:<nombre>` | `app/jobs/<Nombre>.php`: un trabajo para la [cola](./Cache_Colas_Archivos.md#colas-queue). |
+| `test:make:<nombre>` | `versaWYS/tests/<Nombre>Test.php`: una prueba con `TestClient` y `TestDatabase`. |
+| `cron:make:<nombre>` | `app/cron/<Nombre>.php`: una tarea para `app/schedule.php`. |
 
-Las rutas generadas quedan protegidas con `checkSession` y `onlyUserWithAccess`. Quita esos middlewares solo si la ruta debe ser pública.
+### El módulo completo (`versaMODULE` y `RCMD`)
+
+`php versaCLI versaMODULE:vue:OrdenesCompra` crea un CRUD **aislado por empresa desde el inicio**:
+
+| Archivo | Qué trae |
+|---|---|
+| `app/migrations/m…_OrdenesCompra.php` | Tabla `ordenes_compra` con `id_empresa` (clave foránea a `empresas`), `nombre` y fechas |
+| `app/models/OrdenesCompra.php` | `listar`, `buscar`, `crear`, `actualizar` y `eliminar`, todos filtrando por empresa |
+| `app/requests/OrdenesCompraRequest.php` | Las reglas de validación (422 con los errores por campo) |
+| `app/controllers/OrdenesCompraController.php` | La pantalla y la API; recibe el modelo por el contenedor y usa `Tenant::id()` |
+| `app/routes/OrdenesCompraRoutes.php` | `GET/POST /admin/ordenescompra/api/ordenescompra` y `GET/PUT/DELETE …/{id}`, documentadas para `/doc` |
+| `versaWYS/tests/OrdenesCompraTest.php` | CRUD, validación, otra empresa sin acceso e id inválido: pasa recién generada |
+| `src/dashboard/js/ordenescompra/dashOrdenesCompra.vue` | La pantalla, que lista los registros (solo `versaMODULE`) |
+
+Luego: `php versaCLI migrate:up`, agrega la pantalla al menú en *Módulos* y `composer test`. La pantalla queda protegida con `checkSession` y `onlyUserWithAccess`, y la API con `checkSession`: cada registro se filtra por la empresa del usuario en el modelo.
 
 ## Logs
 
