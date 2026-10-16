@@ -24,7 +24,7 @@ Detalles en la [Guía de Instalación](./documentacion/INSTALL.md).
 
 - **Arquitectura MVC** clara y flexible para proyectos de cualquier tamaño.
 - **Enrutamiento avanzado** con soporte para agrupación de rutas, middlewares y parámetros dinámicos.
-- **ORM integrado (VersaORM)** compatible con MySQL y PostgreSQL, para trabajar con bases de datos de forma sencilla y segura.
+- **ORM integrado (VersaORM)** compatible con MySQL, PostgreSQL y SQLite, para trabajar con bases de datos de forma sencilla y segura.
 - **Sistema de plantillas Twig** para vistas elegantes y seguras.
 - **CLI potente (versaCLI)** para generación de código, migraciones, seeders y automatización de tareas.
 - **Seguridad integrada**: protección CSRF, XSS, control de sesiones y middlewares personalizables.
@@ -36,7 +36,7 @@ Detalles en la [Guía de Instalación](./documentacion/INSTALL.md).
 
 Toda la documentación detallada se encuentra en la carpeta [`/documentacion`](./documentacion/). Te recomendamos comenzar por:
 
-- [Guía de Inicio Rápido](./documentacion/README.md): visión general y primeros pasos.
+- [Ruta de aprendizaje](./documentacion/README.md): de la instalación al despliegue, paso a paso.
 - [Guía de Instalación](./documentacion/INSTALL.md): cómo instalar y configurar el framework.
 - [Guía de Configuración](./documentacion/CONFIGURATION.md): personalización y ajustes del entorno.
 - [Enrutamiento](./documentacion/Enrutamiento.md): cómo funcionan las rutas y middlewares.
@@ -57,7 +57,7 @@ Toda la documentación detallada se encuentra en la carpeta [`/documentacion`](.
 - `app/`: código de tu aplicación (controladores, modelos, rutas, middlewares, migraciones, seeders, plantillas).
 - `public/`: archivos públicos y assets (CSS, JS, imágenes).
 - `src/`: código fuente frontend (Vue.js, estilos, scripts modernos).
-- `versaWYS/`: `composer.json`, dependencias (`vendor/`), configuración, caché, logs y pruebas. El núcleo del framework es el paquete [`versawys/kernel`](https://github.com/kriollo/versawys-kernel) y se actualiza con `composer update versawys/kernel`.
+- `versaWYS/`: dependencias de Composer (`vendor/`), configuración, caché, logs y pruebas. El núcleo del framework es el paquete [`versawys/kernel`](https://github.com/kriollo/versawys-kernel) y se actualiza con `composer update versawys/kernel`.
 - `documentacion/`: toda la documentación oficial.
 - `versaCLI`: script CLI para generación de código, migraciones, seeders, etc.
 

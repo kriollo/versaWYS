@@ -2,7 +2,7 @@
 
 ## Requisitos
 
-- **PHP 8.3 o superior** con las extensiones `intl`, `pdo`, `mbstring`, `fileinfo`, `curl`, `zip` y el driver de tu base de datos (`pdo_mysql` o `pdo_pgsql`).
+- **PHP 8.3 o superior** con las extensiones `pdo`, `json`, `mbstring`, `intl`, `openssl`, `fileinfo`, `curl`, `zip`, `xml`, `dom` y el driver de tu base de datos (`pdo_mysql` o `pdo_pgsql`). Más las que pidan las dependencias de producción: `versaCLI status` y el asistente de `/install` las calculan a partir de `composer.lock`.
 - **Composer**.
 - **MySQL 8 / MariaDB 10.5+** o **PostgreSQL 13+**.
 - **Apache 2.4+** (con `mod_rewrite`) o **NGINX**. Para desarrollo basta `php versaCLI serve`.
@@ -97,6 +97,8 @@ El frontend compilado importa Vue y SweetAlert2 desde `/node_modules/<paquete>/d
 php versaCLI config:debug:false
 php versaCLI config:templateCache:true
 ```
+
+Para una migración larga o una restauración, `php versaCLI app:down --secret=equipo` deja el sitio en 503 mientras el equipo sigue entrando por `/equipo`, y `app:up` lo vuelve a abrir (ver [Modo mantenimiento](./LineaDeComandos.md#modo-mantenimiento)).
 
 Con la caché de plantillas activa, Twig no detecta cambios en los `.twig`. Después de cada despliegue ejecuta `php versaCLI cache:twig`; `app:deploy:finish` (el hook de la plantilla de versaDeploy) ya lo hace. Las rutas no tienen caché: se leen de `app/routes` y siempre están al día.
 

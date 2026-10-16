@@ -28,7 +28,7 @@ return static function (Schedule $schedule): void {
 ```
 
 - **`cron(Clase::class)`**: una clase de `app/cron` con un método `run()`, la misma que crea `php versaCLI cron:make:<Nombre>`. Se crea con el contenedor, así que su constructor puede pedir servicios.
-- **`command('...')`**: un comando de versaCLI con sus opciones.
+- **`command('...')`**: un comando de `versaCLI` con sus opciones.
 
 ## Frecuencia
 

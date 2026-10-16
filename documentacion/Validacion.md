@@ -64,7 +64,7 @@ $v = Validator::make($request->getAllParams(), [
     'items' => 'required|array',
     'items.*.cantidad' => ['required', 'int:positive'],
     'items.*.sku' => ['required', static fn(string $campo, mixed $valor): ?string =>
-        Productos::existe($valor) ? null : "El producto {$valor} no existe"],
+        $productos->existe($valor) ? null : "El producto {$valor} no existe"],   // $productos: tu modelo
 ], [
     'items.*.cantidad.required' => 'Indica la cantidad',
 ]);

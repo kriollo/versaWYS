@@ -1,64 +1,53 @@
-# Estructura de Directorios de versaWYS-PHP
+# Estructura de directorios
 
-Comprender la estructura de directorios de un framework es fundamental para trabajar eficientemente con él. A continuación, se detalla la organización de las carpetas y archivos principales en un proyecto versaWYS-PHP y el propósito de cada uno.
+La raíz web es la carpeta del proyecto: `index.php` recibe todas las peticiones. El `.htaccess` de la raíz (y `configs/nginx.conf.example` para nginx) bloquea lo que no debe servirse: `app/`, `versaWYS/`, `.env`, `.git`, `*.json`, `*.twig`, `versaCLI`. `app:check:deploy --url=https://tu-sitio` comprueba en el sitio real que sigan bloqueados.
 
-## Directorios de Nivel Superior
+```
+mi-proyecto/
+├── index.php            entrada web: versaWYS\kernel\App::run(__DIR__)
+├── versaCLI             (la línea de comandos, ver LineaDeComandos.md)
+├── .htaccess            reglas de Apache; configs/ trae el ejemplo de nginx
+├── app/                 tu aplicación (abajo)
+├── src/                 frontend fuente: Vue, TypeScript, CSS de Tailwind
+├── public/              frontend compilado, imágenes y archivos públicos
+├── documentacion/       estas guías
+├── versaWYS/            Composer, configuración, logs, caché y pruebas (abajo)
+├── composer.json        dependencias de PHP (vendor en versaWYS/vendor)
+└── package.json         dependencias y scripts del frontend (pnpm)
+```
 
-Estos son los directorios principales que encontrarás en la raíz de un proyecto versaWYS-PHP:
+## `app/`
 
-* **`index.php`**: (Archivo) Este es el archivo de entrada de la aplicación. Es el único punto de entrada para todas las solicitudes HTTP a tu aplicación (front controller).
+| Carpeta | Contiene | Se crea con |
+|---|---|---|
+| `routes/` | Un archivo de rutas por módulo, `ProductosRoutes.php`. El kernel carga todos. | `route:make:Productos` |
+| `controllers/` | `ProductosController.php`: recibe la petición y devuelve un arreglo (JSON) o HTML. | `controller:make:Productos` |
+| `models/` | `Productos.php`, que extiende `versaWYS\kernel\model\VersaORMModel`. | `model:make:Productos` |
+| `requests/` | Form Requests: las reglas de validación de una acción. | `request:make:GuardarProducto` |
+| `middleware/` | Filtros que corren antes del controlador. `AuthMiddleware` trae los del panel. | `middleware:make:Nombre` |
+| `migrations/` | Cambios del esquema: `m20261016120000_Productos.php`, con `up()` y `down()`. | `migrate:make:Productos` |
+| `seeders/` | Datos iniciales. | `seeder:make:Nombre` |
+| `templates/` | Plantillas Twig: `dashboard/` (panel), `mail/` (correos), `install/`. Un archivo en `templates/versaWYS/` reemplaza la plantilla del kernel del mismo nombre. | `front:makeTwig:Nombre` |
+| `services/` | Clases de la aplicación que no son modelos ni controladores (correo, respaldos). | — |
+| `commands/` | Comandos propios: `versaCLI app:<nombre>`. | `command:make:<nombre>` |
+| `cron/` | Las tareas que corre el programador. | `cron:make:Nombre` |
+| `jobs/` | Trabajos de la cola (`Queue::push`). | `job:make:Nombre` |
+| `schedule.php` | Cuándo corre cada tarea programada. | — |
+| `container.php` | Servicios del contenedor y permisos de `Gate`. | — |
 
-*   **`app/`**: Este es el corazón de tu aplicación. Contiene la lógica específica de tu proyecto, incluyendo modelos, vistas, controladores, rutas, middleware, migraciones y seeders. La mayoría del trabajo de desarrollo se realiza dentro de esta carpeta.
+`versaMODULE:vue:Productos` crea de una vez la migración, el modelo, la Form Request, el controlador, las rutas, la prueba y la factory.
 
-*   **`public/`**: Esta carpeta contiene todos los assets y archivos de la interfaz de usuario, como imágenes, hojas de estilo CSS compiladas, y archivos JavaScript del lado del cliente. Es el único directorio que debería ser accesible directamente desde el navegador web.
+## `versaWYS/`
 
-*   **`src/`**: Carpeta dedicada al desarrollo del frontend de la aplicación. Aquí se organiza el código fuente de los módulos de interfaz de usuario, estilos y scripts modernos. Actualmente, esta carpeta está preparada para trabajar con **Vue.js 3** (framework progresivo para interfaces de usuario) y se integra con **versaCompiler**, una herramienta de compilación y empaquetado desarrollada para proyectos versaWYS. Puedes encontrar más información sobre versaCompiler en su [repositorio oficial](https://github.com/kriollo/versaCompiler).
-    *   Ejemplo: `src/dashboard/js/`, `src/dashboard/css/`, `src/dashboard/types/`.
-    *   **Vue.js**: El framework Vue está disponible como dependencia principal (`vue` en `package.json`), permitiendo el desarrollo de componentes SPA o widgets modernos.
-    *   **versaCompiler**: El comando `npm run watch` o `npx versacompiler` compila y transpila los archivos JS/CSS de `src/` hacia los directorios públicos, facilitando el flujo de trabajo frontend.
+| Carpeta | Contiene | ¿En git? |
+|---|---|---|
+| `config/` | `config.json` (claves y base de datos), `installed.lock` y, durante `app:down`, `down.json`. Los proyectos anteriores a 2.1 la tienen en `kernel/config/`, que sigue funcionando. | No |
+| `vendor/` | Dependencias de Composer. El kernel está en `vendor/versawys/kernel`: no se edita, se actualiza con `composer update versawys/kernel`. | No |
+| `logs/` | Un archivo por módulo y día (ver [Logging](./Logging.md)) y `cron.log`. | No |
+| `cache/` | Plantillas Twig compiladas y los datos de `Cache` (`cache/data/`). Se puede borrar: `versaCLI cache:clear`. | No |
+| `storage/` | Archivos privados de `Storage`, que la web no sirve. | No |
+| `tests/` | Las pruebas (Pest) y sus factories en `tests/factories/`. | Sí |
 
-*   **`versaWYS/`**: `composer.json` y `vendor/` (Composer), `config/` (`config.json`, que no se versiona), `cache/` (también la de `Cache`, en `cache/data/`), `logs/`, `storage/` (archivos de `Storage`, no se versiona ni lo sirve la web) y `tests/`. El núcleo del framework es el paquete [`versawys/kernel`](https://github.com/kriollo/versawys-kernel) y se instala en `vendor/versawys/kernel`: no se edita a mano, se actualiza con `composer update versawys/kernel`. Los proyectos creados antes de la versión 2.1 tienen la configuración en `kernel/config/`, que sigue funcionando.
+## `src/` y `public/`
 
-*   **`documentacion/`**: Aquí es donde reside toda la documentación del proyecto, incluyendo la que estás leyendo ahora. Contiene archivos Markdown que explican cómo usar el framework, su API, y otros aspectos relevantes.
-
-*   **`versaCLI`**: (Archivo) Es el script ejecutable para la interfaz de línea de comandos de versaWYS-PHP. Se utiliza para tareas como generar código, ejecutar migraciones, etc.
-
-
-## Detalle del Directorio `app/`
-
-El directorio `app/` es donde reside la mayor parte de tu código de aplicación. Su estructura típica es la siguiente:
-
-*   **`.htaccess`**: (Archivo) Un archivo de configuración específico para el servidor web Apache. Puede contener directivas para controlar el acceso al directorio `app/` o reglas de reescritura, aunque la reescritura principal generalmente se maneja en `public/.htaccess`.
-
-*   **`routes/`**: En esta carpeta se definen los archivos que contienen las rutas de tu aplicación. Estos archivos mapean las URIs (endpoints) y los métodos HTTP (GET, POST, etc.) a acciones específicas de los controladores.
-    *   Ejemplo: `web.php`, `api.php`, o archivos más específicos como `usuariosRoutes.php`.
-
-*   **`middleware/`**: Almacena las clases de middleware. El middleware proporciona un mecanismo para filtrar las solicitudes HTTP que ingresan a tu aplicación. Cada capa de middleware puede inspeccionar o modificar la solicitud antes de que llegue al controlador, o la respuesta antes de que se envíe al cliente.
-    *   Ejemplo: `AuthMiddleware.php`, `AdminMiddleware.php`.
-
-*   **`controllers/`**: Contiene las clases de tus controladores. Los controladores son responsables de recibir las solicitudes, interactuar con los modelos para obtener o modificar datos, y luego pasar esos datos a las plantillas para generar la respuesta HTTP.
-    *   Ejemplo: `UsuarioController.php`, `ProductoController.php`.
-
-*   **`requests/`** (opcional): las [Form Requests](./Validacion.md#form-requests), una clase por acción con sus reglas de validación.
-    *   Ejemplo: `GuardarTablero.php`.
-
-*   **`jobs/`** (opcional): los trabajos de la [cola](./Cache_Colas_Archivos.md#colas-queue), clases que implementan `versaWYS\kernel\Job`.
-    *   Ejemplo: `EnviarBienvenida.php`.
-
-*   **`container.php`** (archivo): registra servicios en el [contenedor](./Contenedor.md) y define los permisos de `Gate`.
-
-*   **`migrations/`**: Aquí se guardan todos los archivos de migración de la base de datos. Cada archivo de migración contiene métodos para aplicar (`up`) y revertir (`down`) cambios en el esquema de tu base de datos, permitiendo un control de versiones del mismo.
-    *   Ejemplo: `2023_10_27_100000_create_users_table.php`.
-
-*   **`models/`**: Contiene las clases de tus modelos. Los modelos representan la lógica de negocio y la interacción con la base de datos. En versaWYS-PHP, estos modelos extienden `versaWYS\kernel\model\VersaORMModel`.
-    *   Ejemplo: `Usuario.php`, `Producto.php`.
-
-*   **`seeders/`**: Contiene las clases de seeders. Los seeders se utilizan para poblar la base de datos con datos iniciales o de prueba, lo cual es útil para el desarrollo y las pruebas.
-    *   Ejemplo: `DatabaseSeeder.php`, `UsuariosTableSeeder.php`.
-
-*   **`templates/`** (a veces llamado `views/`): Este directorio almacena las plantillas de presentación de tu aplicación. En versaWYS-PHP, es común encontrar aquí archivos de plantillas Twig (`.twig`). Estas plantillas son responsables de generar el HTML que se envía al navegador.
-    *   Ejemplo: `layout.twig`, `home.twig`, `productos/lista.twig`.
-
----
-
-Esta estructura promueve una organización clara del código y facilita la localización de los diferentes componentes de la aplicación.
+`src/dashboard/js/` tiene los módulos Vue del panel y `src/dashboard/css/dashboard.css` el CSS de Tailwind. [versaCompiler](https://github.com/kriollo/versaCompiler) los compila en `public/dashboard/` (`pnpm watch` al desarrollar, `pnpm compile` para producción). `public/` no se edita a mano, salvo imágenes y archivos estáticos propios.
