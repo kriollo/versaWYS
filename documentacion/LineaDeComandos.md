@@ -108,7 +108,7 @@ php versaCLI cron:run:LimpiarTemporales
 Las tareas se programan en `app/schedule.php` y el crontab del servidor tiene una sola línea. Ver [Tareas programadas](./Tareas_Programadas.md).
 
 ```cron
-* * * * * php /var/www/mi-proyecto/current/versaCLI app:schedule:run >> /dev/null 2>&1
+* * * * * /usr/bin/php /var/www/mi-proyecto/current/versaCLI app:schedule:run >> /var/www/mi-proyecto/current/versaWYS/logs/cron.log 2>&1
 ```
 
 | Comando | Qué hace |

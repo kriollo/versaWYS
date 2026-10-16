@@ -115,7 +115,7 @@ El PHP de la terminal suele tener otro `php.ini` que el del servidor web. Por es
 Una sola línea en el crontab del servidor ejecuta todas las tareas de `app/schedule.php`:
 
 ```cron
-* * * * * php /var/www/mi-proyecto/current/versaCLI app:schedule:run >> /dev/null 2>&1
+* * * * * /usr/bin/php /var/www/mi-proyecto/current/versaCLI app:schedule:run >> /var/www/mi-proyecto/current/versaWYS/logs/cron.log 2>&1
 ```
 
 Si el proyecto usa `Queue`, la cola se procesa como una tarea más (`$schedule->command('app:queue:work --stop-when-empty')->everyMinute()->withoutOverlapping()`). Si la cola es muy activa, usa `php versaCLI app:queue:work` como servicio de systemd o supervisor y reinícialo en cada despliegue. Ver [Tareas programadas](./Tareas_Programadas.md) y [Caché, colas y archivos](./Cache_Colas_Archivos.md).

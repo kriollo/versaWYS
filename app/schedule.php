@@ -8,9 +8,10 @@ use versaWYS\kernel\Schedule;
  * Tareas programadas (ver documentacion/Tareas_Programadas.md). En el servidor basta una línea en
  * el crontab:
  *
- *   * * * * * php /ruta/del/proyecto/versaCLI app:schedule:run >> /dev/null 2>&1
+ *   * * * * * /usr/bin/php /ruta/del/proyecto/versaCLI app:schedule:run >> /ruta/del/proyecto/versaWYS/logs/cron.log 2>&1
  *
- * `php versaCLI app:schedule:list` muestra cada tarea con su próxima ejecución y el resultado de la última.
+ * Con la ruta completa de PHP: cron no lo encuentra en su PATH. `php versaCLI app:schedule:list` muestra la
+ * línea exacta para este servidor, cada tarea con su próxima ejecución y el resultado de la última.
  */
 return static function (Schedule $schedule): void {
     // Una clase de app/cron (php versaCLI cron:make:LimpiarTemporales), cada noche:
