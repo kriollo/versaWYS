@@ -37,7 +37,17 @@ it('otra empresa no ve los tableros', function (): void {
 
 ## Datos de prueba: `Factory`
 
-Para crear registros de las tablas del proyecto en una línea:
+Una prueba necesita datos: diez órdenes para probar la paginación, una orden de otra empresa para probar el aislamiento. Escribir cada `INSERT` a mano en cada prueba es largo y se rompe cuando la tabla suma una columna obligatoria.
+
+Una *factory* son los **valores por defecto de una fila de la tabla, escritos una sola vez**. Cada prueba pide filas y cambia solo lo que le importa:
+
+- `Factory::create('ordenes_compra')`: una orden con los valores por defecto.
+- `Factory::create('ordenes_compra', ['estado' => 0])`: una orden anulada; el resto, por defecto.
+- `Factory::createMany('ordenes_compra', 20)`: veinte órdenes distintas.
+
+Si mañana la tabla suma una columna obligatoria, se agrega en la factory y todas las pruebas siguen funcionando.
+
+La definición vive en un archivo propio:
 
 ```php
 // versaWYS/tests/factories/OrdenesCompra.php (php versaCLI factory:make:OrdenesCompra; versaMODULE ya la crea)
@@ -58,6 +68,10 @@ $datos = Factory::make('ordenes_compra');                                     //
 - **Valores únicos:** `$n` no se repite.
 - **Fechas:** `created_at` y `updated_at` se completan solas si la tabla las tiene.
 - **Carga automática:** las definiciones de `versaWYS/tests/factories/` se cargan solas.
+
+`versaWYS/tests/factories/Empresas.php` y `versaWYS/tests/EmpresasTest.php` son un ejemplo completo: crean 15 empresas en dos líneas y prueban la búsqueda, la paginación y el filtro por estado del listado.
+
+`TestDatabase::user()` y `TestDatabase::empresa()` hacen lo mismo para las tablas del panel; las factories son para las tablas de tu proyecto.
 
 Todos los usuarios usan la contraseña `TestDatabase::PASSWORD`. Como la base es una sola para toda la suite, cada prueba crea sus propios usuarios y empresas: así no depende de lo que hagan las demás. `php versaCLI test:make:Clientes` crea un archivo de pruebas listo para empezar.
 
@@ -105,6 +119,22 @@ El segundo argumento es la ruta de otro `config.json` (se pasa como `VERSAWYS_CO
 | `withHeaders([...])` | Cabeceras extra para las peticiones siguientes |
 | `withoutCsrfToken()` | Las peticiones siguientes no mandan el token |
 
+## Otra configuración: `TestClient::withConfig`
+
+Para probar cómo se comporta la aplicación con otros valores de `config.json`, sin otro archivo:
+
+```php
+use versaWYS\kernel\Testing\TestClient;
+
+it('con hide_default, /admin deja de existir', function (): void {
+    TestClient::withConfig(['admin' => ['custom_url' => 'gestion', 'hide_default' => true]], function (): void {
+        TestDatabase::boot()->get('/admin/login')->assertStatus(404);
+    });
+});
+```
+
+Solo cambian las claves indicadas, y al terminar la configuración vuelve a quedar como estaba, aunque la prueba falle. Lo que se lee al arrancar (la conexión a la base, Twig) no cambia. `versaWYS/tests/ConfiguracionTest.php` prueba así la URL del panel, CORS, la CSP, el websocket y los enlaces firmados.
+
 ## Aserciones
 
 `assertStatus`, `assertOk`, `assertRedirect($destino)`, `assertHeader($nombre, $valor)`, `assertSee($texto)`, `assertDontSee`, `assertJson([...])` (contiene esos pares), `assertJsonPath('data.0.nombre', 'x')`.
@@ -118,6 +148,7 @@ Para el resto, `$respuesta->status`, `->body`, `->header('Location')` y `->json(
 - Que las rutas que modifican datos exigen CSRF.
 - Que un usuario sin el permiso no entra: `onlyUserWithAccess`, `onlyAdmin`, `onlySuperAdmin`, y que `Gate::authorize` responde 403.
 - Que un `int $id` con texto (`/tableros/abc`) responde 404.
+- Si el módulo bloquea algo (un plan vencido, una cuenta suspendida): que también bloquea la API, y con la sesión ya abierta, no solo al iniciar sesión.
 
 Con `queue.driver: "sync"` en el `config.json` de la prueba, `Queue::push` ejecuta el trabajo en el acto y la prueba puede revisar su efecto. Para probar un trabajo que no debe ejecutarse, deja `database` y revisa la tabla `versa_jobs`.
 

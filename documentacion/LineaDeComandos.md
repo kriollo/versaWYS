@@ -207,7 +207,7 @@ versaCLI app:up
 | `--retry` | Segundos para la cabecera `Retry-After`; la página se recarga sola en ese tiempo. Por defecto 60. |
 | `--secret` | La ruta de entrada para el equipo. Sin ella se genera una al azar y el comando la imprime. |
 
-Todas las rutas responden 503 mientras dure, también `/up`: así el monitoreo lo registra. El estado queda en `down.json`, junto a `config.json`, y sobrevive a `cache:clear`.
+Todas las rutas responden 503 mientras dure, también `/up`: así el monitoreo lo registra. Quien entró con la clave ve el panel normal, con una franja amarilla que le recuerda que para los demás el sitio está cerrado. El estado queda en `down.json`, junto a `config.json`, y sobrevive a `cache:clear`.
 
 ### Revisión previa al despliegue
 

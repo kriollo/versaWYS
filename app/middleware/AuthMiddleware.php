@@ -6,6 +6,7 @@ namespace app\middleware;
 
 use versaWYS\kernel\GlobalMiddleware;
 use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\Output;
 use versaWYS\kernel\Response;
 
 /**
@@ -52,7 +53,7 @@ class AuthMiddleware extends GlobalMiddleware
 
         if ($session->checkUserSession()) {
             Response::redirect('/' . $config['admin']['custom_url'] . '/dashboard');
-            exit();
+            Output::halt();
         }
     }
 

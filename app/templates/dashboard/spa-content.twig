@@ -1,4 +1,4 @@
 {{ csrf_field()|raw }}
 <input type="hidden" id="current_user" value="{{ current_user|json_encode|e('html_attr') }}" />
 <input type="hidden" id="menu_user" value="{{ menu_user|json_encode|e('html_attr') }}" />
-<input type="hidden" id="ws_url" value="{{ ws_url|json_encode|e('html_attr') }}" />
+<input type="hidden" id="ws_url" value="{{ ws_url|e('html_attr') }}" />

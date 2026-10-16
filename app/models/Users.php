@@ -94,7 +94,7 @@ class Users extends VersaORMModel
     {
         $result = $this
             ->qb()
-            ->select(['versa_users.*', 'e.nombre as empresa', 'e.token_empresa'])
+            ->select(['versa_users.*', 'e.nombre as empresa', 'e.token_empresa', 'e.estado as empresa_estado'])
             ->join('empresas as e', 'e.id', '=', 'versa_users.id_empresa')
             ->where($field, '=', $id)
             ->first();

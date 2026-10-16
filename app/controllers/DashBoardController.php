@@ -45,9 +45,19 @@ class DashBoardController extends GlobalControllers
      *
      * @return string the rendered login view
      */
+    /** Por qué se cerró la sesión (GlobalMiddleware la cierra con ?motivo=) */
+    private const array MOTIVOS = [
+        'cuenta_desactivada' => 'Tu cuenta está desactivada. Contacta al administrador.',
+        'empresa_suspendida' => 'La empresa está suspendida. Contacta al administrador.',
+    ];
+
     public function login(): string
     {
-        return $this->template->render('dashboard/login/login');
+        global $request;
+
+        return $this->template->render('dashboard/login/login', [
+            'motivo' => self::MOTIVOS[(string) $request->get('motivo', '')] ?? null,
+        ]);
     }
 
     /**
@@ -79,6 +89,12 @@ class DashBoardController extends GlobalControllers
             ) {
                 // Mantener 401 solo en login para no revelar detalles a posibles atacantes
                 throw new InvalidArgumentException('Los datos enviados no son correctos', 401);
+            }
+
+            // Con la clave correcta ya se puede decir el motivo: la empresa está suspendida
+            $empresa = (new Models\Empresas())->getEmpresaById((int) $user['id_empresa']);
+            if ($user['role'] !== 'superadmin' && $empresa !== null && !(bool) ($empresa['estado'] ?? true)) {
+                throw new InvalidArgumentException(self::MOTIVOS['empresa_suspendida'], 403);
             }
 
             if (($params['remember'] ?? null) === 'on') {

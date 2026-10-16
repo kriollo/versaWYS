@@ -24,7 +24,7 @@ Los valores por defecto están en el kernel, en `versaWYS/vendor/versawys/kernel
 | `rate_limiting` | `enabled` y reglas `global`, `api`, `login`, `upload`, `sensitive` (`requests` por `window` segundos). |
 | `logging` | `dir`, `min_level`, `format` (`json` o `text`), `max_file_size`, `retention_days`. Ver [Logging](./Logging.md). |
 | `redis` | Conexión opcional a Redis. Ver [RedisModel](./RedisModel.md). |
-| `cache` | `driver` (`file` o `redis`) y `dir` (por defecto `versaWYS/cache/data/`) de `Cache`. Ver [Caché, colas y archivos](./Cache_Colas_Archivos.md). |
+| `cache` | `driver` (`file` o `redis`), `dir` (por defecto `versaWYS/cache/data/`) y `prefix` de `Cache`. En Redis, cada proyecto usa sus propias claves: `prefix`, o una derivada de `session.key` si está vacío. Así varios sitios comparten un Redis sin leer ni borrar la caché del otro. Ver [Caché, colas y archivos](./Cache_Colas_Archivos.md). |
 | `queue` | `driver`: `database` (tabla `versa_jobs`, procesada por `app:queue:work`) o `sync` (el trabajo corre en el acto; para pruebas). |
 | `storage` | `root`: carpeta de `Storage`, por defecto `versaWYS/storage`. |
 | `profiler` | `enabled` y `allowed_ips` del [profiler](./Profiler.md). Solo actúa con `build.debug`. |

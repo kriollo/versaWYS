@@ -7,6 +7,7 @@ namespace app\middleware;
 use versaWYS\kernel\GlobalMiddleware;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Installation;
+use versaWYS\kernel\Output;
 use versaWYS\kernel\Response;
 
 /**
@@ -36,7 +37,7 @@ class InstallMiddleware extends GlobalMiddleware
 
         if (file_exists(self::lockFile())) {
             Response::redirect('/' . $config['admin']['custom_url'] . '/login');
-            exit();
+            Output::halt();
         }
     }
 
