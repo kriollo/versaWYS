@@ -9,6 +9,7 @@ use DateTimeImmutable;
 use versaWYS\kernel\cli\CommandExecutor;
 use versaWYS\kernel\cli\ConfigManager;
 use versaWYS\kernel\GlobalControllers;
+use versaWYS\kernel\Loggin;
 use versaWYS\kernel\Schedule;
 
 class ConfigSettingsController extends GlobalControllers
@@ -129,6 +130,19 @@ class ConfigSettingsController extends GlobalControllers
         $config['build']['version'] = (string) $params['build']['version'];
         $config['build']['timezone'] = (string) $params['build']['timezone'];
         $config['build']['charset'] = (string) $params['build']['charset'];
+
+        // El modo debug muestra rutas, trazas y SQL en los errores: cada cambio queda en el log de seguridad
+        $debug = $this->toBool($params['build']['debug'] ?? false);
+        if ($debug !== (bool) ($config['build']['debug'] ?? false)) {
+            Loggin::warning(
+                $debug ? 'Modo debug activado desde el panel' : 'Modo debug desactivado desde el panel',
+                'security',
+                [
+                    'usuario' => $this->user['email'] ?? '',
+                ],
+            );
+        }
+        $config['build']['debug'] = $debug;
 
         $config['admin']['custom_url'] = (string) $params['admin']['custom_url'];
         $config['admin']['hide_default'] = $this->toBool($params['admin']['hide_default'] ?? false);

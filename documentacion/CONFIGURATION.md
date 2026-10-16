@@ -32,7 +32,11 @@ Los valores por defecto están en `versaWYS/kernel/config/config.default.php` y 
 
 ## Cambiar la configuración
 
-- **Desde el panel**: *Configuración* (solo superadministrador) edita correo, intentos de login, política de contraseñas, datos del build y URL del panel. Incluye el envío de un correo de prueba y el respaldo de la base de datos.
+- **Desde el panel**: *Configuración* (solo superadministrador) edita:
+  - correo, intentos de login, política de contraseñas y URL del panel;
+  - los datos del build y el **modo debug**. Activarlo pide confirmación, y cada cambio queda en el log `security` con el usuario que lo hizo.
+
+  También permite enviar un correo de prueba, respaldar la base de datos y ver las [tareas programadas](./Tareas_Programadas.md). El correo es opcional: sin servidor SMTP se pueden guardar las demás pestañas.
 - **Desde la terminal**:
 
   ```bash
@@ -41,7 +45,7 @@ Los valores por defecto están en `versaWYS/kernel/config/config.default.php` y 
   php versaCLI cache:clear            # limpia las cachés de Twig, rate limiting y Cache
   ```
 
-- **A mano**: edita `config.json`. La conexión a la base de datos, las claves de sesión y el modo debug solo se cambian así o por CLI, nunca desde el navegador.
+- **A mano**: edita `config.json`. La conexión a la base de datos y las claves de sesión solo se cambian así o por CLI, nunca desde el navegador.
 
 ## Apariencia del panel
 

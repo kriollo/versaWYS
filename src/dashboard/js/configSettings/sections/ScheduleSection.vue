@@ -16,6 +16,7 @@
         task: string;
         type: 'cron' | 'command';
         expression: string;
+        frequency: string;
         overlaps: boolean;
         next_run: string | null;
         last_run: LastRun | null;
@@ -72,6 +73,11 @@
         }
     }
 
+    // app\cron\LimpiarTemporales → LimpiarTemporales; los comandos se muestran completos
+    function shortName(task: ScheduledTask): string {
+        return task.type === 'cron' ? (task.task.split('\\').pop() ?? task.task) : task.task.replace(/^versaCLI /, '');
+    }
+
     async function copyCronLine(): Promise<void> {
         if (report.value) {
             await navigator.clipboard.writeText(report.value.cron_line);
@@ -126,62 +132,109 @@
                 (ver documentacion/Tareas_Programadas.md).
             </p>
 
-            <div v-else class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300">
-                    <thead class="text-xs uppercase text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
-                        <tr>
-                            <th class="px-3 py-2">Tarea</th>
-                            <th class="px-3 py-2">Frecuencia</th>
-                            <th class="px-3 py-2">Próxima</th>
-                            <th class="px-3 py-2">Última ejecución</th>
-                            <th class="px-3 py-2"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="task in report.tasks" :key="task.id" class="border-b dark:border-gray-700 align-top">
-                            <td class="px-3 py-2">
-                                <span class="font-mono text-xs break-words">{{ task.task }}</span>
-                                <span
-                                    v-if="!task.overlaps"
-                                    class="ml-1 text-xs px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700"
-                                    title="Si la ejecución anterior sigue corriendo, esta vuelta se omite">
-                                    sin solapar
-                                </span>
-                            </td>
-                            <td class="px-3 py-2 font-mono text-xs whitespace-nowrap">{{ task.expression }}</td>
-                            <td class="px-3 py-2 whitespace-nowrap">{{ task.next_run ?? '—' }}</td>
-                            <td class="px-3 py-2">
-                                <template v-if="task.last_run">
-                                    <span class="whitespace-nowrap">{{ task.last_run.started_at }}</span>
-                                    <span
-                                        :class="
-                                            task.last_run.exit === 0
-                                                ? 'text-green-700 dark:text-green-400'
-                                                : 'text-red-700 dark:text-red-400'
-                                        "
-                                        class="ml-1 font-medium">
-                                        {{ task.last_run.exit === 0 ? 'ok' : `error ${task.last_run.exit}` }}
-                                    </span>
-                                    <span class="ml-1 text-xs text-gray-500">({{ task.last_run.ms }} ms)</span>
-                                    <p v-if="task.last_run.error" class="mt-1 text-xs text-red-700 dark:text-red-400 break-all">
-                                        {{ task.last_run.error }}
-                                    </p>
-                                </template>
-                                <span v-else>—</span>
-                            </td>
-                            <td class="px-3 py-2 text-right">
-                                <button
-                                    type="button"
-                                    :disabled="launching === task.id"
-                                    class="text-white bg-brand hover:bg-brand/90 font-medium rounded-lg text-xs px-3 py-1.5 disabled:opacity-50 whitespace-nowrap"
-                                    @click="runNow(task)">
-                                    Ejecutar ahora
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <template v-else>
+                <!-- Pantallas anchas: tabla -->
+                <div class="hidden md:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                    <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300">
+                        <thead class="text-xs uppercase text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                            <tr>
+                                <th class="px-4 py-3">Tarea</th>
+                                <th class="px-4 py-3">Frecuencia</th>
+                                <th class="px-4 py-3">Próxima</th>
+                                <th class="px-4 py-3">Última ejecución</th>
+                                <th class="px-4 py-3 text-right">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="task in report.tasks"
+                                :key="task.id"
+                                class="border-t border-gray-200 dark:border-gray-700 align-top">
+                                <td class="px-4 py-3">
+                                    <div class="font-medium text-gray-900 dark:text-white">
+                                        {{ shortName(task) }}
+                                        <span
+                                            v-if="!task.overlaps"
+                                            class="ml-1 text-xs font-normal px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                                            title="Si la ejecución anterior sigue corriendo, esta vuelta se omite">
+                                            sin solapar
+                                        </span>
+                                    </div>
+                                    <div class="font-mono text-xs text-gray-500 dark:text-gray-400 break-all">{{ task.task }}</div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="text-gray-900 dark:text-white whitespace-nowrap">{{ task.frequency }}</div>
+                                    <div class="font-mono text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ task.expression }}</div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">{{ task.next_run ?? '—' }}</td>
+                                <td class="px-4 py-3">
+                                    <template v-if="task.last_run">
+                                        <div class="flex items-center gap-2 whitespace-nowrap">
+                                            <span
+                                                :class="
+                                                    task.last_run.exit === 0
+                                                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                                                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                                                "
+                                                class="text-xs font-medium px-2 py-0.5 rounded">
+                                                {{ task.last_run.exit === 0 ? 'OK' : `Error ${task.last_run.exit}` }}
+                                            </span>
+                                            <span>{{ task.last_run.started_at }}</span>
+                                            <span class="text-xs text-gray-500">{{ task.last_run.ms }} ms</span>
+                                        </div>
+                                        <p v-if="task.last_run.error" class="mt-1 text-xs text-red-700 dark:text-red-400 break-words">
+                                            {{ task.last_run.error }}
+                                        </p>
+                                    </template>
+                                    <span v-else class="text-gray-400">Todavía no corre</span>
+                                </td>
+                                <td class="px-4 py-3 text-right">
+                                    <button
+                                        type="button"
+                                        :disabled="launching === task.id"
+                                        class="text-white bg-brand hover:bg-brand/90 font-medium rounded-lg text-xs px-3 py-1.5 disabled:opacity-50 whitespace-nowrap"
+                                        @click="runNow(task)">
+                                        {{ launching === task.id ? 'Lanzando…' : 'Ejecutar ahora' }}
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pantallas angostas: una tarjeta por tarea -->
+                <div class="md:hidden space-y-3">
+                    <div
+                        v-for="task in report.tasks"
+                        :key="task.id"
+                        class="p-4 rounded-lg border border-gray-200 dark:border-gray-700 text-sm space-y-2">
+                        <div class="font-medium text-gray-900 dark:text-white">{{ shortName(task) }}</div>
+                        <div class="text-gray-600 dark:text-gray-300">
+                            {{ task.frequency }} · próxima {{ task.next_run ?? '—' }}
+                        </div>
+                        <div v-if="task.last_run" class="flex flex-wrap items-center gap-2">
+                            <span
+                                :class="
+                                    task.last_run.exit === 0
+                                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                                "
+                                class="text-xs font-medium px-2 py-0.5 rounded">
+                                {{ task.last_run.exit === 0 ? 'OK' : `Error ${task.last_run.exit}` }}
+                            </span>
+                            <span class="text-gray-600 dark:text-gray-300">{{ task.last_run.started_at }} · {{ task.last_run.ms }} ms</span>
+                        </div>
+                        <p v-if="task.last_run?.error" class="text-xs text-red-700 dark:text-red-400 break-words">{{ task.last_run.error }}</p>
+                        <button
+                            type="button"
+                            :disabled="launching === task.id"
+                            class="w-full text-white bg-brand hover:bg-brand/90 font-medium rounded-lg text-xs px-3 py-2 disabled:opacity-50"
+                            @click="runNow(task)">
+                            {{ launching === task.id ? 'Lanzando…' : 'Ejecutar ahora' }}
+                        </button>
+                    </div>
+                </div>
+            </template>
         </template>
     </div>
 </template>

@@ -33,13 +33,16 @@ class ConfigSettingsMiddleware
             'admin_custom_url' => $params['admin']['custom_url'] ?? null,
         ];
 
+        // El correo es opcional: sin servidor SMTP no se exige el resto, y así se puede guardar
+        // cualquier otra pestaña (antes, sin correo configurado no se podía guardar nada)
+        $mailConfigured = trim((string) $flat['mail_host']) !== '';
         $errors = Functions::validateParams($flat, [
-            'mail_host' => 'required',
+            'mail_host' => 'nullable',
             'mail_port' => 'required|int:1-65535',
             'mail_transport' => 'required',
-            'mail_secure' => 'required',
-            'mail_name_from' => 'required',
-            'mail_username' => 'required',
+            'mail_secure' => $mailConfigured ? 'required' : 'nullable',
+            'mail_name_from' => $mailConfigured ? 'required' : 'nullable',
+            'mail_username' => 'nullable',
             'login_max' => 'required|int:positive',
             'login_time' => 'required|int:positive',
             'expiration_days_password' => 'required|int:positive',

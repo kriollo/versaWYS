@@ -28,6 +28,7 @@ export interface ConfigSettingsData {
         version: string;
         timezone: string;
         charset: string;
+        debug: boolean;
     };
     admin: {
         custom_url: string;

@@ -157,7 +157,10 @@
                     </button>
                 </div>
 
-                <form class="space-y-6 max-w-3xl px-4" @submit.prevent="saveSettings">
+                <!-- Los formularios van angostos; la tabla de tareas usa todo el ancho -->
+                <form
+                    :class="['space-y-6 px-4 pb-6', activeTab === 'schedule' ? 'max-w-none' : 'max-w-3xl']"
+                    @submit.prevent="saveSettings">
                     <MailSection v-if="activeTab === 'mail'" v-model="form.mail" />
                     <LoginAttemptSection v-if="activeTab === 'login'" v-model="form.login_attempt" />
                     <PasswordPolicySection v-if="activeTab === 'password'" v-model="form.auth" />
