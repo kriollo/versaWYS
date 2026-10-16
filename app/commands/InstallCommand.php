@@ -9,6 +9,7 @@ use app\middleware\InstallMiddleware;
 use versaWYS\kernel\cli\CLIErrorHandler;
 use versaWYS\kernel\cli\CLIHelper;
 use versaWYS\kernel\cli\ConfigManager;
+use versaWYS\kernel\Installation;
 
 /**
  * `php versaCLI app:install`: el mismo instalador que /install, desde la terminal. Pregunta lo que
@@ -50,6 +51,17 @@ class InstallCommand extends ConsoleCommand
 
         // El instalador usa la configuración completa, como en una petición web
         $config = array_replace_recursive(ConfigManager::defaults(), ConfigManager::getConfig());
+
+        // Los mismos requisitos que el asistente web (y que muestra versaCLI status)
+        $failing = array_filter(Installation::requirements(), static fn(array $c): bool => !$c['ok']);
+        if ($failing !== []) {
+            CLIErrorHandler::error('El servidor no cumple los requisitos para instalar:');
+            foreach ($failing as $check) {
+                echo "  ✗ {$check['label']}\n    → {$check['fix']}\n";
+            }
+
+            return 1;
+        }
 
         $values = $this->fieldOptions([...$params, ...($_SERVER['argv'] ?? [])]);
         foreach (self::FIELDS as $field => [$question, $default]) {

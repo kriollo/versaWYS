@@ -63,6 +63,24 @@ class InstallMiddleware extends GlobalMiddleware
         return true;
     }
 
+    /**
+     * El servidor debe cumplir los requisitos (SystemCheck), aunque se salte el paso 1 del asistente.
+     */
+    public function checkRequirements(): true|array
+    {
+        $failing = array_values(array_filter(Installation::requirements(), static fn(array $c): bool => !$c['ok']));
+        if ($failing === []) {
+            return true;
+        }
+
+        return [
+            'success' => 0,
+            'message' => 'El servidor no cumple los requisitos para instalar.',
+            'errors' => array_map(static fn(array $c): string => $c['label'] . ': ' . $c['fix'], $failing),
+            'code' => 422,
+        ];
+    }
+
     public function validateParams(): true|array
     {
         global $request;

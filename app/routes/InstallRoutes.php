@@ -32,5 +32,6 @@ Router::post('/install/run', [InstallController::class, 'run'])->middleware([
     [InstallMiddleware::class, 'checkNotInstalled'],
     [AuthMiddleware::class,    'validateCSRFToken'],
     [InstallMiddleware::class, 'checkInstallToken'],
+    [InstallMiddleware::class, 'checkRequirements'],
     [InstallMiddleware::class, 'validateParams'],
 ]);

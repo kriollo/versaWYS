@@ -74,8 +74,10 @@ Todo se hace desde el navegador y el Administrador de archivos; no hace falta co
 2. **Sube los archivos** a la carpeta del dominio, incluidos `versaWYS/vendor/` y `public/`, pero sin `versaWYS/config/config.json`.
 3. **Crea la base de datos** vacía y su usuario en «Bases de datos MySQL» (o PostgreSQL) de cPanel.
 4. **Abre el sitio con `https://`.** Si el SSL todavía no está activo, actívalo en «SSL/TLS Status» (AutoSSL): por `http` el navegador no guarda la cookie de sesión y el instalador no puede funcionar.
-5. **El primer acceso** crea `versaWYS/config/config.json` y el token de instalación, y te lleva a `/install`. Si al servidor le falta algo, la página lo dice: versión de PHP, extensiones, permisos de carpetas o HTTPS.
-6. **En `/install`, completa el formulario.** Para el token, abre `versaWYS/config/install.token` en el Administrador de archivos y copia su contenido.
+5. **El primer acceso** crea `versaWYS/config/config.json` y el token de instalación, y abre el asistente en `/install`.
+6. **Paso 1, revisión del servidor:** la misma lista que `php versaCLI status`, con versión de PHP, extensiones, carpetas con permiso de escritura, frontend compilado y HTTPS. Cada falla dice cómo corregirla en cPanel. «Continuar» solo se habilita cuando todo está bien.
+7. **Paso 2, datos:** base de datos, empresa, superadministrador y token. Para el token, abre `versaWYS/config/install.token` en el Administrador de archivos y copia su contenido.
+8. **Paso 3:** el resumen de lo que hizo y el enlace al panel.
 
 Para las tareas programadas, agrega en «Trabajos de cron» de cPanel la línea de `app:schedule:run` (ver [Tareas programadas](./Tareas_Programadas.md)).
 
