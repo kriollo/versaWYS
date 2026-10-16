@@ -35,6 +35,30 @@ it('otra empresa no ve los tableros', function (): void {
 | `pdo()` | Conexión directa, para preparar datos o revisar lo guardado |
 | `configPath()` | El `config.json` de la prueba, para correr `versaCLI` contra la misma base |
 
+## Datos de prueba: `Factory`
+
+Para crear registros de las tablas del proyecto en una línea:
+
+```php
+// versaWYS/tests/factories/OrdenesCompra.php (php versaCLI factory:make:OrdenesCompra; versaMODULE ya la crea)
+Factory::define('ordenes_compra', static fn(int $n): array => [
+    'id_empresa' => 1,
+    'nombre' => "Orden {$n}",
+]);
+```
+
+```php
+use versaWYS\kernel\Testing\Factory;
+
+$id = Factory::create('ordenes_compra', ['id_empresa' => $empresa]);         // devuelve el id
+$ids = Factory::createMany('ordenes_compra', 20, ['id_empresa' => $empresa]);
+$datos = Factory::make('ordenes_compra');                                     // sin guardar
+```
+
+- **Valores únicos:** `$n` no se repite.
+- **Fechas:** `created_at` y `updated_at` se completan solas si la tabla las tiene.
+- **Carga automática:** las definiciones de `versaWYS/tests/factories/` se cargan solas.
+
 Todos los usuarios usan la contraseña `TestDatabase::PASSWORD`. Como la base es una sola para toda la suite, cada prueba crea sus propios usuarios y empresas: así no depende de lo que hagan las demás. `php versaCLI test:make:Clientes` crea un archivo de pruebas listo para empezar.
 
 ## Un ejemplo

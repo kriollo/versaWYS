@@ -88,6 +88,7 @@ Más detalle en [ORM y Base de Datos](./ORM_y_BaseDeDatos.md).
 | `request:make:<nombre>` | `app/requests/<Nombre>.php`: una [Form Request](./Validacion.md#form-requests). |
 | `job:make:<nombre>` | `app/jobs/<Nombre>.php`: un trabajo para la [cola](./Cache_Colas_Archivos.md#colas-queue). |
 | `test:make:<nombre>` | `versaWYS/tests/<Nombre>Test.php`: una prueba con `TestClient` y `TestDatabase`. |
+| `factory:make:<nombre>` | `versaWYS/tests/factories/<Nombre>.php`: los datos de prueba de una tabla ([Factory](./Pruebas.md#datos-de-prueba-factory)). |
 | `cron:make:<nombre>` | `app/cron/<Nombre>.php`: una tarea para `app/schedule.php`. |
 
 ### El módulo completo (`versaMODULE` y `RCMD`)
@@ -102,6 +103,7 @@ Más detalle en [ORM y Base de Datos](./ORM_y_BaseDeDatos.md).
 | `app/controllers/OrdenesCompraController.php` | La pantalla y la API; recibe el modelo por el contenedor y usa `Tenant::id()` |
 | `app/routes/OrdenesCompraRoutes.php` | `GET/POST /admin/ordenescompra/api/ordenescompra` y `GET/PUT/DELETE …/{id}`, documentadas para `/doc` |
 | `versaWYS/tests/OrdenesCompraTest.php` | CRUD, validación, otra empresa sin acceso e id inválido: pasa recién generada |
+| `versaWYS/tests/factories/OrdenesCompra.php` | Los datos de prueba de la tabla (`Factory::create('ordenes_compra')`) |
 | `src/dashboard/js/ordenescompra/dashOrdenesCompra.vue` | La pantalla, que lista los registros (solo `versaMODULE`) |
 
 Luego: `php versaCLI migrate:up`, agrega la pantalla al menú en *Módulos* y `composer test`. La pantalla queda protegida con `checkSession` y `onlyUserWithAccess`, y la API con `checkSession`: cada registro se filtra por la empresa del usuario en el modelo.
