@@ -95,4 +95,35 @@ La regla general: **la entrada se guarda tal como llega y se escapa al mostrarla
 - **Archivos privados** (facturas, respaldos): guárdalos con `Storage`, en `versaWYS/storage`, fuera de lo que sirve la web, y entrégalos después de revisar el permiso.
 - Mantén el kernel al día: `composer update versawys/kernel`. Dependabot abre el PR en cada versión nueva.
 
+---
+
+## 7. Secretos guardados y enlaces firmados
+
+**API keys y tokens de terceros en la base de datos** se guardan cifrados con `Crypt` (AES-256-GCM): si alguien obtiene un respaldo de la base, no obtiene las claves.
+
+```php
+use versaWYS\kernel\Crypt;
+
+$guardado = Crypt::encrypt($apiKey);   // también acepta números y arreglos
+$apiKey = Crypt::decrypt($guardado);   // excepción si el valor fue alterado o es de otra clave
+```
+
+- La clave es `crypt.key` en `config.json` (32 bytes en base64: `php -r "echo base64_encode(random_bytes(32));"`). Si no existe, se deriva de `session.key`.
+- **Cambiar cualquiera de las dos hace ilegible lo ya cifrado.** Respáldala junto con la base.
+- Para migrar valores guardados en texto plano: `Crypt::isEncrypted($valor)` dice si ya están cifrados.
+
+**Enlaces que vencen** (descargar una factura sin iniciar sesión, confirmar desde un correo) con `SignedUrl`:
+
+```php
+use versaWYS\kernel\SignedUrl;
+
+$url = SignedUrl::make("/facturas/{$id}/pdf", 3600);   // vence en una hora
+$enlace = $request->getBaseUrl() . $url;               // absoluto, para el correo
+
+Router::get('/facturas/{id}/pdf', [FacturasController::class, 'pdf'])
+    ->middleware([[SignedUrl::class, 'check']]);       // 403 si venció o fue alterado
+```
+
+La firma cubre la ruta, los parámetros y el vencimiento: cambiar cualquiera la invalida. Quien tenga el enlace entra mientras no venza, así que usa vencimientos cortos.
+
 ¿Dudas? Consulta la [Guía de Configuración](./CONFIGURATION.md), la [Guía de Enrutamiento](./Enrutamiento.md) o la [Interfaz de Línea de Comandos](./LineaDeComandos.md).

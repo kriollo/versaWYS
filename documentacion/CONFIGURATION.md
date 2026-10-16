@@ -15,6 +15,7 @@ Los valores por defecto están en `versaWYS/kernel/config/config.default.php` y 
 | `twig` | `cache`, `compiled_dir`, `templates_dir`, `strict_variables`, `auto_escape`. |
 | `auth` | `expiration_days_password`, `inactive_account_days` y `password_policy` (largo mínimo, mayúsculas, minúsculas, números, caracteres especiales). |
 | `session` | `key` (firma de los JWT), `lifetime` y `user_cookie` (`domain`, `secure`, `http_only`, `same_site`, `lifetime_remember`). |
+| `crypt` | `key` (opcional, 32 bytes en base64): clave de `Crypt` y `SignedUrl`. Sin ella se deriva de `session.key`. Ver [Seguridad](./Seguridad_Principios_Basicos.md#7-secretos-guardados-y-enlaces-firmados). |
 | `login_attempt` | `max` intentos y `time` de bloqueo en segundos. |
 | `mail` | SMTP: `host`, `port`, `transport`, `secure` (`tls`, `ssl` o vacío), `name_from`, `username`, `password`. El certificado del servidor se verifica; `verify_peer: false` lo desactiva para un SMTP interno autofirmado. |
 | `cors` | `allowed_origins`: orígenes externos autorizados a llamar a la API con credenciales. Vacío por defecto. |
