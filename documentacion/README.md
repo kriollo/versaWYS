@@ -38,6 +38,7 @@ Su `ROADMAP.md` resume qué cubre y cuáles son sus límites conocidos.
 - [Validación de datos](./Validacion.md)
 - [Autorización](./Autorizacion.md)
 - [Caché, colas y archivos](./Cache_Colas_Archivos.md)
+- [Profiler: qué hizo cada petición](./Profiler.md)
 - [Documentación interactiva de rutas (`/doc`)](./Enrutamiento.md#la-página-doc)
 - [Logging](./Logging_Quickstart.md) y [referencia completa](./Logging.md)
 - [Redis (RedisModel)](./RedisModel.md)

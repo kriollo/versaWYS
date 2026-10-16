@@ -26,6 +26,7 @@ Los valores por defecto están en `versaWYS/kernel/config/config.default.php` y 
 | `cache` | `driver` (`file` o `redis`) y `dir` (por defecto `versaWYS/cache/data/`) de `Cache`. Ver [Caché, colas y archivos](./Cache_Colas_Archivos.md). |
 | `queue` | `driver`: `database` (tabla `versa_jobs`, procesada por `app:queue:work`) o `sync` (el trabajo corre en el acto; para pruebas). |
 | `storage` | `root`: carpeta de `Storage`, por defecto `versaWYS/storage`. |
+| `profiler` | `enabled` y `allowed_ips` del [profiler](./Profiler.md). Solo actúa con `build.debug`. |
 | `websocket_service` | `ws_url` opcional que se entrega al frontend. |
 | `assets` | Rutas de origen y destino de JS, CSS, imágenes, avatares y archivos subidos. |
 
@@ -55,7 +56,12 @@ En el mismo `dashboard.css` están el modo oscuro por la clase `.dark` (`@custom
 
 ## Modo debug
 
-Con `build.debug` en `true` se muestran errores detallados y la barra de depuración: en el navegador, una página con el código alrededor de cada línea de la traza y el SQL; en las API, el mismo detalle en JSON. La validación CSRF y los controles de rol siguen activos. No lo actives en un servidor accesible desde internet: en producción las respuestas de error solo llevan el mensaje y el detalle queda en los logs.
+Con `build.debug` en `true`:
+
+- los errores se muestran en detalle: en el navegador, una página con el código alrededor de cada línea de la traza y el SQL; en las API, el mismo detalle en JSON;
+- cada página muestra la barra del [profiler](./Profiler.md), con el detalle de la petición en `/_profiler`.
+
+La validación CSRF y los controles de rol siguen activos. No lo actives en un servidor accesible desde internet: en producción las respuestas de error solo llevan el mensaje y el detalle queda en los logs.
 
 ## Variables de entorno
 
