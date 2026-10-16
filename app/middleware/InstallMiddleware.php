@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
-use versaWYS\kernel\cli\ConfigManager;
 use versaWYS\kernel\GlobalMiddleware;
 use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\Installation;
 use versaWYS\kernel\Response;
 
 /**
@@ -14,14 +14,15 @@ use versaWYS\kernel\Response;
  */
 class InstallMiddleware extends GlobalMiddleware
 {
+    // Las mismas rutas que usa el kernel para decidir si la instalación está pendiente
     public static function lockFile(): string
     {
-        return ConfigManager::dir() . '/installed.lock';
+        return Installation::lockFile();
     }
 
     public static function tokenFile(): string
     {
-        return ConfigManager::dir() . '/install.token';
+        return Installation::tokenFile();
     }
 
     public const array DRIVERS = ['mysql', 'postgresql'];

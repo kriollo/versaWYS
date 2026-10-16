@@ -69,6 +69,10 @@
 		}
 		.field { margin-bottom: 1rem; }
 		.help { font-size: .78rem; color: var(--muted); margin-top: .3rem; }
+		.requirements { list-style: none; padding: 0; margin: 0; }
+		.requirements li { padding: .35rem 0; }
+		.requirements .ok b { color: #16a34a; }
+		.requirements .no b { color: #dc2626; }
 		.checkbox-row { display: flex; align-items: center; gap: .5rem; }
 		.checkbox-row label { margin: 0; color: var(--text); }
 		button {
@@ -104,7 +108,22 @@
 
 		<div id="alert"></div>
 
-		<form id="installForm">
+		<div class="card">
+			<h2>Requisitos del servidor</h2>
+			<ul class="requirements">
+				{% for check in requirements %}
+					<li class="{{ check.ok ? 'ok' : 'no' }}">
+						<b>{{ check.ok ? '✓' : '✗' }}</b> {{ check.label }}
+						{% if not check.ok %}<div class="help">{{ check.fix }}</div>{% endif %}
+					</li>
+				{% endfor %}
+			</ul>
+			{% if not requirements_ok %}
+				<p class="help">Corrige lo marcado con ✗ y recarga esta página para continuar.</p>
+			{% endif %}
+		</div>
+
+		<form id="installForm"{% if not requirements_ok %} hidden{% endif %}>
 			{{ csrf_field()|raw }}
 
 			<div class="card">
@@ -182,7 +201,11 @@
 				<div class="field">
 					<label for="install_token">Token</label>
 					<input type="text" name="install_token" id="install_token" autocomplete="off" required>
-					<div class="help">Lo muestra <code>php versaCLI config:init</code> y queda en <code>versaWYS/kernel/config/install.token</code>.</div>
+					<div class="help">
+						Demuestra que tienes acceso al servidor: abre <code>{{ token_path }}</code> y copia su contenido.
+						En un hosting con cPanel, desde el <b>Administrador de archivos</b>; con terminal, <code>cat {{ token_path }}</code>.
+						Se borra solo al terminar la instalación.
+					</div>
 				</div>
 			</div>
 

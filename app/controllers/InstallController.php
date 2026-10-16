@@ -11,6 +11,7 @@ use Throwable;
 use VersaORM\VersaORM;
 use versaWYS\kernel\cli\ConfigManager;
 use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\Installation;
 use versaWYS\kernel\Loggin;
 use versaWYS\kernel\model\OrmFactory;
 use versaWYS\kernel\model\VersaORMModel;
@@ -26,7 +27,13 @@ class InstallController
     {
         global $twig;
 
-        return $twig->render('install/install');
+        $requirements = Installation::requirements();
+
+        return $twig->render('install/install', [
+            'requirements' => $requirements,
+            'requirements_ok' => array_filter($requirements, static fn(array $c): bool => !$c['ok']) === [],
+            'token_path' => Installation::tokenFile(),
+        ]);
     }
 
     public function run(): array

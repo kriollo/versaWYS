@@ -21,7 +21,7 @@ php versaCLI app:install                                  # pregunta la base de 
 php versaCLI serve                                        # http://localhost:8000/admin/login
 ```
 
-> En desarrollo local sin HTTPS, cambia `session.user_cookie.secure` a `false` en `config.json`; de lo contrario el navegador no enviará la cookie de sesión.
+> La cookie de sesión es segura (`session.user_cookie.secure`). En `localhost`, Chrome y Firefox la aceptan por `http`. Con otro dominio sin HTTPS, el navegador no la guarda: activa SSL o, solo para pruebas, cambia esa clave a `false` en `config.json`.
 
 ## Instalación paso a paso
 
@@ -62,9 +62,22 @@ php versaCLI app:install
 
 Pregunta cada dato; las contraseñas no se muestran al escribirlas. Para un script, todo va como opciones: `php versaCLI app:install --db-driver=postgresql --db-host=localhost --db-port=5432 --db-name=... --db-user=... --db-pass=... --empresa-nombre=... --empresa-rut=... --admin-name=... --admin-email=... --admin-password=...`
 
-**Desde el navegador**: `php versaCLI serve` y abre `http://localhost:8000/install`. El asistente pide además el token del paso 1, y lo elimina al terminar.
+**Desde el navegador**: `php versaCLI serve` y abre `http://localhost:8000`. Mientras la instalación esté pendiente, cualquier página lleva a `/install`, que primero muestra los requisitos del servidor. El asistente pide además el token del paso 1 (está en `versaWYS/config/install.token`) y lo elimina al terminar.
 
 Luego entra por `/admin/login`.
+
+## Hosting sin terminal (cPanel)
+
+Todo se hace desde el navegador y el Administrador de archivos; no hace falta consola.
+
+1. **Prepara el proyecto en tu equipo:** `composer install --no-dev --optimize-autoloader` y `pnpm install && pnpm compile`. El hosting no necesita Composer ni Node.
+2. **Sube los archivos** a la carpeta del dominio, incluidos `versaWYS/vendor/` y `public/`, pero sin `versaWYS/config/config.json`.
+3. **Crea la base de datos** vacía y su usuario en «Bases de datos MySQL» (o PostgreSQL) de cPanel.
+4. **Abre el sitio con `https://`.** Si el SSL todavía no está activo, actívalo en «SSL/TLS Status» (AutoSSL): por `http` el navegador no guarda la cookie de sesión y el instalador no puede funcionar.
+5. **El primer acceso** crea `versaWYS/config/config.json` y el token de instalación, y te lleva a `/install`. Si al servidor le falta algo, la página lo dice: versión de PHP, extensiones, permisos de carpetas o HTTPS.
+6. **En `/install`, completa el formulario.** Para el token, abre `versaWYS/config/install.token` en el Administrador de archivos y copia su contenido.
+
+Para las tareas programadas, agrega en «Trabajos de cron» de cPanel la línea de `app:schedule:run` (ver [Tareas programadas](./Tareas_Programadas.md)).
 
 ## Servidor web
 
