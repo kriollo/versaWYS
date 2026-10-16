@@ -16,7 +16,10 @@ use versaWYS\kernel\Schedule;
 return static function (Schedule $schedule): void {
     // Borra los archivos temporales con más de un día. Cada minuto para verla correr en el panel;
     // en un proyecto real basta una vez al día: ->dailyAt('03:00')
-    $schedule->cron(\app\cron\LimpiarTemporales::class)->everyMinute()->withoutOverlapping();
+    $schedule
+        ->cron(\app\cron\LimpiarTemporales::class)
+        ->everyMinute()
+        ->withoutOverlapping();
 
     // La cola de trabajos, si el proyecto usa Queue: cada minuto y sin solaparse
     // $schedule->command('app:queue:work --stop-when-empty')->everyMinute()->withoutOverlapping();
