@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace app\controllers;
 
 use app\services\MailService;
+use DateTimeImmutable;
+use versaWYS\kernel\cli\CommandExecutor;
 use versaWYS\kernel\cli\ConfigManager;
 use versaWYS\kernel\GlobalControllers;
-use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\Schedule;
 
 class ConfigSettingsController extends GlobalControllers
 {
@@ -158,6 +160,32 @@ class ConfigSettingsController extends GlobalControllers
                     'code' => 502,
                 ]
         );
+    }
+
+    /**
+     * Las tareas de app/schedule.php, lo mismo que muestra `php versaCLI app:schedule:list`.
+     */
+    public function scheduledTasks(): array
+    {
+        return ['success' => 1] + Schedule::load()->report(new DateTimeImmutable());
+    }
+
+    /**
+     * Ejecuta una tarea ahora, en su propio proceso: la respuesta no espera a que termine. Su
+     * resultado aparece en la lista como «última ejecución».
+     */
+    public function runScheduledTask(): array
+    {
+        global $request;
+
+        $task = Schedule::load()->find((string) $request->get('id'));
+        if ($task === null) {
+            return ['success' => 0, 'message' => 'La tarea no existe.', 'code' => 404];
+        }
+
+        CommandExecutor::runInBackground('schedule:exec', [$task->id()]);
+
+        return ['success' => 1, 'message' => 'Tarea lanzada: ' . $task->description()];
     }
 
     private function toBool(mixed $value): bool
