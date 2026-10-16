@@ -191,6 +191,24 @@ php versaCLI app:user:create --name="Ana" --email=ana@empresa.cl --role=admin --
 | `app:deploy:finish` | El único hook `post_deploy` que necesita versaDeploy: `config:merge` de `versaWYS/config.compartida.json` (si existe), `migrate:up`, `cache:twig`, activa la caché de plantillas, `command:refresh` y `app:check:deploy --production`. Se detiene en el primer paso que falle. |
 | `app:kernel:publish [--force]` | Crea `index.php`, `versaCLI`, los `.htaccess` y los ejemplos de `configs/` que falten, con la versión del kernel instalado. Muestra el diff de los que difieren (`-` proyecto, `+` kernel); `--force` los reemplaza. |
 
+### Modo mantenimiento
+
+Para una migración larga o una restauración: el sitio responde 503 (la API en JSON) y el equipo sigue entrando.
+
+```bash
+versaCLI app:down --message="Volvemos a las 10:00" --retry=300 --secret=equipo-2026
+# Para entrar igual: abre una vez https://tu-sitio/equipo-2026 (queda una cookie por 12 horas)
+versaCLI app:up
+```
+
+| Opción | Qué hace |
+|---|---|
+| `--message` | El texto que ve el visitante. |
+| `--retry` | Segundos para la cabecera `Retry-After`; la página se recarga sola en ese tiempo. Por defecto 60. |
+| `--secret` | La ruta de entrada para el equipo. Sin ella se genera una al azar y el comando la imprime. |
+
+Todas las rutas responden 503 mientras dure, también `/up`: así el monitoreo lo registra. El estado queda en `down.json`, junto a `config.json`, y sobrevive a `cache:clear`.
+
 ### Revisión previa al despliegue
 
 ```bash

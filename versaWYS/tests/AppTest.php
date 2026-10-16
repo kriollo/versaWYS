@@ -156,3 +156,31 @@ describe('usuarios por consola', function (): void {
         expect($code)->toBe(1);
     });
 });
+
+describe('modo mantenimiento', function (): void {
+    $cli = static function (string ...$args): string {
+        $env = 'VERSAWYS_CONFIG=' . escapeshellarg(TestDatabase::configPath());
+        exec("{$env} php versaCLI " . implode(' ', array_map(escapeshellarg(...), $args)) . ' 2>&1 < /dev/null', $output);
+
+        return implode("\n", $output);
+    };
+
+    it('app:down responde 503 a todos menos a quien entra con la clave, y app:up lo termina', function () use ($cli): void {
+        $cli('command:refresh');
+        expect($cli('app:down', '--secret=equipo-ok', '--message=Volvemos pronto'))->toContain('/equipo-ok');
+
+        try {
+            $visitante = TestClient::boot(dirname(__DIR__, 2));
+            $visitante->get('/admin/login')->assertStatus(503)->assertSee('Volvemos pronto');
+            $visitante->getJson('/up')->assertStatus(503);
+
+            $equipo = TestClient::boot(dirname(__DIR__, 2));
+            $equipo->get('/equipo-ok')->assertRedirect();
+            $equipo->get('/admin/login')->assertOk();
+        } finally {
+            $cli('app:up');
+        }
+
+        TestClient::boot(dirname(__DIR__, 2))->get('/admin/login')->assertOk();
+    });
+});

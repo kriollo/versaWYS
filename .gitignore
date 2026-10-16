@@ -15,6 +15,7 @@ package-lock.json
 /versaWYS/storage/*
 /versaWYS/kernel/config/installed.lock
 /versaWYS/kernel/config/install.token
+/versaWYS/kernel/config/down.json
 /versaWYS/config/
 /public/dashboard/img/avatars/*
 /public/dashboard/img/logos/*

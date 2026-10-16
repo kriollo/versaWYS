@@ -29,7 +29,8 @@ class LimpiarTemporales
         $limit = time() - self::MAX_AGE_SECONDS;
         $deleted = 0;
         $bytes = 0;
-        foreach (glob($dir . '/*') ?: [] as $file) {
+        $files = glob($dir . '/*');
+        foreach ($files === false ? [] : $files as $file) {
             // Solo archivos (no subcarpetas) y nunca el .gitignore o .htaccess de la carpeta
             if (!is_file($file) || str_starts_with(basename($file), '.') || filemtime($file) > $limit) {
                 continue;
