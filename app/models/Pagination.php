@@ -8,6 +8,7 @@ use versaWYS\kernel\model\VersaORMModel;
 
 class Pagination extends VersaORMModel
 {
+    // @mago-expect lint:excessive-parameter-list (firma usada por los controladores de cada proyecto)
     public function pagination(
         string $table,
         array $fields = [],
@@ -29,7 +30,7 @@ class Pagination extends VersaORMModel
         $result = $qb->collect();
 
         return [
-            'total' => isset($result[0]['total_count']) ? (int) $result[0]['total_count'] : 0,
+            'total' => (int) ($result[0]['total_count'] ?? 0),
             'data' => $result,
         ];
     }

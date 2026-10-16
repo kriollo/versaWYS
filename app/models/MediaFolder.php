@@ -20,10 +20,9 @@ class MediaFolder extends VersaORMModel
     {
         $instance = new self();
 
-        if ($parentFolderId === null) {
-            $filter = 'empresa_id = ? AND parent_folder_id IS NULL AND status = ?';
-            $params = [$empresaId, 'active'];
-        } else {
+        $filter = 'empresa_id = ? AND parent_folder_id IS NULL AND status = ?';
+        $params = [$empresaId, 'active'];
+        if ($parentFolderId !== null) {
             $filter = 'empresa_id = ? AND parent_folder_id = ? AND status = ?';
             $params = [$empresaId, $parentFolderId, 'active'];
         }
@@ -153,7 +152,7 @@ class MediaFolder extends VersaORMModel
             $data = is_array($record) ? $record : $record->export();
             array_unshift($path, ['id' => (int) $data['id'], 'name' => (string) $data['name']]);
 
-            if (empty($data['parent_folder_id'])) {
+            if ((int) ($data['parent_folder_id'] ?? 0) === 0) {
                 break;
             }
 

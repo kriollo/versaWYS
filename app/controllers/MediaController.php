@@ -647,7 +647,7 @@ class MediaController extends GlobalControllers
             $tmpHandle = fopen($tmpExtractPath, 'wb');
             if ($tmpHandle === false) {
                 fclose($entryStream);
-                @unlink($tmpExtractPath);
+                unlink($tmpExtractPath);
                 $results[] = [
                     'success' => false,
                     'name' => $entryName,
@@ -663,7 +663,7 @@ class MediaController extends GlobalControllers
 
             $validation = $this->validateExtractedFile($tmpExtractPath, $safeOriginalName, $mediaType);
             if (!$validation['valid']) {
-                @unlink($tmpExtractPath);
+                unlink($tmpExtractPath);
                 $results[] = [
                     'success' => false,
                     'name' => $safeOriginalName,
@@ -676,10 +676,10 @@ class MediaController extends GlobalControllers
             $safeStoredName = $this->buildStoredFilenameFromName($safeOriginalName);
             $finalAbsolutePath = $storagePaths['absolute_directory'] . DIRECTORY_SEPARATOR . $safeStoredName;
 
-            $moved = @rename($tmpExtractPath, $finalAbsolutePath);
-            if (!$moved) {
-                $moved = @copy($tmpExtractPath, $finalAbsolutePath);
-                @unlink($tmpExtractPath);
+            // rename() también mueve entre discos distintos (copia y borra)
+            $moved = rename($tmpExtractPath, $finalAbsolutePath);
+            if (!$moved && is_file($tmpExtractPath)) {
+                unlink($tmpExtractPath);
             }
 
             if (!$moved) {
@@ -692,11 +692,11 @@ class MediaController extends GlobalControllers
                 continue;
             }
 
-            @chmod($finalAbsolutePath, 0o664);
+            chmod($finalAbsolutePath, 0o664);
 
             $relativeFilePath = $storagePaths['relative_directory'] . '/' . $safeStoredName;
             $publicUrl = '/' . ltrim(str_replace('\\', '/', $relativeFilePath), '/');
-            $sizeBytes = (int) (filesize($finalAbsolutePath) ?: 0);
+            $sizeBytes = (int) filesize($finalAbsolutePath);
 
             $mediaId = $this->mediaModel->createMedia([
                 'empresa_id' => (int) $this->empresaSelected['id'],
@@ -802,7 +802,7 @@ class MediaController extends GlobalControllers
         }
 
         $maxSizeBytes = 50 * 1024 * 1024;
-        $sizeBytes = (int) (filesize($filePath) ?: 0);
+        $sizeBytes = (int) filesize($filePath);
         if ($sizeBytes > $maxSizeBytes) {
             return [
                 'valid' => false,

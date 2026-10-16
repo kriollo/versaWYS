@@ -40,17 +40,20 @@ class UserCreateCommand extends ConsoleCommand
             'perfil' => 'required|int:positive',
         ])->errors();
         $orm = $this->versaOrm;
-        if (!isset($errors['email']) && $orm->table('versa_users')->where('email', '=', $data['email'])->count() > 0) {
+        if (
+            ($errors['email'] ?? null) === null
+            && $orm->table('versa_users')->where('email', '=', $data['email'])->count() > 0
+        ) {
             $errors['email'] = 'Ya existe un usuario con ese correo';
         }
         if (
-            !isset($errors['empresa'])
+            ($errors['empresa'] ?? null) === null
             && $orm->table('empresas')->where('id', '=', (int) $data['empresa'])->count() === 0
         ) {
             $errors['empresa'] = 'La empresa no existe (ver app:user:list)';
         }
         if (
-            !isset($errors['perfil'])
+            ($errors['perfil'] ?? null) === null
             && $orm->table('versa_perfil')->where('id', '=', (int) $data['perfil'])->count() === 0
         ) {
             $errors['perfil'] = 'El perfil no existe';

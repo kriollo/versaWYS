@@ -65,7 +65,7 @@ class InstallCommand extends ConsoleCommand
 
         $values = $this->fieldOptions([...$params, ...($_SERVER['argv'] ?? [])]);
         foreach (self::FIELDS as $field => [$question, $default]) {
-            if (isset($values[$field])) {
+            if (($values[$field] ?? null) !== null) {
                 continue;
             }
             if ($field === 'db_port') {
@@ -79,7 +79,8 @@ class InstallCommand extends ConsoleCommand
             }
         }
         // Por opciones no se repite la contraseña; en modo interactivo se pide de nuevo
-        $values['admin_password_confirm'] ??= isset($this->fieldOptions($_SERVER['argv'] ?? [])['admin_password'])
+        $values['admin_password_confirm'] ??= ($this->fieldOptions($_SERVER['argv'] ?? [])['admin_password'] ?? null)
+        !== null
             ? $values['admin_password']
             : $this->askSecret('Repite la contraseña del superadministrador');
 
@@ -119,11 +120,13 @@ class InstallCommand extends ConsoleCommand
     {
         $values = [];
         foreach ($args as $arg) {
-            if (is_string($arg) && preg_match('/^--([a-z-]+)=(.*)$/s', $arg, $m) === 1) {
-                $key = str_replace('-', '_', $m[1]);
-                if (array_key_exists($key, self::FIELDS)) {
-                    $values[$key] = $m[2];
-                }
+            if (!is_string($arg) || preg_match('/^--([a-z-]+)=(.*)$/s', $arg, $m) !== 1) {
+                continue;
+            }
+
+            $key = str_replace('-', '_', $m[1]);
+            if (array_key_exists($key, self::FIELDS)) {
+                $values[$key] = $m[2];
             }
         }
 

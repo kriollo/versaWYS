@@ -136,7 +136,8 @@ class InstallController
             ? array_column($orm->exec('SELECT name FROM versa_migrations'), 'name')
             : [];
 
-        $files = glob('app/migrations/*.php') ?: [];
+        $files = glob('app/migrations/*.php');
+        $files = $files === false ? [] : $files;
         sort($files);
         $count = 0;
 
@@ -160,7 +161,8 @@ class InstallController
 
     private function runSeeders(): string
     {
-        $files = glob('app/seeders/*.php') ?: [];
+        $files = glob('app/seeders/*.php');
+        $files = $files === false ? [] : $files;
         sort($files, SORT_NATURAL);
 
         foreach ($files as $file) {

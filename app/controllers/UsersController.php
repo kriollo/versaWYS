@@ -211,7 +211,7 @@ class UsersController extends GlobalControllers
         $params['password'] = Functions::hash($params['password']);
         $params['role'] = $scope['role'];
         $params['empresa'] = $scope['empresa'];
-        $params['status'] = isset($params['status']) ? 0 : 1;
+        $params['status'] = ($params['status'] ?? null) !== null ? 0 : 1;
 
         if ((new Users())->createUser($params)) {
             Response::json(['success' => 1, 'message' => 'Usuario creado correctamente'], 200);
@@ -347,7 +347,8 @@ class UsersController extends GlobalControllers
         }
 
         $dir = $config['assets']['dashboard']['avatars']['dist'];
-        array_map(unlink(...), glob(sprintf('%s/%d.*', $dir, $this->id_user)) ?: []);
+        $avatars = glob(sprintf('%s/%d.*', $dir, $this->id_user));
+        array_map(unlink(...), $avatars === false ? [] : $avatars);
 
         $avatar = $this->id_user . '.' . $ext;
         $pathAvatar = $dir . '/' . $avatar;

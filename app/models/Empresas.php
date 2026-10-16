@@ -44,6 +44,7 @@ class Empresas extends VersaORMModel
      *
      * @return array an array of user records
      */
+    // @mago-expect lint:excessive-parameter-list (firma usada por los controladores de cada proyecto)
     public function getEmpresasPaginated(
         array $fields = ['*'],
         string $where = '',
@@ -70,7 +71,7 @@ class Empresas extends VersaORMModel
         $result = $qb->collect();
 
         return [
-            'total' => isset($result[0]['total_count']) ? (int) $result[0]['total_count'] : 0,
+            'total' => (int) ($result[0]['total_count'] ?? 0),
             'data' => $result,
         ];
     }

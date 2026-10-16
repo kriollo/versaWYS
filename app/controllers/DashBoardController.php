@@ -81,7 +81,7 @@ class DashBoardController extends GlobalControllers
                 throw new InvalidArgumentException('Los datos enviados no son correctos', 401);
             }
 
-            if (isset($params['remember']) && $params['remember'] === 'on') {
+            if (($params['remember'] ?? null) === 'on') {
                 $session->set('remember', true);
             }
 
@@ -332,7 +332,7 @@ class DashBoardController extends GlobalControllers
         global $request, $config, $session;
         $params = $request->getAllParams();
 
-        if (!isset($params['selectEmpresa'])) {
+        if (($params['selectEmpresa'] ?? null) === null) {
             throw new InvalidArgumentException('Debe seleccionar una empresa válida', 400);
         }
 
@@ -429,7 +429,9 @@ class DashBoardController extends GlobalControllers
                         );
                     }
                 }
-            } elseif ($timeRemaining < $renewThreshold && $heartbeatUserId <= 0 && $debug) {
+            }
+
+            if ($timeRemaining < $renewThreshold && $heartbeatUserId <= 0 && $debug) {
                 Loggin::info(
                     '[SessionHeartbeat] No se renovó JWT: id_user no disponible en sesión',
                     'sessionHeartbeat',

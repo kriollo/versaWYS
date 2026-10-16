@@ -46,7 +46,7 @@ class ModulesController extends GlobalControllers
             ['estado'],
         );
         $filter = $params['filter'] ?? '';
-        $order = $params['order'] ?: 'posicion ASC, seccion ASC';
+        $order = ($params['order'] ?? '') !== '' ? $params['order'] : 'posicion ASC, seccion ASC';
         $modelo = new Models\Pagination();
         $result = $modelo->pagination(
             'versa_menu',
@@ -172,7 +172,7 @@ class ModulesController extends GlobalControllers
         $params['fill'] = $params['fill'] === 'true' || $params['fill'] === 1;
 
         // Sanitizar el icono SVG antes de guardar
-        if (isset($params['icono'])) {
+        if (($params['icono'] ?? null) !== null) {
             $params['icono'] = Functions::sanitizeSvgContent($params['icono']);
         }
 

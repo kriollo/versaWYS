@@ -143,12 +143,12 @@ class EmpresasController extends GlobalControllers
             $params = $request->getAllParams();
             $params['rut'] = str_replace('.', '', $params['rut']);
             $params['nombre'] = Functions::cleanString($params['nombre']);
-            if (!isset($params['telefono']) || $params['telefono'] === '') {
+            if (($params['telefono'] ?? '') === '') {
                 $params['telefono'] = '';
             }
 
             $params['telefono'] = Functions::cleanString($params['telefono'] ?? '');
-            if (!isset($params['email']) || $params['email'] === '') {
+            if (($params['email'] ?? '') === '') {
                 $params['email'] = '';
             }
 
@@ -208,7 +208,7 @@ class EmpresasController extends GlobalControllers
 
                 if ($params['email'] !== '') {
                     global $config;
-                    $token = Users::newResetToken(7 * 86400);
+                    $token = Users::newResetToken(7 * 86_400);
                     $userModel->saveTokenResetPass($params['email'], $token);
                     $activationUrl = sprintf(
                         '%s/%s/reset-password?token=%s',
@@ -339,7 +339,7 @@ class EmpresasController extends GlobalControllers
                 return ['success' => 0, 'message' => 'ID de empresa inválido', 'code' => 400];
             }
 
-            if (empty($_FILES['logo'])) {
+            if (($_FILES['logo'] ?? []) === []) {
                 return ['success' => 0, 'message' => 'No se recibió ningún archivo', 'code' => 400];
             }
 

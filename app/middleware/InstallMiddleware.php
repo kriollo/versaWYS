@@ -126,15 +126,21 @@ class InstallMiddleware extends GlobalMiddleware
 
         // Host, base y usuario terminan en la cadena de conexión: solo caracteres de identificador
         foreach (['db_host', 'db_name', 'db_user'] as $field) {
-            if (preg_match('/^[A-Za-z0-9._\-]+$/', (string) ($params[$field] ?? '')) !== 1) {
-                $errors[$field] = "El campo {$field} contiene caracteres no permitidos";
+            if (preg_match('/^[A-Za-z0-9._\-]+$/', (string) ($params[$field] ?? '')) === 1) {
+                continue;
             }
+
+            $errors[$field] = "El campo {$field} contiene caracteres no permitidos";
         }
 
         $password = (string) ($params['admin_password'] ?? '');
         if (!hash_equals($password, (string) ($params['admin_password_confirm'] ?? ''))) {
             $errors['admin_password_confirm'] = 'Las contraseñas no coinciden';
-        } elseif (!$this->validatePolicyPassword($password)) {
+
+            return $errors;
+        }
+
+        if (!$this->validatePolicyPassword($password)) {
             $errors['admin_password'] = $this->getMessagePolicyPassword();
         }
 

@@ -16,7 +16,7 @@ class EmpresasMiddleware
         $params = $request->getAllParams();
 
         $params['nombre'] = Functions::cleanString((string) ($params['nombre'] ?? ''));
-        if (!isset($params['email'])) {
+        if (($params['email'] ?? null) === null) {
             $params['email'] = '';
         }
 
@@ -46,7 +46,7 @@ class EmpresasMiddleware
 
         $params = $request->getAllParams();
         $params['nombre'] = Functions::cleanString((string) ($params['nombre'] ?? ''));
-        if (!isset($params['email'])) {
+        if (($params['email'] ?? null) === null) {
             $params['email'] = '';
         }
 

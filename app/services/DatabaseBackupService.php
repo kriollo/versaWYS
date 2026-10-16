@@ -53,7 +53,7 @@ class DatabaseBackupService
 
         if ($result['exit_code'] !== 0 || !is_file($absolutePath)) {
             if (is_file($absolutePath)) {
-                @unlink($absolutePath);
+                unlink($absolutePath);
             }
 
             return [
@@ -85,8 +85,8 @@ class DatabaseBackupService
     public function deleteDump(#[SensitiveParameter] string $token): void
     {
         $path = $this->getDumpPath($token);
-        if ($path !== null) {
-            @unlink($path);
+        if ($path !== null && is_file($path)) {
+            unlink($path);
         }
     }
 
@@ -189,7 +189,7 @@ class DatabaseBackupService
             return ['exit_code' => -1, 'stdout' => '', 'stderr' => 'No se pudo iniciar el proceso.'];
         }
 
-        if (isset($pipes[0])) {
+        if (($pipes[0] ?? null) !== null) {
             fclose($pipes[0]);
         }
         $stdout = stream_get_contents($pipes[1]);
