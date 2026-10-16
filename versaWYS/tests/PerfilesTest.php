@@ -88,7 +88,8 @@ describe('permisos del menú', function (): void {
         $perfil = perfiles_crear($empresa, 'Archivo');
         $conPermiso = perfiles_usuario($empresa, $perfil);
         $sinPermiso = perfiles_usuario($empresa, perfiles_crear($empresa, 'Sin archivos'));
-        expect(TestDatabase::login($conPermiso)->get('/admin/dashboard')->body)->not->toContain('Almacenamiento de Medios');
+        $sesionAbierta = TestDatabase::login($conPermiso);
+        expect($sesionAbierta->get('/admin/dashboard')->body)->not->toContain('Almacenamiento de Medios');
 
         // 2. El admin marca la opción en el perfil, con los mismos datos que muestra la pantalla
         $admin = TestDatabase::login(TestDatabase::user('admin', $empresa));
@@ -100,8 +101,8 @@ describe('permisos del menú', function (): void {
             'id' => $perfil, 'nombre' => 'Archivo', 'pagina_inicio' => 'dashboard', 'data' => json_encode($permisos),
         ])->assertOk();
 
-        // 3. El usuario que ya existía la ve; el de otro perfil, no
-        TestDatabase::login($conPermiso)->get('/admin/dashboard')->assertOk()->assertSee('Almacenamiento de Medios');
+        // 3. El usuario la ve en su siguiente página, sin volver a entrar; el de otro perfil, no
+        $sesionAbierta->get('/admin/dashboard')->assertOk()->assertSee('Almacenamiento de Medios');
         TestDatabase::login($sinPermiso)->get('/admin/dashboard')->assertOk()->assertDontSee('Almacenamiento de Medios');
     });
 

@@ -34,7 +34,7 @@ class ModulesMiddleware
         return true;
     }
 
-    public function validateChangeStatusParams(): bool
+    public function validateChangeStatusParams(): true|array
     {
         global $request;
 
@@ -45,10 +45,20 @@ class ModulesMiddleware
             'estado' => 'required',
         ]);
 
-        return count($result) <= 0;
+        // Un middleware detiene la petición devolviendo un arreglo: con false seguiría de largo
+        return (
+            $result === []
+                ? true
+                : [
+                    'success' => 0,
+                    'message' => 'Los datos enviados no son correctos',
+                    'errors' => $result,
+                    'code' => 422,
+                ]
+        );
     }
 
-    public function validateMovePositionParams(): bool
+    public function validateMovePositionParams(): true|array
     {
         global $request;
 
@@ -59,11 +69,21 @@ class ModulesMiddleware
             'direction' => 'required',
         ]);
 
-        return count($result) <= 0;
+        // Un middleware detiene la petición devolviendo un arreglo: con false seguiría de largo
+        return (
+            $result === []
+                ? true
+                : [
+                    'success' => 0,
+                    'message' => 'Los datos enviados no son correctos',
+                    'errors' => $result,
+                    'code' => 422,
+                ]
+        );
     }
 
     // submodules
-    public function validateChangeStatusSubModulesParams(): bool
+    public function validateChangeStatusSubModulesParams(): true|array
     {
         global $request;
 
@@ -75,7 +95,17 @@ class ModulesMiddleware
             'estado' => 'required',
         ]);
 
-        return count($result) <= 0;
+        // Un middleware detiene la petición devolviendo un arreglo: con false seguiría de largo
+        return (
+            $result === []
+                ? true
+                : [
+                    'success' => 0,
+                    'message' => 'Los datos enviados no son correctos',
+                    'errors' => $result,
+                    'code' => 422,
+                ]
+        );
     }
 
     public function validateSaveSubModuleParams(): true|array

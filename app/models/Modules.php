@@ -32,9 +32,20 @@ class Modules extends VersaORMModel
 
     public function saveModule(array $data): int|string
     {
-        $module = $data['action'] === 'edit' ? $this->load('versa_menu', $data['id']) : $this->dispense('versa_menu');
-        $module->posicion = $this->getLastPositionBySeccion($data['seccion']);
-        $module->created_at = date('Y-m-d H:i:s');
+        $editing = ($data['action'] ?? 'create') === 'edit';
+        $module = $editing ? $this->load('versa_menu', (int) ($data['id'] ?? 0)) : $this->dispense('versa_menu');
+        if (!$module instanceof VersaModel) {
+            return 0;
+        }
+
+        // Al editar conserva su lugar en el menú (salvo que cambie de sección) y su fecha de creación
+        if (!$editing || $module->seccion !== $data['seccion']) {
+            $module->posicion = $this->getLastPositionBySeccion($data['seccion']);
+        }
+
+        if (!$editing) {
+            $module->created_at = date('Y-m-d H:i:s');
+        }
 
         $module->seccion = $data['seccion'];
         $module->nombre = $data['nombre'];
@@ -51,7 +62,11 @@ class Modules extends VersaORMModel
 
     public function changeStatus(array $params): mixed
     {
-        $module = $this->load('versa_menu', $params['id']);
+        $module = $this->load('versa_menu', (int) $params['id']);
+        if (!$module instanceof VersaModel) {
+            return 0;
+        }
+
         $module->estado = !$module->estado;
         $module->store();
 
@@ -63,11 +78,13 @@ class Modules extends VersaORMModel
         $id = (int) $params['id'];
         $direction = $params['direction'];
 
-        $modules = $this->qb()->orderBy('posicion', 'asc')->get();
-
-        if ($modules === []) {
+        // Las posiciones se cuentan dentro de cada sección (getLastPositionBySeccion)
+        $current = $this->load('versa_menu', $id);
+        if (!$current instanceof VersaModel) {
             return [];
         }
+
+        $modules = $this->qb()->where('seccion', '=', $current->seccion)->orderBy('posicion', 'asc')->get();
 
         // Orden secundario por id en PHP
         usort($modules, static fn(array $a, array $b): int => $a['posicion'] !== $b['posicion']
@@ -128,7 +145,11 @@ class Modules extends VersaORMModel
     // submodules
     public function changeStatusSubModule(array $params): mixed
     {
-        $submodule = $this->load('versa_submenu', $params['id']);
+        $submodule = $this->load('versa_submenu', (int) $params['id']);
+        if (!$submodule instanceof VersaModel) {
+            return 0;
+        }
+
         $submodule->estado = !$submodule->estado;
         $submodule->store();
 
@@ -139,10 +160,15 @@ class Modules extends VersaORMModel
 
     public function saveSubModule(array $data): int|string
     {
-        $module = $data['action'] === 'edit'
-            ? $this->load('versa_submenu', (int) $data['id'])
-            : $this->dispense('versa_submenu');
-        $module->created_at = date('Y-m-d H:i:s');
+        $editing = ($data['action'] ?? 'create') === 'edit';
+        $module = $editing ? $this->load('versa_submenu', (int) ($data['id'] ?? 0)) : $this->dispense('versa_submenu');
+        if (!$module instanceof VersaModel) {
+            return 0;
+        }
+
+        if (!$editing) {
+            $module->created_at = date('Y-m-d H:i:s');
+        }
 
         $module->id_menu = $data['id_menu'];
         $module->nombre = $data['nombre'];
@@ -236,18 +262,13 @@ class Modules extends VersaORMModel
     {
         $subModules = $this->qb('versa_submenu')->where('id_menu', '=', $idMenu)->get();
 
-        $allDisabled = true;
-        foreach ($subModules as $subModule) {
-            if ($subModule['estado']) {
-                continue;
-            }
-
-            $allDisabled = false;
-            break;
+        // El menú despliega submódulos mientras tenga al menos uno activo
+        $mainModule = $this->load('versa_menu', $idMenu);
+        if (!$mainModule instanceof VersaModel) {
+            return;
         }
 
-        $mainModule = $this->load('versa_menu', $idMenu);
-        $mainModule->submenu = $allDisabled;
+        $mainModule->submenu = array_filter($subModules, static fn(array $s): bool => (bool) $s['estado']) !== [];
         $mainModule->store();
     }
 }
