@@ -10,6 +10,7 @@ use Exception;
 use SensitiveParameter;
 use versaWYS\kernel\File;
 use versaWYS\kernel\GlobalControllers;
+use versaWYS\kernel\helpers\Functions;
 use ZipArchive;
 
 class MediaController extends GlobalControllers
@@ -64,7 +65,7 @@ class MediaController extends GlobalControllers
             global $request;
 
             $params = $request->getAllParams();
-            $name = trim((string) ($params['name'] ?? ''));
+            $name = trim(Functions::text($params['name'] ?? null));
 
             if ($name === '') {
                 return ['success' => 0, 'message' => 'El nombre de la carpeta es requerido.', 'code' => 422];
@@ -108,7 +109,7 @@ class MediaController extends GlobalControllers
 
             $params = $request->getAllParams();
             $id = (int) ($params['id'] ?? 0);
-            $newName = trim((string) ($params['new_name'] ?? ''));
+            $newName = trim(Functions::text($params['new_name'] ?? null));
 
             if ($id <= 0 || $newName === '') {
                 return ['success' => 0, 'message' => 'ID o nombre inválido.', 'code' => 422];
@@ -210,7 +211,7 @@ class MediaController extends GlobalControllers
             global $request;
 
             $params = $this->getParamsPaginate($request, ['cms.original_name'], false, 'id,desc');
-            $mediaType = trim((string) $request->get('media_type', ''));
+            $mediaType = trim($request->string('media_type'));
 
             // folder_id: vacío = todos, 0/'root' = raíz, número = carpeta específica
             $rawFolder = $request->get('folder_id', '');
@@ -225,7 +226,7 @@ class MediaController extends GlobalControllers
                 (int) $params['limitNumber'],
                 (int) $params['offset'],
                 $folderId,
-                trim((string) ($params['filtro'] ?? '')),
+                trim(Functions::text($params['filtro'] ?? null)),
             );
 
             return [
@@ -253,7 +254,7 @@ class MediaController extends GlobalControllers
             global $request;
 
             $params = $request->getAllParams();
-            $mediaType = (string) ($params['media_type'] ?? 'file');
+            $mediaType = Functions::text($params['media_type'] ?? null, 'file');
             $rawFolder = $params['folder_id'] ?? null;
             $folderId = $rawFolder !== null && $rawFolder !== '' && (int) $rawFolder > 0 ? (int) $rawFolder : null;
             $files = $request->getAllFiles('media');
@@ -442,7 +443,7 @@ class MediaController extends GlobalControllers
 
             $params = $request->getAllParams();
             $id = (int) ($params['id'] ?? 0);
-            $newName = trim((string) ($params['new_name'] ?? ''));
+            $newName = trim(Functions::text($params['new_name'] ?? null));
 
             if ($id <= 0 || $newName === '') {
                 return [

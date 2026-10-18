@@ -56,7 +56,7 @@ class DashBoardController extends GlobalControllers
         global $request;
 
         return $this->template->render('dashboard/login/login', [
-            'motivo' => self::MOTIVOS[(string) $request->get('motivo', '')] ?? null,
+            'motivo' => self::MOTIVOS[$request->string('motivo')] ?? null,
         ]);
     }
 
@@ -142,7 +142,7 @@ class DashBoardController extends GlobalControllers
         global $session, $cookie, $config, $request;
 
         // Sin token CSRF válido no se cierra la sesión (evita logout forzado desde otro sitio)
-        $token = (string) $request->get('_csrf_token', '');
+        $token = $request->string('_csrf_token');
         if (!hash_equals((string) $session->get('csrf_token'), $token)) {
             Response::redirect('/' . $config['admin']['custom_url']);
 
@@ -279,7 +279,7 @@ class DashBoardController extends GlobalControllers
     {
         global $request;
 
-        $token = (string) $request->get('token', '');
+        $token = $request->string('token');
 
         $userModel = new Models\Users();
         $user = $userModel->findUserByToken($token);
@@ -310,7 +310,7 @@ class DashBoardController extends GlobalControllers
             $params = $request->getAllParams();
 
             $userModel = new Models\Users();
-            $user = $userModel->findUserByToken((string) ($params['tokenReset'] ?? ''));
+            $user = $userModel->findUserByToken(Functions::text($params['tokenReset'] ?? null));
 
             if ($user === []) {
                 // Cambio a 422: token o datos inválidos en reset password

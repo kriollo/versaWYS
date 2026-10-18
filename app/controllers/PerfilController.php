@@ -84,16 +84,16 @@ class PerfilController extends GlobalControllers
         ]);
     }
 
-    public function getPerfil(int|string|null $slug = null): void
+    public function getPerfil(int $id): void
     {
-        $perfil = (new Models\Perfil())->getPerfil((int) $slug, (int) $this->empresaSelected['id']);
+        $perfil = (new Models\Perfil())->getPerfil($id, (int) $this->empresaSelected['id']);
         if ($perfil === null) {
             Response::json(['success' => 0, 'message' => 'Perfil no encontrado'], 404);
 
             return;
         }
 
-        $result = (new Models\Perfil())->getPerfilPermisos((int) $slug, (int) $this->empresaSelected['id']);
+        $result = (new Models\Perfil())->getPerfilPermisos($id, (int) $this->empresaSelected['id']);
 
         $data = [];
         $urls = [

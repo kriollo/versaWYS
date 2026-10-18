@@ -58,7 +58,12 @@ describe('pantallas', function (): void {
         $admin = TestDatabase::login(TestDatabase::user('admin'));
         $admin->get('/admin/usuarios')->assertOk();
         $admin->get('/admin/usuarios/addUser')->assertOk();
-        $admin->get('/admin/usuarios/editUser/1')->assertOk();
+        $admin->get('/admin/usuarios/editUser/' . usuarios_token(TestDatabase::user('user')))->assertOk()->assertDontSee('$2y$');
+
+        // El formulario de un usuario de otra empresa, o de uno que no existe: 404
+        $admin->get('/admin/usuarios/editUser/' . usuarios_token(TestDatabase::user('user', TestDatabase::empresa('Ajena edición'))))
+            ->assertStatus(404);
+        $admin->get('/admin/usuarios/editUser/no-existe')->assertStatus(404);
 
         TestDatabase::login(TestDatabase::user('user'))->get('/admin/usuarios')->assertRedirect();
     });

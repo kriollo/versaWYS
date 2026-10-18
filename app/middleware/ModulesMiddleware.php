@@ -13,7 +13,7 @@ class ModulesMiddleware
         global $request;
 
         $params = $request->getAllParams();
-        $params['icono'] = Functions::cleanString((string) ($params['icono'] ?? ''));
+        $params['icono'] = Functions::cleanString(Functions::text($params['icono'] ?? null));
 
         $result = Functions::validateParams($params, [
             'seccion' => 'required',

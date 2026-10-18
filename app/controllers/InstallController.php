@@ -67,7 +67,7 @@ class InstallController
                 'port' => (int) $params['db_port'],
                 'database' => $params['db_name'],
                 'username' => $params['db_user'],
-                'password' => (string) ($params['db_pass'] ?? ''),
+                'password' => Functions::text($params['db_pass'] ?? null),
             ] + ($newConfig['database'] ?? []);
 
         try {

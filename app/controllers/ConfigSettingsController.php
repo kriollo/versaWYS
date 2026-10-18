@@ -192,7 +192,7 @@ class ConfigSettingsController extends GlobalControllers
     {
         global $request;
 
-        $task = Schedule::load()->find((string) $request->get('id'));
+        $task = Schedule::load()->find($request->string('id'));
         if ($task === null) {
             return ['success' => 0, 'message' => 'La tarea no existe.', 'code' => 404];
         }

@@ -58,7 +58,31 @@ La regla general: **la entrada se guarda tal como llega y se escapa al mostrarla
 
 ---
 
-## 4. Autenticación y sesión
+## 4. Tipos de la entrada (type juggling)
+
+Con JSON, el cliente elige el tipo de cada campo: puede mandar `true`, `0`, `null` o un arreglo donde el código espera un texto. PHP convierte tipos al comparar y al hacer un cast, y eso abre huecos:
+
+| Código | Con lo que manda un atacante |
+|---|---|
+| `if ($token == $esperado)` | `0 == "abc"` era verdadero hasta PHP 7; `"0e1" == "0e2"` sigue siéndolo (hashes «mágicos») |
+| `in_array($rol, $roles)` | sin `strict`, compara con `==` |
+| `(int) $request->get('id')` | `"1e3"` es 1000 y `"0x1A"` es 0: otra URL llega al mismo registro |
+| `(string) $request->get('nombre')` | un arreglo se vuelve el texto `"Array"` |
+| `hash_equals($a, $request->get('token'))` | un arreglo o un número lanzan `TypeError`: un 500 en vez de un 403 |
+
+Lo que hace el framework y lo que conviene hacer:
+
+- **Compara siempre con `===`, `in_array(..., true)` y `hash_equals()`** para secretos. mago lo exige (`composer mago:lint`).
+- **Lee la entrada con su tipo:** `$request->string('nombre')` y `$request->integer('cantidad')` devuelven el valor por defecto si llega otro tipo. Sobre un arreglo ya leído, `Functions::text($params['nombre'] ?? null)`.
+- **Declara el tipo de los parámetros de ruta:** con `int $id`, el contenedor solo acepta dígitos y cualquier otra cosa (`1e3`, `0x1A`, `1.5`) responde 404. Con `int|string $id` y un cast después, esa protección se pierde.
+- **Las reglas de validación** (`min`, `max`, `email`, `int`) rechazan un arreglo en vez de medirlo como texto.
+- **El token CSRF** solo cuenta si es texto: cualquier otro tipo es un 403, nunca un 500.
+
+`versaWYS/tests/TiposTest.php` prueba los puntos sensibles del panel con `true`, `0`, `null` y arreglos: ninguno acepta la petición ni responde 500. Para un módulo propio, copia ese patrón.
+
+---
+
+## 5. Autenticación y sesión
 
 - **Contraseñas** con `Functions::hash()` (`PASSWORD_DEFAULT`). En el login, si `Functions::needsRehash()` indica un algoritmo o costo anterior, se guarda un hash nuevo: es el único momento en que se tiene la contraseña.
 - **Al autenticar** se renuevan el id de sesión y el token CSRF; al cerrar sesión el JWT queda revocado aunque alguien conserve la cookie.
@@ -69,7 +93,7 @@ La regla general: **la entrada se guarda tal como llega y se escapa al mostrarla
 
 ---
 
-## 5. Configuración del servidor
+## 6. Configuración del servidor
 
 | Clave | Para qué |
 |---|---|
@@ -82,7 +106,7 @@ La regla general: **la entrada se guarda tal como llega y se escapa al mostrarla
 
 ---
 
-## 6. Despliegue
+## 7. Despliegue
 
 - **`config.json` nunca en git.** Tiene las claves de sesión y la base de datos. Los ajustes sin secretos (CSP, CORS) van en `versaWYS/config.compartida.json`, que se aplica en cada despliegue.
 - **`php versaCLI app:check:deploy --production`** revisa en el servidor:
@@ -97,7 +121,7 @@ La regla general: **la entrada se guarda tal como llega y se escapa al mostrarla
 
 ---
 
-## 7. Secretos guardados y enlaces firmados
+## 8. Secretos guardados y enlaces firmados
 
 **API keys y tokens de terceros en la base de datos** se guardan cifrados con `Crypt` (AES-256-GCM): si alguien obtiene un respaldo de la base, no obtiene las claves.
 

@@ -1301,11 +1301,14 @@
                     el(
                         'p',
                         'mt-1 text-xs text-slate-600 dark:text-slate-400',
-                        'Los datos sensibles se guardan como [oculto]: complétalos antes de enviar. ' +
-                            'La sesión y el token CSRF son los tuyos.' +
+                        'Los datos sensibles se guardan como [oculto]: complétalos antes de enviar.' +
                             (replay.files.length ? ' Los archivos no se guardan: vuelve a elegirlos.' : ''),
                     ),
                 );
+                // El token CSRF no hace falta copiarlo: el probador manda el de esta sesión en X-CSRF-Token
+                const csrf = el('p', 'mt-1 text-xs text-slate-600 dark:text-slate-400', 'Token CSRF que se envía (el de tu sesión): ');
+                csrf.append(el('code', 'doc-code', document.querySelector('#csrf_token')?.value || 'sin sesión: inicia sesión en el panel'));
+                card.append(csrf);
 
                 const tester = el('div', 'route-tester mt-4');
                 tester.dataset.route = JSON.stringify({

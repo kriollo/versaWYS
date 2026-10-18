@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\models;
 
 use VersaORM\VersaModel;
+use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\model\VersaORMModel;
 
 class Perfil extends VersaORMModel
@@ -145,7 +146,7 @@ class Perfil extends VersaORMModel
         ]);
 
         // Sin `data` solo cambian el nombre y la página de inicio: los permisos quedan como estaban
-        $permisos = json_decode((string) ($params['data'] ?? ''), true);
+        $permisos = json_decode(Functions::text($params['data'] ?? null), true);
         if (!is_array($permisos)) {
             return $perfil->id;
         }

@@ -274,7 +274,7 @@ class EmpresasController extends GlobalControllers
     {
         global $request;
 
-        $idEmpresa = (int) $request->get('idEmpresa', 0);
+        $idEmpresa = $request->integer('idEmpresa');
 
         $empresaModel = new Models\Empresas();
         $modules = $empresaModel->getModulesByEmpresa($idEmpresa);
@@ -334,7 +334,7 @@ class EmpresasController extends GlobalControllers
         global $request;
 
         try {
-            $idEmpresa = (int) $request->get('id_empresa', 0);
+            $idEmpresa = $request->integer('id_empresa');
             if ($idEmpresa === 0) {
                 return ['success' => 0, 'message' => 'ID de empresa inválido', 'code' => 400];
             }

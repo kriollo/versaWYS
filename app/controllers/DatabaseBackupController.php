@@ -117,7 +117,7 @@ class DatabaseBackupController extends GlobalControllers
     {
         global $request;
 
-        $sql = trim((string) $request->get('query', ''));
+        $sql = trim($request->string('query'));
         // Auditoría: quién ejecutó qué, aunque la consulta falle
         Loggin::warning('Consola SQL', 'database', [
             'id_user' => $this->id_user,

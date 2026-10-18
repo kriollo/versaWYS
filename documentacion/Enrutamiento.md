@@ -199,13 +199,20 @@ class ProductosController extends GlobalControllers
 }
 ```
 
+Para responder 404 desde cualquier punto (el registro no existe o es de otra empresa), lanza `NotFound`: el Router responde la página 404 o JSON, según la petición.
+
+```php
+$factura = $this->facturas->buscar($id, Tenant::id()) ?? throw new NotFound();
+```
+
 Un error no controlado en el controlador responde 500 y queda en el log `router`; con `build.debug`, se muestra la página de error con el detalle.
 
 ## La petición (`Request`)
 
 | Método | Devuelve |
 |---|---|
-| `get('campo', $porDefecto)` | Un valor de la query, del formulario o del JSON, sin importar cuál. |
+| `get('campo', $porDefecto)` | Un valor de la query, del formulario o del JSON, sin importar cuál, con el tipo que mandó el cliente. |
+| `string('campo')`, `integer('campo')` | El valor como texto o como entero. Un arreglo, o un `"1e3"` para `integer()`, devuelve el valor por defecto: ver [tipos de la entrada](./Seguridad_Principios_Basicos.md#4-tipos-de-la-entrada-type-juggling). |
 | `getAllParams()` | Todos esos valores juntos, tal como llegaron. |
 | `file('avatar')` | Un `File` o `null`. `getAllFiles('fotos')` para `fotos[]`. |
 | `getHeader('User-Agent')`, `getMethod()`, `getRawBody()` | Una cabecera, el método (con `_method` ya aplicado) y el cuerpo crudo, por ejemplo para validar la firma de un webhook. |
