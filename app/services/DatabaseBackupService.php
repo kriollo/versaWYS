@@ -23,8 +23,14 @@ class DatabaseBackupService
 
     private const string TOKEN_PATTERN = '/^[a-f0-9]{32}$/';
 
+    private const string UNSUPPORTED = 'Los respaldos desde el panel funcionan con MySQL/MariaDB y PostgreSQL.';
+
     public function exportToFile(): array
     {
+        if (!$this->isSupported()) {
+            return ['success' => false, 'message' => self::UNSUPPORTED];
+        }
+
         $this->ensureBackupDir();
 
         $token = bin2hex(random_bytes(16));
@@ -101,6 +107,10 @@ class DatabaseBackupService
             return ['success' => false, 'message' => 'El archivo supera el tamaño máximo permitido (500 MB).'];
         }
 
+        if (!$this->isSupported()) {
+            return ['success' => false, 'message' => self::UNSUPPORTED];
+        }
+
         $result = $this->isMysql()
             // El cliente mysql lee el dump por stdin
             ? $this->runProcess(
@@ -130,6 +140,14 @@ class DatabaseBackupService
     private function db(): array
     {
         return ConfigManager::getConfig()['database'] ?? [];
+    }
+
+    /** Respaldos con mysqldump/mysql o pg_dump/psql: otro motor (SQLite) no tiene cliente que llamar */
+    private function isSupported(): bool
+    {
+        $driver = strtolower((string) ($this->db()['driver'] ?? ''));
+
+        return str_contains($driver, 'mysql') || str_contains($driver, 'pgsql') || str_contains($driver, 'postgres');
     }
 
     private function isMysql(): bool

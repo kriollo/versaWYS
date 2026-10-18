@@ -35,24 +35,24 @@ class ConfigSettingsMiddleware
 
         // El correo es opcional: sin servidor SMTP no se exige el resto, y así se puede guardar
         // cualquier otra pestaña (antes, sin correo configurado no se podía guardar nada)
-        $mailConfigured = trim((string) $flat['mail_host']) !== '';
+        $mailConfigured = trim(Functions::text($flat['mail_host'])) !== '';
         $errors = Functions::validateParams($flat, [
-            'mail_host' => 'nullable',
+            'mail_host' => 'nullable|string',
             'mail_port' => 'required|int:1-65535',
-            'mail_transport' => 'required',
-            'mail_secure' => $mailConfigured ? 'required' : 'nullable',
-            'mail_name_from' => $mailConfigured ? 'required' : 'nullable',
-            'mail_username' => 'nullable',
+            'mail_transport' => 'required|string',
+            'mail_secure' => $mailConfigured ? 'required|string' : 'nullable|string',
+            'mail_name_from' => $mailConfigured ? 'required|string' : 'nullable|string',
+            'mail_username' => 'nullable|string',
             'login_max' => 'required|int:positive',
             'login_time' => 'required|int:positive',
             'expiration_days_password' => 'required|int:positive',
             'inactive_account_days' => 'required|int:positive',
             'password_large' => 'required|int:positive',
-            'build_name' => 'required',
-            'build_version' => 'required',
-            'build_timezone' => 'required',
-            'build_charset' => 'required',
-            'admin_custom_url' => 'required',
+            'build_name' => 'required|string',
+            'build_version' => 'required|string',
+            'build_timezone' => 'required|string',
+            'build_charset' => 'required|string',
+            'admin_custom_url' => 'required|string',
         ]);
 
         // Valores que PHP y el Router usan directamente: deben ser reales, no solo no vacíos
@@ -60,13 +60,13 @@ class ConfigSettingsMiddleware
             $errors['build_timezone'] = 'La zona horaria no es válida';
         }
         if (!in_array(
-            strtoupper((string) $flat['build_charset']),
+            strtoupper(Functions::text($flat['build_charset'])),
             array_map(strtoupper(...), mb_list_encodings()),
             strict: true,
         )) {
             $errors['build_charset'] = 'El charset no es válido';
         }
-        if (preg_match('/^[A-Za-z0-9_\-]+$/', (string) $flat['admin_custom_url']) !== 1) {
+        if (preg_match('/^[A-Za-z0-9_\-]+$/', Functions::text($flat['admin_custom_url'])) !== 1) {
             $errors['admin_custom_url'] = 'La URL del panel solo admite letras, números, guiones y guion bajo';
         }
 
