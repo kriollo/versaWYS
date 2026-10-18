@@ -11,6 +11,7 @@ use Throwable;
 use versaWYS\kernel\CacheUsers;
 use versaWYS\kernel\cli\CommandExecutor;
 use versaWYS\kernel\GlobalControllers;
+use versaWYS\kernel\GlobalMiddleware;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Loggin;
 use versaWYS\kernel\NotFound;
@@ -385,7 +386,21 @@ class DashBoardController extends GlobalControllers
                 return;
             }
 
-            // 2. Mantener la sesión PHP viva (touch)
+            // 2. Esta ruta no pasa por checkSession: el estado de la cuenta se revisa aquí con la misma regla,
+            // para no renovarle el token a una cuenta desactivada o de una empresa suspendida
+            $heartbeatUserId = (int) ($session->get('id_user') ?? 0);
+            $heartbeatEmpresaId = (int) ($session->get('empresa_id') ?? 0);
+            $usuario = (new CacheUsers())->getUserData($heartbeatUserId, $heartbeatEmpresaId)['user'] ?? [];
+            if ($usuario === [] || GlobalMiddleware::blockedReason($usuario) !== null) {
+                $session->revokeToken($cookie->get('tknHash'));
+                $cookie->delete('tknHash');
+                $session->destroy();
+                $this->handleSessionExpired('Cuenta desactivada o empresa suspendida');
+
+                return;
+            }
+
+            // 3. Mantener la sesión PHP viva (touch)
             $session->touchSessionActivity();
 
             // 3. Obtener datos del JWT para calcular tiempos
@@ -412,8 +427,6 @@ class DashBoardController extends GlobalControllers
             $renewThreshold = $lifetime * 0.75;
             $warningThreshold = 600;
             $sessionRenewed = false;
-            $heartbeatUserId = (int) ($session->get('id_user') ?? 0);
-            $heartbeatEmpresaId = (int) ($this->empresaSelected['id'] ?? 0);
 
             if ($timeRemaining < $renewThreshold && $heartbeatUserId > 0 && $heartbeatEmpresaId > 0) {
                 try {
