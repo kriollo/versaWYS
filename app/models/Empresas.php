@@ -148,6 +148,10 @@ class Empresas extends VersaORMModel
     public function changeStatus(array $params): int
     {
         $empresa = $this->load($this->table, $params['id']);
+        if (!$empresa instanceof VersaModel) {
+            return 0;
+        }
+
         $empresa->estado = $params['estado'];
         $empresa->store();
 

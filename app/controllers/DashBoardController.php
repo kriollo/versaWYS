@@ -13,6 +13,7 @@ use versaWYS\kernel\cli\CommandExecutor;
 use versaWYS\kernel\GlobalControllers;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Loggin;
+use versaWYS\kernel\NotFound;
 use versaWYS\kernel\Response;
 
 class DashBoardController extends GlobalControllers
@@ -46,6 +47,8 @@ class DashBoardController extends GlobalControllers
      * @return string the rendered login view
      */
     /** Por qué se cerró la sesión (GlobalMiddleware la cierra con ?motivo=) */
+    private const string LOST_PASSWORD_SENT = 'Si el correo está registrado, recibirá un enlace para restablecer su contraseña.';
+
     private const array MOTIVOS = [
         'cuenta_desactivada' => 'Tu cuenta está desactivada. Contacta al administrador.',
         'empresa_suspendida' => 'La empresa está suspendida. Contacta al administrador.',
@@ -203,10 +206,13 @@ class DashBoardController extends GlobalControllers
             $params = $request->getAllParams();
 
             $userModel = new Models\Users();
-            $user = $userModel->findUserByEmail($params['email']);
+            $user = $userModel->findUserByEmail($request->string('email'));
 
+            // La misma respuesta exista o no el correo: la pantalla no debe revelar quién está registrado
             if ($user === []) {
-                throw new InvalidArgumentException('Los datos enviados no son correctos', 422);
+                Response::json(['success' => 1, 'message' => self::LOST_PASSWORD_SENT]);
+
+                return;
             }
 
             $token = Models\Users::newResetToken();
@@ -255,18 +261,11 @@ class DashBoardController extends GlobalControllers
                 logModule: 'mail-send',
             );
 
-            Response::json([
-                'success' => 1,
-                'message' => 'Se ha enviado un correo electrónico a su cuenta de correo electrónico para restablecer su contraseña.',
-            ]);
+            Response::json(['success' => 1, 'message' => self::LOST_PASSWORD_SENT]);
         } catch (Throwable $throwable) {
-            Response::json([
-                'success' => 0,
-                'message' => $throwable->getMessage(),
-                'errors' => [
-                    'error' => 'Vuelva a intentarlo nuevamente...',
-                ],
-            ], $throwable->getCode());
+            // Un fallo interno (base de datos, lanzar el envío): al log, y al usuario un mensaje sin detalle
+            Loggin::exception($throwable, 'lost-password');
+            Response::json(['success' => 0, 'message' => 'No se pudo enviar el correo. Inténtelo más tarde.'], 500);
         }
     }
 
@@ -285,7 +284,7 @@ class DashBoardController extends GlobalControllers
         $user = $userModel->findUserByToken($token);
 
         if ($user === []) {
-            return $this->template->render('versaWYS/404');
+            throw new NotFound();
         }
 
         return $this->template->render('dashboard/login/ResetLostPassword', [
@@ -323,14 +322,12 @@ class DashBoardController extends GlobalControllers
                 'success' => 1,
                 'message' => 'Se ha cambiado la contraseña correctamente, se redirigirá al inicio de sesión...',
             ];
-        } catch (Throwable $throwable) {
+        } catch (InvalidArgumentException $exception) {
             return [
                 'success' => 0,
-                'message' => $throwable->getMessage(),
-                'errors' => [
-                    'error' => 'Vuelva a intentarlo nuevamente...',
-                ],
-                'code' => $throwable->getCode(),
+                'message' => $exception->getMessage(),
+                'errors' => ['error' => 'Vuelva a intentarlo nuevamente...'],
+                'code' => $exception->getCode(),
             ];
         }
     }

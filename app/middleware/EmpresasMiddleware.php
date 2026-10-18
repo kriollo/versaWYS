@@ -16,11 +16,10 @@ class EmpresasMiddleware
         $params = $request->getAllParams();
 
         $params['nombre'] = Functions::cleanString(Functions::text($params['nombre'] ?? null));
-        if (($params['email'] ?? null) === null) {
-            $params['email'] = '';
-        }
-
-        $params['email'] = Functions::cleanString($params['email']);
+        // Un arreglo llega tal cual a la regla email, que lo rechaza (no como el texto "Array")
+        $params['email'] = is_array($params['email'] ?? null)
+            ? $params['email']
+            : Functions::cleanString(Functions::text($params['email'] ?? null));
 
         $result = Functions::validateParams($params, [
             'action' => 'required',
@@ -46,11 +45,10 @@ class EmpresasMiddleware
 
         $params = $request->getAllParams();
         $params['nombre'] = Functions::cleanString(Functions::text($params['nombre'] ?? null));
-        if (($params['email'] ?? null) === null) {
-            $params['email'] = '';
-        }
-
-        $params['email'] = Functions::cleanString($params['email']);
+        // Un arreglo llega tal cual a la regla email, que lo rechaza (no como el texto "Array")
+        $params['email'] = is_array($params['email'] ?? null)
+            ? $params['email']
+            : Functions::cleanString(Functions::text($params['email'] ?? null));
 
         $result = Functions::validateParams($params, [
             'id' => 'required|integer',
