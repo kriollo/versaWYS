@@ -319,7 +319,7 @@ describe('documentación de rutas: comentarios', function (): void {
 describe('kernel empaquetable', function (): void {
     it('no asume vivir en versaWYS/kernel: así funciona instalado en vendor', function (): void {
         // Permitido: leer proyectos anteriores al paquete y saltar frames del kernel en las trazas
-        $allowed = ['cli/ConfigManager.php', 'cli/commands/CheckDeployCommand.php', 'cli/commands/CheckPsr4Command.php', 'model/VersaORMModel.php'];
+        $allowed = ['cli/ConfigManager.php', 'cli/commands/CheckDeployCommand.php', 'model/VersaORMModel.php'];
         $kernel = dirname((string) (new ReflectionClass(versaWYS\kernel\App::class))->getFileName());
         $offending = [];
         foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($kernel, FilesystemIterator::SKIP_DOTS)) as $file) {

@@ -157,7 +157,7 @@ Comandos incluidos:
 | Comando | Qué hace |
 |---|---|
 | `app:mail:send` | Envía un correo (plantilla Twig o HTML). Lo usa el framework para enviar correos en segundo plano. |
-| `app:check:psr4` | Revisa que clases, namespaces y nombres de archivo coincidan; también referencias a clases del proyecto que no existen y `require`/`include` cuya ruta difiere en mayúsculas de lo que hay en disco. |
+| `app:check:psr4` | Lo que funciona en Windows, que no distingue mayúsculas, y falla en Linux: clases cuyo namespace o archivo no calza con su mapeo PSR-4, clases del proyecto usadas (`use`, `new`, `Clase::`, `extends`, `implements`) con otras mayúsculas o que no existen, y `require`/`include` cuya ruta difiere en mayúsculas de lo que hay en disco. Que los métodos llamados existan lo revisan phpstan y mago (`composer check`). |
 | `app:check:deploy` | Revisión previa al despliegue. Ver más abajo. |
 | `app:install` | Instala la aplicación desde la terminal: base de datos, migraciones, empresa y superadministrador. |
 | `app:user:list [--empresa=ID]` | Lista los usuarios con rol, perfil, empresa, estado y último ingreso. Nunca muestra contraseñas. |
