@@ -58,9 +58,17 @@ class MediaFolder extends VersaORMModel
         $bean->status = 'active';
         $bean->created_by_user_id = $userId;
 
-        $id = (int) $bean->save();
+        $id = (int) $bean->store();
 
         return $id > 0 ? $id : null;
+    }
+
+    /** ¿La carpeta existe, está activa y es de la empresa? */
+    public static function isOwnedBy(int $id, int $empresaId): bool
+    {
+        $record = (new self())->load('media_folders', $id);
+
+        return $record !== null && (int) $record->empresa_id === $empresaId && $record->status !== 'deleted';
     }
 
     /**

@@ -120,7 +120,7 @@ class MediaStore extends VersaORMModel
         $media->updated_by_user_id = (int) $params['updated_by_user_id'];
         $media->folder_id = ($params['folder_id'] ?? 0) > 0 ? (int) $params['folder_id'] : null;
 
-        return (int) $media->save();
+        return (int) $media->store();
     }
 
     public function moveToFolder(int $mediaId, int $empresaId, ?int $folderId): bool
@@ -158,7 +158,8 @@ class MediaStore extends VersaORMModel
             ->whereRaw('id = ? AND empresa_id = ?', [$mediaId, $empresaId])
             ->findOne();
 
-        if (!is_array($result) && !method_exists($result, 'export')) {
+        // No existe o es de otra empresa: findOne() devuelve null
+        if ($result === null) {
             return null;
         }
 

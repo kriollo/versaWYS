@@ -15,6 +15,12 @@ use ZipArchive;
 
 class MediaController extends GlobalControllers
 {
+    private const array FOLDER_NOT_FOUND = [
+        'success' => 0,
+        'message' => 'La carpeta no existe o no pertenece a la empresa.',
+        'code' => 404,
+    ];
+
     private string $PathMedia = '';
 
     private MediaStore $mediaModel;
@@ -73,6 +79,10 @@ class MediaController extends GlobalControllers
 
             $rawParent = $params['parent_folder_id'] ?? null;
             $parentId = $rawParent !== null && $rawParent !== '' ? (int) $rawParent : null;
+            if (!$this->ownFolder($parentId)) {
+                return self::FOLDER_NOT_FOUND;
+            }
+
             $empresaToken = (string) ($this->empresaSelected['token_empresa'] ?? $tokenEmpresa);
 
             $id = MediaFolder::createFolder(
@@ -183,6 +193,9 @@ class MediaController extends GlobalControllers
 
             $rawFolder = $params['folder_id'] ?? null;
             $folderId = $rawFolder !== null && $rawFolder !== '' ? (int) $rawFolder : null;
+            if (!$this->ownFolder($folderId)) {
+                return self::FOLDER_NOT_FOUND;
+            }
 
             $moved = $this->mediaModel->moveToFolder($id, (int) $this->empresaSelected['id'], $folderId);
 
@@ -258,6 +271,9 @@ class MediaController extends GlobalControllers
             $rawFolder = $params['folder_id'] ?? null;
             $folderId = $rawFolder !== null && $rawFolder !== '' && (int) $rawFolder > 0 ? (int) $rawFolder : null;
             $files = $request->getAllFiles('media');
+            if (!$this->ownFolder($folderId)) {
+                return self::FOLDER_NOT_FOUND;
+            }
 
             if ($files === []) {
                 return [
@@ -785,6 +801,10 @@ class MediaController extends GlobalControllers
             ];
         }
 
+        if (!$this->sanitizeSvgFile($uploadedFile->getTmpName(), $realMime)) {
+            return ['valid' => false, 'message' => 'El SVG no es válido.'];
+        }
+
         return [
             'valid' => true,
             'message' => 'OK',
@@ -829,6 +849,10 @@ class MediaController extends GlobalControllers
             ];
         }
 
+        if (!$this->sanitizeSvgFile($filePath, $realMime)) {
+            return ['valid' => false, 'message' => 'El SVG extraído no es válido.'];
+        }
+
         return [
             'valid' => true,
             'message' => 'OK',
@@ -869,6 +893,30 @@ class MediaController extends GlobalControllers
             'file' => ['pdf', 'txt', 'doc', 'docx', 'xls', 'xlsx', 'zip'],
             default => [],
         };
+    }
+
+    /**
+     * Un SVG se sirve desde el propio sitio: si trae scripts, quien lo abra los ejecuta con su sesión
+     * (XSS almacenado). Se reescribe con solo lo que permite Functions::sanitizeSvgContent(); si no es
+     * un SVG válido, se rechaza. Otros tipos no se tocan.
+     */
+    private function sanitizeSvgFile(string $path, string $realMime): bool
+    {
+        if ($realMime !== 'image/svg+xml') {
+            return true;
+        }
+
+        $clean = Functions::sanitizeSvgContent((string) file_get_contents($path));
+
+        return $clean !== '' && file_put_contents($path, $clean) !== false;
+    }
+
+    /** La carpeta destino (null = raíz) existe y es de la empresa de la sesión */
+    private function ownFolder(?int $folderId): bool
+    {
+        return $folderId === null
+        || $folderId <= 0
+        || MediaFolder::isOwnedBy($folderId, (int) $this->empresaSelected['id']);
     }
 
     private function detectRealMime(string $filePath): string
