@@ -42,6 +42,7 @@
                 version: '',
                 timezone: '',
                 charset: '',
+                debug: false,
             },
             admin: { custom_url: '', hide_default: false, redirect_404: false },
         }),

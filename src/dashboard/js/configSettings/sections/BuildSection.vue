@@ -88,8 +88,8 @@
         <div class="space-y-2">
             <switchToggle id="build_debug" label="Modo debug" type="danger" v-model="model.debug" />
             <p class="text-sm text-gray-500 dark:text-gray-400">
-                Muestra el detalle de los errores y la barra del profiler. Solo para desarrollo: en producción
-                debe estar desactivado. Se aplica al guardar.
+                Muestra el detalle de los errores y la barra del profiler. Solo para desarrollo: en producción debe
+                estar desactivado. Se aplica al guardar.
             </p>
         </div>
     </div>

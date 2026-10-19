@@ -73,7 +73,7 @@
         }
     }
 
-    // app\cron\LimpiarTemporales → LimpiarTemporales; los comandos se muestran completos
+    // Nombre corto: app\cron\LimpiarTemporales → LimpiarTemporales; los comandos se muestran completos
     function shortName(task: ScheduledTask): string {
         return task.type === 'cron' ? (task.task.split('\\').pop() ?? task.task) : task.task.replace(/^versaCLI /, '');
     }
@@ -111,7 +111,9 @@
                 class="p-3 text-sm rounded-lg bg-green-50 text-green-800 dark:bg-gray-800 dark:text-green-400">
                 El programador está activo: corrió por última vez el {{ report.last_tick }}.
             </div>
-            <div v-else class="p-3 text-sm rounded-lg bg-yellow-50 text-yellow-800 dark:bg-gray-800 dark:text-yellow-300">
+            <div
+                v-else
+                class="p-3 text-sm rounded-lg bg-yellow-50 text-yellow-800 dark:bg-gray-800 dark:text-yellow-300">
                 <p class="font-medium">
                     El crontab no está ejecutando el programador{{
                         report.last_tick ? ` (última vez: ${report.last_tick})` : ''
@@ -121,7 +123,9 @@
                     Agrega esta línea en el crontab del servidor (en cPanel: «Trabajos de cron», cada minuto):
                 </p>
                 <div class="flex items-center gap-2 mt-2">
-                    <code class="block flex-1 p-2 text-xs rounded bg-white/70 dark:bg-gray-900 break-all">{{ report.cron_line }}</code>
+                    <code class="block flex-1 p-2 text-xs rounded bg-white/70 dark:bg-gray-900 break-all">
+                        {{ report.cron_line }}
+                    </code>
                     <button type="button" class="text-xs underline" @click="copyCronLine">Copiar</button>
                 </div>
             </div>
@@ -160,11 +164,17 @@
                                             sin solapar
                                         </span>
                                     </div>
-                                    <div class="font-mono text-xs text-gray-500 dark:text-gray-400 break-all">{{ task.task }}</div>
+                                    <div class="font-mono text-xs text-gray-500 dark:text-gray-400 break-all">
+                                        {{ task.task }}
+                                    </div>
                                 </td>
                                 <td class="px-4 py-3">
-                                    <div class="text-gray-900 dark:text-white whitespace-nowrap">{{ task.frequency }}</div>
-                                    <div class="font-mono text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{{ task.expression }}</div>
+                                    <div class="text-gray-900 dark:text-white whitespace-nowrap">
+                                        {{ task.frequency }}
+                                    </div>
+                                    <div class="font-mono text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                        {{ task.expression }}
+                                    </div>
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap">{{ task.next_run ?? '—' }}</td>
                                 <td class="px-4 py-3">
@@ -182,7 +192,9 @@
                                             <span>{{ task.last_run.started_at }}</span>
                                             <span class="text-xs text-gray-500">{{ task.last_run.ms }} ms</span>
                                         </div>
-                                        <p v-if="task.last_run.error" class="mt-1 text-xs text-red-700 dark:text-red-400 break-words">
+                                        <p
+                                            v-if="task.last_run.error"
+                                            class="mt-1 text-xs text-red-700 dark:text-red-400 break-words">
                                             {{ task.last_run.error }}
                                         </p>
                                     </template>
@@ -222,9 +234,13 @@
                                 class="text-xs font-medium px-2 py-0.5 rounded">
                                 {{ task.last_run.exit === 0 ? 'OK' : `Error ${task.last_run.exit}` }}
                             </span>
-                            <span class="text-gray-600 dark:text-gray-300">{{ task.last_run.started_at }} · {{ task.last_run.ms }} ms</span>
+                            <span class="text-gray-600 dark:text-gray-300">
+                                {{ task.last_run.started_at }} · {{ task.last_run.ms }} ms
+                            </span>
                         </div>
-                        <p v-if="task.last_run?.error" class="text-xs text-red-700 dark:text-red-400 break-words">{{ task.last_run.error }}</p>
+                        <p v-if="task.last_run?.error" class="text-xs text-red-700 dark:text-red-400 break-words">
+                            {{ task.last_run.error }}
+                        </p>
                         <button
                             type="button"
                             :disabled="launching === task.id"
