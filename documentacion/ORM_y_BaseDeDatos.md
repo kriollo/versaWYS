@@ -119,6 +119,14 @@ class m20260101120000_productos extends VersaORMModel
 
 Las migraciones ejecutadas se registran en la tabla `versa_migrations`.
 
+### Caché del esquema en producción
+
+Antes de validar o guardar un modelo, el ORM lee las columnas de su tabla (`information_schema` en PostgreSQL y MySQL, `PRAGMA` en SQLite). Con `build.debug` en `false`, esa lectura queda en `Cache` (archivos o Redis): se hace una vez y no en cada petición.
+
+- **Se invalida sola:** `migrate:up`, `migrate:rollback` y cualquier `CREATE`, `ALTER` o `DROP` ejecutado con el ORM.
+- **Cambios hechos a mano:** si se cambia una tabla a mano (con `psql`, un cliente gráfico, etc.), el cambio se ve en un día como máximo. Para verlo al instante: `php versaCLI cache:clear`.
+- **En desarrollo** (`build.debug: true`) no se guarda nada: cada petición lee el esquema actual.
+
 ## Seeders
 
 ```bash
