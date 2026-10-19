@@ -6,6 +6,8 @@ namespace app\middleware;
 
 use app\models\Empresas;
 use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\GlobalMiddleware;
+use versaWYS\kernel\Tenant;
 
 class EmpresasMiddleware
 {
@@ -121,6 +123,18 @@ class EmpresasMiddleware
         $empresa = $empresasModel->getEmpresaByToken($tokenEmpresa);
 
         if (!$empresa) {
+            return [
+                'success' => 0,
+                'message' => 'Empresa no encontrada',
+                'code' => 404,
+            ];
+        }
+
+        // En el panel, la empresa del enlace tiene que ser la del usuario: sin esto, cambiar el token en la
+        // URL daba acceso a los datos de otra empresa. El superadmin entra a todas. En las rutas públicas
+        // (la tienda, por ejemplo) no hay usuario cargado y el token basta.
+        $usuario = GlobalMiddleware::getLoadedUserData()['user'] ?? null;
+        if (is_array($usuario) && ($usuario['role'] ?? '') !== 'superadmin' && (int) $empresa['id'] !== Tenant::id()) {
             return [
                 'success' => 0,
                 'message' => 'Empresa no encontrada',
