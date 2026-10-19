@@ -93,3 +93,38 @@ it('las contraseñas deben coincidir y cumplir la política', function (): void 
 it('con sesión iniciada, las pantallas de recuperación llevan al panel', function (): void {
     TestDatabase::login(TestDatabase::user())->get('/admin/lost-password')->assertRedirect();
 });
+
+it('el correo con el enlace sale por la cola, con el enlace de esa cuenta', function (): void {
+    $email = TestDatabase::user();
+    recuperacion_pedir($email)->assertOk();
+
+    $stmt = TestDatabase::pdo()->prepare("SELECT payload FROM versa_jobs WHERE job = ? AND payload LIKE ? ORDER BY id DESC");
+    $stmt->execute([app\jobs\EnviarCorreo::class, '%' . $email . '%']);
+    $datos = json_decode((string) $stmt->fetchColumn(), true);
+
+    expect($datos['to']['email'])->toBe($email)
+        ->and($datos['template'])->toBe('mail/layout')
+        ->and($datos['data']['btnhref'])->toContain('reset-password?token=' . recuperacion_token($email));
+});
+
+it('si el servidor de correo falla, el trabajo lanza para que la cola lo reintente', function (): void {
+    $mail = new class extends app\services\MailService {
+        public array $enviados = [];
+
+        public function __construct() {}
+
+        public function enviar(array $to, string $asunto, string $cuerpo, versaWYS\kernel\ContentType $tipo = versaWYS\kernel\ContentType::HTML, array $imagenesEmbed = []): bool
+        {
+            $this->enviados[] = $to['email'];
+
+            return $to['email'] !== 'falla@prueba.test';
+        }
+    };
+    $job = new app\jobs\EnviarCorreo($mail);
+
+    $job->handle(['to' => ['email' => 'ok@prueba.test'], 'subject' => 'Hola', 'type' => 'html', 'body' => '<p>x</p>']);
+    expect($mail->enviados)->toBe(['ok@prueba.test']);
+
+    expect(fn() => $job->handle(['to' => ['email' => 'falla@prueba.test'], 'subject' => 'Hola', 'type' => 'html', 'body' => '<p>x</p>']))
+        ->toThrow(RuntimeException::class);
+});

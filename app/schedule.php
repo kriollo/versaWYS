@@ -21,6 +21,6 @@ return static function (Schedule $schedule): void {
         ->everyMinute()
         ->withoutOverlapping();
 
-    // La cola de trabajos, si el proyecto usa Queue: cada minuto y sin solaparse
-    // $schedule->command('app:queue:work --stop-when-empty')->everyMinute()->withoutOverlapping();
+    // La cola de trabajos (correos de recuperación de contraseña, app/jobs): cada minuto y sin solaparse
+    $schedule->command('app:queue:work --stop-when-empty')->everyMinute()->withoutOverlapping();
 };

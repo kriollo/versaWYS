@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace app\controllers;
 
+use app\jobs\EnviarCorreo;
 use app\models as Models;
 use Exception;
 use InvalidArgumentException;
 use Throwable;
 use versaWYS\kernel\CacheUsers;
-use versaWYS\kernel\cli\CommandExecutor;
 use versaWYS\kernel\GlobalControllers;
 use versaWYS\kernel\GlobalMiddleware;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Loggin;
 use versaWYS\kernel\NotFound;
+use versaWYS\kernel\Queue;
 use versaWYS\kernel\Response;
 
 class DashBoardController extends GlobalControllers
@@ -230,37 +231,29 @@ class DashBoardController extends GlobalControllers
                 $imagesEmbed[] = ['path' => $faviconPath, 'id' => 'logo', 'mime' => 'image/png'];
             }
 
-            // Despachar envío de correo en background (no bloquea la respuesta HTTP)
-            // El payload se codifica en base64 para evitar problemas de escapado en Windows
-            CommandExecutor::runInBackground(
-                command: 'mail:send',
-                params: [
-                    base64_encode(json_encode([
-                        'to' => ['email' => $user['email'], 'name' => $user['name']],
-                        'subject' => 'Recuperar contraseña',
-                        'type' => 'twig',
-                        'template' => 'mail/layout',
-                        'data' => [
-                            'url_logo' => $baseUrl . '/' . $adminUrl,
-                            'content' => 'Para recuperar su contraseña, haga clic en el siguiente enlace:',
-                            'btnhref' => sprintf('%s/%s/reset-password?token=%s', $baseUrl, $adminUrl, $token),
-                            'copyright' =>
-                                '&copy; '
-                                    . date('Y')
-                                    . ' <a href="'
-                                    . $baseUrl
-                                    . '">'
-                                    . $config['build']['name']
-                                    . '</a> - Todos los derechos reservados.',
-                            'title' => 'Recuperar contraseña - ' . $baseUrl,
-                            'btnname' => 'Recuperar contraseña',
-                        ],
-                        'images_embed' => $imagesEmbed,
-                    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)),
+            // Por la cola: la respuesta no espera al servidor de correo y un fallo se reintenta
+            Queue::push(EnviarCorreo::class, [
+                'to' => ['email' => $user['email'], 'name' => $user['name']],
+                'subject' => 'Recuperar contraseña',
+                'type' => 'twig',
+                'template' => 'mail/layout',
+                'data' => [
+                    'url_logo' => $baseUrl . '/' . $adminUrl,
+                    'content' => 'Para recuperar su contraseña, haga clic en el siguiente enlace:',
+                    'btnhref' => sprintf('%s/%s/reset-password?token=%s', $baseUrl, $adminUrl, $token),
+                    'copyright' =>
+                        '&copy; '
+                            . date('Y')
+                            . ' <a href="'
+                            . $baseUrl
+                            . '">'
+                            . $config['build']['name']
+                            . '</a> - Todos los derechos reservados.',
+                    'title' => 'Recuperar contraseña - ' . $baseUrl,
+                    'btnname' => 'Recuperar contraseña',
                 ],
-                logOutput: true,
-                logModule: 'mail-send',
-            );
+                'images_embed' => $imagesEmbed,
+            ]);
 
             Response::json(['success' => 1, 'message' => self::LOST_PASSWORD_SENT]);
         } catch (Throwable $throwable) {
