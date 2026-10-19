@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace app\middleware;
 
 use app\models\Empresas;
-use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\GlobalMiddleware;
+use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Tenant;
 
 class EmpresasMiddleware
