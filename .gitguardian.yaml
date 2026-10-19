@@ -1,0 +1,5 @@
+# Contraseñas de prueba (base SQLite desechable): no son secretos
+version: 2
+secret:
+  ignored_paths:
+    - "versaWYS/tests/**"
