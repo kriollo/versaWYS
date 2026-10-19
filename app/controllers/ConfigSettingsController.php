@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace app\controllers;
 
 use app\services\MailService;
+use DateTimeImmutable;
+use versaWYS\kernel\cli\CommandExecutor;
 use versaWYS\kernel\cli\ConfigManager;
 use versaWYS\kernel\GlobalControllers;
-use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\Loggin;
+use versaWYS\kernel\Schedule;
 
 class ConfigSettingsController extends GlobalControllers
 {
@@ -128,6 +131,19 @@ class ConfigSettingsController extends GlobalControllers
         $config['build']['timezone'] = (string) $params['build']['timezone'];
         $config['build']['charset'] = (string) $params['build']['charset'];
 
+        // El modo debug muestra rutas, trazas y SQL en los errores: cada cambio queda en el log de seguridad
+        $debug = $this->toBool($params['build']['debug'] ?? false);
+        if ($debug !== (bool) ($config['build']['debug'] ?? false)) {
+            Loggin::warning(
+                $debug ? 'Modo debug activado desde el panel' : 'Modo debug desactivado desde el panel',
+                'security',
+                [
+                    'usuario' => $this->user['email'] ?? '',
+                ],
+            );
+        }
+        $config['build']['debug'] = $debug;
+
         $config['admin']['custom_url'] = (string) $params['admin']['custom_url'];
         $config['admin']['hide_default'] = $this->toBool($params['admin']['hide_default'] ?? false);
         $config['admin']['redirect_404'] = $this->toBool($params['admin']['redirect_404'] ?? false);
@@ -158,6 +174,32 @@ class ConfigSettingsController extends GlobalControllers
                     'code' => 502,
                 ]
         );
+    }
+
+    /**
+     * Las tareas de app/schedule.php, lo mismo que muestra `php versaCLI app:schedule:list`.
+     */
+    public function scheduledTasks(): array
+    {
+        return ['success' => 1] + Schedule::load()->report(new DateTimeImmutable());
+    }
+
+    /**
+     * Ejecuta una tarea ahora, en su propio proceso: la respuesta no espera a que termine. Su
+     * resultado aparece en la lista como «última ejecución».
+     */
+    public function runScheduledTask(): array
+    {
+        global $request;
+
+        $task = Schedule::load()->find($request->string('id'));
+        if ($task === null) {
+            return ['success' => 0, 'message' => 'La tarea no existe.', 'code' => 404];
+        }
+
+        CommandExecutor::runInBackground('schedule:exec', [$task->id()]);
+
+        return ['success' => 1, 'message' => 'Tarea lanzada: ' . $task->description()];
     }
 
     private function toBool(mixed $value): bool

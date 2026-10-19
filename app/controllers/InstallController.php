@@ -11,6 +11,7 @@ use Throwable;
 use VersaORM\VersaORM;
 use versaWYS\kernel\cli\ConfigManager;
 use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\Installation;
 use versaWYS\kernel\Loggin;
 use versaWYS\kernel\model\OrmFactory;
 use versaWYS\kernel\model\VersaORMModel;
@@ -26,7 +27,13 @@ class InstallController
     {
         global $twig;
 
-        return $twig->render('install/install');
+        $requirements = Installation::requirements();
+
+        return $twig->render('install/install', [
+            'requirements' => $requirements,
+            'requirements_ok' => array_filter($requirements, static fn(array $c): bool => !$c['ok']) === [],
+            'token_path' => Installation::tokenFile(),
+        ]);
     }
 
     public function run(): array
@@ -60,7 +67,7 @@ class InstallController
                 'port' => (int) $params['db_port'],
                 'database' => $params['db_name'],
                 'username' => $params['db_user'],
-                'password' => (string) ($params['db_pass'] ?? ''),
+                'password' => Functions::text($params['db_pass'] ?? null),
             ] + ($newConfig['database'] ?? []);
 
         try {
@@ -129,7 +136,8 @@ class InstallController
             ? array_column($orm->exec('SELECT name FROM versa_migrations'), 'name')
             : [];
 
-        $files = glob('app/migrations/*.php') ?: [];
+        $files = glob('app/migrations/*.php');
+        $files = $files === false ? [] : $files;
         sort($files);
         $count = 0;
 
@@ -153,7 +161,8 @@ class InstallController
 
     private function runSeeders(): string
     {
-        $files = glob('app/seeders/*.php') ?: [];
+        $files = glob('app/seeders/*.php');
+        $files = $files === false ? [] : $files;
         sort($files, SORT_NATURAL);
 
         foreach ($files as $file) {

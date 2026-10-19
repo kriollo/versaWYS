@@ -10,10 +10,17 @@ use Exception;
 use SensitiveParameter;
 use versaWYS\kernel\File;
 use versaWYS\kernel\GlobalControllers;
+use versaWYS\kernel\helpers\Functions;
 use ZipArchive;
 
 class MediaController extends GlobalControllers
 {
+    private const array FOLDER_NOT_FOUND = [
+        'success' => 0,
+        'message' => 'La carpeta no existe o no pertenece a la empresa.',
+        'code' => 404,
+    ];
+
     private string $PathMedia = '';
 
     private MediaStore $mediaModel;
@@ -64,7 +71,7 @@ class MediaController extends GlobalControllers
             global $request;
 
             $params = $request->getAllParams();
-            $name = trim((string) ($params['name'] ?? ''));
+            $name = trim(Functions::text($params['name'] ?? null));
 
             if ($name === '') {
                 return ['success' => 0, 'message' => 'El nombre de la carpeta es requerido.', 'code' => 422];
@@ -72,6 +79,10 @@ class MediaController extends GlobalControllers
 
             $rawParent = $params['parent_folder_id'] ?? null;
             $parentId = $rawParent !== null && $rawParent !== '' ? (int) $rawParent : null;
+            if (!$this->ownFolder($parentId)) {
+                return self::FOLDER_NOT_FOUND;
+            }
+
             $empresaToken = (string) ($this->empresaSelected['token_empresa'] ?? $tokenEmpresa);
 
             $id = MediaFolder::createFolder(
@@ -108,7 +119,7 @@ class MediaController extends GlobalControllers
 
             $params = $request->getAllParams();
             $id = (int) ($params['id'] ?? 0);
-            $newName = trim((string) ($params['new_name'] ?? ''));
+            $newName = trim(Functions::text($params['new_name'] ?? null));
 
             if ($id <= 0 || $newName === '') {
                 return ['success' => 0, 'message' => 'ID o nombre inválido.', 'code' => 422];
@@ -182,6 +193,9 @@ class MediaController extends GlobalControllers
 
             $rawFolder = $params['folder_id'] ?? null;
             $folderId = $rawFolder !== null && $rawFolder !== '' ? (int) $rawFolder : null;
+            if (!$this->ownFolder($folderId)) {
+                return self::FOLDER_NOT_FOUND;
+            }
 
             $moved = $this->mediaModel->moveToFolder($id, (int) $this->empresaSelected['id'], $folderId);
 
@@ -210,7 +224,7 @@ class MediaController extends GlobalControllers
             global $request;
 
             $params = $this->getParamsPaginate($request, ['cms.original_name'], false, 'id,desc');
-            $mediaType = trim((string) $request->get('media_type', ''));
+            $mediaType = trim($request->string('media_type'));
 
             // folder_id: vacío = todos, 0/'root' = raíz, número = carpeta específica
             $rawFolder = $request->get('folder_id', '');
@@ -225,7 +239,7 @@ class MediaController extends GlobalControllers
                 (int) $params['limitNumber'],
                 (int) $params['offset'],
                 $folderId,
-                trim((string) ($params['filtro'] ?? '')),
+                trim(Functions::text($params['filtro'] ?? null)),
             );
 
             return [
@@ -253,10 +267,13 @@ class MediaController extends GlobalControllers
             global $request;
 
             $params = $request->getAllParams();
-            $mediaType = (string) ($params['media_type'] ?? 'file');
+            $mediaType = Functions::text($params['media_type'] ?? null, 'file');
             $rawFolder = $params['folder_id'] ?? null;
             $folderId = $rawFolder !== null && $rawFolder !== '' && (int) $rawFolder > 0 ? (int) $rawFolder : null;
             $files = $request->getAllFiles('media');
+            if (!$this->ownFolder($folderId)) {
+                return self::FOLDER_NOT_FOUND;
+            }
 
             if ($files === []) {
                 return [
@@ -442,7 +459,7 @@ class MediaController extends GlobalControllers
 
             $params = $request->getAllParams();
             $id = (int) ($params['id'] ?? 0);
-            $newName = trim((string) ($params['new_name'] ?? ''));
+            $newName = trim(Functions::text($params['new_name'] ?? null));
 
             if ($id <= 0 || $newName === '') {
                 return [
@@ -647,7 +664,7 @@ class MediaController extends GlobalControllers
             $tmpHandle = fopen($tmpExtractPath, 'wb');
             if ($tmpHandle === false) {
                 fclose($entryStream);
-                @unlink($tmpExtractPath);
+                unlink($tmpExtractPath);
                 $results[] = [
                     'success' => false,
                     'name' => $entryName,
@@ -663,7 +680,7 @@ class MediaController extends GlobalControllers
 
             $validation = $this->validateExtractedFile($tmpExtractPath, $safeOriginalName, $mediaType);
             if (!$validation['valid']) {
-                @unlink($tmpExtractPath);
+                unlink($tmpExtractPath);
                 $results[] = [
                     'success' => false,
                     'name' => $safeOriginalName,
@@ -676,10 +693,10 @@ class MediaController extends GlobalControllers
             $safeStoredName = $this->buildStoredFilenameFromName($safeOriginalName);
             $finalAbsolutePath = $storagePaths['absolute_directory'] . DIRECTORY_SEPARATOR . $safeStoredName;
 
-            $moved = @rename($tmpExtractPath, $finalAbsolutePath);
-            if (!$moved) {
-                $moved = @copy($tmpExtractPath, $finalAbsolutePath);
-                @unlink($tmpExtractPath);
+            // rename() también mueve entre discos distintos (copia y borra)
+            $moved = rename($tmpExtractPath, $finalAbsolutePath);
+            if (!$moved && is_file($tmpExtractPath)) {
+                unlink($tmpExtractPath);
             }
 
             if (!$moved) {
@@ -692,11 +709,11 @@ class MediaController extends GlobalControllers
                 continue;
             }
 
-            @chmod($finalAbsolutePath, 0o664);
+            chmod($finalAbsolutePath, 0o664);
 
             $relativeFilePath = $storagePaths['relative_directory'] . '/' . $safeStoredName;
             $publicUrl = '/' . ltrim(str_replace('\\', '/', $relativeFilePath), '/');
-            $sizeBytes = (int) (filesize($finalAbsolutePath) ?: 0);
+            $sizeBytes = (int) filesize($finalAbsolutePath);
 
             $mediaId = $this->mediaModel->createMedia([
                 'empresa_id' => (int) $this->empresaSelected['id'],
@@ -784,6 +801,10 @@ class MediaController extends GlobalControllers
             ];
         }
 
+        if (!$this->sanitizeSvgFile($uploadedFile->getTmpName(), $realMime)) {
+            return ['valid' => false, 'message' => 'El SVG no es válido.'];
+        }
+
         return [
             'valid' => true,
             'message' => 'OK',
@@ -802,7 +823,7 @@ class MediaController extends GlobalControllers
         }
 
         $maxSizeBytes = 50 * 1024 * 1024;
-        $sizeBytes = (int) (filesize($filePath) ?: 0);
+        $sizeBytes = (int) filesize($filePath);
         if ($sizeBytes > $maxSizeBytes) {
             return [
                 'valid' => false,
@@ -826,6 +847,10 @@ class MediaController extends GlobalControllers
                 'valid' => false,
                 'message' => 'El contenido real del archivo extraído no es válido para el tipo seleccionado.',
             ];
+        }
+
+        if (!$this->sanitizeSvgFile($filePath, $realMime)) {
+            return ['valid' => false, 'message' => 'El SVG extraído no es válido.'];
         }
 
         return [
@@ -868,6 +893,30 @@ class MediaController extends GlobalControllers
             'file' => ['pdf', 'txt', 'doc', 'docx', 'xls', 'xlsx', 'zip'],
             default => [],
         };
+    }
+
+    /**
+     * Un SVG se sirve desde el propio sitio: si trae scripts, quien lo abra los ejecuta con su sesión
+     * (XSS almacenado). Se reescribe con solo lo que permite Functions::sanitizeSvgContent(); si no es
+     * un SVG válido, se rechaza. Otros tipos no se tocan.
+     */
+    private function sanitizeSvgFile(string $path, string $realMime): bool
+    {
+        if ($realMime !== 'image/svg+xml') {
+            return true;
+        }
+
+        $clean = Functions::sanitizeSvgContent((string) file_get_contents($path));
+
+        return $clean !== '' && file_put_contents($path, $clean) !== false;
+    }
+
+    /** La carpeta destino (null = raíz) existe y es de la empresa de la sesión */
+    private function ownFolder(?int $folderId): bool
+    {
+        return $folderId === null
+        || $folderId <= 0
+        || MediaFolder::isOwnedBy($folderId, (int) $this->empresaSelected['id']);
     }
 
     private function detectRealMime(string $filePath): string

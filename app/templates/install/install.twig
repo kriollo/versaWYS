@@ -69,6 +69,10 @@
 		}
 		.field { margin-bottom: 1rem; }
 		.help { font-size: .78rem; color: var(--muted); margin-top: .3rem; }
+		.requirements { list-style: none; padding: 0; margin: 0; }
+		.requirements li { padding: .35rem 0; }
+		.requirements .ok b { color: #16a34a; }
+		.requirements .no b { color: #dc2626; }
 		.checkbox-row { display: flex; align-items: center; gap: .5rem; }
 		.checkbox-row label { margin: 0; color: var(--text); }
 		button {
@@ -94,6 +98,15 @@
 		#alert.success { display: block; background: var(--success-bg); color: var(--success); }
 		#alert ul { margin: .4rem 0 0; padding-left: 1.1rem; }
 		#log { font-size: .8rem; color: var(--muted); margin-top: .5rem; }
+		.steps { display: flex; gap: .5rem; list-style: none; padding: 0; margin: 0 0 1rem; font-size: .85rem; }
+		.steps li { flex: 1; padding: .5rem .75rem; border-radius: .5rem; background: var(--card, #fff); color: var(--muted); border: 1px solid var(--border, #e2e8f0); }
+		.steps li.active { color: inherit; font-weight: 600; border-color: currentColor; }
+		.steps li.done { color: var(--success); }
+		.card h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 1rem 0 .25rem; }
+		.actions { display: flex; justify-content: space-between; gap: .75rem; margin-top: 1rem; }
+		.no-ok { color: var(--danger); }
+		button.secondary { background: transparent; color: inherit; border: 1px solid var(--border, #cbd5e1); }
+		button:disabled { opacity: .5; cursor: not-allowed; }
 		#log li { margin-bottom: .2rem; }
 	</style>
 </head>
@@ -104,7 +117,46 @@
 
 		<div id="alert"></div>
 
-		<form id="installForm">
+		<ol class="steps">
+			<li id="stepNav1" class="active">1. Servidor</li>
+			<li id="stepNav2">2. Datos</li>
+			<li id="stepNav3">3. Listo</li>
+		</ol>
+
+		<div id="step1" class="card">
+			<h2>Revisión del servidor</h2>
+			<p class="help">Lo mismo que muestra <code>php versaCLI status</code>. Si falta algo, la instalación no puede continuar.</p>
+			{% set group = '' %}
+			{% for check in requirements %}
+				{% if check.group != group %}
+					{% if group != '' %}</ul>{% endif %}
+					{% set group = check.group %}
+					<h3>{{ group }}</h3>
+					<ul class="requirements">
+				{% endif %}
+				<li class="{{ check.ok ? 'ok' : 'no' }}">
+					<b>{{ check.ok ? '✓' : '✗' }}</b> {{ check.label }}
+					{% if not check.ok %}<div class="help">{{ check.fix }}</div>{% endif %}
+				</li>
+			{% endfor %}
+			{% if group != '' %}</ul>{% endif %}
+
+			{% if not requirements_ok %}
+				<p class="help no-ok">Corrige lo marcado con ✗ y vuelve a revisar.</p>
+			{% endif %}
+			<div class="actions">
+				<button type="button" class="secondary" id="recheckBtn">Volver a revisar</button>
+				<button type="button" id="continueBtn"{% if not requirements_ok %} disabled{% endif %}>Continuar</button>
+			</div>
+		</div>
+
+		<div id="step3" class="card" hidden>
+			<h2>Instalación completada</h2>
+			<ul id="log"></ul>
+			<p><a id="loginLink" href="/">Ir al panel</a></p>
+		</div>
+
+		<form id="installForm" hidden>
 			{{ csrf_field()|raw }}
 
 			<div class="card">
@@ -182,11 +234,18 @@
 				<div class="field">
 					<label for="install_token">Token</label>
 					<input type="text" name="install_token" id="install_token" autocomplete="off" required>
-					<div class="help">Lo muestra <code>php versaCLI config:init</code> y queda en <code>versaWYS/kernel/config/install.token</code>.</div>
+					<div class="help">
+						Demuestra que tienes acceso al servidor: abre <code>{{ token_path }}</code> y copia su contenido.
+						En un hosting con cPanel, desde el <b>Administrador de archivos</b>; con terminal, <code>cat {{ token_path }}</code>.
+						Se borra solo al terminar la instalación.
+					</div>
 				</div>
 			</div>
 
-			<button type="submit" id="submitBtn">Instalar</button>
+			<div class="actions">
+				<button type="button" class="secondary" id="backBtn">Volver</button>
+				<button type="submit" id="submitBtn">Instalar</button>
+			</div>
 		</form>
 	</div>
 
@@ -194,6 +253,24 @@
 		const form = document.getElementById('installForm');
 		const alertBox = document.getElementById('alert');
 		const submitBtn = document.getElementById('submitBtn');
+		const step1 = document.getElementById('step1');
+		const step3 = document.getElementById('step3');
+
+		function goTo(step) {
+			step1.hidden = step !== 1;
+			form.hidden = step !== 2;
+			step3.hidden = step !== 3;
+			[1, 2, 3].forEach(n => {
+				const nav = document.getElementById('stepNav' + n);
+				nav.className = n === step ? 'active' : (n < step ? 'done' : '');
+			});
+			alertBox.className = '';
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		}
+
+		document.getElementById('recheckBtn').addEventListener('click', () => window.location.reload());
+		document.getElementById('continueBtn').addEventListener('click', () => goTo(2));
+		document.getElementById('backBtn').addEventListener('click', () => goTo(1));
 
 		// Los mensajes del servidor se insertan como texto, nunca como HTML
 		function showAlert(type, message, items) {
@@ -223,8 +300,10 @@
 				const data = await response.json();
 
 				if (data.success == 1) {
-					showAlert('success', data.message, data.log);
-					setTimeout(() => { window.location.href = data.redirect; }, 1500);
+					goTo(3);
+					const log = document.getElementById('log');
+					(data.log || []).forEach(text => log.append(Object.assign(document.createElement('li'), { textContent: text })));
+					document.getElementById('loginLink').href = data.redirect;
 					return;
 				}
 

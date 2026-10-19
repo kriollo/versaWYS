@@ -58,7 +58,31 @@ La regla general: **la entrada se guarda tal como llega y se escapa al mostrarla
 
 ---
 
-## 4. Autenticación y sesión
+## 4. Tipos de la entrada (type juggling)
+
+Con JSON, el cliente elige el tipo de cada campo: puede mandar `true`, `0`, `null` o un arreglo donde el código espera un texto. PHP convierte tipos al comparar y al hacer un cast, y eso abre huecos:
+
+| Código | Con lo que manda un atacante |
+|---|---|
+| `if ($token == $esperado)` | `0 == "abc"` era verdadero hasta PHP 7; `"0e1" == "0e2"` sigue siéndolo (hashes «mágicos») |
+| `in_array($rol, $roles)` | sin `strict`, compara con `==` |
+| `(int) $request->get('id')` | `"1e3"` es 1000 y `"0x1A"` es 0: otra URL llega al mismo registro |
+| `(string) $request->get('nombre')` | un arreglo se vuelve el texto `"Array"` |
+| `hash_equals($a, $request->get('token'))` | un arreglo o un número lanzan `TypeError`: un 500 en vez de un 403 |
+
+Lo que hace el framework y lo que conviene hacer:
+
+- **Compara siempre con `===`, `in_array(..., true)` y `hash_equals()`** para secretos. mago lo exige (`composer mago:lint`).
+- **Lee la entrada con su tipo:** `$request->string('nombre')` y `$request->integer('cantidad')` devuelven el valor por defecto si llega otro tipo. Sobre un arreglo ya leído, `Functions::text($params['nombre'] ?? null)`.
+- **Declara el tipo de los parámetros de ruta:** con `int $id`, el contenedor solo acepta dígitos y cualquier otra cosa (`1e3`, `0x1A`, `1.5`) responde 404. Con `int|string $id` y un cast después, esa protección se pierde.
+- **Las reglas de validación** (`min`, `max`, `email`, `int`) rechazan un arreglo en vez de medirlo como texto.
+- **El token CSRF** solo cuenta si es texto: cualquier otro tipo es un 403, nunca un 500.
+
+`versaWYS/tests/TiposTest.php` prueba los puntos sensibles del panel con `true`, `0`, `null` y arreglos: ninguno acepta la petición ni responde 500. Para un módulo propio, copia ese patrón.
+
+---
+
+## 5. Autenticación y sesión
 
 - **Contraseñas** con `Functions::hash()` (`PASSWORD_DEFAULT`). En el login, si `Functions::needsRehash()` indica un algoritmo o costo anterior, se guarda un hash nuevo: es el único momento en que se tiene la contraseña.
 - **Al autenticar** se renuevan el id de sesión y el token CSRF; al cerrar sesión el JWT queda revocado aunque alguien conserve la cookie.
@@ -69,7 +93,7 @@ La regla general: **la entrada se guarda tal como llega y se escapa al mostrarla
 
 ---
 
-## 5. Configuración del servidor
+## 6. Configuración del servidor
 
 | Clave | Para qué |
 |---|---|
@@ -82,7 +106,7 @@ La regla general: **la entrada se guarda tal como llega y se escapa al mostrarla
 
 ---
 
-## 6. Despliegue
+## 7. Despliegue
 
 - **`config.json` nunca en git.** Tiene las claves de sesión y la base de datos. Los ajustes sin secretos (CSP, CORS) van en `versaWYS/config.compartida.json`, que se aplica en cada despliegue.
 - **`php versaCLI app:check:deploy --production`** revisa en el servidor:
@@ -94,5 +118,36 @@ La regla general: **la entrada se guarda tal como llega y se escapa al mostrarla
 - **Subida de archivos:** `File::getType()` devuelve el tipo detectado en el contenido, no el que declara el navegador, y ningún archivo se guarda con extensión ejecutable ni como oculto. Valida igual contra una lista de tipos permitidos.
 - **Archivos privados** (facturas, respaldos): guárdalos con `Storage`, en `versaWYS/storage`, fuera de lo que sirve la web, y entrégalos después de revisar el permiso.
 - Mantén el kernel al día: `composer update versawys/kernel`. Dependabot abre el PR en cada versión nueva.
+
+---
+
+## 8. Secretos guardados y enlaces firmados
+
+**API keys y tokens de terceros en la base de datos** se guardan cifrados con `Crypt` (AES-256-GCM): si alguien obtiene un respaldo de la base, no obtiene las claves.
+
+```php
+use versaWYS\kernel\Crypt;
+
+$guardado = Crypt::encrypt($apiKey);   // también acepta números y arreglos
+$apiKey = Crypt::decrypt($guardado);   // excepción si el valor fue alterado o es de otra clave
+```
+
+- La clave es `crypt.key` en `config.json` (32 bytes en base64: `php -r "echo base64_encode(random_bytes(32));"`). Si no existe, se deriva de `session.key`.
+- **Cambiar cualquiera de las dos hace ilegible lo ya cifrado.** Respáldala junto con la base.
+- Para migrar valores guardados en texto plano: `Crypt::isEncrypted($valor)` dice si ya están cifrados.
+
+**Enlaces que vencen** (descargar una factura sin iniciar sesión, confirmar desde un correo) con `SignedUrl`:
+
+```php
+use versaWYS\kernel\SignedUrl;
+
+$url = SignedUrl::make("/facturas/{$id}/pdf", 3600);   // vence en una hora
+$enlace = $request->getBaseUrl() . $url;               // absoluto, para el correo
+
+Router::get('/facturas/{id}/pdf', [FacturasController::class, 'pdf'])
+    ->middleware([[SignedUrl::class, 'check']]);       // 403 si venció o fue alterado
+```
+
+La firma cubre la ruta, los parámetros y el vencimiento: cambiar cualquiera la invalida. Quien tenga el enlace entra mientras no venza, así que usa vencimientos cortos.
 
 ¿Dudas? Consulta la [Guía de Configuración](./CONFIGURATION.md), la [Guía de Enrutamiento](./Enrutamiento.md) o la [Interfaz de Línea de Comandos](./LineaDeComandos.md).

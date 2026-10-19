@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\models;
 
 use VersaORM\VersaModel;
+use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\model\VersaORMModel;
 
 class Perfil extends VersaORMModel
@@ -38,7 +39,7 @@ class Perfil extends VersaORMModel
         $perfil = $this->dispense($this->table);
         $perfil->id_empresa = $params['id_empresa'];
         $perfil->nombre = $params['nombre'];
-        $perfil->estado = $params['estado'];
+        $perfil->estado = (int) ($params['estado'] ?? 1);
         $this->executeWithErrorHandling($perfil->store(...), [
             'operation' => 'savePerfil',
             'params' => $params,
@@ -60,9 +61,12 @@ class Perfil extends VersaORMModel
         return $perfil->id;
     }
 
-    public function getPerfil(int $id): array
+    /** El perfil, solo si es de esa empresa */
+    public function getPerfil(int $id, int $idEmpresa): ?array
     {
-        return $this->getRow('SELECT * FROM versa_perfil WHERE id = ?', [$id]);
+        $perfil = $this->getRow('SELECT * FROM versa_perfil WHERE id = ? AND id_empresa = ?', [$id, $idEmpresa]);
+
+        return is_array($perfil) && $perfil !== [] ? $perfil : null;
     }
 
     public function getPerfilPermisos(int $perfilId, int $empresaId): array
@@ -141,8 +145,9 @@ class Perfil extends VersaORMModel
             'params' => $params,
         ]);
 
-        $permisos = json_decode($params['data'], true);
-        if ($permisos === '[]' || $permisos === '') {
+        // Sin `data` solo cambian el nombre y la página de inicio: los permisos quedan como estaban
+        $permisos = json_decode(Functions::text($params['data'] ?? null), true);
+        if (!is_array($permisos)) {
             return $perfil->id;
         }
 

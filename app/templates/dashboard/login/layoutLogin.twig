@@ -19,9 +19,11 @@
 {% endblock %}
 {% block appBody %}
     <div class="fixed inset-0 w-full h-full z-0">
+        {# Fondo con los colores de la marca (--color-brand-* de dashboard.css). Para usar una imagen propia:
+           style="background-image: url('{{ assets_url('/public/dashboard/img/loginBackground.webp') }}');" #}
         <div
             class="w-full h-full bg-cover bg-center"
-            style="background-image: url('{{ assets_url('/public/dashboard/img/loginBackground.png') }}');"></div>
+            style="background: radial-gradient(circle at 20% 20%, var(--color-brand-700), transparent 55%), linear-gradient(135deg, var(--color-brand-900), var(--color-gray-900));"></div>
     </div>
 
     {# Main Content #}

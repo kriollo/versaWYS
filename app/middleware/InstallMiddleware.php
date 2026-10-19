@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace app\middleware;
 
-use versaWYS\kernel\cli\ConfigManager;
 use versaWYS\kernel\GlobalMiddleware;
 use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\Installation;
+use versaWYS\kernel\Output;
 use versaWYS\kernel\Response;
 
 /**
@@ -14,14 +15,15 @@ use versaWYS\kernel\Response;
  */
 class InstallMiddleware extends GlobalMiddleware
 {
+    // Las mismas rutas que usa el kernel para decidir si la instalación está pendiente
     public static function lockFile(): string
     {
-        return ConfigManager::dir() . '/installed.lock';
+        return Installation::lockFile();
     }
 
     public static function tokenFile(): string
     {
-        return ConfigManager::dir() . '/install.token';
+        return Installation::tokenFile();
     }
 
     public const array DRIVERS = ['mysql', 'postgresql'];
@@ -35,7 +37,7 @@ class InstallMiddleware extends GlobalMiddleware
 
         if (file_exists(self::lockFile())) {
             Response::redirect('/' . $config['admin']['custom_url'] . '/login');
-            exit();
+            Output::halt();
         }
     }
 
@@ -49,7 +51,7 @@ class InstallMiddleware extends GlobalMiddleware
         global $request;
 
         $expected = file_exists(self::tokenFile()) ? trim((string) file_get_contents(self::tokenFile())) : '';
-        $received = trim((string) $request->get('install_token', ''));
+        $received = trim($request->string('install_token'));
 
         if ($expected === '' || $received === '' || !hash_equals($expected, $received)) {
             return [
@@ -60,6 +62,24 @@ class InstallMiddleware extends GlobalMiddleware
         }
 
         return true;
+    }
+
+    /**
+     * El servidor debe cumplir los requisitos (SystemCheck), aunque se salte el paso 1 del asistente.
+     */
+    public function checkRequirements(): true|array
+    {
+        $failing = array_values(array_filter(Installation::requirements(), static fn(array $c): bool => !$c['ok']));
+        if ($failing === []) {
+            return true;
+        }
+
+        return [
+            'success' => 0,
+            'message' => 'El servidor no cumple los requisitos para instalar.',
+            'errors' => array_map(static fn(array $c): string => $c['label'] . ': ' . $c['fix'], $failing),
+            'code' => 422,
+        ];
     }
 
     public function validateParams(): true|array
@@ -107,15 +127,21 @@ class InstallMiddleware extends GlobalMiddleware
 
         // Host, base y usuario terminan en la cadena de conexión: solo caracteres de identificador
         foreach (['db_host', 'db_name', 'db_user'] as $field) {
-            if (preg_match('/^[A-Za-z0-9._\-]+$/', (string) ($params[$field] ?? '')) !== 1) {
-                $errors[$field] = "El campo {$field} contiene caracteres no permitidos";
+            if (preg_match('/^[A-Za-z0-9._\-]+$/', Functions::text($params[$field] ?? null)) === 1) {
+                continue;
             }
+
+            $errors[$field] = "El campo {$field} contiene caracteres no permitidos";
         }
 
-        $password = (string) ($params['admin_password'] ?? '');
-        if (!hash_equals($password, (string) ($params['admin_password_confirm'] ?? ''))) {
+        $password = Functions::text($params['admin_password'] ?? null);
+        if (!hash_equals($password, Functions::text($params['admin_password_confirm'] ?? null))) {
             $errors['admin_password_confirm'] = 'Las contraseñas no coinciden';
-        } elseif (!$this->validatePolicyPassword($password)) {
+
+            return $errors;
+        }
+
+        if (!$this->validatePolicyPassword($password)) {
             $errors['admin_password'] = $this->getMessagePolicyPassword();
         }
 

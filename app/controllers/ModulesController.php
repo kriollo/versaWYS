@@ -11,6 +11,8 @@ use versaWYS\kernel\helpers\Functions;
 
 class ModulesController extends GlobalControllers
 {
+    private const array NOT_FOUND = ['success' => 0, 'message' => 'Menú no encontrado', 'code' => 404];
+
     public function __construct()
     {
         global $twig, $session;
@@ -46,7 +48,7 @@ class ModulesController extends GlobalControllers
             ['estado'],
         );
         $filter = $params['filter'] ?? '';
-        $order = $params['order'] ?: 'posicion ASC, seccion ASC';
+        $order = ($params['order'] ?? '') !== '' ? $params['order'] : 'posicion ASC, seccion ASC';
         $modelo = new Models\Pagination();
         $result = $modelo->pagination(
             'versa_menu',
@@ -168,22 +170,24 @@ class ModulesController extends GlobalControllers
         global $request;
 
         $params = $request->getAllParams();
-        $params['estado'] = $params['estado'] === 'true' || $params['estado'] === 1;
-        $params['fill'] = $params['fill'] === 'true' || $params['fill'] === 1;
+        // Llegan como 'true' en un formulario y como true en JSON
+        $params['estado'] = filter_var($params['estado'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $params['fill'] = filter_var($params['fill'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         // Sanitizar el icono SVG antes de guardar
-        if (isset($params['icono'])) {
+        if (($params['icono'] ?? null) !== null) {
             $params['icono'] = Functions::sanitizeSvgContent($params['icono']);
         }
 
         $modelo = new Models\Modules();
         $result = $modelo->saveModule($params);
-
         if ($result) {
+            self::menuChanged();
+
             return ['success' => 1, 'message' => 'Menú guardado correctamente'];
         }
 
-        return ['success' => 0, 'message' => 'Error al crear el menú'];
+        return self::NOT_FOUND;
     }
 
     /**
@@ -199,12 +203,13 @@ class ModulesController extends GlobalControllers
 
         $params = $request->getAllParams();
         $result = (new Models\Modules())->changeStatus($params);
-
         if ($result) {
+            self::menuChanged();
+
             return ['success' => 1, 'message' => 'Menú actualizado correctamente'];
         }
 
-        return ['success' => 0, 'message' => 'Error al actualizar el menú'];
+        return self::NOT_FOUND;
     }
 
     public function movePosition(): array
@@ -213,9 +218,7 @@ class ModulesController extends GlobalControllers
 
         $params = $request->getAllParams();
         $data = (new Models\Modules())->movePosition($params);
-
-        (new CacheUsers())->updateMenuVersion();
-        CacheUsers::invalidateAllUserCache();
+        self::menuChanged();
 
         return ['success' => 1, 'data' => $data];
     }
@@ -329,14 +332,15 @@ class ModulesController extends GlobalControllers
         global $request;
 
         $params = $request->getAllParams();
-        $params['estado'] = $params['estado'] === 'true' ? 1 : 0;
+        $params['estado'] = filter_var($params['estado'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
         $result = (new Models\Modules())->saveSubModule($params);
-
         if ($result) {
+            self::menuChanged();
+
             return ['success' => 1, 'message' => 'Menú guardado correctamente'];
         }
 
-        return ['success' => 0, 'message' => 'Error al crear el menú'];
+        return self::NOT_FOUND;
     }
 
     public function changeStatusSubModule(): array
@@ -345,12 +349,13 @@ class ModulesController extends GlobalControllers
 
         $params = $request->getAllParams();
         $result = (new Models\Modules())->changeStatusSubModule($params);
-
         if ($result) {
+            self::menuChanged();
+
             return ['success' => 1, 'message' => 'Menú actualizado correctamente'];
         }
 
-        return ['success' => 0, 'message' => 'Error al actualizar el menú'];
+        return self::NOT_FOUND;
     }
 
     public function movePositionSubModule(): array
@@ -359,10 +364,14 @@ class ModulesController extends GlobalControllers
 
         $params = $request->getAllParams();
         $data = (new Models\Modules())->movePositionSubModule($params);
-
-        (new CacheUsers())->updateMenuVersion();
-        CacheUsers::invalidateAllUserCache();
+        self::menuChanged();
 
         return ['success' => 1, 'message' => 'Posición actualizada correctamente', 'data' => $data];
+    }
+
+    /** El menú cambió: cada usuario lo vuelve a cargar en su siguiente página */
+    private static function menuChanged(): void
+    {
+        (new CacheUsers())->updateMenuVersion();
     }
 }

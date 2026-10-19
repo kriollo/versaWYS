@@ -56,6 +56,11 @@ version: "{{ config.build.debug ? 'now'|date('U') : config.build.version }}"
 </head>
 
 <body class="bg-gray-50 dark:bg-[#050505] min-h-screen flex flex-col font-sans transition-colors duration-200">
+	{% if maintenance is defined and maintenance %}
+		<div id="maintenance-banner" class="w-full px-4 py-2 text-sm text-center font-medium bg-yellow-400 text-yellow-950" role="status">
+			Sitio en mantenimiento: los demás ven la página de mantenimiento. Para abrirlo: <code>versaCLI app:up</code>
+		</div>
+	{% endif %}
 	<div id="content-general"> {% block appBody %}{% endblock %}
 		</div>
 		<script nonce="{{ csp_nonce() }}" src="{{ assets_url('/public/vendor/flowbite/flowbite.min.js') }}"></script>

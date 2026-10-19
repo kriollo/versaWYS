@@ -502,8 +502,23 @@ export const removeScape = (str: string): string => {
  * @returns {string} El contenido SVG sanitizado y seguro.
  */
 const SVG_ALLOWED_TAGS = new Set([
-    'svg', 'g', 'path', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'rect', 'defs', 'title', 'desc',
-    'lineargradient', 'radialgradient', 'stop', 'clippath', 'mask',
+    'svg',
+    'g',
+    'path',
+    'circle',
+    'ellipse',
+    'line',
+    'polyline',
+    'polygon',
+    'rect',
+    'defs',
+    'title',
+    'desc',
+    'lineargradient',
+    'radialgradient',
+    'stop',
+    'clippath',
+    'mask',
 ]);
 
 export const sanitizeSvgContent = (svgContent: string): string => {

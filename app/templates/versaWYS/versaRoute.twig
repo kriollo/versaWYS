@@ -1268,6 +1268,70 @@
                 }
             });
 
+            // ------------------------------------------------------------------
+            // Repetir una petición del profiler: /doc?route=all&replay=<id>
+            // ------------------------------------------------------------------
+            function replayBody(replay) {
+                if (!replay.body) return '';
+                // El probador envía JSON: un formulario se pasa a un objeto con los mismos campos
+                if (replay.content_type.startsWith('application/x-www-form-urlencoded')) {
+                    return JSON.stringify(Object.fromEntries(new URLSearchParams(replay.body)), null, 2);
+                }
+                return replay.body;
+            }
+
+            async function openReplay(id) {
+                const card = el(
+                    'section',
+                    'route-item rounded-xl border-2 border-teal-600 bg-white p-4 shadow-sm dark:bg-slate-900 sm:p-5',
+                );
+                card.dataset.search = '';
+                card.append(el('h3', 'text-base font-bold text-slate-900 dark:text-white', 'Repetir una petición del profiler'));
+                routesList.prepend(card);
+
+                const response = await fetch(`/_profiler/${encodeURIComponent(id)}.request.json`, { credentials: 'same-origin' });
+                if (!response.ok) {
+                    card.append(el('p', 'mt-2 text-sm text-rose-700 dark:text-rose-300', 'El registro ya no existe en el profiler (se guardan las últimas 100 peticiones).'));
+                    return;
+                }
+
+                const replay = await response.json();
+                card.dataset.method = replay.method;
+                card.append(
+                    el(
+                        'p',
+                        'mt-1 text-xs text-slate-600 dark:text-slate-400',
+                        'Los datos sensibles se guardan como [oculto]: complétalos antes de enviar.' +
+                            (replay.files.length ? ' Los archivos no se guardan: vuelve a elegirlos.' : ''),
+                    ),
+                );
+                // El token CSRF no hace falta copiarlo: el probador manda el de esta sesión en X-CSRF-Token
+                const csrf = el('p', 'mt-1 text-xs text-slate-600 dark:text-slate-400', 'Token CSRF que se envía (el de tu sesión): ');
+                csrf.append(el('code', 'doc-code', document.querySelector('#csrf_token')?.value || 'sin sesión: inicia sesión en el panel'));
+                card.append(csrf);
+
+                const tester = el('div', 'route-tester mt-4');
+                tester.dataset.route = JSON.stringify({
+                    method: replay.method,
+                    url: replay.url,
+                    pathParams: [],
+                    queryParams: [],
+                    requestBody: replay.files.map(file => ({ name: file.field, type: 'file', description: file.name })),
+                });
+                card.append(tester);
+                buildTester(tester);
+
+                tester.querySelector('.rt-headers').value = Object.entries(replay.headers)
+                    .map(([name, value]) => `${name}: ${value}`)
+                    .join('\n');
+                tester.querySelector('.rt-body').value = replayBody(replay);
+                if (replay.body) selectTab(tester, 'request', 'body');
+                card.scrollIntoView({ block: 'start' });
+            }
+
+            const replayId = new URLSearchParams(window.location.search).get('replay');
+            if (replayId && routesList) void openReplay(replayId);
+
             searchInput?.addEventListener('input', updateRoutes);
             methodFilter?.addEventListener('change', updateRoutes);
             filterButton?.addEventListener('click', updateRoutes);

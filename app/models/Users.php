@@ -48,6 +48,7 @@ class Users extends VersaORMModel
         ];
     }
 
+    // @mago-expect lint:excessive-parameter-list (firma usada por los controladores de cada proyecto)
     public function getUsersPaginate(
         int $id_empresa = 0,
         array $fields = [],
@@ -77,7 +78,7 @@ class Users extends VersaORMModel
             ->collect();
 
         return [
-            'total' => isset($result[0]['total_count']) ? (int) $result[0]['total_count'] : 0,
+            'total' => (int) ($result[0]['total_count'] ?? 0),
             'data' => $result,
         ];
     }
@@ -93,7 +94,7 @@ class Users extends VersaORMModel
     {
         $result = $this
             ->qb()
-            ->select(['versa_users.*', 'e.nombre as empresa', 'e.token_empresa'])
+            ->select(['versa_users.*', 'e.nombre as empresa', 'e.token_empresa', 'e.estado as empresa_estado'])
             ->join('empresas as e', 'e.id', '=', 'versa_users.id_empresa')
             ->where($field, '=', $id)
             ->first();

@@ -66,7 +66,9 @@ const loadModule = async (): Promise<void> => {
         if (!component) {
             throw new Error('No se ha especificado un componente para cargar.');
         } // Importar dinámicamente el módulo
-        const moduleResponse = await import(`@/${validatedModule}.js?v=${(window as any).AppConfig?.version ?? Date.now()}`);
+        const moduleResponse = await import(
+            `@/${validatedModule}.js?v=${(window as any).AppConfig?.version ?? Date.now()}`
+        );
         if (moduleResponse) {
             // Montar el módulo en el contenedor
             // Fuera de setup(): render() también lo usa

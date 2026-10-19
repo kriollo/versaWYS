@@ -6,6 +6,7 @@ use app\services\MailService;
 use versaWYS\kernel\ContentType;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Testing\TestClient;
+use versaWYS\kernel\Testing\TestDatabase;
 
 /*
  * Pruebas de la aplicación con TestClient: la petición recorre el kernel completo (cabeceras, rutas,
@@ -13,52 +14,25 @@ use versaWYS\kernel\Testing\TestClient;
  * prueban los módulos de un proyecto. La base es una SQLite desechable, como en HttpTest.
  */
 
-const APP_TEST_PASSWORD = 'Clave#Segura2026';
+const APP_TEST_PASSWORD = TestDatabase::PASSWORD;
 
-function appTestDir(): string
-{
-    return sys_get_temp_dir() . '/versawys_app_' . getmypid();
-}
-
+// Una base SQLite desechable para toda la suite (TestDatabase): la comparten las pruebas de cada módulo
 beforeAll(function (): void {
-    $dir = appTestDir();
-    @mkdir($dir, 0o700, true);
+    TestDatabase::boot();
 
-    $config = versaWYS\kernel\cli\ConfigManager::defaults();
-    $config['database'] = ['driver' => 'sqlite', 'database' => $dir . '/test.sqlite', 'log_path' => $dir . '/orm/'] + $config['database'];
-    $config['session']['key'] = bin2hex(random_bytes(32));
-    $config['twig']['compiled_dir'] = $dir . '/twig';
-    $config['csp']['nonce'] = true;
-    $config['logging']['dir'] = $dir . '/logs/';
-    $config['rate_limiting']['cache_dir'] = $dir . '/rate_limits/';
-    foreach (['global', 'api', 'upload', 'sensitive', 'login'] as $rule) {
-        $config['rate_limiting']['rules'][$rule]['requests'] = 100000;
-    }
-    file_put_contents($dir . '/config.json', json_encode($config));
-
-    $env = 'VERSAWYS_CONFIG=' . escapeshellarg($dir . '/config.json');
-    exec("{$env} php versaCLI migrate:up 2>&1 < /dev/null && {$env} php versaCLI seeder:runAll 2>&1 < /dev/null", $output, $exitCode);
-    if ($exitCode !== 0) {
-        throw new RuntimeException("No se pudo preparar la base de prueba:\n" . implode("\n", $output));
-    }
-
-    $db = new PDO('sqlite:' . $dir . '/test.sqlite', options: [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-    $insert = $db->prepare(
+    // Usuarios con correo fijo para estas pruebas (TestDatabase::user() crea otros con correo único)
+    $insert = TestDatabase::pdo()->prepare(
         'INSERT INTO versa_users (id_empresa, tokenid, name, email, password, expiration_pass, role, status, id_perfil)
          VALUES (1, ?, ?, ?, ?, ?, ?, 1, 1)',
     );
     foreach ([['Admin', 'admin@app.test', 'superadmin'], ['Usuario', 'user@app.test', 'user']] as [$name, $email, $role]) {
-        $insert->execute([bin2hex(random_bytes(16)), $name, $email, Functions::hash(APP_TEST_PASSWORD), date('Y-m-d', strtotime('+90 days')), $role]);
+        $exists = TestDatabase::pdo()->query("SELECT COUNT(*) FROM versa_users WHERE email = '{$email}'")->fetchColumn();
+        if ((int) $exists === 0) {
+            $insert->execute([bin2hex(random_bytes(16)), $name, $email, Functions::hash(APP_TEST_PASSWORD), date('Y-m-d', strtotime('+90 days')), $role]);
+        }
     }
-
-    TestClient::boot(dirname(__DIR__, 2), $dir . '/config.json');
 });
 
-afterAll(function (): void {
-    exec('rm -rf ' . escapeshellarg(appTestDir()));
-});
-
-/** Un navegador nuevo; con $email, ya con la sesión iniciada. */
 function app(?string $email = null): TestClient
 {
     $client = TestClient::boot(dirname(__DIR__, 2));
@@ -153,7 +127,7 @@ describe('TestClient', function (): void {
 
 describe('usuarios por consola', function (): void {
     $cli = static function (string ...$args): array {
-        $env = 'VERSAWYS_CONFIG=' . escapeshellarg(appTestDir() . '/config.json');
+        $env = 'VERSAWYS_CONFIG=' . escapeshellarg(TestDatabase::configPath());
         exec("{$env} php versaCLI " . implode(' ', array_map(escapeshellarg(...), $args)) . ' 2>&1 < /dev/null', $output, $code);
 
         return [$code, implode("\n", $output)];
@@ -180,5 +154,33 @@ describe('usuarios por consola', function (): void {
 
         [$code] = $cli('app:user:create', '--name=X', '--email=nuevo@app.test', '--role=user', '--empresa=1', '--password=123');
         expect($code)->toBe(1);
+    });
+});
+
+describe('modo mantenimiento', function (): void {
+    $cli = static function (string ...$args): string {
+        $env = 'VERSAWYS_CONFIG=' . escapeshellarg(TestDatabase::configPath());
+        exec("{$env} php versaCLI " . implode(' ', array_map(escapeshellarg(...), $args)) . ' 2>&1 < /dev/null', $output);
+
+        return implode("\n", $output);
+    };
+
+    it('app:down responde 503 a todos menos a quien entra con la clave, y app:up lo termina', function () use ($cli): void {
+        $cli('command:refresh');
+        expect($cli('app:down', '--secret=equipo-ok', '--message=Volvemos pronto'))->toContain('/equipo-ok');
+
+        try {
+            $visitante = TestClient::boot(dirname(__DIR__, 2));
+            $visitante->get('/admin/login')->assertStatus(503)->assertSee('Volvemos pronto');
+            $visitante->getJson('/up')->assertStatus(503);
+
+            $equipo = TestClient::boot(dirname(__DIR__, 2));
+            $equipo->get('/equipo-ok')->assertRedirect();
+            $equipo->get('/admin/login')->assertOk();
+        } finally {
+            $cli('app:up');
+        }
+
+        TestClient::boot(dirname(__DIR__, 2))->get('/admin/login')->assertOk();
     });
 });

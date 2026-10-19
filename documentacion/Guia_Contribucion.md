@@ -12,13 +12,15 @@ Puedes contribuir de varias formas:
 - **Mejorando la documentación**: Puedes corregir, ampliar o traducir la documentación en la carpeta `documentacion/`. Consulta la [Guía de Estructura de Directorios](./EstructuraDeDirectorios.md) para ubicar los archivos.
 - **Enviando código (Pull Requests)**: Puedes proponer cambios en el código fuente siguiendo los pasos de abajo. Si tu cambio afecta comandos de la CLI, actualiza la [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md).
 
+**¿Dónde va tu cambio?** Este repositorio es el **esqueleto** (panel, `app/`, frontend). El núcleo (`Router`, `Request`, `versaCLI`, `Crypt`…) es el paquete [`versawys/kernel`](https://github.com/kriollo/versawys-kernel), con su propio repositorio, pruebas y CHANGELOG.
+
 ---
 
 ## 2. Flujo para contribuir código
 
 1. **Haz un fork del repositorio** en GitHub y clona tu fork en tu máquina:
     ```bash
-    git clone https://github.com/kriollo/versaWYS.git
+    git clone https://github.com/<tu-usuario>/versaWYS.git
     cd versaWYS
     ```
 2. **Crea una rama para tu cambio**:
@@ -26,7 +28,7 @@ Puedes contribuir de varias formas:
     git checkout -b mi-feature-o-fix
     ```
 3. **Haz tus cambios** en el código o la documentación. Sigue la estructura del proyecto y los estándares de codificación.
-4. **Prueba tu cambio**. Usa los comandos de [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md) para generar, migrar, o testear según corresponda.
+4. **Prueba tu cambio** con `composer check` (formato y pruebas) y `composer mago:lint`; en el kernel, `composer check` corre además phpstan. Un cambio sin una prueba que falle si se revierte no está terminado.
 5. **Haz commit y push** de tus cambios:
     ```bash
     git add .

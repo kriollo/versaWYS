@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace app\controllers;
 
+use app\jobs\EnviarCorreo;
 use app\models as Models;
 use Exception;
 use InvalidArgumentException;
 use Throwable;
 use versaWYS\kernel\CacheUsers;
-use versaWYS\kernel\cli\CommandExecutor;
 use versaWYS\kernel\GlobalControllers;
+use versaWYS\kernel\GlobalMiddleware;
 use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Loggin;
+use versaWYS\kernel\NotFound;
+use versaWYS\kernel\Queue;
 use versaWYS\kernel\Response;
 
 class DashBoardController extends GlobalControllers
@@ -45,9 +48,21 @@ class DashBoardController extends GlobalControllers
      *
      * @return string the rendered login view
      */
+    /** Por qué se cerró la sesión (GlobalMiddleware la cierra con ?motivo=) */
+    private const string LOST_PASSWORD_SENT = 'Si el correo está registrado, recibirá un enlace para restablecer su contraseña.';
+
+    private const array MOTIVOS = [
+        'cuenta_desactivada' => 'Tu cuenta está desactivada. Contacta al administrador.',
+        'empresa_suspendida' => 'La empresa está suspendida. Contacta al administrador.',
+    ];
+
     public function login(): string
     {
-        return $this->template->render('dashboard/login/login');
+        global $request;
+
+        return $this->template->render('dashboard/login/login', [
+            'motivo' => self::MOTIVOS[$request->string('motivo')] ?? null,
+        ]);
     }
 
     /**
@@ -81,7 +96,13 @@ class DashBoardController extends GlobalControllers
                 throw new InvalidArgumentException('Los datos enviados no son correctos', 401);
             }
 
-            if (isset($params['remember']) && $params['remember'] === 'on') {
+            // Con la clave correcta ya se puede decir el motivo: la empresa está suspendida
+            $empresa = (new Models\Empresas())->getEmpresaById((int) $user['id_empresa']);
+            if ($user['role'] !== 'superadmin' && $empresa !== null && !(bool) ($empresa['estado'] ?? true)) {
+                throw new InvalidArgumentException(self::MOTIVOS['empresa_suspendida'], 403);
+            }
+
+            if (($params['remember'] ?? null) === 'on') {
                 $session->set('remember', true);
             }
 
@@ -126,7 +147,7 @@ class DashBoardController extends GlobalControllers
         global $session, $cookie, $config, $request;
 
         // Sin token CSRF válido no se cierra la sesión (evita logout forzado desde otro sitio)
-        $token = (string) $request->get('_csrf_token', '');
+        $token = $request->string('_csrf_token');
         if (!hash_equals((string) $session->get('csrf_token'), $token)) {
             Response::redirect('/' . $config['admin']['custom_url']);
 
@@ -187,10 +208,13 @@ class DashBoardController extends GlobalControllers
             $params = $request->getAllParams();
 
             $userModel = new Models\Users();
-            $user = $userModel->findUserByEmail($params['email']);
+            $user = $userModel->findUserByEmail($request->string('email'));
 
+            // La misma respuesta exista o no el correo: la pantalla no debe revelar quién está registrado
             if ($user === []) {
-                throw new InvalidArgumentException('Los datos enviados no son correctos', 422);
+                Response::json(['success' => 1, 'message' => self::LOST_PASSWORD_SENT]);
+
+                return;
             }
 
             $token = Models\Users::newResetToken();
@@ -207,50 +231,35 @@ class DashBoardController extends GlobalControllers
                 $imagesEmbed[] = ['path' => $faviconPath, 'id' => 'logo', 'mime' => 'image/png'];
             }
 
-            // Despachar envío de correo en background (no bloquea la respuesta HTTP)
-            // El payload se codifica en base64 para evitar problemas de escapado en Windows
-            CommandExecutor::runInBackground(
-                command: 'mail:send',
-                params: [
-                    base64_encode(json_encode([
-                        'to' => ['email' => $user['email'], 'name' => $user['name']],
-                        'subject' => 'Recuperar contraseña',
-                        'type' => 'twig',
-                        'template' => 'mail/layout',
-                        'data' => [
-                            'url_logo' => $baseUrl . '/' . $adminUrl,
-                            'content' => 'Para recuperar su contraseña, haga clic en el siguiente enlace:',
-                            'btnhref' => sprintf('%s/%s/reset-password?token=%s', $baseUrl, $adminUrl, $token),
-                            'copyright' =>
-                                '&copy; '
-                                    . date('Y')
-                                    . ' <a href="'
-                                    . $baseUrl
-                                    . '">'
-                                    . $config['build']['name']
-                                    . '</a> - Todos los derechos reservados.',
-                            'title' => 'Recuperar contraseña - ' . $baseUrl,
-                            'btnname' => 'Recuperar contraseña',
-                        ],
-                        'images_embed' => $imagesEmbed,
-                    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)),
+            // Por la cola: la respuesta no espera al servidor de correo y un fallo se reintenta
+            Queue::push(EnviarCorreo::class, [
+                'to' => ['email' => $user['email'], 'name' => $user['name']],
+                'subject' => 'Recuperar contraseña',
+                'type' => 'twig',
+                'template' => 'mail/layout',
+                'data' => [
+                    'url_logo' => $baseUrl . '/' . $adminUrl,
+                    'content' => 'Para recuperar su contraseña, haga clic en el siguiente enlace:',
+                    'btnhref' => sprintf('%s/%s/reset-password?token=%s', $baseUrl, $adminUrl, $token),
+                    'copyright' =>
+                        '&copy; '
+                            . date('Y')
+                            . ' <a href="'
+                            . $baseUrl
+                            . '">'
+                            . $config['build']['name']
+                            . '</a> - Todos los derechos reservados.',
+                    'title' => 'Recuperar contraseña - ' . $baseUrl,
+                    'btnname' => 'Recuperar contraseña',
                 ],
-                logOutput: true,
-                logModule: 'mail-send',
-            );
-
-            Response::json([
-                'success' => 1,
-                'message' => 'Se ha enviado un correo electrónico a su cuenta de correo electrónico para restablecer su contraseña.',
+                'images_embed' => $imagesEmbed,
             ]);
+
+            Response::json(['success' => 1, 'message' => self::LOST_PASSWORD_SENT]);
         } catch (Throwable $throwable) {
-            Response::json([
-                'success' => 0,
-                'message' => $throwable->getMessage(),
-                'errors' => [
-                    'error' => 'Vuelva a intentarlo nuevamente...',
-                ],
-            ], $throwable->getCode());
+            // Un fallo interno (base de datos, lanzar el envío): al log, y al usuario un mensaje sin detalle
+            Loggin::exception($throwable, 'lost-password');
+            Response::json(['success' => 0, 'message' => 'No se pudo enviar el correo. Inténtelo más tarde.'], 500);
         }
     }
 
@@ -263,13 +272,13 @@ class DashBoardController extends GlobalControllers
     {
         global $request;
 
-        $token = (string) $request->get('token', '');
+        $token = $request->string('token');
 
         $userModel = new Models\Users();
         $user = $userModel->findUserByToken($token);
 
         if ($user === []) {
-            return $this->template->render('versaWYS/404');
+            throw new NotFound();
         }
 
         return $this->template->render('dashboard/login/ResetLostPassword', [
@@ -294,7 +303,7 @@ class DashBoardController extends GlobalControllers
             $params = $request->getAllParams();
 
             $userModel = new Models\Users();
-            $user = $userModel->findUserByToken((string) ($params['tokenReset'] ?? ''));
+            $user = $userModel->findUserByToken(Functions::text($params['tokenReset'] ?? null));
 
             if ($user === []) {
                 // Cambio a 422: token o datos inválidos en reset password
@@ -307,14 +316,12 @@ class DashBoardController extends GlobalControllers
                 'success' => 1,
                 'message' => 'Se ha cambiado la contraseña correctamente, se redirigirá al inicio de sesión...',
             ];
-        } catch (Throwable $throwable) {
+        } catch (InvalidArgumentException $exception) {
             return [
                 'success' => 0,
-                'message' => $throwable->getMessage(),
-                'errors' => [
-                    'error' => 'Vuelva a intentarlo nuevamente...',
-                ],
-                'code' => $throwable->getCode(),
+                'message' => $exception->getMessage(),
+                'errors' => ['error' => 'Vuelva a intentarlo nuevamente...'],
+                'code' => $exception->getCode(),
             ];
         }
     }
@@ -332,7 +339,7 @@ class DashBoardController extends GlobalControllers
         global $request, $config, $session;
         $params = $request->getAllParams();
 
-        if (!isset($params['selectEmpresa'])) {
+        if (($params['selectEmpresa'] ?? null) === null) {
             throw new InvalidArgumentException('Debe seleccionar una empresa válida', 400);
         }
 
@@ -372,7 +379,21 @@ class DashBoardController extends GlobalControllers
                 return;
             }
 
-            // 2. Mantener la sesión PHP viva (touch)
+            // 2. Esta ruta no pasa por checkSession: el estado de la cuenta se revisa aquí con la misma regla,
+            // para no renovarle el token a una cuenta desactivada o de una empresa suspendida
+            $heartbeatUserId = (int) ($session->get('id_user') ?? 0);
+            $heartbeatEmpresaId = (int) ($session->get('empresa_id') ?? 0);
+            $usuario = (new CacheUsers())->getUserData($heartbeatUserId, $heartbeatEmpresaId)['user'] ?? [];
+            if ($usuario === [] || GlobalMiddleware::blockedReason($usuario) !== null) {
+                $session->revokeToken($cookie->get('tknHash'));
+                $cookie->delete('tknHash');
+                $session->destroy();
+                $this->handleSessionExpired('Cuenta desactivada o empresa suspendida');
+
+                return;
+            }
+
+            // 3. Mantener la sesión PHP viva (touch)
             $session->touchSessionActivity();
 
             // 3. Obtener datos del JWT para calcular tiempos
@@ -399,8 +420,6 @@ class DashBoardController extends GlobalControllers
             $renewThreshold = $lifetime * 0.75;
             $warningThreshold = 600;
             $sessionRenewed = false;
-            $heartbeatUserId = (int) ($session->get('id_user') ?? 0);
-            $heartbeatEmpresaId = (int) ($this->empresaSelected['id'] ?? 0);
 
             if ($timeRemaining < $renewThreshold && $heartbeatUserId > 0 && $heartbeatEmpresaId > 0) {
                 try {
@@ -429,7 +448,9 @@ class DashBoardController extends GlobalControllers
                         );
                     }
                 }
-            } elseif ($timeRemaining < $renewThreshold && $heartbeatUserId <= 0 && $debug) {
+            }
+
+            if ($timeRemaining < $renewThreshold && $heartbeatUserId <= 0 && $debug) {
                 Loggin::info(
                     '[SessionHeartbeat] No se renovó JWT: id_user no disponible en sesión',
                     'sessionHeartbeat',

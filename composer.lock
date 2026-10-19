@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5c369a1b9a959e5bbc97b2e649e3f5dd",
+    "content-hash": "41de29330cfa7f6af62f9beaa3f02a8b",
     "packages": [
         {
             "name": "doctrine/lexer",
@@ -1486,16 +1486,16 @@
         },
         {
             "name": "versaorm/versaorm-php",
-            "version": "2.1.0",
+            "version": "2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kriollo/versa-orm.git",
-                "reference": "9ac139a05b11cb3d6c83b8ca33dc0ee159eb2b48"
+                "reference": "b7189b3418c4d875ba73c6646027663b7a994a1e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kriollo/versa-orm/zipball/9ac139a05b11cb3d6c83b8ca33dc0ee159eb2b48",
-                "reference": "9ac139a05b11cb3d6c83b8ca33dc0ee159eb2b48",
+                "url": "https://api.github.com/repos/kriollo/versa-orm/zipball/b7189b3418c4d875ba73c6646027663b7a994a1e",
+                "reference": "b7189b3418c4d875ba73c6646027663b7a994a1e",
                 "shasum": ""
             },
             "require": {
@@ -1558,20 +1558,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-16T02:17:11+00:00"
+            "time": "2026-10-19T15:45:47+00:00"
         },
         {
             "name": "versawys/kernel",
-            "version": "v3.10.0",
+            "version": "v3.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kriollo/versawys-kernel.git",
-                "reference": "09277b35ec75a63e514b6fe327eda56f45e2eaa6"
+                "reference": "c8a75448c0ff6faf92a860c6187a2fed62c8e79c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kriollo/versawys-kernel/zipball/09277b35ec75a63e514b6fe327eda56f45e2eaa6",
-                "reference": "09277b35ec75a63e514b6fe327eda56f45e2eaa6",
+                "url": "https://api.github.com/repos/kriollo/versawys-kernel/zipball/c8a75448c0ff6faf92a860c6187a2fed62c8e79c",
+                "reference": "c8a75448c0ff6faf92a860c6187a2fed62c8e79c",
                 "shasum": ""
             },
             "require": {
@@ -1584,7 +1584,7 @@
                 "symfony/mailer": "^7.3 || ^8.1",
                 "twig/cssinliner-extra": "^3.26",
                 "twig/twig": "^3.28",
-                "versaorm/versaorm-php": "^2.1"
+                "versaorm/versaorm-php": "^2.2"
             },
             "require-dev": {
                 "carthage-software/mago": "^1.57",
@@ -1627,7 +1627,7 @@
                 "issues": "https://github.com/kriollo/versawys-kernel/issues",
                 "source": "https://github.com/kriollo/versawys-kernel"
             },
-            "time": "2026-10-16T02:38:48+00:00"
+            "time": "2026-10-19T16:24:04+00:00"
         }
     ],
     "packages-dev": [

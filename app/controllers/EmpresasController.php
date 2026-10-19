@@ -141,26 +141,32 @@ class EmpresasController extends GlobalControllers
 
         try {
             $params = $request->getAllParams();
-            $params['rut'] = str_replace('.', '', $params['rut']);
-            $params['nombre'] = Functions::cleanString($params['nombre']);
-            if (!isset($params['telefono']) || $params['telefono'] === '') {
+            $params['rut'] = str_replace('.', '', Functions::text($params['rut'] ?? null));
+            $params['nombre'] = Functions::cleanString(Functions::text($params['nombre'] ?? null));
+            if (($params['telefono'] ?? '') === '') {
                 $params['telefono'] = '';
             }
 
-            $params['telefono'] = Functions::cleanString($params['telefono'] ?? '');
-            if (!isset($params['email']) || $params['email'] === '') {
+            $params['telefono'] = Functions::cleanString(Functions::text($params['telefono'] ?? null));
+            if (($params['email'] ?? '') === '') {
                 $params['email'] = '';
             }
 
-            $params['email'] = Functions::cleanString($params['email'] ?? '');
+            $params['email'] = Functions::cleanString(Functions::text($params['email'] ?? null));
 
             $empresaModel = new Models\Empresas();
+            if ($params['action'] === 'edit' && $empresaModel->getEmpresaById($request->integer('id')) === null) {
+                return ['success' => 0, 'message' => 'Empresa no encontrada', 'code' => 404];
+            }
+
+            // Sin los datos de la otra empresa: el mensaje basta
             $empresa = $empresaModel->getEmpresaByRut($params['rut']);
-            if ($empresa !== null && (int) ($empresa['id'] ?? -1) !== (int) ($params['id'] ?? 0)) {
+            if ($empresa !== null && (int) $empresa['id'] !== $request->integer('id')) {
                 return [
                     'success' => 0,
                     'message' => 'Ya existe una empresa con el RUT proporcionado',
-                    'empresa' => $empresa,
+                    'errors' => ['rut' => 'Ya existe una empresa con este RUT'],
+                    'code' => 422,
                 ];
             }
 
@@ -174,6 +180,7 @@ class EmpresasController extends GlobalControllers
                         'errors' => [
                             'email' => 'El correo ya existe para otra empresa, por favor ingrese otro',
                         ],
+                        'code' => 422,
                     ];
                 }
             }
@@ -208,7 +215,7 @@ class EmpresasController extends GlobalControllers
 
                 if ($params['email'] !== '') {
                     global $config;
-                    $token = Users::newResetToken(7 * 86400);
+                    $token = Users::newResetToken(7 * 86_400);
                     $userModel->saveTokenResetPass($params['email'], $token);
                     $activationUrl = sprintf(
                         '%s/%s/reset-password?token=%s',
@@ -242,18 +249,12 @@ class EmpresasController extends GlobalControllers
         global $request;
 
         try {
-            $params = $request->getAllParams();
-            $params['id'] = (int) $params['id'];
-            $params['estado'] = (int) $params['estado'];
+            $params = ['id' => $request->integer('id'), 'estado' => $request->integer('estado')];
 
             $empresaModel = new Models\Empresas();
             $result = $empresaModel->changeStatus($params);
             if ($result === 0) {
-                return [
-                    'success' => 0,
-                    'message' => 'No se pudo cambiar el estado de la empresa',
-                    'code' => 500,
-                ];
+                return ['success' => 0, 'message' => 'Empresa no encontrada', 'code' => 404];
             }
 
             return [
@@ -274,7 +275,7 @@ class EmpresasController extends GlobalControllers
     {
         global $request;
 
-        $idEmpresa = (int) $request->get('idEmpresa', 0);
+        $idEmpresa = $request->integer('idEmpresa');
 
         $empresaModel = new Models\Empresas();
         $modules = $empresaModel->getModulesByEmpresa($idEmpresa);
@@ -334,20 +335,24 @@ class EmpresasController extends GlobalControllers
         global $request;
 
         try {
-            $idEmpresa = (int) $request->get('id_empresa', 0);
+            $idEmpresa = $request->integer('id_empresa');
             if ($idEmpresa === 0) {
                 return ['success' => 0, 'message' => 'ID de empresa inválido', 'code' => 400];
             }
 
-            if (empty($_FILES['logo'])) {
+            if (($_FILES['logo'] ?? []) === []) {
                 return ['success' => 0, 'message' => 'No se recibió ningún archivo', 'code' => 400];
+            }
+
+            if ((new Models\Empresas())->getEmpresaById($idEmpresa) === null) {
+                return ['success' => 0, 'message' => 'Empresa no encontrada', 'code' => 404];
             }
 
             $file = $request->file('logo');
 
-            // Validar tipo MIME
-            $tiposPermitidos = ['image/jpeg', 'image/png', 'image/webp'];
-            if (!in_array($file->getType(), $tiposPermitidos, true)) {
+            // El tipo real del contenido decide la extensión: un PNG llamado logo.html se guarda como .png
+            $tiposPermitidos = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+            if (!array_key_exists($file->getType(), $tiposPermitidos)) {
                 return [
                     'success' => 0,
                     'message' => 'Tipo de archivo no permitido. Solo se aceptan JPEG, PNG y WebP.',
@@ -360,7 +365,10 @@ class EmpresasController extends GlobalControllers
                 return ['success' => 0, 'message' => 'El archivo supera el límite de 2MB.', 'code' => 422];
             }
 
-            $ext = $file->getExtension();
+            $ext = $tiposPermitidos[$file->getType()];
+            // Un logo anterior con otra extensión no debe quedar servido
+            $anteriores = glob($this->pathLogo . '/logos/' . $idEmpresa . '.*');
+            array_map(unlink(...), $anteriores === false ? [] : $anteriores);
             $destFile = $this->pathLogo . '/logos/' . $idEmpresa . '.' . $ext;
             $rutaRel = 'logos/' . $idEmpresa . '.' . $ext;
 

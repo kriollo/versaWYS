@@ -64,7 +64,7 @@ $v = Validator::make($request->getAllParams(), [
     'items' => 'required|array',
     'items.*.cantidad' => ['required', 'int:positive'],
     'items.*.sku' => ['required', static fn(string $campo, mixed $valor): ?string =>
-        Productos::existe($valor) ? null : "El producto {$valor} no existe"],
+        $productos->existe($valor) ? null : "El producto {$valor} no existe"],   // $productos: tu modelo
 ], [
     'items.*.cantidad.required' => 'Indica la cantidad',
 ]);
@@ -79,7 +79,7 @@ Los errores usan la ruta completa: `['items.1.cantidad' => 'Indica la cantidad']
 
 ## Form Requests
 
-Para no repetir las reglas en un middleware, se escriben en una clase y el controlador la recibe como parámetro. El contenedor la valida antes de llamar al método: si falla, responde 422 con `errors` y el método no se ejecuta.
+Para no repetir las reglas en un middleware, se escriben en una clase y el controlador la recibe como parámetro. `php versaCLI request:make:GuardarTablero` la crea. El contenedor la valida antes de llamar al método: si falla, responde 422 con `errors` y el método no se ejecuta.
 
 ```php
 namespace app\requests;

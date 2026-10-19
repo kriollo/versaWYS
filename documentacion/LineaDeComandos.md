@@ -83,10 +83,30 @@ Más detalle en [ORM y Base de Datos](./ORM_y_BaseDeDatos.md).
 | `route:check` | Revisa todas las rutas sin ejecutarlas. Falla (código 1) si un controlador, método o middleware no existe; con `--strict` también si falta documentación. |
 | `front:makeTwig:<nombre>` | Plantilla Twig. |
 | `front:makeVue:<nombre>` | Componente Vue. |
-| `RCMD:<nombre>` | Ruta + controlador + modelo + middleware. |
-| `versaMODULE:twig\|vue:<nombre>` | Lo anterior más la vista Twig o el componente Vue. |
+| `RCMD:<nombre>` | Módulo completo sin frontend (ver abajo). |
+| `versaMODULE:twig\|vue:<nombre>` | Módulo completo más la vista Twig o el componente Vue. |
+| `request:make:<nombre>` | `app/requests/<Nombre>.php`: una [Form Request](./Validacion.md#form-requests). |
+| `job:make:<nombre>` | `app/jobs/<Nombre>.php`: un trabajo para la [cola](./Cache_Colas_Archivos.md#colas-queue). |
+| `test:make:<nombre>` | `versaWYS/tests/<Nombre>Test.php`: una prueba con `TestClient` y `TestDatabase`. |
+| `factory:make:<nombre>` | `versaWYS/tests/factories/<Nombre>.php`: los datos de prueba de una tabla ([Factory](./Pruebas.md#datos-de-prueba-factory)). |
+| `cron:make:<nombre>` | `app/cron/<Nombre>.php`: una tarea para `app/schedule.php`. |
 
-Las rutas generadas quedan protegidas con `checkSession` y `onlyUserWithAccess`. Quita esos middlewares solo si la ruta debe ser pública.
+### El módulo completo (`versaMODULE` y `RCMD`)
+
+`php versaCLI versaMODULE:vue:OrdenesCompra` crea un CRUD **aislado por empresa desde el inicio**:
+
+| Archivo | Qué trae |
+|---|---|
+| `app/migrations/m…_OrdenesCompra.php` | Tabla `ordenes_compra` con `id_empresa` (clave foránea a `empresas`), `nombre` y fechas |
+| `app/models/OrdenesCompra.php` | `listar`, `buscar`, `crear`, `actualizar` y `eliminar`, todos filtrando por empresa |
+| `app/requests/OrdenesCompraRequest.php` | Las reglas de validación (422 con los errores por campo) |
+| `app/controllers/OrdenesCompraController.php` | La pantalla y la API; recibe el modelo por el contenedor y usa `Tenant::id()` |
+| `app/routes/OrdenesCompraRoutes.php` | `GET/POST /admin/ordenescompra/api/ordenescompra` y `GET/PUT/DELETE …/{id}`, documentadas para `/doc` |
+| `versaWYS/tests/OrdenesCompraTest.php` | CRUD, validación, otra empresa sin acceso e id inválido: pasa recién generada |
+| `versaWYS/tests/factories/OrdenesCompra.php` | Los datos de prueba de la tabla (`Factory::create('ordenes_compra')`) |
+| `src/dashboard/js/ordenescompra/dashOrdenesCompra.vue` | La pantalla, que lista los registros (solo `versaMODULE`) |
+
+Luego: `php versaCLI migrate:up`, agrega la pantalla al menú en *Módulos* y `composer test`. La pantalla queda protegida con `checkSession` y `onlyUserWithAccess`, y la API con `checkSession`: cada registro se filtra por la empresa del usuario en el modelo.
 
 ## Logs
 
@@ -105,11 +125,17 @@ php versaCLI cron:list
 php versaCLI cron:run:LimpiarTemporales
 ```
 
-No hay planificador interno: cada tarea se agenda en el crontab del sistema. La cola de trabajos se procesa igual:
+Las tareas se programan en `app/schedule.php` y el crontab del servidor tiene una sola línea. Ver [Tareas programadas](./Tareas_Programadas.md).
 
 ```cron
-* * * * * cd /var/www/mi-proyecto/current && php versaCLI app:queue:work --stop-when-empty
+* * * * * /usr/bin/php /var/www/mi-proyecto/current/versaCLI app:schedule:run >> /var/www/mi-proyecto/current/versaWYS/logs/cron.log 2>&1
 ```
+
+| Comando | Qué hace |
+|---|---|
+| `app:schedule:run` | Lanza las tareas de este minuto, cada una en su proceso (va en el crontab) |
+| `app:schedule:list` | Cada tarea con su id, frecuencia, próxima ejecución y resultado de la última |
+| `app:schedule:exec <id>` | Ejecuta una tarea ahora, para probarla |
 
 ```cron
 0 3 * * * php /var/www/mi-proyecto/current/versaCLI cron:run:LimpiarTemporales
@@ -131,7 +157,7 @@ Comandos incluidos:
 | Comando | Qué hace |
 |---|---|
 | `app:mail:send` | Envía un correo (plantilla Twig o HTML). Lo usa el framework para enviar correos en segundo plano. |
-| `app:check:psr4` | Revisa que clases, namespaces y nombres de archivo coincidan; también referencias a clases del proyecto que no existen y `require`/`include` cuya ruta difiere en mayúsculas de lo que hay en disco. |
+| `app:check:psr4` | Lo que funciona en Windows, que no distingue mayúsculas, y falla en Linux: clases cuyo namespace o archivo no calza con su mapeo PSR-4, clases del proyecto usadas (`use`, `new`, `Clase::`, `extends`, `implements`) con otras mayúsculas o que no existen, y `require`/`include` cuya ruta difiere en mayúsculas de lo que hay en disco. Que los métodos llamados existan lo revisan phpstan y mago (`composer check`). |
 | `app:check:deploy` | Revisión previa al despliegue. Ver más abajo. |
 | `app:install` | Instala la aplicación desde la terminal: base de datos, migraciones, empresa y superadministrador. |
 | `app:user:list [--empresa=ID]` | Lista los usuarios con rol, perfil, empresa, estado y último ingreso. Nunca muestra contraseñas. |
@@ -164,6 +190,24 @@ php versaCLI app:user:create --name="Ana" --email=ana@empresa.cl --role=admin --
 |---|---|
 | `app:deploy:finish` | El único hook `post_deploy` que necesita versaDeploy: `config:merge` de `versaWYS/config.compartida.json` (si existe), `migrate:up`, `cache:twig`, activa la caché de plantillas, `command:refresh` y `app:check:deploy --production`. Se detiene en el primer paso que falle. |
 | `app:kernel:publish [--force]` | Crea `index.php`, `versaCLI`, los `.htaccess` y los ejemplos de `configs/` que falten, con la versión del kernel instalado. Muestra el diff de los que difieren (`-` proyecto, `+` kernel); `--force` los reemplaza. |
+
+### Modo mantenimiento
+
+Para una migración larga o una restauración: el sitio responde 503 (la API en JSON) y el equipo sigue entrando.
+
+```bash
+versaCLI app:down --message="Volvemos a las 10:00" --retry=300 --secret=equipo-2026
+# Para entrar igual: abre una vez https://tu-sitio/equipo-2026 (queda una cookie por 12 horas)
+versaCLI app:up
+```
+
+| Opción | Qué hace |
+|---|---|
+| `--message` | El texto que ve el visitante. |
+| `--retry` | Segundos para la cabecera `Retry-After`; la página se recarga sola en ese tiempo. Por defecto 60. |
+| `--secret` | La ruta de entrada para el equipo. Sin ella se genera una al azar y el comando la imprime. |
+
+Todas las rutas responden 503 mientras dure, también `/up`: así el monitoreo lo registra. Quien entró con la clave ve el panel normal, con una franja amarilla que le recuerda que para los demás el sitio está cerrado. El estado queda en `down.json`, junto a `config.json`, y sobrevive a `cache:clear`.
 
 ### Revisión previa al despliegue
 

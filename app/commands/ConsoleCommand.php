@@ -66,7 +66,10 @@ abstract class ConsoleCommand extends BaseCommand
     protected function newPassword(array $options): ?string
     {
         $password = $options['password'] ?? $this->askSecret('Contraseña nueva');
-        if (!isset($options['password']) && !hash_equals($password, $this->askSecret('Repite la contraseña'))) {
+        if (
+            ($options['password'] ?? null) === null
+            && !hash_equals($password, $this->askSecret('Repite la contraseña'))
+        ) {
             $this->error('Las contraseñas no coinciden.');
 
             return null;

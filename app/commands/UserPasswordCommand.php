@@ -47,7 +47,7 @@ class UserPasswordCommand extends ConsoleCommand
             return 0;
         }
 
-        if (!isset($o['activar'])) {
+        if (($o['activar'] ?? null) === null) {
             $this->warning('La cuenta está inactiva: agrega --activar para reactivarla.');
 
             return 0;

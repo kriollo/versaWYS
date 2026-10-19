@@ -13,6 +13,7 @@ use Twig\Error\SyntaxError;
 use versaWYS\kernel\CacheUsers;
 use versaWYS\kernel\GlobalControllers;
 use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\NotFound;
 use versaWYS\kernel\Response;
 
 class UsersController extends GlobalControllers
@@ -47,9 +48,15 @@ class UsersController extends GlobalControllers
         ]);
     }
 
-    public function editUserTemplate(int|string|null $slug = null): string
+    /** El {id} de la ruta es el tokenid del usuario. Uno de otra empresa responde 404, como uno inexistente. */
+    public function editUserTemplate(string $id): string
     {
-        $user = (new Users())->findWithCompany($slug, 'versa_users.tokenid');
+        $user = $this->findManagedUser($id);
+        if ($user === []) {
+            throw new NotFound();
+        }
+
+        unset($user['password'], $user['restore_token']);
         $perfiles = (new Perfil())->all((int) $this->empresaSelected['id'], 1);
 
         return $this->template->render('dashboard/usuarios/editUser', [
@@ -211,7 +218,7 @@ class UsersController extends GlobalControllers
         $params['password'] = Functions::hash($params['password']);
         $params['role'] = $scope['role'];
         $params['empresa'] = $scope['empresa'];
-        $params['status'] = isset($params['status']) ? 0 : 1;
+        $params['status'] = ($params['status'] ?? null) !== null ? 0 : 1;
 
         if ((new Users())->createUser($params)) {
             Response::json(['success' => 1, 'message' => 'Usuario creado correctamente'], 200);
@@ -269,7 +276,7 @@ class UsersController extends GlobalControllers
     {
         global $request;
 
-        $target = $this->findManagedUser((string) $request->get('tokenid', ''));
+        $target = $this->findManagedUser($request->string('tokenid'));
         if ($target === [] || (int) $target['id'] === $this->id_user) {
             $this->forbidden();
 
@@ -347,7 +354,8 @@ class UsersController extends GlobalControllers
         }
 
         $dir = $config['assets']['dashboard']['avatars']['dist'];
-        array_map(unlink(...), glob(sprintf('%s/%d.*', $dir, $this->id_user)) ?: []);
+        $avatars = glob(sprintf('%s/%d.*', $dir, $this->id_user));
+        array_map(unlink(...), $avatars === false ? [] : $avatars);
 
         $avatar = $this->id_user . '.' . $ext;
         $pathAvatar = $dir . '/' . $avatar;
@@ -372,15 +380,23 @@ class UsersController extends GlobalControllers
     private function resolveRoleAndEmpresa(array $params): ?array
     {
         $isSuperAdmin = ($this->user['role'] ?? '') === 'superadmin';
-        $role = (string) ($params['rol'] ?? 'user');
+        // Sin convertir tipos: un rol que no es texto, o una empresa como "1e3" (que (int) vuelve 1000), se rechazan
+        $role = $params['rol'] ?? 'user';
+        $empresa = $params['empresa'] ?? null;
+        $empresaValida = is_int($empresa) || is_string($empresa) && preg_match('/^\d+$/', $empresa) === 1;
 
-        if (!in_array($role, self::ROLES, strict: true) || $role === 'superadmin' && !$isSuperAdmin) {
+        if (
+            !is_string($role)
+            || !in_array($role, self::ROLES, strict: true)
+            || $role === 'superadmin' && !$isSuperAdmin
+            || $isSuperAdmin && !$empresaValida
+        ) {
             return null;
         }
 
         return [
             'role' => $role,
-            'empresa' => $isSuperAdmin ? (int) $params['empresa'] : (int) $this->empresaSelected['id'],
+            'empresa' => $isSuperAdmin ? (int) $empresa : (int) $this->empresaSelected['id'],
         ];
     }
 

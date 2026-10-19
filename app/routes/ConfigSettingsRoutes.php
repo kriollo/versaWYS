@@ -33,6 +33,9 @@ Router::group(
 
         // description: Obtiene el subconjunto editable de la configuración de la app.
         Router::get('/configuracion/get', [ConfigSettingsController::class, 'getSettings']);
+
+        // description: Tareas programadas (app/schedule.php) con su próxima y última ejecución, y si el crontab llama a app:schedule:run.
+        Router::get('/configuracion/tareas', [ConfigSettingsController::class, 'scheduledTasks']);
     },
     [
         [AuthMiddleware::class, 'checkSession'],
@@ -58,6 +61,10 @@ Router::group(
 
         // description: Envía un correo de prueba al usuario en sesión con la configuración guardada.
         Router::post('/testMail', [ConfigSettingsController::class, 'testMail']);
+
+        // description: Ejecuta ahora una tarea programada, en segundo plano.
+        // request-body name:id type:string description:Id de la tarea (el de app:schedule:list)
+        Router::post('/tareas/ejecutar', [ConfigSettingsController::class, 'runScheduledTask']);
     },
     [
         [AuthMiddleware::class, 'validateCSRFToken'],

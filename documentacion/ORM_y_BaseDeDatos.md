@@ -1,6 +1,6 @@
 # ORM y Base de Datos
 
-versaWYS usa VersaORM (paquete Composer `versaorm/versaorm-php`) y funciona con MySQL/MariaDB y PostgreSQL. La conexión se define en la sección `database` de `config.json`.
+versaWYS usa VersaORM (paquete Composer `versaorm/versaorm-php`) y funciona con MySQL/MariaDB y PostgreSQL; las pruebas usan SQLite (ver [Pruebas](./Pruebas.md)). La conexión se define en la sección `database` de `config.json`.
 
 ## Modelos
 
@@ -119,6 +119,14 @@ class m20260101120000_productos extends VersaORMModel
 
 Las migraciones ejecutadas se registran en la tabla `versa_migrations`.
 
+### Caché del esquema en producción
+
+Antes de validar o guardar un modelo, el ORM lee las columnas de su tabla (`information_schema` en PostgreSQL y MySQL, `PRAGMA` en SQLite). Con `build.debug` en `false`, esa lectura queda en `Cache` (archivos o Redis): se hace una vez y no en cada petición.
+
+- **Se invalida sola:** `migrate:up`, `migrate:rollback` y cualquier `CREATE`, `ALTER` o `DROP` ejecutado con el ORM.
+- **Cambios hechos a mano:** si se cambia una tabla a mano (con `psql`, un cliente gráfico, etc.), el cambio se ve en un día como máximo. Para verlo al instante: `php versaCLI cache:clear`.
+- **En desarrollo** (`build.debug: true`) no se guarda nada: cada petición lee el esquema actual.
+
 ## Seeders
 
 ```bash
@@ -131,4 +139,6 @@ Un seeder es una clase en `app/seeders/` con un método `run()` que devuelve `['
 
 ## Multiempresa
 
-El starter es multiempresa: `versa_users`, `versa_perfil` y los módulos se asocian a una fila de `empresas`. En los controladores, `$this->empresaSelected['id']` es la empresa de la sesión; filtra siempre por ella y no confíes en un id de empresa enviado por el cliente.
+El starter es multiempresa: `versa_users`, `versa_perfil` y los módulos se asocian a una fila de `empresas`. `Tenant::id()` es la empresa de la sesión: pásala al modelo y filtra cada consulta por ella, nunca por un id de empresa que envíe el cliente. Al buscar por id, `Tenant::ensure($fila)` responde 404 si la fila es de otra empresa.
+
+El módulo que genera `versaCLI versaMODULE:vue:Productos` ya viene así: su modelo recibe `$idEmpresa` en cada método y su prueba comprueba que una empresa no ve los registros de otra.

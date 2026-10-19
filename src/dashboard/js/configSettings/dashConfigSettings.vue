@@ -9,6 +9,7 @@
     import LoginAttemptSection from '@/dashboard/js/configSettings/sections/LoginAttemptSection.vue';
     import MailSection from '@/dashboard/js/configSettings/sections/MailSection.vue';
     import PasswordPolicySection from '@/dashboard/js/configSettings/sections/PasswordPolicySection.vue';
+    import ScheduleSection from '@/dashboard/js/configSettings/sections/ScheduleSection.vue';
     import type { ConfigSettingsData } from '@/dashboard/js/configSettings/types';
     import { API_RESPONSE_CODES } from '@/dashboard/js/constants';
     import { versaAlert, versaFetch } from '@/dashboard/js/functions';
@@ -23,6 +24,7 @@
             { id: 'build', label: 'Build' },
             { id: 'admin', label: 'Admin' },
             { id: 'database', label: 'Base de datos' },
+            { id: 'schedule', label: 'Tareas programadas' },
         ] as const,
         activeTab = ref<(typeof tabs)[number]['id']>('mail'),
         loading = ref(true),
@@ -40,6 +42,7 @@
                 version: '',
                 timezone: '',
                 charset: '',
+                debug: false,
             },
             admin: { custom_url: '', hide_default: false, redirect_404: false },
         }),
@@ -155,15 +158,19 @@
                     </button>
                 </div>
 
-                <form class="space-y-6 max-w-3xl px-4" @submit.prevent="saveSettings">
+                <!-- Los formularios van angostos; la tabla de tareas usa todo el ancho -->
+                <form
+                    :class="['space-y-6 px-4 pb-6', activeTab === 'schedule' ? 'max-w-none' : 'max-w-3xl']"
+                    @submit.prevent="saveSettings">
                     <MailSection v-if="activeTab === 'mail'" v-model="form.mail" />
                     <LoginAttemptSection v-if="activeTab === 'login'" v-model="form.login_attempt" />
                     <PasswordPolicySection v-if="activeTab === 'password'" v-model="form.auth" />
                     <BuildSection v-if="activeTab === 'build'" v-model="form.build" />
                     <AdminSection v-if="activeTab === 'admin'" v-model="form.admin" />
                     <DatabaseSection v-if="activeTab === 'database'" />
+                    <ScheduleSection v-if="activeTab === 'schedule'" />
 
-                    <div v-if="activeTab !== 'database'" class="flex justify-end pt-4">
+                    <div v-if="activeTab !== 'database' && activeTab !== 'schedule'" class="flex justify-end pt-4">
                         <button
                             type="submit"
                             :disabled="saving"

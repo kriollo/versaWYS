@@ -24,7 +24,7 @@ Cache::forget("resumen_{$idEmpresa}");   // cuando cambian los datos
 
 ## Colas: `Queue`
 
-Lo que no tiene que hacer esperar al usuario (correos, reportes, llamadas a otros servicios) se encola y lo ejecuta un proceso aparte.
+Lo que no tiene que hacer esperar al usuario (correos, reportes, llamadas a otros servicios) se encola y lo ejecuta un proceso aparte. `php versaCLI job:make:EnviarBienvenida` crea la clase del trabajo.
 
 ```php
 namespace app\jobs;
@@ -48,6 +48,17 @@ Queue::push(EnviarBienvenida::class, ['email' => $email]);
 Queue::push(RecordarPago::class, ['id' => $id], delay: 3600, tries: 5);
 ```
 
+Para un correo no hace falta escribir un trabajo: `app\jobs\EnviarCorreo` (del panel base) recibe los mismos datos que `mail:send` y, si el servidor de correo falla, lanza para que la cola lo reintente. El correo de recuperación de contraseña ya sale así; por eso `app/schedule.php` programa `app:queue:work --stop-when-empty` cada minuto.
+
+```php
+Queue::push(EnviarCorreo::class, [
+    'to' => ['email' => $email, 'name' => $nombre],
+    'subject' => 'Bienvenido',
+    'template' => 'mail/layout',
+    'data' => ['content' => 'Tu cuenta está lista.'],
+]);
+```
+
 - Los datos se guardan como JSON: pasa ids y textos, no objetos. El trabajo vuelve a leer lo que necesite.
 - Si `handle()` lanza una excepción, se reintenta: espera 1 minuto × intento, hasta `tries` (3 por defecto). Agotados, queda fallido.
 - El trabajo se crea con el contenedor: su constructor recibe servicios igual que un controlador.
@@ -64,10 +75,10 @@ Queue::push(RecordarPago::class, ['id' => $id], delay: 3600, tries: 5);
 | `php versaCLI app:queue:failed` | Trabajos fallidos con su último error |
 | `php versaCLI app:queue:retry 12` / `all` | Los vuelve a encolar |
 
-Cron más simple:
+Lo más simple es procesarla como una [tarea programada](./Tareas_Programadas.md), en `app/schedule.php`:
 
-```
-* * * * * cd /var/www/mi-app && php versaCLI app:queue:work --stop-when-empty >> versaWYS/logs/queue.log 2>&1
+```php
+$schedule->command('app:queue:work --stop-when-empty')->everyMinute()->withoutOverlapping();
 ```
 
 Un trabajo tomado por un worker que murió se vuelve a tomar a los 10 minutos.

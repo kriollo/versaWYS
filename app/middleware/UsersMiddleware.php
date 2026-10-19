@@ -128,7 +128,10 @@ class UsersMiddleware extends AuthMiddleware
             'password_confirmation' => 'required',
         ]);
 
-        if (!hash_equals((string) ($params['password'] ?? ''), (string) ($params['password_confirmation'] ?? ''))) {
+        if (!hash_equals(
+            Functions::text($params['password'] ?? null),
+            Functions::text($params['password_confirmation'] ?? null),
+        )) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',

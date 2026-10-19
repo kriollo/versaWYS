@@ -1,52 +1,55 @@
-# versaWYS-PHP 0.9.8 - Guía Principal
+# Documentación de versaWYS-PHP
 
-Bienvenido a la documentación de versaWYS-PHP, un framework PHP versátil, simple, ligero, rápido y fácil de usar.
+versaWYS-PHP es un framework PHP para aplicaciones de gestión multiempresa: panel con usuarios, perfiles y menús listo, API JSON, Vue en el frontend y una línea de comandos que genera módulos completos. El núcleo es el paquete [`versawys/kernel`](https://github.com/kriollo/versawys-kernel); este repositorio es el esqueleto de un proyecto (el panel y tu `app/`).
 
-Esta guía te proporciona una visión general del framework y enlaces a las guías detalladas para cada tema. Usa este archivo como índice principal y navega a las secciones específicas según tus necesidades.
+## Ruta de aprendizaje
 
-## Tabla de Contenidos
+Cada paso usa lo del anterior. Al terminar el 5 tienes un módulo propio, probado y en producción.
 
-- [Visión General](#visión-general)
-- [Guías Detalladas](#guías-detalladas)
-- [Licencia](#licencia)
+**1. Instalar y entender el proyecto**
 
-## Visión General
+- [Instalación](./INSTALL.md): `composer create-project`, el asistente de `/install` y hosting sin terminal (cPanel).
+- [Estructura de directorios](./EstructuraDeDirectorios.md): qué va en `app/`, `versaWYS/`, `src/` y `public/`.
+- [Configuración](./CONFIGURATION.md): `config.json`, el modo debug y los ajustes desde el panel.
 
-versaWYS-PHP es un framework PHP MVC (Modelo-Vista-Controlador) moderno y ligero, diseñado para desarrolladores que buscan una base sólida y eficiente para construir aplicaciones web y APIs RESTful. Su filosofía se centra en la simplicidad, la velocidad y la facilidad de uso, permitiendo un desarrollo ágil sin sacrificar la potencia ni la flexibilidad.
+**2. Tu primer módulo**
 
-Inspirado en la necesidad de un arranque rápido de proyectos y una curva de aprendizaje suave, versaWYS-PHP integra componentes robustos y populares de la comunidad PHP, como VersaORM para el acceso a datos y Twig para un sistema de plantillas elegante y seguro.
+```bash
+versaCLI versaMODULE:vue:Productos   # migración, modelo, validación, controlador, rutas, prueba y factory
+versaCLI migrate:up
+composer test                        # la prueba del módulo pasa recién generada
+```
 
-El núcleo es el paquete [`versawys/kernel`](https://github.com/kriollo/versawys-kernel). Trae:
+- [Línea de comandos](./LineaDeComandos.md): todos los generadores y `versaCLI` sin escribir `php`.
+- [Enrutamiento](./Enrutamiento.md): rutas, controladores, middlewares y la página `/doc`.
+- [ORM y base de datos](./ORM_y_BaseDeDatos.md): modelos, migraciones y seeders.
 
-- pruebas de la aplicación sin servidor;
-- un contenedor de dependencias optativo;
-- validación con Form Requests y autorización por empresa y por acción;
-- caché, una cola de trabajos y almacenamiento de archivos.
+**3. Reglas de negocio**
 
-Su `ROADMAP.md` resume qué cubre y cuáles son sus límites conocidos.
+- [Validación](./Validacion.md): reglas y Form Requests (422 con los errores por campo).
+- [Autorización](./Autorizacion.md): cada empresa ve solo lo suyo (`Tenant`) y permisos por acción (`Gate`).
+- [Contenedor](./Contenedor.md): inyección por constructor y reemplazar un servicio en una prueba.
 
-## Guías Detalladas
+**4. Probar y depurar**
 
-- [Guía de Instalación](./INSTALL.md)
-- [Guía de Configuración](./CONFIGURATION.md)
-- [Enrutamiento](./Enrutamiento.md)
-- [ORM y Base de Datos (VersaORM, Migraciones y Seeders)](./ORM_y_BaseDeDatos.md)
-- [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md)
-- [Seguridad del Framework](./Seguridad_Principios_Basicos.md)
-- [Pruebas de la aplicación (TestClient)](./Pruebas.md)
-- [Contenedor de dependencias](./Contenedor.md)
-- [Validación de datos](./Validacion.md)
-- [Autorización](./Autorizacion.md)
-- [Caché, colas y archivos](./Cache_Colas_Archivos.md)
-- [Profiler: qué hizo cada petición](./Profiler.md)
-- [Documentación interactiva de rutas (`/doc`)](./Enrutamiento.md#la-página-doc)
-- [Logging](./Logging_Quickstart.md) y [referencia completa](./Logging.md)
-- [Redis (RedisModel)](./RedisModel.md)
-- [Solución de problemas](./Troubleshooting.md)
-- [Estructura de Directorios](./EstructuraDeDirectorios.md)
-- [Guía de Contribución](./Guia_Contribucion.md)
-- [Preguntas Frecuentes (FAQ)](./FAQ.md)
+- [Pruebas](./Pruebas.md): `TestClient`, `TestDatabase` y `Factory`, sin servidor y sin tocar tu base.
+- [Profiler](./Profiler.md): tiempos, SQL, N+1 y excepciones de cada petición.
+- [Logging](./Logging.md): un archivo por módulo y día, con los secretos ocultos.
+
+**5. Producción**
+
+- [Seguridad](./Seguridad_Principios_Basicos.md): CSRF, XSS, SQL, CSP, secretos cifrados (`Crypt`) y enlaces firmados.
+- [Caché, colas y archivos](./Cache_Colas_Archivos.md): `Cache`, `Queue` y `Storage`.
+- [Tareas programadas](./Tareas_Programadas.md): `app/schedule.php` y una sola línea en el crontab.
+- [Instalación → Producción](./INSTALL.md#producción): OPcache, `app:check:deploy`, `app:deploy:finish` y el [modo mantenimiento](./LineaDeComandos.md#modo-mantenimiento).
+
+## Referencia
+
+- [Redis (`RedisModel`)](./RedisModel.md)
+- [Solución de problemas](./Troubleshooting.md) y [preguntas frecuentes](./FAQ.md)
+- [Guía de contribución](./Guia_Contribucion.md)
+- Kernel: `API.md` (qué es estable y qué interno), `CHANGELOG.md` y `UPGRADE.md`, en `versaWYS/vendor/versawys/kernel/` o en [su repositorio](https://github.com/kriollo/versawys-kernel).
 
 ## Licencia
 
-versaWYS-PHP es un software de código abierto licenciado bajo la [Licencia MIT](https://opensource.org/licenses/MIT).
+[MIT](https://opensource.org/licenses/MIT).

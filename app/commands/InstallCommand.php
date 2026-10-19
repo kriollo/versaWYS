@@ -9,6 +9,7 @@ use app\middleware\InstallMiddleware;
 use versaWYS\kernel\cli\CLIErrorHandler;
 use versaWYS\kernel\cli\CLIHelper;
 use versaWYS\kernel\cli\ConfigManager;
+use versaWYS\kernel\Installation;
 
 /**
  * `php versaCLI app:install`: el mismo instalador que /install, desde la terminal. Pregunta lo que
@@ -51,9 +52,20 @@ class InstallCommand extends ConsoleCommand
         // El instalador usa la configuración completa, como en una petición web
         $config = array_replace_recursive(ConfigManager::defaults(), ConfigManager::getConfig());
 
+        // Los mismos requisitos que el asistente web (y que muestra versaCLI status)
+        $failing = array_filter(Installation::requirements(), static fn(array $c): bool => !$c['ok']);
+        if ($failing !== []) {
+            CLIErrorHandler::error('El servidor no cumple los requisitos para instalar:');
+            foreach ($failing as $check) {
+                echo "  ✗ {$check['label']}\n    → {$check['fix']}\n";
+            }
+
+            return 1;
+        }
+
         $values = $this->fieldOptions([...$params, ...($_SERVER['argv'] ?? [])]);
         foreach (self::FIELDS as $field => [$question, $default]) {
-            if (isset($values[$field])) {
+            if (($values[$field] ?? null) !== null) {
                 continue;
             }
             if ($field === 'db_port') {
@@ -67,7 +79,8 @@ class InstallCommand extends ConsoleCommand
             }
         }
         // Por opciones no se repite la contraseña; en modo interactivo se pide de nuevo
-        $values['admin_password_confirm'] ??= isset($this->fieldOptions($_SERVER['argv'] ?? [])['admin_password'])
+        $values['admin_password_confirm'] ??= ($this->fieldOptions($_SERVER['argv'] ?? [])['admin_password'] ?? null)
+        !== null
             ? $values['admin_password']
             : $this->askSecret('Repite la contraseña del superadministrador');
 
@@ -107,11 +120,13 @@ class InstallCommand extends ConsoleCommand
     {
         $values = [];
         foreach ($args as $arg) {
-            if (is_string($arg) && preg_match('/^--([a-z-]+)=(.*)$/s', $arg, $m) === 1) {
-                $key = str_replace('-', '_', $m[1]);
-                if (array_key_exists($key, self::FIELDS)) {
-                    $values[$key] = $m[2];
-                }
+            if (!is_string($arg) || preg_match('/^--([a-z-]+)=(.*)$/s', $arg, $m) !== 1) {
+                continue;
+            }
+
+            $key = str_replace('-', '_', $m[1]);
+            if (array_key_exists($key, self::FIELDS)) {
+                $values[$key] = $m[2];
             }
         }
 

@@ -6,9 +6,9 @@ use app\models\Users;
 use versaWYS\kernel\helpers\Functions;
 
 /** Ejecuta versaCLI y devuelve [código de salida, salida]. */
-function versaCli(string $args): array
+function versaCli(string $args, string $env = ''): array
 {
-    exec('php versaCLI ' . $args . ' 2>&1 < /dev/null', $output, $exitCode);
+    exec($env . 'php versaCLI ' . $args . ' 2>&1 < /dev/null', $output, $exitCode);
 
     return [$exitCode, implode("\n", $output)];
 }
@@ -319,7 +319,7 @@ describe('documentación de rutas: comentarios', function (): void {
 describe('kernel empaquetable', function (): void {
     it('no asume vivir en versaWYS/kernel: así funciona instalado en vendor', function (): void {
         // Permitido: leer proyectos anteriores al paquete y saltar frames del kernel en las trazas
-        $allowed = ['cli/ConfigManager.php', 'cli/commands/CheckDeployCommand.php', 'cli/commands/CheckPsr4Command.php', 'model/VersaORMModel.php'];
+        $allowed = ['cli/ConfigManager.php', 'cli/commands/CheckDeployCommand.php', 'model/VersaORMModel.php'];
         $kernel = dirname((string) (new ReflectionClass(versaWYS\kernel\App::class))->getFileName());
         $offending = [];
         foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($kernel, FilesystemIterator::SKIP_DOTS)) as $file) {
@@ -506,10 +506,31 @@ describe('Functions::validateParams', function (): void {
 
 describe('app:install', function (): void {
     it('rechaza datos inválidos con código 1 y lista los errores', function (): void {
-        [$exitCode, $output] = versaCli('app:install --db-driver=oracle --db-host=x --db-port=5432 --db-name=a --db-user=b --db-pass=c'
-            . ' --empresa-nombre=E --empresa-rut=11.111.111-2 --admin-name=A --admin-email=no-es-correo --admin-password=corta');
+        // Un proyecto recién creado (config:init), con su propia configuración: el de la copia local ya está instalado
+        $dir = sys_get_temp_dir() . '/versawys_install_' . getmypid();
+        @mkdir($dir, 0o700, true);
+        $env = 'VERSAWYS_CONFIG=' . escapeshellarg($dir . '/config.json') . ' ';
+        exec($env . 'php versaCLI config:init 2>&1 < /dev/null');
+        // Con el frontend compilado, que es un requisito previo a pedir los datos (en CI no se compila)
+        $marcas = array_keys(array_filter([
+            'public/dashboard/css/dashboard.css' => !is_file('public/dashboard/css/dashboard.css'),
+            'public/dashboard/js/versa-install-test.js' => glob('public/dashboard/js/*.js') === [],
+        ]));
+        foreach ($marcas as $archivo) {
+            @mkdir(dirname($archivo), 0o775, true);
+            touch($archivo);
+        }
+
+        try {
+            [$exitCode, $output] = versaCli('app:install --db-driver=oracle --db-host=x --db-port=5432 --db-name=a --db-user=b --db-pass=c'
+                . ' --empresa-nombre=E --empresa-rut=11.111.111-2 --admin-name=A --admin-email=no-es-correo --admin-password=corta', $env);
+        } finally {
+            array_map(unlink(...), $marcas);
+            array_map(unlink(...), glob($dir . '/*') ?: []);
+            rmdir($dir);
+        }
 
         expect($exitCode)->toBe(1)
             ->and($output)->toContain('db_driver')->toContain('empresa_rut')->toContain('admin_email')->toContain('admin_password');
-    })->skip(fn (): bool => file_exists(app\middleware\InstallMiddleware::lockFile()), 'el proyecto local ya está instalado');
+    });
 });

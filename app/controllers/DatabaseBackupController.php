@@ -11,6 +11,8 @@ use SensitiveParameter;
 use versaWYS\kernel\File;
 use versaWYS\kernel\GlobalControllers;
 use versaWYS\kernel\Loggin;
+use versaWYS\kernel\Output;
+use versaWYS\kernel\Response;
 
 class DatabaseBackupController extends GlobalControllers
 {
@@ -30,7 +32,12 @@ class DatabaseBackupController extends GlobalControllers
             $result = $this->backupService->exportToFile();
 
             if (!$result['success']) {
-                return ['success' => 0, 'message' => $result['message'], 'error' => $result['error'] ?? null];
+                return [
+                    'success' => 0,
+                    'message' => $result['message'],
+                    'error' => $result['error'] ?? null,
+                    'code' => 422,
+                ];
             }
 
             return [
@@ -56,25 +63,17 @@ class DatabaseBackupController extends GlobalControllers
         $path = $this->backupService->getDumpPath($token);
 
         if ($path === null || !is_file($path)) {
-            http_response_code(404);
-            echo json_encode(['success' => 0, 'message' => 'Respaldo no encontrado o expirado.']);
+            Response::json(['success' => 0, 'message' => 'Respaldo no encontrado o expirado.'], 404);
 
             return;
         }
 
-        if (ob_get_level() > 0) {
-            ob_end_clean();
-        }
-
-        $filename = basename($path);
-        $fileSize = filesize($path);
-
-        header('Content-Type: application/sql');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        header('Content-Length: ' . $fileSize);
-        header('Cache-Control: private, no-cache, no-store, must-revalidate');
-        header('Pragma: no-cache');
-        header('X-Content-Type-Options: nosniff');
+        // Por Output: así responde igual en producción y en las pruebas (TestClient)
+        Output::header('Content-Type: application/sql');
+        Output::header('Content-Disposition: attachment; filename="' . basename($path) . '"');
+        Output::header('Content-Length: ' . filesize($path));
+        Output::header('Cache-Control: private, no-cache, no-store, must-revalidate');
+        Output::header('X-Content-Type-Options: nosniff');
 
         readfile($path);
 
@@ -96,7 +95,12 @@ class DatabaseBackupController extends GlobalControllers
             $result = $this->backupService->importFromFile($uploadedFile);
 
             if (!$result['success']) {
-                return ['success' => 0, 'message' => $result['message'], 'error' => $result['error'] ?? null];
+                return [
+                    'success' => 0,
+                    'message' => $result['message'],
+                    'error' => $result['error'] ?? null,
+                    'code' => 422,
+                ];
             }
 
             return ['success' => 1, 'message' => $result['message']];
@@ -117,7 +121,7 @@ class DatabaseBackupController extends GlobalControllers
     {
         global $request;
 
-        $sql = trim((string) $request->get('query', ''));
+        $sql = trim($request->string('query'));
         // Auditoría: quién ejecutó qué, aunque la consulta falle
         Loggin::warning('Consola SQL', 'database', [
             'id_user' => $this->id_user,

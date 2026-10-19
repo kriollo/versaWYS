@@ -6,6 +6,7 @@ namespace app\middleware;
 
 use versaWYS\kernel\GlobalMiddleware;
 use versaWYS\kernel\helpers\Functions;
+use versaWYS\kernel\Output;
 use versaWYS\kernel\Response;
 
 /**
@@ -52,7 +53,7 @@ class AuthMiddleware extends GlobalMiddleware
 
         if ($session->checkUserSession()) {
             Response::redirect('/' . $config['admin']['custom_url'] . '/dashboard');
-            exit();
+            Output::halt();
         }
     }
 
@@ -137,7 +138,10 @@ class AuthMiddleware extends GlobalMiddleware
             'email' => 'required|email',
         ]);
 
-        if (!hash_equals($params['new_password'], $params['comfirm_new_password'])) {
+        if (!hash_equals(
+            Functions::text($params['new_password'] ?? null),
+            Functions::text($params['comfirm_new_password'] ?? null),
+        )) {
             return [
                 'success' => 0,
                 'message' => 'Los datos enviados no son correctos',

@@ -10,8 +10,8 @@ Esta guía te ayudará a identificar y resolver los problemas más comunes al tr
 - Error al ejecutar comandos de la CLI.
 
 **Solución:**
-- Ejecuta: `php versaCLI config:init` para crear el archivo.
-- Verifica permisos de escritura en la carpeta `versaWYS/config/`.
+- Ejecuta: `php versaCLI config:init` para crear el archivo. Desde el navegador, el primer arranque lo crea solo si la carpeta tiene permiso de escritura.
+- Verifica permisos de escritura en la carpeta `versaWYS/config/` (`versaCLI status` lo revisa).
 
 ---
 
@@ -83,10 +83,10 @@ Esta guía te ayudará a identificar y resolver los problemas más comunes al tr
 - Error de token CSRF inválido o formulario que no se envía.
 
 **Solución:**
-- Asegúrate de incluir el campo CSRF en todos los formularios:
-  - En PHP: `<?php echo versaWYS\kernel\helpers\Functions::csrf_field(); ?>`
-  - En Twig: `{{ csrf_field() | raw }}`
-- Si usas AJAX, envía el token como parte de los datos o en una cabecera personalizada.
+- POST, PUT, PATCH y DELETE exigen el token (ver [Enrutamiento](./Enrutamiento.md#rutas)).
+- En un formulario Twig: `{{ csrf_field()|raw }}`.
+- Desde JavaScript, usa `versaFetch`, que lo envía solo.
+- Para un webhook de un tercero, que no puede enviarlo: `->withoutCsrf()` en la ruta, y valida su firma en el controlador.
 
 ---
 
@@ -106,9 +106,8 @@ Esta guía te ayudará a identificar y resolver los problemas más comunes al tr
 - Modificas `config.json` pero la app no refleja los cambios.
 
 **Solución:**
-- Borra la caché de Twig si usas plantillas (`php versaCLI config:ClearCache`).
-- Reinicia el servidor de desarrollo.
-- Verifica que no haya errores de sintaxis en el JSON.
+- `config.json` se lee en cada petición: si el cambio no se ve, casi siempre es un error de sintaxis en el JSON. Revísalo con `php -r 'json_decode(file_get_contents("versaWYS/config/config.json"), flags: JSON_THROW_ON_ERROR);'`.
+- Si el cambio afecta plantillas, borra la caché de Twig: `php versaCLI config:ClearCache`.
 
 ---
 
@@ -138,7 +137,19 @@ En producción (`php versaCLI config:debug:false`) el usuario ve un error 500 ge
 
 ---
 
-## 12. Otros problemas
+## 12. El sitio responde 503 «En mantenimiento»
+
+Alguien corrió `versaCLI app:down`. `versaCLI app:up` lo termina. Ver [Modo mantenimiento](./LineaDeComandos.md#modo-mantenimiento).
+
+---
+
+## 13. Las tareas programadas no corren
+
+`versaCLI app:schedule:list` dice si el crontab está llamando al programador y, si no, imprime la línea exacta que hay que agregar, con la ruta completa de PHP. La salida de cada tarea queda en `versaWYS/logs/cron.log`. Ver [Tareas programadas](./Tareas_Programadas.md).
+
+---
+
+## 14. Otros problemas
 - Consulta la [FAQ](./FAQ.md) para dudas comunes.
 - Revisa la documentación de cada sección.
 - Si el problema persiste, abre un issue en el [repositorio oficial](https://github.com/kriollo/versaWYS).

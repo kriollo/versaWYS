@@ -33,20 +33,21 @@ const handleError = (error: unknown, module: string, container: HTMLElement): vo
                     <br />
                     ${safeMessage}
                 </p>
-                ${safeStack
-                    ? html`
-                          <details style="margin-top: 1rem;">
-                              <summary
-                                  style="cursor: pointer; padding: 0.5rem; background: rgba(0,0,0,0.1); border-radius: 4px;">
-                                  📋 Ver Stack Trace
-                              </summary>
-                              <pre
-                                  style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(0,0,0,0.3); border-radius: 4px; overflow-x: auto; font-size: 12px; white-space: pre-wrap; word-break: break-all;">
-${safeStack}</pre
-                              >
-                          </details>
-                      `
-                    : ''}
+                ${
+                    safeStack
+                        ? html`
+                              <details style="margin-top: 1rem;">
+                                  <summary
+                                      style="cursor: pointer; padding: 0.5rem; background: rgba(0,0,0,0.1); border-radius: 4px;">
+                                      📋 Ver Stack Trace
+                                  </summary>
+                                  <pre
+                                      style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(0,0,0,0.3); border-radius: 4px; overflow-x: auto; font-size: 12px; white-space: pre-wrap; word-break: break-all;">
+${safeStack}</pre>
+                              </details>
+                          `
+                        : ''
+                }
                 <button
                     style="margin-top: 1rem; padding: 0.5rem 1rem; background-color: #fff; color: #333; border: 1px solid #333; cursor: pointer; border-radius: 4px;"
                     data-reload>

@@ -1,14 +1,14 @@
 # Preguntas Frecuentes (FAQ) - versaWYS-PHP
 
 ## ¿Qué versión de PHP necesito?
-Debes usar **PHP 8.3 o superior**. Además, asegúrate de tener la extensión `php-intl` instalada.
+**PHP 8.3 o superior**, con las extensiones `pdo` (y el driver de tu base), `mbstring`, `intl`, `openssl`, `fileinfo`, `curl`, `zip`, `xml` y `dom`. `versaCLI status` dice cuáles faltan y cómo instalarlas; el asistente de `/install` no avanza sin ellas.
 
 ## ¿Cómo creo el archivo de configuración inicial?
 Ejecuta en la terminal:
 ```bash
 php versaCLI config:init
 ```
-Esto generará el archivo `versaWYS/config/config.json` necesario para que el framework funcione.
+Esto genera `versaWYS/config/config.json` con una clave de sesión propia. En un hosting sin terminal no hace falta: el primer arranque lo crea solo y lleva al asistente de `/install` (ver [Instalación](./INSTALL.md)).
 
 ## ¿Cómo ejecuto migraciones y seeders?
 Utiliza la [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md):
@@ -25,26 +25,27 @@ Utiliza la [Interfaz de Línea de Comandos (CLI)](./LineaDeComandos.md):
 En la carpeta `app/routes/`. Puedes crear archivos de rutas personalizados y organizarlos por módulos.
 
 ## ¿Cómo compilo los assets (CSS/JS)?
-Instala las dependencias con `npm install` y luego ejecuta:
+Instala las dependencias con `pnpm install` y luego:
 ```bash
-npm run watch
+pnpm watch      # desarrollo: recompila al guardar
+pnpm compile    # producción
 ```
-o consulta los scripts disponibles en tu `package.json`.
+No mezcles los dos modos en la misma carpeta `public/` (ver [Solución de problemas](./Troubleshooting.md#4-cambios-en-archivos-jscss-no-se-ven-reflejados)).
 
 ## ¿Cómo inicio el servidor de desarrollo?
 Ejecuta:
 ```bash
 php versaCLI serve
 ```
-Por defecto, tu app estará disponible en [http://localhost:3000](http://localhost:3000).
+Por defecto queda en [http://localhost:8000](http://localhost:8000); otro puerto con `--port=8080`.
 
-## ¿Cómo agrego un nuevo controlador, modelo o middleware?
-Usa la CLI:
+## ¿Cómo agrego una pantalla nueva?
+Lo más rápido es el módulo completo, que trae migración, modelo, validación, controlador, rutas y su prueba:
 ```bash
-php versaCLI controller:make:Nombre
-php versaCLI model:make:Nombre
-php versaCLI middleware:make:Nombre
+php versaCLI versaMODULE:vue:Productos
+php versaCLI migrate:up
 ```
+Para una pieza suelta: `controller:make:Nombre`, `model:make:Nombre`, `middleware:make:Nombre`, `request:make:Nombre`.
 Consulta la [guía de comandos](./LineaDeComandos.md) para más opciones.
 
 ## ¿Cómo reporto un bug o contribuyo al framework?

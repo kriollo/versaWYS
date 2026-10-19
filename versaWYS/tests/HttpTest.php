@@ -124,6 +124,8 @@ beforeAll(function (): void {
     $config['rate_limiting']['rules']['login']['requests'] = 30;
     file_put_contents($dir . '/config.json', json_encode($config));
 
+    // El de las demás suites (TestDatabase), que corren en este mismo proceso: se restaura al final
+    $previousConfig = getenv('VERSAWYS_CONFIG');
     putenv('VERSAWYS_CONFIG=' . $dir . '/config.json');
     exec('php versaCLI migrate:up 2>&1 < /dev/null && php versaCLI seeder:runAll 2>&1 < /dev/null', $output, $exitCode);
     if ($exitCode !== 0) {
@@ -154,14 +156,14 @@ beforeAll(function (): void {
         usleep(100_000);
     }
 
-    httpEnv(['dir' => $dir, 'url' => 'http://127.0.0.1:' . $port, 'server' => $server]);
+    httpEnv(['dir' => $dir, 'url' => 'http://127.0.0.1:' . $port, 'server' => $server, 'previous_config' => $previousConfig]);
 });
 
 afterAll(function (): void {
     $env = httpEnv();
     proc_terminate($env['server']);
     proc_close($env['server']);
-    putenv('VERSAWYS_CONFIG');
+    putenv($env['previous_config'] === false ? 'VERSAWYS_CONFIG' : 'VERSAWYS_CONFIG=' . $env['previous_config']);
 
     $files = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator($env['dir'], FilesystemIterator::SKIP_DOTS),

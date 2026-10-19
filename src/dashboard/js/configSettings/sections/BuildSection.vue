@@ -1,9 +1,35 @@
 <script setup lang="ts">
-    import type { Ref } from 'vue';
+    import Swal from 'sweetalert2';
+    import { type Ref, watch } from 'vue';
 
+    import switchToggle from '@/dashboard/js/components/switchToggle.vue';
     import type { ConfigSettingsData } from '@/dashboard/js/configSettings/types';
 
     const model = defineModel({ required: true }) as Ref<ConfigSettingsData['build']>;
+
+    // Activarlo pide confirmación: en producción expone rutas, trazas y SQL en los errores
+    watch(
+        () => model.value.debug,
+        async (enabled, before) => {
+            if (!enabled || before !== false) {
+                return;
+            }
+
+            const { isConfirmed } = await Swal.fire({
+                title: '¿Activar el modo debug?',
+                html: `Los errores mostrarán rutas de archivos, trazas y SQL, y se activará el profiler.<br><br>
+                    <strong>No lo dejes activo en un sitio público.</strong> El cambio queda registrado en el log de seguridad.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Activar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#dc2626',
+            });
+            if (!isConfirmed) {
+                model.value.debug = false;
+            }
+        },
+    );
 </script>
 
 <template>
@@ -57,6 +83,14 @@
                     required
                     v-model="model.charset" />
             </div>
+        </div>
+
+        <div class="space-y-2">
+            <switchToggle id="build_debug" label="Modo debug" type="danger" v-model="model.debug" />
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                Muestra el detalle de los errores y la barra del profiler. Solo para desarrollo: en producción debe
+                estar desactivado. Se aplica al guardar.
+            </p>
         </div>
     </div>
 </template>

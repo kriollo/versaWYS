@@ -41,6 +41,7 @@ class MediaStore extends VersaORMModel
         ];
     }
 
+    // @mago-expect lint:excessive-parameter-list (firma usada por los controladores de cada proyecto)
     public function getMediaPaginate(
         int $empresaId,
         string $mediaType,
@@ -62,7 +63,9 @@ class MediaStore extends VersaORMModel
         // int > 0 = archivos de carpeta específica
         if ($folderId === null) {
             $filter .= ' AND cms.folder_id IS NULL';
-        } elseif ($folderId > 0) {
+        }
+
+        if ($folderId !== null && $folderId > 0) {
             $filter .= ' AND cms.folder_id = ?';
             $params[] = $folderId;
         }
@@ -95,7 +98,7 @@ class MediaStore extends VersaORMModel
             ->collect();
 
         return [
-            'total' => isset($result[0]['total_count']) ? (int) $result[0]['total_count'] : 0,
+            'total' => (int) ($result[0]['total_count'] ?? 0),
             'data' => $result,
         ];
     }
@@ -115,9 +118,9 @@ class MediaStore extends VersaORMModel
         $media->status = 'active';
         $media->created_by_user_id = (int) $params['created_by_user_id'];
         $media->updated_by_user_id = (int) $params['updated_by_user_id'];
-        $media->folder_id = isset($params['folder_id']) && $params['folder_id'] > 0 ? (int) $params['folder_id'] : null;
+        $media->folder_id = ($params['folder_id'] ?? 0) > 0 ? (int) $params['folder_id'] : null;
 
-        return (int) $media->save();
+        return (int) $media->store();
     }
 
     public function moveToFolder(int $mediaId, int $empresaId, ?int $folderId): bool
@@ -155,7 +158,8 @@ class MediaStore extends VersaORMModel
             ->whereRaw('id = ? AND empresa_id = ?', [$mediaId, $empresaId])
             ->findOne();
 
-        if (!is_array($result) && !method_exists($result, 'export')) {
+        // No existe o es de otra empresa: findOne() devuelve null
+        if ($result === null) {
             return null;
         }
 

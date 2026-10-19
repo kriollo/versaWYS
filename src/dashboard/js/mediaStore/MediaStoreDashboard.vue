@@ -1,10 +1,11 @@
 <script setup lang="ts">
     import Swal from 'sweetalert2';
     import type { VersaFetchResponse } from 'versaTypes';
-    import { computed, inject, onMounted, ref, type Ref, watch } from 'vue';
+    import { computed, inject, nextTick, onMounted, ref, type Ref, watch } from 'vue';
 
     import Breadcrumb from '@/dashboard/js/components/breadcrumb.vue';
     import { versaAlert, versaFetch } from '@/dashboard/js/functions';
+    import MediaImageViewer from '@/dashboard/js/mediaStore/components/MediaImageViewer.vue';
     import MediaThumbnail from '@/dashboard/js/mediaStore/components/MediaThumbnail.vue';
     import type { MediaAsset, MediaFolder, MediaType } from '@/dashboard/js/mediaStore/types';
 
@@ -60,6 +61,8 @@
     const bulkMoving = ref(false);
     const showBulkMovePanel = ref(false);
     const bulkMoveTargetFolderId = ref<number | null | 'root'>('root');
+    const activeImageId = ref<number | null>(null);
+    const imageViewerOpener = ref<HTMLElement | null>(null);
     let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
     const maxFilesPerRequest = 15;
 
@@ -84,8 +87,35 @@
     const allVisibleAssetsSelected = computed(
         () => assets.value.length > 0 && assets.value.every(asset => selectedAssetIds.value.includes(asset.id)),
     );
+    const imageAssets = computed(() =>
+        assets.value.filter(asset => asset.media_type === 'image' || asset.mime.startsWith('image/')),
+    );
+    const activeImage = computed(() => imageAssets.value.find(asset => asset.id === activeImageId.value) ?? null);
+    const activeImageIndex = computed(() => imageAssets.value.findIndex(asset => asset.id === activeImageId.value));
 
     const hasSelectedAssets = computed(() => selectedAssetIds.value.length > 0);
+
+    const openImageViewer = (asset: MediaAsset, event: MouseEvent) => {
+        const index = imageAssets.value.findIndex(image => image.id === asset.id);
+        if (index !== -1) {
+            activeImageId.value = asset.id;
+            imageViewerOpener.value = event.currentTarget instanceof HTMLElement ? event.currentTarget : null;
+        }
+    };
+
+    const closeImageViewer = () => {
+        activeImageId.value = null;
+        nextTick(() => imageViewerOpener.value?.focus());
+    };
+
+    const navigateImageViewer = (direction: -1 | 1) => {
+        if (activeImageIndex.value === -1 || imageAssets.value.length < 2) {
+            return;
+        }
+
+        const nextIndex = (activeImageIndex.value + direction + imageAssets.value.length) % imageAssets.value.length;
+        activeImageId.value = imageAssets.value[nextIndex]?.id ?? null;
+    };
 
     const visiblePages = computed(() => {
         const pages: number[] = [];
@@ -151,7 +181,7 @@
         });
     };
 
-    const splitInChunks = <T>(items: T[], size: number): T[][] => {
+    const splitInChunks = <T,>(items: T[], size: number): T[][] => {
         const chunks: T[][] = [];
         for (let index = 0; index < items.length; index += size) {
             chunks.push(items.slice(index, index + size));
@@ -1388,13 +1418,23 @@
                             <div
                                 class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2">
                                 <a
+                                    v-if="asset.media_type !== 'image' && !asset.mime.startsWith('image/')"
                                     :href="asset.public_url"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    title="Ver pantalla completa"
+                                    title="Abrir archivo"
                                     class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/40 text-white backdrop-blur-md transition-all">
                                     <i class="bi bi-eye"></i>
                                 </a>
+                                <button
+                                    v-else
+                                    type="button"
+                                    :aria-label="`Ver imagen ${asset.original_name}`"
+                                    title="Ver imagen"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/20 hover:bg-white/40 text-white backdrop-blur-md transition-all"
+                                    @click="openImageViewer(asset, $event)">
+                                    <i class="bi bi-eye" aria-hidden="true"></i>
+                                </button>
                                 <button
                                     @click="startRenaming(asset)"
                                     title="Renombrar"
@@ -1587,12 +1627,23 @@
                         </span>
 
                         <a
+                            v-if="asset.media_type !== 'image' && !asset.mime.startsWith('image/')"
                             :href="asset.public_url"
                             target="_blank"
                             rel="noopener noreferrer"
+                            aria-label="Abrir archivo"
                             class="w-8 h-8 rounded-lg text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center">
                             <i class="bi bi-eye"></i>
                         </a>
+                        <button
+                            v-else
+                            type="button"
+                            :aria-label="`Ver imagen ${asset.original_name}`"
+                            title="Ver imagen"
+                            class="w-8 h-8 rounded-lg text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center"
+                            @click="openImageViewer(asset, $event)">
+                            <i class="bi bi-eye" aria-hidden="true"></i>
+                        </button>
 
                         <div class="flex items-center gap-1">
                             <button
@@ -1652,6 +1703,15 @@
                 </div>
             </div>
         </div>
+
+        <MediaImageViewer
+            v-if="activeImage && activeImageIndex !== -1"
+            :asset="activeImage"
+            :index="activeImageIndex + 1"
+            :total="imageAssets.length"
+            @close="closeImageViewer"
+            @previous="navigateImageViewer(-1)"
+            @next="navigateImageViewer(1)" />
     </div>
 </template>
 
