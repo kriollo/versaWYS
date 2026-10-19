@@ -6,7 +6,7 @@
     "require": {
         "php": ">=8.3",
         "twig/twig": "^3.30",
-        "versaorm/versaorm-php": "^2.2",
+        "versaorm/versaorm-php": "^2.2.1",
         "versawys/kernel": "^3.11.0"
     },
     "require-dev": {

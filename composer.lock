@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bbd6a41fc309924242c240def6f10805",
+    "content-hash": "3b3c52899ade8b85df882af4513e5095",
     "packages": [
         {
             "name": "doctrine/lexer",
@@ -1486,16 +1486,16 @@
         },
         {
             "name": "versaorm/versaorm-php",
-            "version": "2.2.0",
+            "version": "2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kriollo/versa-orm.git",
-                "reference": "2ad0be344b7deafd1155d8abb71f953bb015918e"
+                "reference": "b7189b3418c4d875ba73c6646027663b7a994a1e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kriollo/versa-orm/zipball/2ad0be344b7deafd1155d8abb71f953bb015918e",
-                "reference": "2ad0be344b7deafd1155d8abb71f953bb015918e",
+                "url": "https://api.github.com/repos/kriollo/versa-orm/zipball/b7189b3418c4d875ba73c6646027663b7a994a1e",
+                "reference": "b7189b3418c4d875ba73c6646027663b7a994a1e",
                 "shasum": ""
             },
             "require": {
@@ -1558,7 +1558,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-19T12:18:11+00:00"
+            "time": "2026-10-19T15:45:47+00:00"
         },
         {
             "name": "versawys/kernel",
