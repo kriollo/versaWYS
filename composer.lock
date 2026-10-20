@@ -1486,16 +1486,16 @@
         },
         {
             "name": "versaorm/versaorm-php",
-            "version": "2.2.1",
+            "version": "2.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kriollo/versa-orm.git",
-                "reference": "b7189b3418c4d875ba73c6646027663b7a994a1e"
+                "reference": "3a03cc3a0c8b37d69b162ac88c46b4f941c37075"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kriollo/versa-orm/zipball/b7189b3418c4d875ba73c6646027663b7a994a1e",
-                "reference": "b7189b3418c4d875ba73c6646027663b7a994a1e",
+                "url": "https://api.github.com/repos/kriollo/versa-orm/zipball/3a03cc3a0c8b37d69b162ac88c46b4f941c37075",
+                "reference": "3a03cc3a0c8b37d69b162ac88c46b4f941c37075",
                 "shasum": ""
             },
             "require": {
@@ -1558,20 +1558,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-19T15:45:47+00:00"
+            "time": "2026-10-20T11:14:07+00:00"
         },
         {
             "name": "versawys/kernel",
-            "version": "v3.11.1",
+            "version": "v3.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kriollo/versawys-kernel.git",
-                "reference": "c8a75448c0ff6faf92a860c6187a2fed62c8e79c"
+                "reference": "b1bd498a0c64afc2c34143cb04f88a86e3b1a21d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kriollo/versawys-kernel/zipball/c8a75448c0ff6faf92a860c6187a2fed62c8e79c",
-                "reference": "c8a75448c0ff6faf92a860c6187a2fed62c8e79c",
+                "url": "https://api.github.com/repos/kriollo/versawys-kernel/zipball/b1bd498a0c64afc2c34143cb04f88a86e3b1a21d",
+                "reference": "b1bd498a0c64afc2c34143cb04f88a86e3b1a21d",
                 "shasum": ""
             },
             "require": {
@@ -1627,7 +1627,7 @@
                 "issues": "https://github.com/kriollo/versawys-kernel/issues",
                 "source": "https://github.com/kriollo/versawys-kernel"
             },
-            "time": "2026-10-19T16:24:04+00:00"
+            "time": "2026-10-20T11:14:31+00:00"
         }
     ],
     "packages-dev": [
