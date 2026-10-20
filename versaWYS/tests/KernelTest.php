@@ -517,7 +517,7 @@ describe('app:install', function (): void {
             'public/dashboard/js/versa-install-test.js' => glob('public/dashboard/js/*.js') === [],
         ]));
         foreach ($marcas as $archivo) {
-            @mkdir(dirname($archivo), 0o775, true);
+            is_dir(dirname($archivo)) || mkdir(dirname($archivo), 0o775, true);
             touch($archivo);
         }
 

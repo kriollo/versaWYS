@@ -69,7 +69,7 @@ it('instala con el token de config:init y después ya no se puede volver a insta
         'public/dashboard/js/versa-install-test.js' => glob('public/dashboard/js/*.js') === [],
     ]));
     foreach ($marcas as $archivo) {
-        @mkdir(dirname($archivo), 0o775, true);
+        is_dir(dirname($archivo)) || mkdir(dirname($archivo), 0o775, true);
         touch($archivo);
     }
 
