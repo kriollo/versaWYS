@@ -58,8 +58,8 @@ importers:
         specifier: 4.3.3
         version: 4.3.3
       versacompiler:
-        specifier: 2.7.6
-        version: 2.7.6
+        specifier: 2.7.7
+        version: 2.7.7
 
 packages:
 
@@ -1288,8 +1288,8 @@ packages:
   eventemitter3@4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
 
-  execa@10.1.1:
-    resolution: {integrity: sha512-yJAC9ulsE6fU0K6wzJBIH+wI+KAtMeu6Ck8rs23OVzvEhqXjGADdI6K+YNIDAjcQQ6AwXTD96cKExJo6xFJXyg==}
+  execa@10.2.0:
+    resolution: {integrity: sha512-j1pFOVxaybMVCTNHSBuISL2KQcDS3KIE1wBmUp4n2X+1FgaQI2ZDJVy9TYxDyMCzYojRIMh9O8X/UoWZtxTJdw==}
     engines: {node: '>=22'}
 
   figures@6.1.0:
@@ -1942,8 +1942,8 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  versacompiler@2.7.6:
-    resolution: {integrity: sha512-dziU5CbkTX/nkCLTulTFheVGALWC0AsBO4AL5jFQO+FuDhgCMhVaz+g1m21Ms3PXdICIwFoQXd8TkePNz/Fqyw==}
+  versacompiler@2.7.7:
+    resolution: {integrity: sha512-pi5DLRiJqMaqkrthl1lPhsDlPasWs7k9BcMr6N4mqpQZ0pwawWU+KZJJh417nu1XPgWLyfjvbGLwxmjvG3Kcvw==}
     hasBin: true
 
   vue@3.5.44:
@@ -2936,7 +2936,7 @@ snapshots:
 
   eventemitter3@4.0.7: {}
 
-  execa@10.1.1:
+  execa@10.2.0:
     dependencies:
       '@sindresorhus/merge-streams': 4.0.0
       figures: 6.1.0
@@ -3605,7 +3605,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  versacompiler@2.7.6:
+  versacompiler@2.7.7:
     dependencies:
       '@vue/compiler-dom': 3.5.44
       '@vue/reactivity': 3.5.44
@@ -3615,7 +3615,7 @@ snapshots:
       chalk: 6.0.1
       chokidar: 5.0.0
       enhanced-resolve: 5.26.0
-      execa: 10.1.1
+      execa: 10.2.0
       find-root: 1.1.0
       fs-extra: 11.4.1
       get-port: 7.2.0
