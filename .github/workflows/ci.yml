@@ -18,6 +18,13 @@ jobs:
                     POSTGRES_DB: respaldo
                 ports: ['55432:5432']
                 options: --health-cmd pg_isready --health-interval 2s --health-timeout 5s --health-retries 15
+            postgres-panel:
+                image: postgres:16-alpine
+                env:
+                    POSTGRES_PASSWORD: prueba-local
+                    POSTGRES_DB: panel
+                ports: ['55433:5432']
+                options: --health-cmd pg_isready --health-interval 2s --health-timeout 5s --health-retries 15
         env:
             VERSA_TEST_PG: 127.0.0.1:55432:respaldo:postgres:prueba-local
         strategy:
@@ -37,6 +44,10 @@ jobs:
             - run: composer audit
             # mago fmt (formato, el mismo de los proyectos) y pest (tests); el análisis estático del kernel corre en versawys-kernel
             - run: composer check
+            # La misma suite con la base de prueba en PostgreSQL, el motor de producción
+            - run: composer test
+              env:
+                  VERSA_TEST_DB: 127.0.0.1:55433:panel:postgres:prueba-local
 
     frontend:
         runs-on: ubuntu-latest

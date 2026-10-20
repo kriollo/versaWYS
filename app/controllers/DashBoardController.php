@@ -89,7 +89,7 @@ class DashBoardController extends GlobalControllers
 
             if (
                 $user === []
-                || !Functions::verifyHash($params['password'], $user['password'])
+                || !Functions::verifyHash(Functions::text($params['password'] ?? null), $user['password'])
                 || $user['status'] === false
             ) {
                 // Mantener 401 solo en login para no revelar detalles a posibles atacantes
