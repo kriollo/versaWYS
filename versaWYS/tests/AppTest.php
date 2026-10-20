@@ -23,7 +23,7 @@ beforeAll(function (): void {
     // Usuarios con correo fijo para estas pruebas (TestDatabase::user() crea otros con correo único)
     $insert = TestDatabase::pdo()->prepare(
         'INSERT INTO versa_users (id_empresa, tokenid, name, email, password, expiration_pass, role, status, id_perfil)
-         VALUES (1, ?, ?, ?, ?, ?, ?, 1, 1)',
+         VALUES (1, ?, ?, ?, ?, ?, ?, TRUE, 1)',
     );
     foreach ([['Admin', 'admin@app.test', 'superadmin'], ['Usuario', 'user@app.test', 'user']] as [$name, $email, $role]) {
         $exists = TestDatabase::pdo()->query("SELECT COUNT(*) FROM versa_users WHERE email = '{$email}'")->fetchColumn();

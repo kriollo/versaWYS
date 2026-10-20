@@ -49,7 +49,7 @@ it('cerca del vencimiento renueva el token, y el nuevo sirve', function (): void
 it('una cuenta desactivada no obtiene un token nuevo', function (): void {
     $email = TestDatabase::user();
     $client = TestDatabase::login($email);
-    TestDatabase::pdo()->prepare('UPDATE versa_users SET status = 0, updated_at = ? WHERE email = ?')
+    TestDatabase::pdo()->prepare('UPDATE versa_users SET status = FALSE, updated_at = ? WHERE email = ?')
         ->execute([date('Y-m-d H:i:s', time() + 5), $email]);
 
     TestClient::withConfig(['session' => ['user_cookie' => ['lifetime' => 100_000]]], function () use ($client): void {

@@ -87,7 +87,7 @@ describe('listado', function (): void {
     it('filtra por estado', function (): void {
         $empresa = TestDatabase::empresa('Con un usuario inactivo');
         $inactivo = TestDatabase::user('user', $empresa);
-        TestDatabase::pdo()->prepare('UPDATE versa_users SET status = 0 WHERE email = ?')->execute([$inactivo]);
+        TestDatabase::pdo()->prepare('UPDATE versa_users SET status = FALSE WHERE email = ?')->execute([$inactivo]);
         $admin = TestDatabase::login(TestDatabase::user('admin', $empresa));
 
         $lista = $admin->getJson('/admin/users/getUsersPaginated', ['externalFilters' => 'status=false'])->assertOk();

@@ -162,6 +162,10 @@ describe('consola SQL', function (): void {
 
 describe('respaldos', function (): void {
     it('con SQLite lo dice en vez de intentar pg_dump', function (): void {
+        if (TestDatabase::pdo()->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'sqlite') {
+            $this->markTestSkipped('Las pruebas corren en PostgreSQL (VERSA_TEST_DB): el respaldo real lo cubre RespaldoPostgresTest');
+        }
+
         $super = TestDatabase::login(TestDatabase::user('superadmin'));
 
         $super->postJson('/admin/configuracion/database/export/prepare')->assertStatus(422)

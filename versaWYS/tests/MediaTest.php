@@ -186,9 +186,9 @@ describe('aislamiento por empresa', function (): void {
             $carpeta = $duena->postJson("/admin/mediaStore/api/folders/{$token}", ['name' => 'Privada', 'csrf_token' => $csrf])->json('data.id');
 
             [$otra, $tokenOtra, $csrfOtra] = media_contexto();
+            expect(array_column($otra->getJson("/admin/mediaStore/api/list/{$tokenOtra}")->json('data'), 'original_name'))
+                ->not->toContain('privada.png');
             foreach ([$token, $tokenOtra] as $t) {
-                expect(array_column($otra->getJson("/admin/mediaStore/api/list/{$t}")->json('data'), 'original_name'))
-                    ->not->toContain('privada.png');
                 $otra->postJson("/admin/mediaStore/api/rename/{$t}", ['id' => $archivo['id'], 'new_name' => 'x.png', 'csrf_token' => $csrfOtra])
                     ->assertStatus(404);
                 $otra->postJson("/admin/mediaStore/api/delete/{$t}", ['id' => $archivo['id'], 'csrf_token' => $csrfOtra])->assertStatus(404);
@@ -206,6 +206,21 @@ describe('aislamiento por empresa', function (): void {
                 ->assertStatus(404);
             expect(media_subir($otra, $tokenOtra, $csrfOtra, media_archivo('b.png', base64_decode(MEDIA_PNG, true)), 'image', ['folder_id' => $carpeta])['success'])
                 ->toBe(0);
+        });
+    });
+
+    it('el token de otra empresa en la URL responde 404 en el panel; el superadmin entra a todas', function (): void {
+        media_con_carpeta(function (): void {
+            [, $token] = media_contexto();
+            [$otra, , $csrfOtra] = media_contexto();
+
+            $otra->getJson("/admin/mediaStore/api/list/{$token}")->assertStatus(404);
+            expect(media_subir($otra, $token, $csrfOtra, media_archivo('intrusa.png', base64_decode(MEDIA_PNG, true)))['success'])
+                ->toBe(0);
+            expect((int) TestDatabase::pdo()->query("SELECT COUNT(*) FROM media_store WHERE original_name = 'intrusa.png'")->fetchColumn())
+                ->toBe(0);
+
+            TestDatabase::login(TestDatabase::user('superadmin'))->getJson("/admin/mediaStore/api/list/{$token}")->assertOk();
         });
     });
 

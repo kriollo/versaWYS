@@ -8,6 +8,18 @@ on:
 jobs:
     php:
         runs-on: ubuntu-latest
+        # PostgreSQL desechable para el ciclo real de respaldo (RespaldoPostgresTest). La versión es la del
+        # pg_dump del runner: un pg_dump más antiguo que el servidor no respalda
+        services:
+            postgres:
+                image: postgres:16-alpine
+                env:
+                    POSTGRES_PASSWORD: prueba-local
+                    POSTGRES_DB: respaldo
+                ports: ['55432:5432']
+                options: --health-cmd pg_isready --health-interval 2s --health-timeout 5s --health-retries 15
+        env:
+            VERSA_TEST_PG: 127.0.0.1:55432:respaldo:postgres:prueba-local
         strategy:
             fail-fast: false
             matrix:
