@@ -6,8 +6,8 @@
     "require": {
         "php": ">=8.3",
         "twig/twig": "^3.30",
-        "versaorm/versaorm-php": "^2.2.1",
-        "versawys/kernel": "^3.11.1"
+        "versaorm/versaorm-php": "^2.2.4",
+        "versawys/kernel": "^3.13.0"
     },
     "require-dev": {
         "friendsoftwig/twigcs": "^6.6.1",
