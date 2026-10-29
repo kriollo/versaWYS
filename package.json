@@ -24,7 +24,7 @@
         "vue": "^3.5.44"
     },
     "devDependencies": {
-        "@prettier/plugin-php": "^0.25.0",
+        "@prettier/plugin-php": "^0.26.0",
         "@tailwindcss/cli": "4.3.3",
         "@trivago/prettier-plugin-sort-imports": "^6.0.2",
         "@types/node": "^26.6.5",
@@ -32,10 +32,10 @@
         "@vue/reactivity": "^3.5.44",
         "@vue/runtime-core": "^3.5.44",
         "@vue/runtime-dom": "^3.5.44",
-        "@zackad/prettier-plugin-twig": "^0.17.0",
+        "@zackad/prettier-plugin-twig": "^0.18.0",
         "code-tag": "^1.2.0",
         "globals": "^17.13.0",
-        "oxlint": "1.88.0",
+        "oxlint": "1.89.0",
         "prettier": "3.9.10",
         "tailwindcss": "4.3.3",
         "versacompiler": "2.7.8"
