@@ -12,7 +12,7 @@ use versaWYS\kernel\Testing\TestDatabase;
 
 beforeAll(fn() => TestDatabase::boot());
 
-const TIPOS_RAROS = ['true' => true, 'false' => false, 'cero' => 0, 'uno' => 1, 'null' => null, 'arreglo' => ['x'], 'objeto' => ['a' => 'b']];
+const TIPOS_RAROS = ['true' => true, 'false' => false, 'cero' => 0, 'uno' => 1, 'entero_largo' => 12345678, 'null' => null, 'arreglo' => ['x'], 'objeto' => ['a' => 'b']];
 
 describe('login', function (): void {
     it('rechaza una contraseña o un correo que no son texto', function (): void {
