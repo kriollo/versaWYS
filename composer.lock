@@ -1486,16 +1486,16 @@
         },
         {
             "name": "versaorm/versaorm-php",
-            "version": "2.2.2",
+            "version": "2.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kriollo/versa-orm.git",
-                "reference": "3a03cc3a0c8b37d69b162ac88c46b4f941c37075"
+                "reference": "2b4793c8d7acf8852cb501c53f15e89cf247a8d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kriollo/versa-orm/zipball/3a03cc3a0c8b37d69b162ac88c46b4f941c37075",
-                "reference": "3a03cc3a0c8b37d69b162ac88c46b4f941c37075",
+                "url": "https://api.github.com/repos/kriollo/versa-orm/zipball/2b4793c8d7acf8852cb501c53f15e89cf247a8d8",
+                "reference": "2b4793c8d7acf8852cb501c53f15e89cf247a8d8",
                 "shasum": ""
             },
             "require": {
@@ -1558,7 +1558,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-20T11:14:07+00:00"
+            "time": "2026-10-29T18:47:24+00:00"
         },
         {
             "name": "versawys/kernel",
