@@ -10,6 +10,56 @@ let showTimeout: number | null = null;
 
 const HOVER_DELAY = 250; // Ms de delay antes de ocultar
 const SHOW_DELAY = 150; // Ms de delay antes de mostrar
+const DROPDOWN_MARGIN = 8; // Separación mínima con los bordes de la ventana
+
+/**
+ * Ajusta un submenú para que siempre quepa en la ventana.
+ *
+ * Los submenús se abren a la derecha del ítem padre y, cuando el menú tiene muchas
+ * opciones, se salían por abajo de la pantalla. Acá se pasan a `position: fixed`,
+ * se limita su alto, se les da scroll interno y se los desplaza para que no queden
+ * opciones inalcanzables. Al ser `fixed` no los recorta el scroll del sidebar.
+ */
+function fitDropdownToViewport(dropdown: HTMLElement, parentItem: HTMLElement): void {
+    // Si el submenú no está desplegado (display:none) no hay nada que medir
+    if (getComputedStyle(dropdown).display === 'none') {
+        return;
+    }
+
+    const parentRect = parentItem.getBoundingClientRect();
+    const nav = document.querySelector('nav');
+    const navBottom = nav ? nav.getBoundingClientRect().bottom : 0;
+    const topLimit = Math.max(DROPDOWN_MARGIN, navBottom + DROPDOWN_MARGIN);
+    const bottomLimit = window.innerHeight - DROPDOWN_MARGIN;
+    const maxAvailable = Math.max(1, bottomLimit - topLimit);
+
+    // Medir el alto natural sin el límite anterior (el submenú está visible por el hover)
+    dropdown.style.maxHeight = 'none';
+    const naturalHeight = dropdown.scrollHeight;
+    const height = Math.min(naturalHeight, maxAvailable);
+    const { width } = dropdown.getBoundingClientRect();
+
+    // Mantener el submenú alineado con el ítem padre, salvo que se salga por arriba o abajo
+    let top = Math.max(topLimit, parentRect.top);
+    if (top + height > bottomLimit) {
+        top = bottomLimit - height;
+    }
+    top = Math.max(topLimit, top);
+
+    // Que tampoco se salga por la derecha en pantallas angostas
+    let left = parentRect.right + DROPDOWN_MARGIN;
+    if (left + width > window.innerWidth - DROPDOWN_MARGIN) {
+        left = window.innerWidth - DROPDOWN_MARGIN - width;
+    }
+    left = Math.max(DROPDOWN_MARGIN, left);
+
+    dropdown.style.position = 'fixed';
+    dropdown.style.maxHeight = `${height}px`;
+    dropdown.style.overflowY = 'auto';
+    dropdown.style.overscrollBehavior = 'contain';
+    dropdown.style.top = `${top}px`;
+    dropdown.style.left = `${left}px`;
+}
 
 /**
  * Oculta todos los dropdowns abiertos inmediatamente
@@ -61,6 +111,7 @@ function showDropdown(dropdown: HTMLElement, parentItem: HTMLElement): void {
     }
 
     showTimeout = window.setTimeout(() => {
+        fitDropdownToViewport(dropdown, parentItem);
         dropdown.style.visibility = 'visible';
         dropdown.style.opacity = '1';
         dropdown.style.pointerEvents = 'auto';
@@ -133,6 +184,21 @@ function initSidebarDropdowns(): void {
 
     // Primero ocultar todos los dropdowns
     hideAllDropdowns();
+
+    // Si el sidebar tiene scroll, cerrar el submenú abierto para que no quede flotando
+    const sidebarScroll = document.querySelector<HTMLElement>('.sidebar-scroll');
+    if (sidebarScroll && sidebarScroll.dataset.scrollBound !== '1') {
+        sidebarScroll.dataset.scrollBound = '1';
+        sidebarScroll.addEventListener(
+            'scroll',
+            () => {
+                if (currentOpenDropdown) {
+                    hideAllDropdowns();
+                }
+            },
+            { passive: true },
+        );
+    }
 
     sidebarItems.forEach(item => {
         const dropdown = item.querySelector<HTMLElement>('ul[id^="dropdown-"]');
@@ -207,6 +273,13 @@ function cleanup(): void {
     }
     hideAllDropdowns();
 }
+
+// Reajustar el submenú abierto si cambia el tamaño de la ventana
+window.addEventListener('resize', () => {
+    if (currentOpenDropdown && _currentParentItem) {
+        fitDropdownToViewport(currentOpenDropdown, _currentParentItem);
+    }
+});
 
 // Inicializar cuando el DOM esté listo
 if (document.readyState === 'loading') {
