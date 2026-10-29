@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9d10af0bca6cfe32e180aa3850fe030c",
+    "content-hash": "5323386894a4ff2d43735ebc7e47dbf1",
     "packages": [
         {
             "name": "doctrine/lexer",
@@ -1562,16 +1562,16 @@
         },
         {
             "name": "versawys/kernel",
-            "version": "v3.13.0",
+            "version": "v3.13.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kriollo/versawys-kernel.git",
-                "reference": "92342e8bf286674f0c821591f107b8faf1159355"
+                "reference": "1750234b4b2e6d0cddeb11e285b4df14e7234c4a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kriollo/versawys-kernel/zipball/92342e8bf286674f0c821591f107b8faf1159355",
-                "reference": "92342e8bf286674f0c821591f107b8faf1159355",
+                "url": "https://api.github.com/repos/kriollo/versawys-kernel/zipball/1750234b4b2e6d0cddeb11e285b4df14e7234c4a",
+                "reference": "1750234b4b2e6d0cddeb11e285b4df14e7234c4a",
                 "shasum": ""
             },
             "require": {
@@ -1584,7 +1584,7 @@
                 "symfony/mailer": "^7.3 || ^8.1",
                 "twig/cssinliner-extra": "^3.26",
                 "twig/twig": "^3.28",
-                "versaorm/versaorm-php": "^2.2"
+                "versaorm/versaorm-php": "^2.2.4"
             },
             "require-dev": {
                 "carthage-software/mago": "^1.57",
@@ -1627,7 +1627,7 @@
                 "issues": "https://github.com/kriollo/versawys-kernel/issues",
                 "source": "https://github.com/kriollo/versawys-kernel"
             },
-            "time": "2026-10-20T12:04:25+00:00"
+            "time": "2026-10-29T20:04:27+00:00"
         }
     ],
     "packages-dev": [
