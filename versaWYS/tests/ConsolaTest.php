@@ -70,6 +70,27 @@ it('migraciones: up, status, rollback, down y refresh con seeders', function ():
     expect((int) $pdo->query('SELECT COUNT(*) FROM empresas')->fetchColumn())->toBeGreaterThan(0);
 });
 
+it('app:user:load crea usuarios de carga con su CSV y --delete los borra', function (): void {
+    $csv = consolaDir() . '/carga.csv';
+    $pdo = new PDO('sqlite:' . consolaDir() . '/test.sqlite');
+    $cuenta = static fn(): int => (int) $pdo->query("SELECT COUNT(*) FROM versa_users WHERE email LIKE '%@carga.test'")->fetchColumn();
+
+    // Sin --yes y sin terminal (-n responde «no») no crea nada
+    expect(consola('app:user:load --count=3 --out=' . escapeshellarg($csv))[0])->toBe(1)->and($cuenta())->toBe(0);
+
+    [$code, $out] = consola('app:user:load --count=3 --yes --out=' . escapeshellarg($csv));
+    expect($code)->toBe(0, $out)->and($cuenta())->toBe(3);
+    $filas = array_map(str_getcsv(...), array_slice(file($csv, FILE_IGNORE_NEW_LINES), 1));
+    expect($filas)->toHaveCount(3)->and($filas[0][0])->toBe('carga-00001@carga.test')
+        ->and(password_verify($filas[0][1], (string) $pdo->query("SELECT password FROM versa_users WHERE email = 'carga-00001@carga.test'")->fetchColumn()))->toBeTrue()
+        ->and(fileperms($csv) & 0o777)->toBe(0o600);
+
+    // Repetirlo no duplica: renueva la contraseña
+    expect(consola('app:user:load --count=3 --yes --out=' . escapeshellarg($csv))[0])->toBe(0)->and($cuenta())->toBe(3);
+
+    expect(consola('app:user:load --delete')[0])->toBe(0)->and($cuenta())->toBe(0);
+});
+
 it('seeder:run ejecuta uno solo, y uno inexistente es un error', function (): void {
     consola('migrate:up');
     [$code, $out] = consola('seeder:run:S202502_PerfilDefaultSeeder');
