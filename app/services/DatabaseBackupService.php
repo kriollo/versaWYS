@@ -69,6 +69,10 @@ class DatabaseBackupService
             ];
         }
 
+        if (!$this->isMysql()) {
+            self::stripTransactionTimeout($absolutePath);
+        }
+
         return [
             'success' => true,
             'token' => $token,
@@ -111,6 +115,10 @@ class DatabaseBackupService
             return ['success' => false, 'message' => self::UNSUPPORTED];
         }
 
+        if (!$this->isMysql()) {
+            self::stripTransactionTimeout($uploadedFile->getTmpName());
+        }
+
         $result = $this->isMysql()
             // El cliente mysql lee el dump por stdin
             ? $this->runProcess(
@@ -135,6 +143,35 @@ class DatabaseBackupService
         }
 
         return ['success' => true, 'message' => 'Base de datos restaurada correctamente.'];
+    }
+
+    /**
+     * pg_dump 17+ escribe `SET transaction_timeout = 0;`, que un servidor PostgreSQL 16 o anterior rechaza y
+     * con ON_ERROR_STOP aborta la restauración. El valor 0 es el predeterminado: quitarlo no cambia nada.
+     */
+    private static function stripTransactionTimeout(string $path): void
+    {
+        $line = "SET transaction_timeout = 0;\n";
+        // Va en la cabecera del dump: si no está ahí, no se recorre el archivo entero
+        if (!str_contains((string) file_get_contents($path, length: 8192), $line)) {
+            return;
+        }
+
+        $in = fopen($path, 'rb');
+        $out = fopen($path . '.tmp', 'wb');
+        if ($in === false || $out === false) {
+            return;
+        }
+
+        while (($current = fgets($in)) !== false) {
+            if ($current !== $line) {
+                fwrite($out, $current);
+            }
+        }
+
+        fclose($in);
+        fclose($out);
+        rename($path . '.tmp', $path);
     }
 
     private function db(): array
