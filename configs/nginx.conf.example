@@ -187,7 +187,30 @@ server {
     # Si intentan acceder a estas carpetas, pasar siempre por el router PHP
     # para que muestre la página 404 personalizada en lugar de error del servidor
     # ========================================================================
-    location ~ ^/(app|versaWYS|vendor|logs|src|configs|documentacion)(/|$) {
+    # ^~ gana sobre las location con regex: sin él, un .js, .svg o .png de estas carpetas
+    # lo serviría directamente la location de archivos estáticos
+    location ~ ^/(app|versaWYS|vendor|logs|src|configs|documentacion)$ {
+        try_files /nonexistent /index.php?$query_string;
+    }
+    location ^~ /app/ {
+        try_files /nonexistent /index.php?$query_string;
+    }
+    location ^~ /versaWYS/ {
+        try_files /nonexistent /index.php?$query_string;
+    }
+    location ^~ /vendor/ {
+        try_files /nonexistent /index.php?$query_string;
+    }
+    location ^~ /logs/ {
+        try_files /nonexistent /index.php?$query_string;
+    }
+    location ^~ /src/ {
+        try_files /nonexistent /index.php?$query_string;
+    }
+    location ^~ /configs/ {
+        try_files /nonexistent /index.php?$query_string;
+    }
+    location ^~ /documentacion/ {
         try_files /nonexistent /index.php?$query_string;
     }
     
@@ -213,7 +236,12 @@ server {
     # ========================================================================
     # 🐘 PHP-FPM
     # ========================================================================
-    location ~ \.php$ {
+    # Solo index.php se ejecuta: un .php en otra carpeta (una subida, un archivo olvidado) responde 404
+    location ~* \.(php\d?|phtml|phar)$ {
+        return 404;
+    }
+
+    location = /index.php {
         include snippets/fastcgi-php.conf;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         fastcgi_param DOCUMENT_ROOT $realpath_root;

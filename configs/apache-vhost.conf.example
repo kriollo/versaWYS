@@ -34,22 +34,27 @@ TraceEnable Off
 
     # Metodos HTTP permitidos
     RewriteEngine On
-    RewriteCond %{REQUEST_METHOD} !^(GET|POST|PUT|DELETE|OPTIONS|HEAD|PATCH)$ [NC]
+    RewriteCond %{REQUEST_METHOD} !^(GET|POST|PUT|DELETE|OPTIONS|HEAD|PATCH|QUERY)$ [NC]
     RewriteRule ^ - [R=405,L]
 
     # Bloquear acceso a archivos sensibles (404 para no revelar existencia)
-    RewriteRule ^(composer\.(json|lock)|package(-lock)?\.json|vhost\.conf|\.env)$ - [R=404,L,NC]
+    # A nivel de VirtualHost la ruta empieza con «/»: sin «^/?» estas reglas no coinciden nunca
+    RewriteRule ^/?(composer\.(json|lock)|package(-lock)?\.json|vhost\.conf|\.env)$ - [R=404,L,NC]
     RewriteRule (^|/)\.(?!well-known/) - [R=404,L]
     RewriteRule .+~$ - [R=404,L]
 
     # Bloquear directorios sensibles
-    RewriteRule ^vendor(/|$) - [R=404,L,NC]
+    RewriteRule ^/?vendor(/|$) - [R=404,L,NC]
     # De node_modules solo se sirven los módulos JS y CSS que importa el frontend (Vue, SweetAlert2...)
     RewriteCond %{REQUEST_URI} !\.(js|mjs|css)$ [NC]
-    RewriteRule ^node_modules(/|$) - [R=404,L,NC]
+    RewriteRule ^/?node_modules(/|$) - [R=404,L,NC]
+
+    # Solo index.php se ejecuta: un .php en otra carpeta (una subida, un archivo olvidado) responde 404
+    RewriteCond %{REQUEST_URI} !^/index\.php$
+    RewriteRule \.(php\d?|phtml|phar)$ - [R=404,L,NC]
 
     # Forzar router para carpetas sensibles
-    RewriteRule ^(app|versaWYS|vendor|logs|src|configs|documentacion)(/|$) /index.php [QSA,L]
+    RewriteRule ^/?(app|versaWYS|vendor|logs|src|configs|documentacion)(/|$) /index.php [QSA,L]
 
     # Headers de seguridad
     Header always set X-Frame-Options "SAMEORIGIN"
@@ -77,9 +82,9 @@ TraceEnable Off
     </Directory>
 
     # PHP-FPM
-    <FilesMatch "\.php$">
+    <Files "index.php">
         SetHandler "proxy:unix:/run/php/php8.4-fpm.sock|fcgi://localhost/"
-    </FilesMatch>
+    </Files>
 
     ProxyTimeout 300
 
