@@ -91,6 +91,12 @@ it('app:user:load crea usuarios de carga con su CSV y --delete los borra', funct
     expect(consola('app:user:load --delete')[0])->toBe(0)->and($cuenta())->toBe(0);
 });
 
+it('un comando app: inexistente es un error (código 1), no la ayuda con código 0', function (): void {
+    [$code, $out] = consola('app:no:existe');
+
+    expect($code)->toBe(1)->and($out)->toContain("'app:no:existe' no encontrado");
+});
+
 it('seeder:run ejecuta uno solo, y uno inexistente es un error', function (): void {
     consola('migrate:up');
     [$code, $out] = consola('seeder:run:S202502_PerfilDefaultSeeder');
