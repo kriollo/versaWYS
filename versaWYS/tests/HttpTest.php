@@ -667,6 +667,134 @@ describe('app:deploy:finish', function (): void {
     });
 });
 
+/*
+ * Vulnerabilidades de 2026 en otros frameworks, llevadas a versaWYS: cada prueba ataca el mismo punto
+ * por la vía equivalente aquí. Las de librerías (CRLF en correos, Twig) están en las pruebas del kernel.
+ */
+describe('vulnerabilidades de Laravel, Symfony y WordPress (2026)', function (): void {
+    // CVE-2026-114509 (TokenGuard de Laravel): una credencial que llega como arreglo u objeto
+    it('un token o una sesión que llegan como arreglo no autentican ni rompen la petición', function (string $cookie): void {
+        $res = api('GET', '/admin/users/getUsersPaginated?page=1', null, null, ['Cookie: ' . $cookie]);
+
+        expect($res['status'])->toBe(401);
+    })->with([
+        'token como lista' => 'tknHash[]=x',
+        'token como objeto' => 'tknHash[alg]=none',
+        'sesión como lista' => 'PHPSESSID[]=x; tknHash[0]=1',
+        'token vacío' => 'tknHash=',
+    ]);
+
+    it('un login con credenciales que no son texto no inicia sesión', function (array $credenciales): void {
+        $jar = newJar();
+        $res = api('POST', '/admin/login/autentication', $jar, json_encode(['_csrf_token' => csrfFrom('/admin/login', $jar)] + $credenciales), [
+            'Content-Type: application/json',
+        ]);
+
+        // Cada intento fallido cuenta para el límite de login de la IP de la suite: no debe bloquear a las demás pruebas
+        array_map(unlink(...), glob(httpEnv()['dir'] . '/rate_limits/*') ?: []);
+
+        expect($res['status'])->toBeGreaterThanOrEqual(400)->toBeLessThan(500)
+            ->and($res['json']['success'] ?? 0)->toBe(0)
+            ->and(api('GET', '/admin/users/getUsersPaginated?page=1', $jar)['status'])->toBe(401);
+    })->with([
+        'clave como objeto' => [['email' => 'admin@test.cl', 'password' => ['$ne' => '']]],
+        'clave true' => [['email' => 'admin@test.cl', 'password' => true]],
+        'clave 0' => [['email' => 'admin@test.cl', 'password' => 0]],
+        'correo como lista' => [['email' => ['admin@test.cl'], 'password' => HTTP_TEST_PASSWORD]],
+    ]);
+
+    // CVE-2026-108082 (HeaderUtils::split de Symfony): cabeceras enormes no deben tomar tiempo de CPU
+    it('cabeceras enormes o con miles de separadores se responden rápido', function (string $header): void {
+        $inicio = microtime(true);
+        $res = http('GET', '/admin/login', null, [$header]);
+
+        expect($res['status'])->toBeLessThan(500)
+            ->and(microtime(true) - $inicio)->toBeLessThan(2.0);
+    })->with([
+        'Cache-Control con espacios' => 'Cache-Control: max-age=0' . str_repeat(" \t", 4000) . ',',
+        'Cache-Control con comas' => 'Cache-Control: ' . str_repeat(', ', 4000) . 'no-cache',
+        'X-Forwarded-For con miles de IP' => 'X-Forwarded-For: ' . implode(',', array_fill(0, 2000, '10.0.0.1')),
+        'Accept con miles de tipos' => 'Accept: ' . str_repeat('text/html;q=0.9, ', 1000),
+        'Host con espacios' => 'X-Forwarded-Host: ' . str_repeat(' ', 6000) . 'evil.cl',
+    ]);
+
+    // CVE-2026-109449 (ExpressionLanguage de Symfony): estructuras anidadas hasta agotar la pila
+    it('un cuerpo anidado miles de niveles responde 4xx, no 500 ni se cuelga', function (string $body, string $tipo): void {
+        [$jar, $csrf] = loginAs('admin@test.cl');
+        $inicio = microtime(true);
+
+        $res = api('POST', '/admin/users/addUser', $jar, $body, ['X-CSRF-Token: ' . $csrf, 'Content-Type: ' . $tipo]);
+
+        expect($res['status'])->toBeGreaterThanOrEqual(400)->toBeLessThan(500)
+            ->and(microtime(true) - $inicio)->toBeLessThan(2.0);
+    })->with([
+        'JSON con 100.000 niveles' => [str_repeat('[', 100000) . str_repeat(']', 100000), 'application/json'],
+        'JSON con 100.000 objetos' => [str_repeat('{"a":', 100000) . '1' . str_repeat('}', 100000), 'application/json'],
+        'formulario con 1.000 niveles' => ['name' . str_repeat('[a]', 1000) . '=x', 'application/x-www-form-urlencoded'],
+    ]);
+
+    // CVE-2026-119977 (WordPress, carrera en wp-content/upgrade): lo que el sistema escribe en disco
+    // (respaldos, logs, caché, perfiles) nunca se sirve, y un .php fuera de index.php no se ejecuta
+    it('no sirve lo que el sistema escribe en disco', function (string $path): void {
+        $archivo = getcwd() . $path;
+        $creado = !is_file($archivo);
+        if ($creado) {
+            is_dir(dirname($archivo)) || mkdir(dirname($archivo), 0o777, true);
+            file_put_contents($archivo, str_ends_with($path, '.php') ? '<?php echo "EJECUTADO";' : 'SECRETO');
+        }
+
+        try {
+            $res = http('GET', $path);
+
+            expect($res['status'])->toBeIn([403, 404])
+                ->and($res['body'])->not->toContain('SECRETO')->not->toContain('EJECUTADO');
+        } finally {
+            if ($creado) {
+                unlink($archivo);
+            }
+        }
+    })->with([
+        '/versaWYS/cache/db_backups/db_prueba.sql',
+        '/versaWYS/logs/orm/versaorm_errors_prueba.log',
+        '/versaWYS/cache/profiler/prueba.json',
+        '/versaWYS/cache/data/prueba.json',
+        '/versaWYS/vendor/composer/installed.json',
+        '/public/dashboard/store/prueba.php',
+        '/public/dashboard/img/avatars/prueba.php',
+        '/prueba-raiz.php',
+    ]);
+
+    // CVE-2026-63030 / CVE-2026-60137 (batch de la REST API de WordPress): sin sesión no hay acceso
+    // a la API, y los parámetros de un listado nunca llegan al SQL como texto
+    it('la API rechaza sin sesión cualquier método, también con override', function (string $method, array $headers): void {
+        $res = api($method, '/admin/users/addUser', null, ['name' => 'X'], $headers);
+
+        expect($res['status'])->toBeIn([401, 403, 405]);
+    })->with([
+        'POST' => ['POST', []],
+        'PUT' => ['PUT', []],
+        'DELETE' => ['DELETE', []],
+        'override a DELETE' => ['POST', ['X-HTTP-Method-Override: DELETE']],
+    ]);
+
+    it('las claves de un filtro no se ejecutan como SQL', function (): void {
+        [$jar] = loginAs('admin@test.cl');
+        $antes = (int) httpDb()->query('SELECT COUNT(*) FROM versa_users')->fetchColumn();
+
+        $res = api('GET', '/admin/users/getUsersPaginated?' . http_build_query([
+            'page' => 1,
+            'per_page' => 5,
+            'order' => "(SELECT CASE WHEN 1=1 THEN id ELSE email END),asc",
+            'externalFilters' => ['email = email OR 1' => 'x', "1=1) UNION SELECT password,1 FROM versa_users--" => '1'],
+            'filter' => "%' UNION SELECT password FROM versa_users--",
+        ]), $jar);
+
+        expect($res['status'])->toBeLessThan(500)
+            ->and($res['body'])->not->toContain('$2y$')->not->toContain('$argon2')->not->toContain('SQLSTATE')
+            ->and((int) httpDb()->query('SELECT COUNT(*) FROM versa_users')->fetchColumn())->toBe($antes);
+    });
+});
+
 describe('límite de intentos', function (): void {
     // Último a propósito: deja bloqueada la IP de la suite para el login
     it('bloquea el login tras demasiados intentos', function (): void {
