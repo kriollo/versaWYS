@@ -3,6 +3,11 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); versionado [SemVer](https://semver.org/lang/es/).
 Los cambios del núcleo están en el CHANGELOG de `versawys/kernel`.
 
+## [3.15.1] - 2026-11-05
+
+### Corregido
+- `versaWYS/rector.php` ya no convierte `[Clase::class, 'metodo']` en `Clase::metodo(...)`. Ese es el formato de las rutas y los middlewares del router: con un middleware estático, la conversión dejaba la ruta rota y `app:check:deploy` la marcaba como crítica. Se detectó al llevar las herramientas del esqueleto a los proyectos.
+
 ## [3.15.0] - 2026-11-05
 
 ### Agregado

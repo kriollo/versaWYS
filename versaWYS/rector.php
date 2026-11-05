@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\Php81\Rector\Array_\ArrayToFirstClassCallableRector;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
 
@@ -16,6 +17,9 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__.'/vendor',
         __DIR__.'/var',
         __DIR__.'/app/cache',
+        // [Clase::class, 'metodo'] es el formato de las rutas y middlewares del router: convertirlo en
+        // Clase::metodo(...) rompe los middlewares estáticos y lo que revisa app:check:deploy
+        ArrayToFirstClassCallableRector::class,
     ]);
 
     // === BASE RULES ===
