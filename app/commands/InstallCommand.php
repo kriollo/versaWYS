@@ -6,6 +6,7 @@ namespace app\commands;
 
 use app\controllers\InstallController;
 use app\middleware\InstallMiddleware;
+use Override;
 use versaWYS\kernel\cli\CLIErrorHandler;
 use versaWYS\kernel\cli\CLIHelper;
 use versaWYS\kernel\cli\ConfigManager;
@@ -38,7 +39,7 @@ class InstallCommand extends ConsoleCommand
     /**
      * @param array<mixed> $params
      */
-    #[\Override]
+    #[Override]
     public function execute(array $params = []): int
     {
         global $config;
@@ -68,9 +69,11 @@ class InstallCommand extends ConsoleCommand
             if (($values[$field] ?? null) !== null) {
                 continue;
             }
+
             if ($field === 'db_port') {
                 $default = ($values['db_driver'] ?? '') === 'postgresql' ? '5432' : '3306';
             }
+
             $values[$field] = in_array($field, self::SECRETS, true)
                 ? $this->askSecret($question)
                 : CLIHelper::ask($question, $default);
@@ -78,6 +81,7 @@ class InstallCommand extends ConsoleCommand
                 $values[$field] = $default;
             }
         }
+
         // Por opciones no se repite la contraseña; en modo interactivo se pide de nuevo
         $values['admin_password_confirm'] ??= ($this->fieldOptions($_SERVER['argv'] ?? [])['admin_password'] ?? null)
         !== null
@@ -98,6 +102,7 @@ class InstallCommand extends ConsoleCommand
         foreach ((array) ($result['log'] ?? []) as $line) {
             CLIErrorHandler::info((string) $line);
         }
+
         if (($result['success'] ?? 0) !== 1) {
             CLIErrorHandler::error((string) $result['message']);
 
@@ -133,13 +138,13 @@ class InstallCommand extends ConsoleCommand
         return $values;
     }
 
-    #[\Override]
+    #[Override]
     public function getDescription(): string
     {
         return 'Instala la aplicación desde la terminal: base de datos, migraciones, empresa y superadministrador';
     }
 
-    #[\Override]
+    #[Override]
     public function getHelp(): string
     {
         $options = implode(' ', array_map(

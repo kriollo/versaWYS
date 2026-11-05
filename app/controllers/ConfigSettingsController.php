@@ -11,6 +11,7 @@ use versaWYS\kernel\cli\ConfigManager;
 use versaWYS\kernel\GlobalControllers;
 use versaWYS\kernel\Loggin;
 use versaWYS\kernel\Schedule;
+use versaWYS\kernel\ScheduledTask;
 
 class ConfigSettingsController extends GlobalControllers
 {
@@ -142,6 +143,7 @@ class ConfigSettingsController extends GlobalControllers
                 ],
             );
         }
+
         $config['build']['debug'] = $debug;
 
         $config['admin']['custom_url'] = (string) $params['admin']['custom_url'];
@@ -193,7 +195,7 @@ class ConfigSettingsController extends GlobalControllers
         global $request;
 
         $task = Schedule::load()->find($request->string('id'));
-        if ($task === null) {
+        if (!$task instanceof ScheduledTask) {
             return ['success' => 0, 'message' => 'La tarea no existe.', 'code' => 404];
         }
 

@@ -16,7 +16,7 @@ use versaWYS\kernel\Response;
 
 class DatabaseBackupController extends GlobalControllers
 {
-    private DatabaseBackupService $backupService;
+    private readonly DatabaseBackupService $backupService;
 
     public function __construct()
     {

@@ -68,7 +68,11 @@ class MediaFolder extends VersaORMModel
     {
         $record = (new self())->load('media_folders', $id);
 
-        return $record !== null && (int) $record->empresa_id === $empresaId && $record->status !== 'deleted';
+        return (
+            $record instanceof \app\models\MediaFolder
+            && (int) $record->empresa_id === $empresaId
+            && $record->status !== 'deleted'
+        );
     }
 
     /**
@@ -79,7 +83,11 @@ class MediaFolder extends VersaORMModel
         $instance = new self();
         $record = $instance->load('media_folders', $id);
 
-        if (!$record || (int) $record->empresa_id !== $empresaId || $record->status === 'deleted') {
+        if (
+            !$record instanceof \app\models\MediaFolder
+            || (int) $record->empresa_id !== $empresaId
+            || $record->status === 'deleted'
+        ) {
             return false;
         }
 
@@ -98,7 +106,11 @@ class MediaFolder extends VersaORMModel
         $instance = new self();
         $record = $instance->load('media_folders', $id);
 
-        if (!$record || (int) $record->empresa_id !== $empresaId || $record->status === 'deleted') {
+        if (
+            !$record instanceof \app\models\MediaFolder
+            || (int) $record->empresa_id !== $empresaId
+            || $record->status === 'deleted'
+        ) {
             return false;
         }
 

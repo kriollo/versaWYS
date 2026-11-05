@@ -80,7 +80,7 @@ it('app:user:load crea usuarios de carga con su CSV y --delete los borra', funct
 
     [$code, $out] = consola('app:user:load --count=3 --yes --out=' . escapeshellarg($csv));
     expect($code)->toBe(0, $out)->and($cuenta())->toBe(3);
-    $filas = array_map(str_getcsv(...), array_slice(file($csv, FILE_IGNORE_NEW_LINES), 1));
+    $filas = array_map(static fn(string $l): array => str_getcsv($l, escape: ''), array_slice(file($csv, FILE_IGNORE_NEW_LINES), 1));
     expect($filas)->toHaveCount(3)->and($filas[0][0])->toBe('carga-00001@carga.test')
         ->and(password_verify($filas[0][1], (string) $pdo->query("SELECT password FROM versa_users WHERE email = 'carga-00001@carga.test'")->fetchColumn()))->toBeTrue()
         ->and(fileperms($csv) & 0o777)->toBe(0o600);

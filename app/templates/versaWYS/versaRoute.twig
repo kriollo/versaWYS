@@ -140,7 +140,7 @@
                     </div>
                     <div class="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                         {% for file in ['all']|merge(routesFiles) %}
-                            {% set summary = routesSummary[file] ?? { routes: 0, errors: 0, warnings: 0 } %}
+                            {% set summary = routesSummary[file] ?? {routes: 0, errors: 0, warnings: 0} %}
                             <versa-link
                                 href="?route={{ file|url_encode }}"
                                 data-spa
@@ -176,7 +176,7 @@
             {% endif %}
 
             {% if (routesFromRouteFile|length) > 0 %}
-                {% set lastOption = opcionActual|last %}
+                {% set last_option = opcionActual|last %}
                 <section
                     aria-labelledby="route-list-title"
                     class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
@@ -189,7 +189,7 @@
                                     Inventario de endpoints
                                 </p>
                                 <h2 id="route-list-title" class="mt-1 text-xl font-bold text-slate-950 dark:text-white">
-                                    {{ lastOption.name|default('Rutas') }}
+                                    {{ last_option.name|default('Rutas') }}
                                 </h2>
                                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
                                     Abre una ruta para consultar su implementación y parámetros.

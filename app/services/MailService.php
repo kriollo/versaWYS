@@ -29,7 +29,7 @@ use versaWYS\kernel\MailSender;
  */
 class MailService
 {
-    private MailSender $sender;
+    private readonly MailSender $sender;
 
     public function __construct()
     {

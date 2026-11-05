@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\commands;
 
 use app\models\Users;
+use Override;
 
 /**
  * `php versaCLI app:user:password <correo>`: cambia la contraseña de un usuario, por ejemplo la del
@@ -16,7 +17,7 @@ class UserPasswordCommand extends ConsoleCommand
     /**
      * @param array<mixed> $params
      */
-    #[\Override]
+    #[Override]
     public function execute(array $params = []): int
     {
         $o = $this->options($params);
@@ -66,7 +67,7 @@ class UserPasswordCommand extends ConsoleCommand
         return 0;
     }
 
-    #[\Override]
+    #[Override]
     public function getDescription(): string
     {
         return 'Cambia la contraseña de un usuario por su correo (--activar reactiva la cuenta)';

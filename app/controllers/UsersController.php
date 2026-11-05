@@ -7,6 +7,7 @@ namespace app\controllers;
 use app\models\Perfil;
 use app\models\Users;
 use Exception;
+use finfo;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -342,7 +343,7 @@ class UsersController extends GlobalControllers
         $fileAvatar = $request->file('fileAvatar');
 
         // Tipo real del contenido: ni la extensión ni el MIME enviados por el cliente son confiables
-        $mime = (string) (new \finfo(FILEINFO_MIME_TYPE))->file($fileAvatar->getTmpName());
+        $mime = (string) (new finfo(FILEINFO_MIME_TYPE))->file($fileAvatar->getTmpName());
         $ext = self::AVATAR_TYPES[$mime] ?? null;
         if ($this->id_user <= 0 || $ext === null || $fileAvatar->getSize() > (2 * 1024 * 1024)) {
             Response::json([

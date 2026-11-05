@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace app\commands;
 
 use app\models\Users;
+use Override;
 use versaWYS\kernel\cli\CLIHelper;
+use versaWYS\kernel\helpers\Functions;
 use versaWYS\kernel\Validator;
 
 /**
@@ -19,7 +21,7 @@ class UserCreateCommand extends ConsoleCommand
     /**
      * @param array<mixed> $params
      */
-    #[\Override]
+    #[Override]
     public function execute(array $params = []): int
     {
         $o = $this->options($params);
@@ -46,18 +48,21 @@ class UserCreateCommand extends ConsoleCommand
         ) {
             $errors['email'] = 'Ya existe un usuario con ese correo';
         }
+
         if (
             ($errors['empresa'] ?? null) === null
             && $orm->table('empresas')->where('id', '=', (int) $data['empresa'])->count() === 0
         ) {
             $errors['empresa'] = 'La empresa no existe (ver app:user:list)';
         }
+
         if (
             ($errors['perfil'] ?? null) === null
             && $orm->table('versa_perfil')->where('id', '=', (int) $data['perfil'])->count() === 0
         ) {
             $errors['perfil'] = 'El perfil no existe';
         }
+
         if ($errors !== []) {
             $this->error('Revisa los datos:');
             foreach ($errors as $field => $message) {
@@ -77,7 +82,7 @@ class UserCreateCommand extends ConsoleCommand
         $id = (new Users())->createUser([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => \versaWYS\kernel\helpers\Functions::hash($password),
+            'password' => Functions::hash($password),
             'expiration_pass' => date('Y-m-d', strtotime("+{$days} days")),
             'role' => $data['role'],
             'status' => 1,
@@ -90,7 +95,7 @@ class UserCreateCommand extends ConsoleCommand
         return 0;
     }
 
-    #[\Override]
+    #[Override]
     public function getDescription(): string
     {
         return 'Crea un usuario del panel (pregunta los datos o usa --name, --email, --role, --empresa, --perfil)';

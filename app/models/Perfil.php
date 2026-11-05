@@ -55,6 +55,7 @@ class Perfil extends VersaORMModel
         if (!$perfil instanceof VersaModel || (int) $perfil->id_empresa !== (int) $params['id_empresa']) {
             return 0;
         }
+
         $perfil->estado = $perfil->estado ? 0 : 1;
         $perfil->store();
 
@@ -138,6 +139,7 @@ class Perfil extends VersaORMModel
         if (!$perfil instanceof VersaModel || (int) $perfil->id_empresa !== (int) $params['id_empresa']) {
             return 0;
         }
+
         $perfil->nombre = $params['nombre'];
         $perfil->pagina_inicio = $params['pagina_inicio'];
         $this->executeWithErrorHandling($perfil->store(...), [
@@ -171,7 +173,7 @@ class Perfil extends VersaORMModel
                 if (array_key_exists('submenu', $value2)) {
                     foreach ($value2['submenu'] as $value3) {
                         // submenu
-                        if (!(array_key_exists('checked', $value3) && $value3['checked'])) {
+                        if (!array_key_exists('checked', $value3) || !$value3['checked']) {
                             continue;
                         }
 

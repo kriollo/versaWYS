@@ -48,6 +48,7 @@ abstract class ConsoleCommand extends BaseCommand
         if ($tty) {
             shell_exec('stty -echo');
         }
+
         $value = trim((string) fgets(STDIN));
         if ($tty) {
             shell_exec('stty echo');

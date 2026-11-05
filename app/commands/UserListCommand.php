@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace app\commands;
 
+use Override;
+
 /**
  * `php versaCLI app:user:list [--empresa=ID]`: los usuarios con su rol, perfil, empresa y estado.
  * Nunca muestra contraseñas ni tokens.
@@ -13,7 +15,7 @@ class UserListCommand extends ConsoleCommand
     /**
      * @param array<mixed> $params
      */
-    #[\Override]
+    #[Override]
     public function execute(array $params = []): int
     {
         $empresa = $this->options($params)['empresa'] ?? null;
@@ -52,7 +54,7 @@ class UserListCommand extends ConsoleCommand
         return 0;
     }
 
-    #[\Override]
+    #[Override]
     public function getDescription(): string
     {
         return 'Lista los usuarios (sin contraseñas); --empresa=ID filtra por empresa';

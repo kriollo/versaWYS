@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\jobs;
 
 use app\services\MailService;
+use Override;
 use RuntimeException;
 use versaWYS\kernel\ContentType;
 use versaWYS\kernel\Job;
@@ -24,14 +25,14 @@ use versaWYS\kernel\versaTwig;
  *         'images_embed' => [['path' => $ruta, 'id' => 'logo', 'mime' => 'image/png']],
  *     ]);
  */
-final class EnviarCorreo implements Job
+final readonly class EnviarCorreo implements Job
 {
     public function __construct(
-        private readonly MailService $mail,
+        private MailService $mail,
     ) {}
 
     /** @param array<array-key, mixed> $data */
-    #[\Override]
+    #[Override]
     public function handle(array $data): void
     {
         $to = (array) ($data['to'] ?? []);

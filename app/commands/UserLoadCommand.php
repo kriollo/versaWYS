@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\commands;
 
 use app\models\Users;
+use Override;
 use versaWYS\kernel\cli\CLIHelper;
 use versaWYS\kernel\helpers\Functions;
 
@@ -20,13 +21,13 @@ class UserLoadCommand extends ConsoleCommand
     /**
      * @param array<mixed> $params
      */
-    #[\Override]
+    #[Override]
     public function execute(array $params = []): int
     {
         $o = $this->options($params);
         $orm = $this->versaOrm;
 
-        if (isset($o['delete'])) {
+        if (array_key_exists('delete', $o)) {
             $ids = array_column(
                 $orm
                     ->table('versa_users')
@@ -38,6 +39,7 @@ class UserLoadCommand extends ConsoleCommand
                 $orm->table('versa_perfildetalleuser')->whereIn('id_user', $ids)->delete();
                 $orm->table('versa_users')->whereIn('id', $ids)->delete();
             }
+
             $this->success(count($ids) . ' usuarios de carga eliminados');
 
             return 0;
@@ -52,7 +54,7 @@ class UserLoadCommand extends ConsoleCommand
         }
 
         if (
-            !isset($o['yes'])
+            !array_key_exists('yes', $o)
             && !CLIHelper::confirm("Se crearán {$count} cuentas con una contraseña conocida. ¿Es un entorno de prueba?")
         ) {
             return 1;
@@ -81,23 +83,28 @@ class UserLoadCommand extends ConsoleCommand
         $created = 0;
         for ($i = 1; $i <= $count; $i++) {
             $email = sprintf('carga-%05d%s', $i, self::DOMAIN);
-            if (isset($existing[$email])) {
+            if (array_key_exists($email, $existing)) {
                 $orm->table('versa_users')->where('email', '=', $email)->update(['password' => $hash, 'status' => 1]);
-            } else {
-                (new Users())->createUser([
-                    'name' => "Carga {$i}",
-                    'email' => $email,
-                    'password' => $hash,
-                    'expiration_pass' => date('Y-m-d', strtotime('+30 days')),
-                    'role' => 'user',
-                    'status' => 1,
-                    'id_perfil' => (int) ($o['perfil'] ?? 2),
-                    'empresa' => (int) ($o['empresa'] ?? 1),
-                ]);
-                $created++;
+                fwrite($csv, "{$email},{$password}\n");
+
+                continue;
             }
+
+            (new Users())->createUser([
+                'name' => "Carga {$i}",
+                'email' => $email,
+                'password' => $hash,
+                'expiration_pass' => date('Y-m-d', strtotime('+30 days')),
+                'role' => 'user',
+                'status' => 1,
+                'id_perfil' => (int) ($o['perfil'] ?? 2),
+                'empresa' => (int) ($o['empresa'] ?? 1),
+            ]);
+            $created++;
+
             fwrite($csv, "{$email},{$password}\n");
         }
+
         fclose($csv);
         chmod($out, 0o600);
 
@@ -107,7 +114,7 @@ class UserLoadCommand extends ConsoleCommand
         return 0;
     }
 
-    #[\Override]
+    #[Override]
     public function getDescription(): string
     {
         return 'Usuarios para la prueba de capacidad: --count=N [--out=archivo.csv] [--yes] | --delete';

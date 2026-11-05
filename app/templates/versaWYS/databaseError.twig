@@ -231,7 +231,7 @@
 						Soluciones Sugeridas
 					</h3>
 
-					{% set error_msg = data.message | lower %}
+					{% set error_msg = data.message|lower %}
 
 					{% if 'no existe la base de datos' in error_msg or 'does not exist' in error_msg %}
 						<!-- Error: Base de datos no existe -->
@@ -270,7 +270,7 @@
 								<div>
 									<strong>Verificar que el servidor esté ejecutándose</strong>
 									<br/>Asegúrate de que
-									{{ data.context.database_config.driver | upper }}
+									{{ data.context.database_config.driver|upper }}
 									esté corriendo en el puerto
 									{{ data.context.database_config.port }}
 								</div>
@@ -335,7 +335,7 @@
 								<div>
 									<strong>Verificar el servidor de base de datos</strong>
 									<br/>Asegúrate de que
-									{{ data.context.database_config.driver | upper }}
+									{{ data.context.database_config.driver|upper }}
 									esté instalado y ejecutándose
 								</div>
 							</li>

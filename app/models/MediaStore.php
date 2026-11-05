@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\models;
 
 use Override;
+use VersaORM\VersaModel;
 use versaWYS\kernel\model\VersaORMModel;
 
 class MediaStore extends VersaORMModel
@@ -159,7 +160,7 @@ class MediaStore extends VersaORMModel
             ->findOne();
 
         // No existe o es de otra empresa: findOne() devuelve null
-        if ($result === null) {
+        if (!$result instanceof VersaModel) {
             return null;
         }
 

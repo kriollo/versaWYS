@@ -70,7 +70,7 @@ class DatabaseBackupService
         }
 
         if (!$this->isMysql()) {
-            self::stripTransactionTimeout($absolutePath);
+            $this->stripTransactionTimeout($absolutePath);
         }
 
         return [
@@ -116,7 +116,7 @@ class DatabaseBackupService
         }
 
         if (!$this->isMysql()) {
-            self::stripTransactionTimeout($uploadedFile->getTmpName());
+            $this->stripTransactionTimeout($uploadedFile->getTmpName());
         }
 
         $result = $this->isMysql()
@@ -149,7 +149,7 @@ class DatabaseBackupService
      * pg_dump 17+ escribe `SET transaction_timeout = 0;`, que un servidor PostgreSQL 16 o anterior rechaza y
      * con ON_ERROR_STOP aborta la restauración. El valor 0 es el predeterminado: quitarlo no cambia nada.
      */
-    private static function stripTransactionTimeout(string $path): void
+    private function stripTransactionTimeout(string $path): void
     {
         $line = "SET transaction_timeout = 0;\n";
         // Va en la cabecera del dump: si no está ahí, no se recorre el archivo entero
@@ -164,9 +164,11 @@ class DatabaseBackupService
         }
 
         while (($current = fgets($in)) !== false) {
-            if ($current !== $line) {
-                fwrite($out, $current);
+            if ($current === $line) {
+                continue;
             }
+
+            fwrite($out, $current);
         }
 
         fclose($in);
@@ -237,7 +239,7 @@ class DatabaseBackupService
         $env['PGPASSWORD'] = $password;
         $env['MYSQL_PWD'] = $password;
 
-        $cmdLine = implode(' ', array_map('escapeshellarg', $command));
+        $cmdLine = implode(' ', array_map(escapeshellarg(...), $command));
 
         $process = proc_open($cmdLine, $descriptors, $pipes, null, $env);
         if (!is_resource($process)) {
@@ -247,6 +249,7 @@ class DatabaseBackupService
         if (($pipes[0] ?? null) !== null) {
             fclose($pipes[0]);
         }
+
         $stdout = stream_get_contents($pipes[1]);
         $stderr = stream_get_contents($pipes[2]);
         fclose($pipes[1]);

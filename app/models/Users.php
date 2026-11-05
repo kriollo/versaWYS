@@ -225,6 +225,7 @@ class Users extends VersaORMModel
             $user->password = $newParams['password'];
             $user->expiration_pass = $newParams['expiration_pass'];
         }
+
         $user->role = $params['role'];
         $user->id_perfil = $params['id_perfil'];
         $user->updated_at = date('Y-m-d H:i:s');

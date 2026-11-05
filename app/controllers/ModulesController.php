@@ -182,7 +182,7 @@ class ModulesController extends GlobalControllers
         $modelo = new Models\Modules();
         $result = $modelo->saveModule($params);
         if ($result) {
-            self::menuChanged();
+            $this->menuChanged();
 
             return ['success' => 1, 'message' => 'Menú guardado correctamente'];
         }
@@ -204,7 +204,7 @@ class ModulesController extends GlobalControllers
         $params = $request->getAllParams();
         $result = (new Models\Modules())->changeStatus($params);
         if ($result) {
-            self::menuChanged();
+            $this->menuChanged();
 
             return ['success' => 1, 'message' => 'Menú actualizado correctamente'];
         }
@@ -218,7 +218,7 @@ class ModulesController extends GlobalControllers
 
         $params = $request->getAllParams();
         $data = (new Models\Modules())->movePosition($params);
-        self::menuChanged();
+        $this->menuChanged();
 
         return ['success' => 1, 'data' => $data];
     }
@@ -335,7 +335,7 @@ class ModulesController extends GlobalControllers
         $params['estado'] = filter_var($params['estado'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
         $result = (new Models\Modules())->saveSubModule($params);
         if ($result) {
-            self::menuChanged();
+            $this->menuChanged();
 
             return ['success' => 1, 'message' => 'Menú guardado correctamente'];
         }
@@ -350,7 +350,7 @@ class ModulesController extends GlobalControllers
         $params = $request->getAllParams();
         $result = (new Models\Modules())->changeStatusSubModule($params);
         if ($result) {
-            self::menuChanged();
+            $this->menuChanged();
 
             return ['success' => 1, 'message' => 'Menú actualizado correctamente'];
         }
@@ -364,13 +364,13 @@ class ModulesController extends GlobalControllers
 
         $params = $request->getAllParams();
         $data = (new Models\Modules())->movePositionSubModule($params);
-        self::menuChanged();
+        $this->menuChanged();
 
         return ['success' => 1, 'message' => 'Posición actualizada correctamente', 'data' => $data];
     }
 
     /** El menú cambió: cada usuario lo vuelve a cargar en su siguiente página */
-    private static function menuChanged(): void
+    private function menuChanged(): void
     {
         (new CacheUsers())->updateMenuVersion();
     }

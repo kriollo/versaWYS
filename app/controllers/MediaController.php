@@ -23,7 +23,7 @@ class MediaController extends GlobalControllers
 
     private string $PathMedia = '';
 
-    private MediaStore $mediaModel;
+    private readonly MediaStore $mediaModel;
 
     public function __construct()
     {

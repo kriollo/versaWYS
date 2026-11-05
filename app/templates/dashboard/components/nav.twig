@@ -65,13 +65,13 @@
                                 id="selectEmpresa"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand focus:border-brand block w-full p-2.5 dark:bg-[#1a1a1a] dark:border-gray-700 dark:placeholder-gray-400 dark:text-gray-200 dark:focus:ring-brand dark:focus:border-brand transition-colors"
                                 data-auto-submit>
-                                {% set empresaSelectedToken = empresaSelected.token_empresa
+                                {% set empresa_selected_token = empresaSelected.token_empresa
                                     ?? current_user.token_empresa
                                 %}
                                 {% for empresa in empresas %}
                                     <option
                                         value="{{ empresa.token_empresa }}"
-                                        {{ empresa.token_empresa == empresaSelectedToken ? 'selected' : '' }}>
+                                        {{ empresa.token_empresa == empresa_selected_token ? 'selected' : '' }}>
                                         {{ empresa.nombre }}
                                     </option>
                                 {% endfor %}

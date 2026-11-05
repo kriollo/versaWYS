@@ -316,12 +316,12 @@ class DashBoardController extends GlobalControllers
                 'success' => 1,
                 'message' => 'Se ha cambiado la contraseña correctamente, se redirigirá al inicio de sesión...',
             ];
-        } catch (InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $invalidArgumentException) {
             return [
                 'success' => 0,
-                'message' => $exception->getMessage(),
+                'message' => $invalidArgumentException->getMessage(),
                 'errors' => ['error' => 'Vuelva a intentarlo nuevamente...'],
-                'code' => $exception->getCode(),
+                'code' => $invalidArgumentException->getCode(),
             ];
         }
     }
