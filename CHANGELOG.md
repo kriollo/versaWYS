@@ -1,0 +1,29 @@
+# Changelog
+
+Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); versionado [SemVer](https://semver.org/lang/es/).
+Los cambios del núcleo están en el CHANGELOG de `versawys/kernel`.
+
+## [3.15.0] - 2026-11-05
+
+### Agregado
+- **Menú lateral con secciones plegables** (traído de versaABA). Cada sección se pliega con un botón y recuerda su estado en el navegador; la sección de la página actual se abre sola. Con el menú contraído se ven todos los ítems, y al expandirlo vuelve el estado guardado. El hover ya no desplaza el ítem contraído, que recortaba la flecha del submenú.
+- `php versaCLI app:user:load --count=N`: usuarios de carga, con su CSV de credenciales, para la prueba de capacidad (`versaSecurity load`). `--delete` los borra.
+- Pruebas de seguridad con las vulnerabilidades de 2026 de Laravel, Symfony y WordPress contra el servidor real.
+
+### Rendimiento
+- `versawys/kernel` 3.13.5 y VersaORM 2.2.5: una petición que no consulta la base ya no se conecta. Con PostgreSQL local, `/up` baja de ~11,5 ms a ~1,1 ms y el login de ~14 ms a ~2,2 ms.
+- Kernel 3.13.4: la sesión se valida con una consulta en vez de dos, Twig se crea recién al renderizar y `/up` no abre sesión.
+
+### Corregido
+- Restaurar un respaldo de `pg_dump` 17 o posterior en PostgreSQL 16 o anterior.
+- Un comando `app:` inexistente es un error (sale con código 1).
+
+### Cambiado
+- `versawys/kernel` ^3.13.5 y VersaORM 2.2.5.
+- Rector 2.8 aplicado al código de `app/` y sin avisos de mago lint. Plantillas Twig con las correcciones de twigcs de una línea.
+- Ejemplos de Apache y nginx al día con el kernel: solo se ejecuta `index.php`.
+- Dependencias de desarrollo al día (frontend y PHP).
+
+## [3.14.0] - 2026-10-29
+
+- VersaORM 2.2.4, versacompiler 2.7.9, symfony/mime 7.4.22 (CVE-2026-45070), menú lateral con scroll y restricciones al día.
