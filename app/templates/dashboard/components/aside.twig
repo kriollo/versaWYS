@@ -51,8 +51,22 @@
                 <ul class="pb-2">
                     {% set processed_menus = {} %}
                     {% set seccion = '' %}
+                    {% set menus_por_seccion = {} %}
+                    {# Cuenta los menús únicos de cada sección: las que tienen menús muestran un botón
+                       para plegarlas. #}
                     {% for m in menu_user %}
                         {% set sectionLabel = m.seccion|trim|upper %}
+                        {% set menus_por_seccion =
+                            menus_por_seccion|merge({
+                                (sectionLabel): (menus_por_seccion[sectionLabel]|default({}))|merge({
+                                    (m.desc_menu): true
+                                })
+                            })
+                        %}
+                    {% endfor %}
+                    {% for m in menu_user %}
+                        {% set sectionLabel = m.seccion|trim|upper %}
+                        {% set sectionKey = sectionLabel|lower|replace({' ': '-', '/': '-', '.': '-'}) %}
 
                         {% if processed_menus[m.desc_menu] is not defined %}
                             {% set processed_menus =
@@ -62,10 +76,25 @@
                             %}
 
                             {% if sectionLabel != seccion %}
+                                {% set totalMenus = menus_por_seccion[sectionLabel]|length %}
                                 <li
-                                    class="items-center p-2 rounded-lg group dark:text-gray-200 hidden lg:flex font-bold uppercase text-xs tracking-widest text-gray-500"
+                                    class="items-center rounded-lg group dark:text-gray-200 hidden lg:flex font-bold uppercase text-xs tracking-widest text-gray-500"
                                     sidebar-toggle-item>
-                                    {{ sectionLabel }}
+                                    {% if totalMenus > 0 %}
+                                        <button
+                                            type="button"
+                                            class="sidebar-section-toggle flex w-full items-center justify-between gap-2 rounded-lg p-2 text-left uppercase tracking-widest transition-colors hover:text-brand focus:outline-hidden focus:ring-2 focus:ring-brand/30"
+                                            data-section-toggle="{{ sectionKey }}"
+                                            aria-expanded="true">
+                                            <span>{{ sectionLabel }}</span>
+                                            <i
+                                                class="bi bi-caret-down-fill text-[10px] transition-transform duration-200"
+                                                data-section-caret
+                                                aria-hidden="true"></i>
+                                        </button>
+                                    {% else %}
+                                        <span class="p-2">{{ sectionLabel }}</span>
+                                    {% endif %}
                                 </li>
                                 {% set seccion = sectionLabel %}
                             {% endif %}
@@ -82,6 +111,7 @@
                             <!-- Original ID and class structure preserved -->
                             <li
                                 id="lisDropDown-{{ uniqueId }}"
+                                data-sidebar-section="{{ sectionKey }}"
                                 class="{{
                                 url_actual == m.url_menu or url_actual == m.url_submenu
                                     ? 'hover:ml-4 justify-start text-white w-full ease-in-out duration-300 flex bg-gray-100 dark:bg-[#1a1a1a] dark:text-brand text-dark sidebar-item rounded-lg group'
@@ -120,11 +150,11 @@
                                         </span>
                                     </versa-link>
                                 {% else %}
-                                    {% set isSubmenuActive = false %}
+                                    {% set is_submenu_active = false %}
                                     {% for subcheck in menu_user %}
                                         {% if
                                             subcheck.desc_menu == m.desc_menu and subcheck.url_submenu == url_actual %}
-                                            {% set isSubmenuActive = true %}
+                                            {% set is_submenu_active = true %}
                                         {% endif %}
                                     {% endfor %}
 
@@ -132,7 +162,7 @@
                                         type="button"
                                         title="{{ m.desc_menu }}"
                                         class="flex items-center justify-between w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#1a1a1a] dark:hover:text-brand sidebar-item-button {{
-                                        isSubmenuActive
+                                        is_submenu_active
                                             ? 'text-brand'
                                             : ''
                                         }}"
@@ -141,7 +171,7 @@
                                         <div class="flex">
                                             <div
                                                 class="shrink-0 w-6 h-6 flex items-center justify-center transition duration-75 {{
-                                                isSubmenuActive
+                                                is_submenu_active
                                                     ? 'text-black dark:text-brand'
                                                     : 'text-gray-500 dark:text-gray-400 group-hover:text-black dark:group-hover:text-brand'
                                                 }}">
@@ -166,7 +196,7 @@
                                         </div>
                                         <i
                                             class="bi bi-caret-right-fill text-xs transition-transform duration-200 group-hover:rotate-90 {{
-                                            isSubmenuActive
+                                            is_submenu_active
                                                 ? 'rotate-90 text-brand'
                                                 : 'text-gray-400'
                                             }}"

@@ -11,6 +11,9 @@ let showTimeout: number | null = null;
 const HOVER_DELAY = 250; // Ms de delay antes de ocultar
 const SHOW_DELAY = 150; // Ms de delay antes de mostrar
 const DROPDOWN_MARGIN = 8; // Separación mínima con los bordes de la ventana
+// Se guardan las secciones expandidas: por defecto todas vienen contraídas.
+const SECTION_STORAGE_KEY = 'versaWYS.sidebar.expandedSections';
+let lastSectionUrl = '';
 
 /**
  * Ajusta un submenú para que siempre quepa en la ventana.
@@ -81,6 +84,207 @@ function hideAllDropdowns(): void {
 
     currentOpenDropdown = null;
     _currentParentItem = null;
+}
+
+/**
+ * Lee las secciones colapsadas guardadas en el navegador.
+ */
+function readCollapsedSections(): Set<string> {
+    try {
+        const raw = localStorage.getItem(SECTION_STORAGE_KEY);
+        const parsed: unknown = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(parsed)) {
+            return new Set();
+        }
+
+        return new Set(parsed.filter((value): value is string => typeof value === 'string'));
+    } catch {
+        return new Set();
+    }
+}
+
+/**
+ * Guarda las secciones colapsadas. Si localStorage no está disponible, el colapso sigue
+ * funcionando durante la sesión actual.
+ */
+function writeCollapsedSections(collapsed: Set<string>): void {
+    try {
+        localStorage.setItem(SECTION_STORAGE_KEY, JSON.stringify([...collapsed]));
+    } catch {
+        // Sin persistencia: no es un error para la UI.
+    }
+}
+
+/**
+ * Devuelve los ítems del menú que pertenecen a una sección.
+ */
+function sectionItems(sectionKey: string): HTMLElement[] {
+    return [...document.querySelectorAll<HTMLElement>('[data-sidebar-section]')].filter(
+        item => item.dataset.sidebarSection === sectionKey,
+    );
+}
+
+/**
+ * Indica si el sidebar está contraído (sólo iconos). En ese modo los encabezados de
+ * sección se ocultan por CSS, así que las secciones no pueden expandirse a mano:
+ * todos los ítems deben quedar visibles para no dejar el menú vacío.
+ */
+function isSidebarCollapsed(): boolean {
+    return document.querySelector('#sidebar')?.classList.contains('w-16') ?? false;
+}
+
+/**
+ * Aplica el estado colapsado/expandido de una sección.
+ */
+function setSectionCollapsed(
+    sectionKey: string,
+    collapsed: boolean,
+    options: { toggle: HTMLElement | null; persist: boolean },
+): void {
+    const { toggle, persist } = options;
+    const hideItems = collapsed && !isSidebarCollapsed();
+    sectionItems(sectionKey).forEach(item => {
+        item.style.display = hideItems ? 'none' : '';
+    });
+
+    if (toggle) {
+        toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        toggle.querySelector<HTMLElement>('[data-section-caret]')?.classList.toggle('-rotate-90', collapsed);
+    }
+
+    if (collapsed && currentOpenDropdown && _currentParentItem?.dataset.sidebarSection === sectionKey) {
+        hideAllDropdowns();
+    }
+
+    if (!persist) {
+        return;
+    }
+
+    const expandedSections = readCollapsedSections();
+    if (collapsed) {
+        expandedSections.delete(sectionKey);
+    } else {
+        expandedSections.add(sectionKey);
+    }
+    writeCollapsedSections(expandedSections);
+}
+
+/**
+ * Detecta las secciones que contienen la página actual comparando la URL con los enlaces del
+ * menú. No depende de las clases activas: `dashboard.ts` las actualiza después de la navegación
+ * SPA y, en ese instante, el ítem anterior todavía puede estar marcado.
+ */
+function activeSectionKeys(): Set<string> {
+    const keys = new Set<string>();
+    const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
+
+    document.querySelectorAll<HTMLElement>('[data-sidebar-section]').forEach(item => {
+        const key = item.dataset.sidebarSection ?? '';
+        if (key === '') {
+            return;
+        }
+
+        const hasActiveLink = [...item.querySelectorAll<HTMLAnchorElement>('a[href]')].some(link => {
+            const href = link.getAttribute('href') ?? '';
+            if (!href.startsWith('/')) {
+                return false;
+            }
+
+            const linkPath = (href.split('?')[0] ?? '').replace(/\/+$/, '') || '/';
+            return currentPath === linkPath || currentPath.startsWith(`${linkPath}/`);
+        });
+
+        if (hasActiveLink) {
+            keys.add(key);
+        }
+    });
+
+    return keys;
+}
+
+/**
+ * Re-aplica el estado guardado de todas las secciones. Se usa al contraer/expandir el
+ * sidebar: contraído muestra todos los ítems (aunque su sección esté colapsada) y
+ * expandido vuelve al estado que el usuario dejó en cada sección.
+ */
+function syncSectionsWithSidebar(): void {
+    const toggles = [...document.querySelectorAll<HTMLElement>('[data-section-toggle]')];
+    const expandedSections = readCollapsedSections();
+    toggles.forEach(toggle => {
+        const sectionKey = toggle.dataset.sectionToggle ?? '';
+        if (sectionKey === '') {
+            return;
+        }
+
+        setSectionCollapsed(sectionKey, !expandedSections.has(sectionKey), { toggle, persist: false });
+    });
+}
+
+/**
+ * Observa la clase del sidebar para re-aplicar las secciones cuando cambia entre
+ * contraído (`w-16`) y expandido (`w-56`).
+ */
+function observeSidebarCollapse(): void {
+    const sidebar = document.querySelector('#sidebar');
+    if (!sidebar || !(sidebar instanceof HTMLElement) || sidebar.dataset.collapseObserved === '1') {
+        return;
+    }
+    sidebar.dataset.collapseObserved = '1';
+
+    let wasCollapsed = sidebar.classList.contains('w-16');
+    new MutationObserver(() => {
+        const collapsed = sidebar.classList.contains('w-16');
+        if (collapsed === wasCollapsed) {
+            return;
+        }
+        wasCollapsed = collapsed;
+        syncSectionsWithSidebar();
+    }).observe(sidebar, { attributes: true, attributeFilter: ['class'] });
+}
+
+/**
+ * Inicializa el colapso/expansión de las secciones del sidebar que tienen más de un menú.
+ * El estado se guarda en localStorage y se expande la sección activa al navegar.
+ */
+function initSidebarSections(): void {
+    const toggles = [...document.querySelectorAll<HTMLElement>('[data-section-toggle]')];
+    observeSidebarCollapse();
+    if (toggles.length === 0) {
+        return;
+    }
+
+    const expandedSections = readCollapsedSections();
+    toggles.forEach(toggle => {
+        const sectionKey = toggle.dataset.sectionToggle ?? '';
+        if (sectionKey === '') {
+            return;
+        }
+
+        setSectionCollapsed(sectionKey, !expandedSections.has(sectionKey), { toggle, persist: false });
+
+        if (toggle.dataset.sectionBound !== '1') {
+            toggle.dataset.sectionBound = '1';
+            toggle.addEventListener('click', () => {
+                const isCollapsed = toggle.getAttribute('aria-expanded') === 'false';
+                setSectionCollapsed(sectionKey, !isCollapsed, { toggle, persist: true });
+            });
+        }
+    });
+
+    // Al cambiar de página, la sección que contiene el ítem activo se expande para que se vea.
+    const currentUrl = window.location.pathname + window.location.search;
+    if (currentUrl === lastSectionUrl) {
+        return;
+    }
+    lastSectionUrl = currentUrl;
+
+    const activeKeys = activeSectionKeys();
+    toggles.forEach(toggle => {
+        const sectionKey = toggle.dataset.sectionToggle ?? '';
+        if (activeKeys.has(sectionKey) && toggle.getAttribute('aria-expanded') === 'false') {
+            setSectionCollapsed(sectionKey, false, { toggle, persist: true });
+        }
+    });
 }
 
 /**
@@ -257,6 +461,8 @@ function initSidebarDropdowns(): void {
             tooltip.style.opacity = '0';
         });
     });
+
+    initSidebarSections();
 }
 
 /**

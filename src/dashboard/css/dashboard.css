@@ -527,6 +527,12 @@ html {
         @apply hidden!;
     }
 
+    /* Contraído, el hover no desplaza el ítem: el ml-4 empuja la flecha del submenú
+       fuera del ancho visible (w-16) y queda recortada */
+    .w-16 [class*='hover:ml-4']:hover {
+        margin-left: 0;
+    }
+
     .w-56 [sidebar-toggle-item] {
         @apply lg:block;
     }
