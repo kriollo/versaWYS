@@ -85,7 +85,7 @@ Para las tareas programadas, agrega en «Trabajos de cron» de cPanel la línea 
 
 En `configs/` hay plantillas para NGINX (`nginx.conf.example`) y Apache (`apache-vhost.conf.example`). La raíz del sitio es la carpeta del proyecto (donde está `index.php`); los `.htaccess` incluidos bloquean el acceso directo a `app/`, `versaWYS/` y a los archivos de configuración.
 
-Para desplegar con versaDeploy, copia `versa_deploy.example.yml` a `versa_deploy.yml` y completa los datos del servidor.
+Para desplegar con versaDeploy, copia `versa_deploy.example.yml` a `versa_deploy.yml` y completa los datos del servidor. Para correr PHP en **FrankenPHP** en vez de PHP-FPM, usa el ejemplo de versaDeploy [`deploy.versawys-frankenphp.yml`](https://github.com/kriollo/versaDeploy/blob/main/examples/deploy.versawys-frankenphp.yml): instala el servidor desde la vista *Services*, deja `config.json` en `shared/versaWYS/config` y termina cada despliegue con `app:deploy:finish`.
 
 ### Qué debe quedar accesible desde el navegador
 

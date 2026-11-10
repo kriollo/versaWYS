@@ -3,6 +3,18 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); versionado [SemVer](https://semver.org/lang/es/).
 Los cambios del núcleo están en el CHANGELOG de `versawys/kernel`.
 
+## [3.15.2] - 2026-11-09
+
+### Corregido
+- **Los avatares por defecto no llegaban al servidor.** El `.gitignore` ignora `public/dashboard/img/avatars/*` (las fotos que suben los usuarios), y en un proyecto creado con `composer create-project` eso dejaba fuera de git también `1.png`, `1.jpg` e `incognito-icon-20.jpg`: desplegado desde git (versaDeploy), el panel mostraba el avatar roto. Ahora esos tres van en git.
+- `versawys/kernel` 3.13.6: `app:deploy:finish` ya no falla en el primer despliegue con «Sin permiso de escritura: versaWYS/cache/twig/.cache» cuando la caché compartida está vacía.
+
+### Documentación
+- Desplegar en **FrankenPHP** (sin PHP-FPM) con versaDeploy: su ejemplo `deploy.versawys-frankenphp.yml` (PostgreSQL, Redis, cron con `app:schedule:run` y `app:deploy:finish`), probado de punta a punta desde `composer create-project`.
+
+### Cambiado
+- `versawys/kernel` ^3.13.6.
+
 ## [3.15.1] - 2026-11-05
 
 ### Corregido

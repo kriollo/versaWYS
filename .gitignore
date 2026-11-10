@@ -18,6 +18,10 @@ package-lock.json
 /versaWYS/kernel/config/down.json
 /versaWYS/config/
 /public/dashboard/img/avatars/*
+# los avatares por defecto sí van en git: sin ellos el panel muestra imágenes rotas en el servidor
+!/public/dashboard/img/avatars/1.jpg
+!/public/dashboard/img/avatars/1.png
+!/public/dashboard/img/avatars/incognito-icon-20.jpg
 /public/dashboard/img/logos/*
 /public/dashboard/store/*
 .env

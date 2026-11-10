@@ -29,6 +29,7 @@ Detalles en la [Guía de Instalación](./documentacion/INSTALL.md).
 - **CLI potente (versaCLI)** para generación de código, migraciones, seeders y automatización de tareas.
 - **Seguridad integrada**: protección CSRF, XSS, control de sesiones y middlewares personalizables.
 - **Frontend moderno** listo para Vue.js, TailwindCSS y assets compilados automáticamente.
+- **Despliegue con [versaDeploy](https://github.com/kriollo/versaDeploy)** a un VPS, en PHP-FPM o FrankenPHP: `app:deploy:finish` migra, arma las cachés y revisa el servidor en cada despliegue.
 - **Estructura modular** y documentación completa para crecer y mantener tu proyecto fácilmente.
 - **Curva de aprendizaje suave**: ideal para quienes buscan productividad sin sacrificar buenas prácticas.
 
