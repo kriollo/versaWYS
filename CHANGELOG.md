@@ -3,6 +3,14 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); versionado [SemVer](https://semver.org/lang/es/).
 Los cambios del núcleo están en el CHANGELOG de `versawys/kernel`.
 
+## [3.15.3] - 2026-11-10
+
+### Corregido
+- `versawys/kernel` 3.13.7: un deploy ya no puede dejar en línea una plantilla Twig vieja. Con la caché compartida entre releases, una petición que todavía atendía el release anterior podía volver a compilar la versión vieja justo después de `app:deploy:finish`; ahora cada release compila en su propia subcarpeta.
+
+### Cambiado
+- `versawys/kernel` ^3.13.7.
+
 ## [3.15.2] - 2026-11-09
 
 ### Corregido
