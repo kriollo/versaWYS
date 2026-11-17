@@ -3,6 +3,17 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); versionado [SemVer](https://semver.org/lang/es/).
 Los cambios del núcleo están en el CHANGELOG de `versawys/kernel`.
 
+## [3.16.0] - 2026-11-16
+
+### Agregado
+- `versawys/kernel` 3.14.0: **`php versaCLI serve` atiende varias peticiones a la vez** (uno por núcleo, hasta 8; `--workers=N` para elegir). Con un solo proceso, una descarga larga (un video que se reproduce) dejaba en fila a todo lo demás y la página se trababa.
+
+### Corregido
+- `versawys/kernel` 3.14.0: el servidor de desarrollo sirve audio y video por rangos (`206`), así el navegador puede saltar dentro de un video o una canción; y ya no entrega archivos de fuera del proyecto a través de un enlace simbólico.
+
+### Cambiado
+- `versawys/kernel` ^3.14.0.
+
 ## [3.15.3] - 2026-11-10
 
 ### Corregido
