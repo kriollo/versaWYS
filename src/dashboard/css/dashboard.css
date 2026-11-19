@@ -533,6 +533,12 @@ html {
         margin-left: 0;
     }
 
+    /* Expandido, el hover conserva el desplazamiento pero sin crecer: con ml-4 y w-full el ítem queda 1rem
+       más ancho que el menú y la columna (overflow-y-auto) recorta la flecha del submenú */
+    .w-56 [class*='hover:ml-4']:hover {
+        width: calc(100% - 1rem);
+    }
+
     .w-56 [sidebar-toggle-item] {
         @apply lg:block;
     }

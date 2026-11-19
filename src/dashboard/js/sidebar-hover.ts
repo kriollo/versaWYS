@@ -38,7 +38,9 @@ function fitDropdownToViewport(dropdown: HTMLElement, parentItem: HTMLElement): 
 
     // Medir el alto natural sin el límite anterior (el submenú está visible por el hover)
     dropdown.style.maxHeight = 'none';
-    const naturalHeight = dropdown.scrollHeight;
+    // ScrollHeight no incluye los bordes: con box-sizing border-box, limitar el alto a scrollHeight deja la caja
+    // 2px más baja que su contenido y aparece el scroll aunque haya pocas opciones
+    const naturalHeight = dropdown.scrollHeight + dropdown.offsetHeight - dropdown.clientHeight;
     const height = Math.min(naturalHeight, maxAvailable);
     const { width } = dropdown.getBoundingClientRect();
 
@@ -58,7 +60,8 @@ function fitDropdownToViewport(dropdown: HTMLElement, parentItem: HTMLElement): 
 
     dropdown.style.position = 'fixed';
     dropdown.style.maxHeight = `${height}px`;
-    dropdown.style.overflowY = 'auto';
+    // Scroll solo si de verdad no cabe en la ventana
+    dropdown.style.overflowY = naturalHeight > maxAvailable ? 'auto' : 'hidden';
     dropdown.style.overscrollBehavior = 'contain';
     dropdown.style.top = `${top}px`;
     dropdown.style.left = `${left}px`;
