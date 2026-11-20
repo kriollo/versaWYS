@@ -3,6 +3,17 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); versionado [SemVer](https://semver.org/lang/es/).
 Los cambios del núcleo están en el CHANGELOG de `versawys/kernel`.
 
+## [3.17.0] - 2026-11-19
+
+### Agregado
+- `versawys/kernel` 3.15.0: **`app/errors.php`** recibe cada excepción no controlada (un closure con la `Throwable`, como `app/schedule.php`), para llevarla a incidencias o avisos. Ver `UPGRADE.md` del kernel.
+
+### Corregido
+- `versawys/kernel` 3.15.0: en producción las excepciones no controladas ahora quedan en el log (antes solo se registraban en debug y se perdían sin rastro).
+
+### Cambiado
+- `versawys/kernel` ^3.15.0.
+
 ## [3.16.0] - 2026-11-16
 
 ### Agregado
