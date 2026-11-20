@@ -384,7 +384,7 @@ class DashBoardController extends GlobalControllers
             $heartbeatUserId = (int) ($session->get('id_user') ?? 0);
             $heartbeatEmpresaId = (int) ($session->get('empresa_id') ?? 0);
             $usuario = (new CacheUsers())->getUserData($heartbeatUserId, $heartbeatEmpresaId)['user'] ?? [];
-            if ($usuario === [] || GlobalMiddleware::blockedReason($usuario) !== null) {
+            if ($usuario === [] || GlobalMiddleware::blockedReason($usuario, $heartbeatEmpresaId) !== null) {
                 $session->revokeToken($cookie->get('tknHash'));
                 $cookie->delete('tknHash');
                 $session->destroy();

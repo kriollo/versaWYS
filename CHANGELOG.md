@@ -3,6 +3,15 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); versionado [SemVer](https://semver.org/lang/es/).
 Los cambios del núcleo están en el CHANGELOG de `versawys/kernel`.
 
+## [3.18.0] - 2026-11-20
+
+### Corregido
+- `versawys/kernel` 3.16.0: **`min` y `max` de un campo `int`, `integer` o `numeric` comparan el valor**, no el largo del texto (`int|min:1` ya no acepta `0` ni `-5`).
+- `customTableSimple`: la tabla se vuelve a cargar cuando cambian sus columnas (el `watch` miraba una copia, no la prop).
+
+### Seguridad
+- `versawys/kernel` 3.16.0: **una sesión que apunta a otra empresa termina** (solo el superadministrador opera en una empresa que no es la de su cuenta). El latido de sesión (`sessionHeartbeat`) aplica la misma regla.
+
 ## [3.17.0] - 2026-11-19
 
 ### Agregado

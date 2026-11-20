@@ -158,7 +158,7 @@
     );
 
     watch(
-        columns.value,
+        () => props.columns,
         () => {
             refreshData();
         },

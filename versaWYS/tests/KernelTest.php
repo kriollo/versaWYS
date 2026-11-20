@@ -62,8 +62,10 @@ describe('Functions::validateParams', function (): void {
             ->and(Functions::validateParams(['name' => 'Ana'], ['name' => 'required|min:2']))->toBe([]);
     });
 
-    it('min y max aceptan números enviados por JSON', function (): void {
-        expect(Functions::validateParams(['id' => 7], ['id' => 'required|numeric|min:1|max:3']))->toBe([]);
+    it('min y max de un número enviado por JSON comparan su valor, no su largo', function (): void {
+        expect(Functions::validateParams(['id' => 3], ['id' => 'required|numeric|min:1|max:3']))->toBe([])
+            ->and(Functions::validateParams(['id' => 7], ['id' => 'required|numeric|min:1|max:3']))->toHaveKey('id')
+            ->and(Functions::validateParams(['id' => 0], ['id' => 'required|numeric|min:1|max:3']))->toHaveKey('id');
     });
 });
 
