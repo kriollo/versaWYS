@@ -366,6 +366,37 @@
         expandedRows[rowId] = !expandedRows[rowId];
     };
 
+    // Vista con una sola tabla: ocupa el alto libre y hace scroll por dentro; filtros y paginación quedan a la vista.
+    // Fuera de #main-content, en modales o con varias tablas en la página no cambia nada.
+    const cajaTabla = ref<HTMLElement | null>(null);
+    const pieTabla = ref<HTMLElement | null>(null);
+    const altoTabla = ref<string | undefined>(undefined);
+    const medirAltoTabla = () => {
+        const caja = cajaTabla.value;
+        const main = caja?.closest<HTMLElement>('#main-content');
+        if (!caja || !main || caja.closest('[role="dialog"]') || main.querySelectorAll('table[id^="table_"]').length !== 1) {
+            altoTabla.value = undefined;
+            return;
+        }
+        let inicio = caja.getBoundingClientRect().top;
+        for (let e = caja.parentElement; e && e !== main.parentElement; e = e.parentElement) {
+            inicio += e.scrollTop;
+        }
+        const fin = main.getBoundingClientRect().bottom - Number.parseFloat(getComputedStyle(main).paddingBottom);
+        altoTabla.value = `${Math.max(220, fin - inicio - (pieTabla.value?.offsetHeight ?? 0) - 24)}px`;
+    };
+    let observadorAlto: ResizeObserver | null = null;
+    onMounted(() => {
+        medirAltoTabla();
+        const main = cajaTabla.value?.closest('#main-content');
+        if (main) {
+            observadorAlto = new ResizeObserver(medirAltoTabla);
+            observadorAlto.observe(main);
+        }
+    });
+    onUnmounted(() => observadorAlto?.disconnect());
+    watch(() => data.data, medirAltoTabla, { flush: 'post' });
+
     onMounted(() => {
         getRefreshData();
         if (tableContainer.value) {
@@ -779,7 +810,9 @@
 
         <!-- Table Container -->
         <div
-            class="relative overflow-x-auto rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl bg-white dark:bg-gray-950 w-full">
+            ref="cajaTabla"
+            :style="{ maxHeight: altoTabla }"
+            class="relative overflow-auto rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl bg-white dark:bg-gray-950 w-full">
             <table
                 :id="'table_' + idTable"
                 class="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
@@ -813,7 +846,7 @@
                 </thead>
 
                 <!-- Main Header -->
-                <thead class="text-xs text-white uppercase bg-black dark:bg-black/90 border-b-2 border-brand">
+                <thead class="sticky top-0 z-20 text-xs text-white uppercase bg-black dark:bg-black/90 border-b-2 border-brand">
                     <tr>
                         <!-- Columna de selección -->
                         <th v-if="multipleSelected" class="w-12 text-center py-4 px-2 select-none">
@@ -836,6 +869,7 @@
                             :class="[
                                 smallLine ? 'py-2 px-3' : 'py-4 px-6',
                                 'font-bold tracking-wider hover:bg-white/5 transition-colors cursor-pointer group select-none',
+                                col.type === 'actions' ? 'sticky right-0 z-10 bg-black' : '',
                             ]"
                             @click="
                                 col.type !== 'actions' && col.type !== 'file' && col.type !== 'position'
@@ -910,7 +944,10 @@
                             </td>
 
                             <td
-                                :class="smallLine ? 'py-2 px-3' : 'py-4 px-6'"
+                                :class="[
+                                    smallLine ? 'py-2 px-3' : 'py-4 px-6',
+                                    col.type === 'actions' ? 'sticky right-0 z-10 bg-white dark:bg-[#0a0a0a]' : '',
+                                ]"
                                 :key="col.field"
                                 v-for="col in getVisibleColumns">
                                 <!--datetime-->
@@ -1399,7 +1436,7 @@
         </div>
 
         <!-- Pagination -->
-        <nav class="flex flex-col md:flex-row justify-between items-center w-full px-2 gap-4">
+        <nav ref="pieTabla" class="flex flex-col md:flex-row justify-between items-center w-full px-2 gap-4">
             <div
                 class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-950 px-4 py-2 rounded-xl shadow-xs border border-gray-100 dark:border-gray-800">
                 <span>Mostrando</span>
