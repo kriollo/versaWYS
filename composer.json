@@ -5,15 +5,15 @@
     "license": "MIT",
     "require": {
         "php": ">=8.3",
-        "twig/twig": "^3.30",
-        "versaorm/versaorm-php": "^2.2.4",
-        "versawys/kernel": "^3.15.0"
+        "twig/twig": "^3.31",
+        "versaorm/versaorm-php": "^2.2.5",
+        "versawys/kernel": "^3.16.1"
     },
     "require-dev": {
         "friendsoftwig/twigcs": "^6.6.1",
-        "pestphp/pest": "^4.1 || ^5.1",
-        "rector/rector": "^2.7",
-        "carthage-software/mago": "^1.57"
+        "pestphp/pest": "^4.7.8 || ^5.1",
+        "rector/rector": "^2.8.5",
+        "carthage-software/mago": "^1.61"
     },
     "autoload": {
         "psr-4": {

@@ -3,6 +3,14 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); versionado [SemVer](https://semver.org/lang/es/).
 Los cambios del núcleo están en el CHANGELOG de `versawys/kernel`.
 
+## [3.18.1] - 2026-11-23
+
+### Corregido
+- Se quita `finfo_close()` de `MediaController`: no hace nada desde PHP 8.1 y en 8.5 avisa que está obsoleto.
+
+### Cambiado
+- `versawys/kernel` 3.16.1 (sin llamadas obsoletas en PHP 8.5), `twig/twig` 3.31, `carthage-software/mago` 1.61 y el resto de los paquetes al día. PHPUnit queda en 12.5.33 porque Pest 4.7.8 no admite una versión mayor.
+
 ## [3.18.0] - 2026-11-20
 
 ### Corregido

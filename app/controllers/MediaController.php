@@ -931,7 +931,6 @@ class MediaController extends GlobalControllers
         }
 
         $mime = (string) finfo_file($finfo, $filePath);
-        finfo_close($finfo);
 
         return strtolower($mime);
     }
