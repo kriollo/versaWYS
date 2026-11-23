@@ -374,7 +374,12 @@
     const medirAltoTabla = () => {
         const caja = cajaTabla.value;
         const main = caja?.closest<HTMLElement>('#main-content');
-        if (!caja || !main || caja.closest('[role="dialog"]') || main.querySelectorAll('table[id^="table_"]').length !== 1) {
+        if (
+            !caja ||
+            !main ||
+            caja.closest('[role="dialog"]') ||
+            main.querySelectorAll('table[id^="table_"]').length !== 1
+        ) {
             altoTabla.value = undefined;
             return;
         }
@@ -846,7 +851,8 @@
                 </thead>
 
                 <!-- Main Header -->
-                <thead class="sticky top-0 z-20 text-xs text-white uppercase bg-black dark:bg-black/90 border-b-2 border-brand">
+                <thead
+                    class="sticky top-0 z-20 text-xs text-white uppercase bg-black dark:bg-black/90 border-b-2 border-brand">
                     <tr>
                         <!-- Columna de selección -->
                         <th v-if="multipleSelected" class="w-12 text-center py-4 px-2 select-none">
