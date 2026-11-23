@@ -20,7 +20,6 @@
 import { updateCsrfToken } from '@/dashboard/js/composables/csrfStore';
 import { initializeSessionManager } from '@/dashboard/js/composables/SessionManager';
 import VersaLinkElement from '@/dashboard/js/versa-link-element';
-import { obtenerInstanciaVue } from '@/dashboard/js/vueLoader/getInstanciaVue';
 
 // =============================================================================
 // CONFIGURACIÓN DEL SISTEMA SPA
@@ -184,6 +183,8 @@ interface NavigationOptions {
 class SPANavigation {
     private static instance: SPANavigation | null = null;
     private isNavigating = false;
+    // Último clic hecho durante una navegación: se atiende apenas termine
+    private navegacionPendiente: { url: string; pushState: boolean; options: NavigationOptions } | null = null;
 
     // Configuración de límites de memoria
     private readonly MAX_MAP_ENTRIES = 30;
@@ -258,7 +259,7 @@ class SPANavigation {
             const target = event.target as Element;
             const link = target.closest('a[data-spa]') as HTMLAnchorElement | null;
 
-            if (link && !this.isNavigating) {
+            if (link) {
                 event.preventDefault();
 
                 // Extraer opciones del link
@@ -311,7 +312,7 @@ class SPANavigation {
 
     async navigate(url: string, pushState = true, options: NavigationOptions = {}): Promise<void> {
         if (this.isNavigating) {
-            logger.info('Navegación bloqueada: ya hay una en curso');
+            this.navegacionPendiente = { url, pushState, options };
             return;
         }
 
@@ -458,6 +459,11 @@ class SPANavigation {
         } finally {
             this.isNavigating = false;
             this.abortController = null;
+            const pendiente = this.navegacionPendiente;
+            this.navegacionPendiente = null;
+            if (pendiente) {
+                this.navigate(pendiente.url, pendiente.pushState, pendiente.options).catch(console.error);
+            }
         }
     }
 
@@ -628,6 +634,8 @@ class SPANavigation {
     }
 
     private async updateContent(data: SPAResponse, targetUrl: string): Promise<void> {
+        // Cualquier carga Vue anterior deja de ser vigente, también al pasar a una página HTML
+        (window as any).__spaVueVigente = '';
         if (data.type === 'html') {
             const mainContent = document.querySelector(DOM_SELECTORS.CONTENT_GENERAL) as HTMLElement | null;
             if (!mainContent) {
@@ -650,7 +658,7 @@ class SPANavigation {
 
             // Cargar el módulo Vue especificado
             if (data.module) {
-                await this.loadVueModule(data.module);
+                this.loadVueModule(data.module);
             }
         }
 
@@ -814,28 +822,16 @@ class SPANavigation {
         }
     }
 
-    private async loadVueModule(modulePath: string): Promise<void> {
+    private loadVueModule(modulePath: string): void {
         try {
-            // Manejo robusto de errores para obtener instancia Vue
-            let vueInstance: any = null;
+            // Solo la app de la página: la barra superior tiene sus propias apps y no se tocan al navegar
+            const contenedorVue = document.querySelector(DOM_SELECTORS.MAIN_CONTENT) as
+                | (Element & { __vue_app__?: { unmount: () => void } })
+                | null;
             try {
-                vueInstance = await obtenerInstanciaVue(DOM_SELECTORS.MAIN_CONTENT, 1000);
+                contenedorVue?.__vue_app__?.unmount();
             } catch (error) {
-                console.warn('Error obteniendo instancia Vue:', error);
-                // Continuar sin desmontar instancia anterior
-                vueInstance = null;
-            }
-
-            if (vueInstance) {
-                try {
-                    if (typeof (vueInstance as any).unmount === 'function') {
-                        (vueInstance as any).unmount();
-                    } else if (typeof (vueInstance as any).$destroy === 'function') {
-                        (vueInstance as any).$destroy();
-                    }
-                } catch (error) {
-                    console.warn('Error al desmontar instancia de Vue:', error);
-                }
+                console.warn('Error al desmontar instancia de Vue:', error);
             }
 
             // Verificar que el contenedor existe
@@ -855,6 +851,8 @@ class SPANavigation {
             const script = document.createElement('script');
             script.type = 'module';
             script.src = `/public/dashboard/js/${SCRIPT_NAMES.VUE_LOADER}?${Date.now()}&m=${modulePath}`;
+            // vue-loader descarta su módulo si, al terminar de descargarlo, ya se navegó a otra página
+            (window as any).__spaVueVigente = script.src;
 
             // Remover scripts anteriores
             const oldVueLoaderScripts = document.querySelectorAll(`script[src*="${SCRIPT_NAMES.VUE_LOADER}"]`);

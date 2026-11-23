@@ -69,6 +69,11 @@ const loadModule = async (): Promise<void> => {
         const moduleResponse = await import(
             `@/${validatedModule}.js?v=${(window as any).AppConfig?.version ?? Date.now()}`
         );
+        // Se navegó a otra página mientras se descargaba: montarlo taparía la página actual
+        const vigente = (window as any).__spaVueVigente as string | undefined;
+        if (vigente !== undefined && vigente !== import.meta.url) {
+            return;
+        }
         if (moduleResponse) {
             // Montar el módulo en el contenedor
             // Fuera de setup(): render() también lo usa
