@@ -261,18 +261,18 @@
     //Detectar cambios en itemSelected y crear clase para linea de la tabla
     const classLineTable = (item: any): string => {
         if (itemSelected.value?.fieldCompare !== undefined && itemSelected.value.id === item.id) {
-            return 'bg-brand-100 border border-brand dark:bg-brand-700 dark:border-brand-600';
+            return 'bg-brand-100 border border-brand dark:bg-brand-700 dark:border-brand-600 transition-colors';
         }
-        return 'bg-white border-b dark:bg-gray-800 dark:border-gray-700';
+        return 'bg-white border-b border-gray-100 dark:bg-gray-950 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors';
     };
 </script>
 
 <template>
-    <div class="flex flex-col">
+    <div class="flex flex-col space-y-6">
         <slot name="buttons"></slot>
         <div
             v-if="showPerPage || showExportExcel || showSearch"
-            class="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0 py-2">
+            class="flex items-center justify-between flex-wrap gap-4 bg-white dark:bg-gray-950 p-4 rounded-2xl shadow-xs border border-gray-100 dark:border-gray-800">
             <dropDown
                 v-if="showPerPage"
                 key="per_page"
@@ -323,18 +323,20 @@
                     :id="id + '_table-search-users'"
                     v-model="data.meta.filter"
                     type="text"
-                    class="block p-2 ps-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-brand focus:border-brand dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-brand dark:focus:border-brand"
+                    class="block w-full md:w-80 p-3 pe-16 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand focus:border-brand dark:bg-gray-900 dark:border-gray-800 dark:placeholder-gray-500 dark:text-white"
                     placeholder="Ingrese y presione 'Enter' para buscar"
                     @keyup.enter="setFilter" />
             </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <div
+            class="relative isolate overflow-auto rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl bg-white dark:bg-gray-950 w-full">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 table-auto">
                 <caption
                     v-if="tablaTitle !== ''"
-                    class="py-2 px-2 text-lg font-semibold text-gray-900 bg-white dark:text-white dark:bg-gray-800 w-full">
-                    <div class="flex justify-between w-full">
-                        <div>
+                    class="p-5 text-lg font-bold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800">
+                    <div class="flex justify-between items-center w-full">
+                        <div class="flex items-center gap-2">
+                            <div class="w-1 h-6 bg-brand rounded-full"></div>
                             {{ tablaTitle }}
                         </div>
                         <div>
@@ -342,12 +344,14 @@
                         </div>
                     </div>
                 </caption>
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <thead
+                    class="text-xs uppercase bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
                     <tr>
                         <th
                             v-for="(cols, index) in colspan"
                             :key="index + '_colspan'"
                             scope="colspan"
+                            class="py-3 px-4 text-center font-bold tracking-wider"
                             :colspan="cols.colspan">
                             <div class="flex justify-center">
                                 {{ cols.title }}
@@ -355,12 +359,13 @@
                         </th>
                     </tr>
                 </thead>
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <thead
+                    class="sticky top-0 z-20 text-xs text-white uppercase bg-black dark:bg-black/90 border-b-2 border-brand">
                     <tr>
                         <th
                             v-for="(col, index) in data.columns"
                             :key="index + '_col'"
-                            :class="smallLine ? 'py-1 px-2' : 'py-4 px-3'"
+                            :class="[smallLine ? 'py-2 px-3' : 'py-4 px-6', 'font-bold tracking-wider']"
                             scope="col">
                             {{ col }}
                         </th>
@@ -368,15 +373,18 @@
                 </thead>
                 <tbody class="overflow-y-auto max-h-72">
                     <tr v-if="data.data.length === 0" class="text-center">
-                        <td :colspan="data.columns.length">
-                            <span class="text-xl" v-html="msg"></span>
+                        <td :colspan="data.columns.length" class="py-12">
+                            <div class="flex flex-col items-center justify-center text-gray-400 dark:text-gray-600">
+                                <i class="bi bi-inbox text-4xl mb-2 opacity-50" aria-hidden="true"></i>
+                                <span class="text-base font-medium" v-html="msg"></span>
+                            </div>
                         </td>
                     </tr>
                     <tr v-for="(row, index) in data.data" :key="index + '_row'" :class="classLineTable(row)">
                         <td
                             v-for="(col, key) in data.columns"
                             :key="key + '_col'"
-                            :class="smallLine ? 'py-1 px-2' : 'py-4 px-3'">
+                            :class="smallLine ? 'py-2 px-3' : 'py-4 px-6'">
                             <div v-if="col === 'acciones'" class="flex justify-end gap-2" v-html="row[key]"></div>
                             <div v-else>
                                 {{ row[key] }}
@@ -387,64 +395,59 @@
             </table>
         </div>
 
-        <nav class="grid justify-center md:content-center md:flex md:justify-between my-4 w-full px-2 overflow-auto">
-            <span class="text-sm font-normal text-gray-500 dark:text-gray-400 h-8 flex items-center gap-1">
-                Monstrando
-                <span class="font-semibold text-gray-900 dark:text-white">
-                    {{ data.meta.from }} al {{ data.meta.to }}
-                </span>
+        <nav class="flex flex-col md:flex-row justify-between items-center w-full px-2 gap-4">
+            <span
+                class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-950 px-4 py-2 rounded-xl shadow-xs border border-gray-100 dark:border-gray-800">
+                Mostrando
+                <span class="font-bold text-gray-900 dark:text-white">{{ data.meta.from }} al {{ data.meta.to }}</span>
                 de
-                <span class="font-semibold text-gray-900 dark:text-white">
+                <span class="font-bold text-gray-900 dark:text-white">
                     {{ data.meta.total }}
                 </span>
                 Resultados
             </span>
 
-            <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
+            <ul
+                class="inline-flex items-center -space-x-px rtl:space-x-reverse text-sm bg-white dark:bg-gray-950 rounded-xl shadow-xs border border-gray-100 dark:border-gray-800 p-1">
                 <li>
                     <a
-                        class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                        :class="1 == data.meta.page ? 'cursor-not-allowed' : 'cursor-pointer'"
+                        class="flex items-center justify-center px-3 py-2 leading-tight rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800 transition-colors"
+                        aria-label="Página anterior"
+                        :class="1 == data.meta.page ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'"
                         @click="changePage('anterior')">
-                        Anterior
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
                     </a>
                 </li>
                 <li v-if="getLimitPages[0] > 1">
                     <a
-                        class="flex items-center justify-center px-3 h-8 text-brand border border-gray-300 bg-brand-50 hover:bg-brand-100 hover:text-brand-600 dark:border-gray-700 dark:bg-gray-700 dark:text-white cursor-pointer"
+                        class="flex items-center justify-center w-8 h-8 mx-0.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800 cursor-pointer"
                         @click="changePage(1)">
                         1
                     </a>
                 </li>
 
                 <li v-if="getLimitPages[0] > 1">
-                    <a
-                        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white cursor-not-allowed">
-                        ...
-                    </a>
+                    <a class="flex items-center justify-center px-2 h-8 text-gray-400 cursor-not-allowed">...</a>
                 </li>
 
                 <li v-for="(page, index) in getLimitPages" :key="index + '_page'">
                     <a
                         v-if="data.meta.page == page"
-                        class="flex items-center justify-center px-3 h-8 text-brand border border-gray-300 bg-brand-50 hover:bg-brand-100 hover:text-brand-600 dark:border-gray-700 dark:bg-gray-700 dark:text-white cursor-pointer"
+                        class="flex items-center justify-center w-8 h-8 mx-0.5 text-black bg-brand font-bold rounded-lg shadow-xs cursor-pointer"
                         aria-current="page"
                         @click="changePage(page)">
                         {{ page }}
                     </a>
                     <a
                         v-else
-                        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white cursor-pointer"
+                        class="flex items-center justify-center w-8 h-8 mx-0.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800 cursor-pointer"
                         @click="changePage(page)">
                         {{ page }}
                     </a>
                 </li>
 
                 <li v-if="data.meta.page < data.meta.total_pages">
-                    <a
-                        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white cursor-not-allowed">
-                        ...
-                    </a>
+                    <a class="flex items-center justify-center px-2 h-8 text-gray-400 cursor-not-allowed">...</a>
                 </li>
                 <li
                     v-if="
@@ -452,7 +455,7 @@
                         getLimitPages[getLimitPages.length - 1] != data.meta.total_pages
                     ">
                     <a
-                        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white cursor-pointer"
+                        class="flex items-center justify-center w-8 h-8 mx-0.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800 cursor-pointer"
                         @click="changePage(data.meta.total_pages)">
                         {{ data.meta.total_pages }}
                     </a>
@@ -460,14 +463,15 @@
 
                 <li>
                     <a
-                        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                        class="flex items-center justify-center px-3 py-2 leading-tight rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800 transition-colors"
+                        aria-label="Página siguiente"
                         :class="
                             data.meta.total_pages <= data.meta.page || data.meta.total_pages == undefined
-                                ? 'cursor-not-allowed'
+                                ? 'cursor-not-allowed opacity-50'
                                 : 'cursor-pointer'
                         "
                         @click="changePage('siguiente')">
-                        Siguiente
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
                     </a>
                 </li>
             </ul>
