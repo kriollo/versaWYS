@@ -13,7 +13,18 @@
 </docs>
 
 <script setup lang="ts">
-    import { computed, onMounted, onUnmounted, reactive, ref, toRefs, watch, watchEffect } from 'vue';
+    import {
+        computed,
+        getCurrentInstance,
+        nextTick,
+        onMounted,
+        onUnmounted,
+        reactive,
+        ref,
+        toRefs,
+        watch,
+        watchEffect,
+    } from 'vue';
 
     import check from '@/dashboard/js/components/check.vue';
     import dropDown from '@/dashboard/js/components/dropDown.vue';
@@ -35,7 +46,35 @@
         condition_value?: string | number | boolean;
         type?: 'up' | 'down' | 'edit'; // Para posición o archivo
         loader?: string; // Nombre del campo que indica carga
+        menu?: string; // Sección del menú "⋯": el botón va ahí en vez de en la fila
     }
+
+    /**
+     * Ajustes por proyecto, en `window.AppConfig.tabla` (layout.twig): el componente es el mismo en todos.
+     * perPage, smallLine: valores por omisión. botonesEnFila: filtros del slot en una fila.
+     * recargarAlFiltrar: un filtro externo nuevo recarga solo. dobleClicAccion: doble clic abre ver o editar.
+     * montosDerecha: montos alineados a la derecha. altoAutomatico: la tabla usa el alto libre (true).
+     * accionesFijas: columna de acciones fija al hacer scroll (true). textoSobreMarca: 'blanco' o 'negro'.
+     * estados: { tipoDeColumna: { valor: { texto, clase, icono } } }.
+     */
+    interface EstadoBadge {
+        texto: string;
+        clase: string;
+        icono: string;
+    }
+    interface ConfigTabla {
+        botonesEnFila?: boolean;
+        recargarAlFiltrar?: boolean;
+        dobleClicAccion?: boolean;
+        montosDerecha?: boolean;
+        altoAutomatico?: boolean;
+        accionesFijas?: boolean;
+        textoSobreMarca?: 'blanco' | 'negro';
+        estados?: Record<string, Record<string, EstadoBadge>>;
+    }
+    const configTabla = ((globalThis as any).AppConfig?.tabla ?? {}) as ConfigTabla;
+    const textoMarca = configTabla.textoSobreMarca === 'negro' ? 'text-black' : 'text-white';
+    const hoverMarca = configTabla.textoSobreMarca === 'negro' ? 'hover:text-black' : 'hover:text-white';
 
     interface TableColumn {
         field: string;
@@ -60,9 +99,13 @@
             | 'copy'
             | 'color'
             | 'rating'
-            | 'qr';
+            | 'qr'
+            | 'date'
+            | 'number'
+            | (string & {}); // Estados propios del proyecto (AppConfig.tabla.estados)
         buttons?: ActionButton[];
         visible?: boolean;
+        fija?: boolean; // Columna fija a la derecha al hacer scroll
         export?: boolean; // Para exportación Excel
         config?: any; // Configuración adicional (ej. decimales)
         valueAditional?: string; // Valor adicional (ej. % o MB)
@@ -88,12 +131,15 @@
         totalRegisters?: number;
         externalFilters?: string;
         fieldOrder?: string;
+        orderDirection?: 'asc' | 'desc';
         PerPage?: number;
         showPerPage?: boolean;
         showExportExcel?: boolean;
         showSearch?: boolean;
         itemSelected?: any;
         smallLine?: boolean;
+        /** La tabla ocupa el alto disponible y hace scroll por dentro: filtros y paginación quedan a la vista */
+        altoFijo?: boolean;
         multipleSelected?: boolean;
         perPage?: number;
     }
@@ -104,15 +150,17 @@
         refreshData: false,
         externalFilters: '',
         fieldOrder: 'id',
-        perPage: 25,
+        orderDirection: 'asc',
+        perPage: () => (globalThis as any).AppConfig?.tabla?.perPage ?? 25,
         showPerPage: true,
         showExportExcel: true,
         showSearch: true,
-        smallLine: false,
+        smallLine: () => (globalThis as any).AppConfig?.tabla?.smallLine ?? false,
+        altoFijo: false,
         multipleSelected: false,
     });
     const tablaTitle = computed(() => props.tablaTitle);
-    const emit = defineEmits(['accion', 'update:totalRegisters']);
+    const emit = defineEmits(['accion', 'update:totalRegisters', 'rowDblClick']);
 
     const slots = defineSlots();
 
@@ -145,7 +193,7 @@
             filter: '',
             from: 0,
             to: 0,
-            order: [`${fieldOrder.value}`, 'asc'],
+            order: [`${fieldOrder.value}`, props.orderDirection],
         },
     });
 
@@ -175,6 +223,31 @@
             currency,
             maximumFractionDigits: 0,
         }).format(num || 0);
+    };
+
+    const formatFecha = (fecha: unknown): string => {
+        const partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(fecha ?? ''));
+        return partes === null ? '—' : `${partes[3]}-${partes[2]}-${partes[1]}`;
+    };
+    const formatCantidad = (valor: unknown): string =>
+        (Number(valor ?? 0) || 0).toLocaleString('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    const esEstado = (tipo: string): boolean => Boolean(configTabla.estados?.[tipo]);
+    const estadoBadge = (tipo: string, valor: unknown): EstadoBadge =>
+        // Las columnas booleanas llegan como true/false: se leen como 1/0
+        configTabla.estados?.[tipo]?.[String(typeof valor === 'boolean' ? Number(valor) : valor)] ?? {
+            texto: valor === null || valor === undefined || valor === '' ? '—' : String(valor),
+            clase: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
+            icono: 'bi-dash-circle',
+        };
+    const esFija = (col: TableColumn): boolean =>
+        col.fija ?? (col.type === 'actions' && configTabla.accionesFijas !== false);
+    // Un proyecto puede registrar su visor (window.versaAbrirArchivo); sin él, el enlace abre otra pestaña
+    const abrirArchivoFila = (event: MouseEvent, url: string, nombre?: string) => {
+        const abrir = (globalThis as any).versaAbrirArchivo;
+        if (typeof abrir === 'function') {
+            event.preventDefault();
+            abrir(url, nombre);
+        }
     };
 
     const getFileTypeIcon = (filename: string) => {
@@ -238,6 +311,15 @@
         const fieldCompare = itemSelectedValue.value.fieldCompare || 'id';
         return itemSelectedValue.value.itemsSelected.includes(row[fieldCompare]);
     };
+
+    // El check de la cabecera refleja la página visible: marcado solo si todas sus filas están seleccionadas
+    watch(
+        [() => data.data, () => itemSelectedValue.value?.itemsSelected],
+        () => {
+            checkAllValue.value = data.data.length > 0 && data.data.every(row => isRowSelected(row));
+        },
+        { deep: true },
+    );
 
     const toggleRowSelection = (row: RowData, selected: boolean) => {
         if (!multipleSelectedValue.value) {
@@ -309,9 +391,12 @@
         return isSmallScreen.value;
     });
 
+    // Las columnas con `visible: false` viajan al exportar, pero no se dibujan
+    const columnasMostradas = computed(() => data.columns.filter(col => col.visible !== false));
+
     const getVisibleColumns = computed(() => {
         const isResponsive = shouldUseResponsiveMode.value;
-        const { columns } = data;
+        const columns = columnasMostradas.value;
 
         if (!isResponsive || columns.length === 0) {
             return columns;
@@ -332,7 +417,7 @@
 
     const getHiddenColumns = computed(() => {
         const isResponsive = shouldUseResponsiveMode.value;
-        const { columns } = data;
+        const columns = columnasMostradas.value;
 
         if (!isResponsive || columns.length === 0) {
             return [];
@@ -366,6 +451,34 @@
         expandedRows[rowId] = !expandedRows[rowId];
     };
 
+    // Doble clic en una fila: avisa a quien escucha @rowDblClick; con dobleClicAccion ejecuta ver o editar.
+    // Nunca actúa sobre un control de la fila ni dispara acciones que modifican datos.
+    const escuchaDobleClic = Boolean(getCurrentInstance()?.vnode.props?.onRowDblClick);
+    const accionPrincipal = (row: RowData): string | undefined => {
+        const columna = data.columns.find(col => col.type === 'actions' || col.field === 'actions');
+        const disponibles = (columna?.buttons ?? []).filter(
+            boton =>
+                /^(ver|edit|show|view)/i.test(boton.action) &&
+                (!boton.condition ||
+                    String(boton.condition_value) === String((row as Record<string, unknown>)[boton.condition])),
+        );
+        return (disponibles.find(boton => /^ver/i.test(boton.action)) ?? disponibles[0])?.action;
+    };
+    const rowDblClick = (event: MouseEvent, row: RowData) => {
+        if ((event.target as HTMLElement | null)?.closest('button, a, input, select, label, [role="button"]')) {
+            return;
+        }
+        if (escuchaDobleClic) {
+            emit('rowDblClick', row);
+            return;
+        }
+        const principal = configTabla.dobleClicAccion ? accionPrincipal(row) : undefined;
+        if (principal !== undefined) {
+            emit('accion', { item: row, accion: principal });
+        }
+    };
+
+    let cargaInicialHecha = false;
     // Vista con una sola tabla: ocupa el alto libre y hace scroll por dentro; filtros y paginación quedan a la vista.
     // Fuera de #main-content, en modales o con varias tablas en la página no cambia nada.
     const cajaTabla = ref<HTMLElement | null>(null);
@@ -375,6 +488,8 @@
         const caja = cajaTabla.value;
         const main = caja?.closest<HTMLElement>('#main-content');
         if (
+            props.altoFijo ||
+            configTabla.altoAutomatico === false ||
             !caja ||
             !main ||
             caja.closest('[role="dialog"]') ||
@@ -387,7 +502,8 @@
         for (let e = caja.parentElement; e && e !== main.parentElement; e = e.parentElement) {
             inicio += e.scrollTop;
         }
-        const fin = main.getBoundingClientRect().bottom - Number.parseFloat(getComputedStyle(main).paddingBottom);
+        const fin =
+            main.getBoundingClientRect().bottom - Number(getComputedStyle(main).paddingBottom.replace('px', ''));
         altoTabla.value = `${Math.max(220, fin - inicio - (pieTabla.value?.offsetHeight ?? 0) - 24)}px`;
     };
     let observadorAlto: ResizeObserver | null = null;
@@ -402,7 +518,12 @@
     onUnmounted(() => observadorAlto?.disconnect());
     watch(() => data.data, medirAltoTabla, { flush: 'post' });
 
-    onMounted(() => {
+    onMounted(async () => {
+        // Con recarga por filtros, los filtros del slot emiten su valor al montarse antes de la primera carga
+        if (configTabla.recargarAlFiltrar) {
+            await nextTick();
+        }
+        cargaInicialHecha = true;
         getRefreshData();
         if (tableContainer.value) {
             resizeObserver = new ResizeObserver(entries => {
@@ -445,17 +566,40 @@
         message: string;
     }
 
-    const getRefreshData = async () => {
-        loadingData.value = true;
-        const page = new URLSearchParams(url.value).get('page') ?? data.meta.page;
-        const per_page = new URLSearchParams(url.value).get('per_page') ?? data.meta.per_page;
-        const filter = new URLSearchParams(url.value).get('filter') ?? data.meta.filter;
-        const order = new URLSearchParams(url.value).get('order') ?? data.meta.order;
+    // URL de la petición con los parámetros codificados (un "&" o "#" en la búsqueda ya no rompe la query). Si
+    // UrlData trae su propia query (page, filter...), esos valores mandan sobre los de la tabla.
+    const urlConsulta = (cambios: Record<string, string | number> = {}) => {
+        const [base = '', query = ''] = url.value.split('?');
+        const params = new URLSearchParams(query);
+        const valores = {
+            page: data.meta.page,
+            per_page: data.meta.per_page,
+            filter: data.meta.filter,
+            order: data.meta.order.join(','),
+            externalFilters: externalFilters.value ?? '',
+            ...cambios,
+        };
+        for (const [clave, valor] of Object.entries(valores)) {
+            if (!params.has(clave) || clave in cambios) {
+                params.set(clave, String(valor));
+            }
+        }
+        return `${base}?${params}`;
+    };
 
-        const response = (await versaFetch({
-            url: `${url.value}?page=${page}&per_page=${per_page}&filter=${filter ?? ''}&order=${order}&externalFilters=${encodeURIComponent(externalFilters.value ?? '')}`,
-            method: 'GET',
-        })) as ResponseData;
+    // Búsqueda que muestran los datos actuales: si el input difiere, el botón Buscar se destaca
+    const filtroAplicado = ref('');
+    // Solo la última petición actualiza la tabla: al paginar u ordenar rápido, una respuesta lenta no pisa a la nueva
+    let ultimaPeticion = 0;
+    const getRefreshData = async () => {
+        const peticion = ++ultimaPeticion;
+        loadingData.value = true;
+        const filtro = data.meta.filter;
+        const response = (await versaFetch({ url: urlConsulta(), method: 'GET' })) as unknown as ResponseData;
+        if (peticion !== ultimaPeticion) {
+            return;
+        }
+        filtroAplicado.value = filtro;
 
         data.data = [];
         data.columns = [];
@@ -491,6 +635,14 @@
         },
     );
 
+    watch(externalFilters, () => {
+        if (!configTabla.recargarAlFiltrar || !cargaInicialHecha) {
+            return;
+        }
+        data.meta.page = 1;
+        getRefreshData();
+    });
+
     const model = defineModel();
 
     watchEffect(() => {
@@ -515,28 +667,30 @@
 
     const exportExcelAll = async () => {
         loading.value = true;
-        const response = await versaFetch({
-            url: `${url.value}?page=1&per_page=${data.meta.total}&filter=${data.meta.filter}&order=${data.meta.order}&externalFilters=${encodeURIComponent(externalFilters.value ?? '')}`,
-            method: 'GET',
-        });
-
-        if (!response.data || !Array.isArray(response.data)) {
-            loading.value = false;
-            return;
-        }
-
-        const newData = response.data.map((item: any) => {
-            const newItem: Record<string, any> = {};
-            data.columns.forEach((col: TableColumn) => {
-                if ((col as any)?.export) {
-                    newItem[col.field] = (item as any)[col.field];
-                }
+        try {
+            // Exporta lo que se ve: la búsqueda aplicada, no lo que quedó escrito sin buscar
+            const response = await versaFetch({
+                url: urlConsulta({ page: 1, per_page: data.meta.total, filter: filtroAplicado.value }),
+                method: 'GET',
             });
-            return newItem;
-        });
+            if (!response.data || !Array.isArray(response.data)) {
+                return;
+            }
 
-        await createXlsxFromJson(newData, idTable.value);
-        loading.value = false;
+            const newData = response.data.map((item: any) => {
+                const newItem: Record<string, any> = {};
+                data.columns.forEach((col: TableColumn) => {
+                    if ((col as any)?.export) {
+                        newItem[col.field] = (item as any)[col.field];
+                    }
+                });
+                return newItem;
+            });
+
+            await createXlsxFromJson(newData, idTable.value);
+        } finally {
+            loading.value = false;
+        }
     };
 
     const sanitizeSvgLocal = (str: string) => sanitizeSvgContent(str);
@@ -565,6 +719,7 @@
 
     const clearFiler = () => {
         data.meta.filter = '';
+        data.meta.page = 1;
         getRefreshData();
     };
     const setPerPage = (per_page: number) => {
@@ -574,10 +729,14 @@
         getRefreshData();
     };
     const setFilter = () => {
+        data.meta.filter = data.meta.filter.trim();
         data.meta.page = 1;
 
         getRefreshData();
     };
+    const filtroPendiente = computed(() => data.meta.filter.trim() !== filtroAplicado.value);
+    // Esc en el buscador: borra lo escrito; si ya había una búsqueda aplicada, la quita
+    const escapeBuscar = () => (filtroAplicado.value ? clearFiler() : (data.meta.filter = ''));
     const setOrder = (field: string, order: string) => {
         data.meta.page = PAGINATION.DEFAULT_PAGE;
         let orderLocal = order;
@@ -646,6 +805,50 @@
     // Garantizar que siempre sea un array (ya lo es, pero forzar tipo y evitar undefined en template)
     const safeLimitPages = computed(() => getLimitPages.value ?? []);
 
+    // Menú "⋯" de acciones: popover nativo (capa superior, no lo recorta el scroll de la tabla)
+    const uidMenu = Math.random().toString(36).slice(2, 8);
+    const visibleEnFila = (action: ActionButton, row: Record<string, unknown>) =>
+        !action.condition || String(action.condition_value) === String(row[action.condition]);
+    const gruposMenu = (buttons: ActionButton[], row: Record<string, unknown>) => {
+        const grupos = new Map<string, ActionButton[]>();
+        for (const b of buttons) {
+            if (b.menu && visibleEnFila(b, row)) {
+                grupos.set(b.menu, [...(grupos.get(b.menu) ?? []), b]);
+            }
+        }
+        return [...grupos].map(([nombre, acciones]) => ({ nombre, acciones }));
+    };
+    // Abre el menú pegado al botón, hacia arriba si no cabe abajo
+    const abrirMenu = (event: MouseEvent, id: string) => {
+        const menu = document.querySelector<HTMLElement>(`#${id}`);
+        const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+        if (!menu) {
+            return;
+        }
+        menu.togglePopover();
+        if (!menu.matches(':popover-open')) {
+            return;
+        }
+        // Se abre hacia el lado con espacio y, si aun así no cabe, hace scroll (44 px: margen y barra de debug)
+        const espacioAbajo = window.innerHeight - rect.bottom - 44;
+        const espacioArriba = rect.top - 12;
+        const arriba = menu.scrollHeight > espacioAbajo && espacioArriba > espacioAbajo;
+        Object.assign(menu.style, {
+            position: 'fixed',
+            margin: '0',
+            left: 'auto',
+            right: `${window.innerWidth - rect.right}px`,
+            top: arriba ? 'auto' : `${rect.bottom + 4}px`,
+            bottom: arriba ? `${window.innerHeight - rect.top + 4}px` : 'auto',
+            maxHeight: `${arriba ? espacioArriba : espacioAbajo}px`,
+            overflowY: 'auto',
+        });
+    };
+    const elegirDelMenu = (id: string, row: Record<string, unknown>, action: ActionButton) => {
+        document.querySelector<HTMLElement>(`#${id}`)?.hidePopover();
+        accion({ item: row, accion: action.action });
+    };
+
     const computedActionClass = (action, row) => {
         if ('object' !== typeof action.class) {
             return action.class;
@@ -670,7 +873,7 @@
                     return 'bg-brand/10 border-b border-brand dark:bg-brand/5 dark:border-brand/50';
                 }
             }
-            return 'bg-white border-b border-gray-100 dark:bg-gray-950 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-200';
+            return 'bg-white border-b border-gray-100 dark:bg-[#0a0a0a] dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-200';
         }
         if (
             itemSelected.value?.fieldCompare !== undefined &&
@@ -679,7 +882,7 @@
             // Update for new design: selected row style
             return 'bg-brand/10 border-b border-brand dark:bg-brand/5 dark:border-brand/50';
         }
-        return 'bg-white border-b border-gray-100 dark:bg-gray-950 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-200';
+        return 'bg-white border-b border-gray-100 dark:bg-[#0a0a0a] dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-200';
     };
 
     //Funcion para convertir fecha
@@ -716,16 +919,16 @@
 </script>
 
 <template>
-    <div ref="tableContainer" class="flex flex-col space-y-6">
+    <div ref="tableContainer" class="flex flex-col" :class="altoFijo ? 'flex-1 min-h-0 gap-3' : 'space-y-6'">
         <!-- Top Controls Section -->
-        <div>
+        <div :class="configTabla.botonesEnFila ? 'flex flex-wrap items-end gap-3' : ''">
             <!-- Wrapper to separate slots from table controls if needed -->
             <slot name="buttons"></slot>
         </div>
 
         <div
             v-if="showPerPage || showExportExcel || showSearch"
-            class="flex items-center justify-between flex-wrap gap-4 bg-white dark:bg-gray-950 p-4 rounded-2xl shadow-xs border border-gray-100 dark:border-gray-800">
+            class="flex items-center justify-between flex-wrap gap-4 bg-white dark:bg-[#0a0a0a] p-4 rounded-2xl shadow-xs border border-gray-100 dark:border-gray-800">
             <div class="flex items-center gap-4">
                 <!-- Dropdown por Pagina -->
                 <dropDown
@@ -752,8 +955,8 @@
                     class="flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl transition-all border"
                     :class="
                         shouldUseResponsiveMode
-                            ? 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-gray-950 dark:text-gray-300 dark:border-gray-800 dark:hover:bg-gray-900'
-                            : 'bg-brand text-white border-brand shadow-lg shadow-brand/20'
+                            ? 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-[#0a0a0a] dark:text-gray-300 dark:border-gray-800 dark:hover:bg-gray-900'
+                            : `bg-brand ${textoMarca} border-brand shadow-lg shadow-brand/20`
                     "
                     :title="
                         shouldUseResponsiveMode
@@ -767,49 +970,49 @@
                 </button>
             </div>
 
-            <!-- input buscar -->
+            <!-- input buscar: Enter o la lupa (dentro del input) aplican la búsqueda; Esc la borra -->
             <div class="relative w-full md:w-auto" v-if="showSearch">
-                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                    <svg
-                        class="w-4 h-4"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 20 20">
-                        <path
-                            stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                    </svg>
-                </div>
                 <input
                     type="text"
                     :class="[
-                        'block w-full md:w-80 p-3 pl-10 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand focus:border-brand dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-white dark:focus:ring-brand dark:focus:border-brand outline-hidden transition-all placeholder-gray-500',
-                        data.meta.filter ? 'pr-10' : 'pr-3',
+                        'block w-full md:w-80 p-3 pl-4 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand focus:border-brand dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-white dark:focus:ring-brand dark:focus:border-brand outline-hidden transition-all placeholder-gray-500',
+                        data.meta.filter ? 'pr-20' : 'pr-11',
                     ]"
                     :id="idTable + '_table-search-users'"
                     @keyup.enter="setFilter"
+                    @keydown.esc="escapeBuscar"
                     placeholder="Buscar..."
+                    aria-label="Buscar en la tabla"
                     v-model="data.meta.filter" />
 
-                <button
-                    v-if="data.meta.filter"
-                    type="button"
-                    class="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-r-xl transition-all duration-200 cursor-pointer group"
-                    @click="clearFiler"
-                    title="Limpiar búsqueda">
-                    <svg
-                        class="w-4 h-4 group-hover:scale-110 transition-transform"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+                <div class="absolute inset-y-0 right-0 flex items-center gap-0.5 pr-1.5">
+                    <button
+                        v-if="data.meta.filter"
+                        type="button"
+                        class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+                        @click="clearFiler"
+                        title="Limpiar búsqueda (Esc)"
+                        aria-label="Limpiar búsqueda">
+                        <i class="bi bi-x-lg text-sm"></i>
+                    </button>
+                    <button
+                        type="button"
+                        :disabled="loadingData"
+                        class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors disabled:cursor-wait"
+                        :class="
+                            filtroPendiente
+                                ? `bg-brand ${textoMarca}`
+                                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200 dark:hover:text-white dark:hover:bg-gray-800'
+                        "
+                        title="Buscar (Enter)"
+                        aria-label="Buscar"
+                        @click="setFilter">
+                        <span
+                            v-if="loadingData"
+                            class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                        <i v-else class="bi bi-search text-sm"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -817,13 +1020,15 @@
         <div
             ref="cajaTabla"
             :style="{ maxHeight: altoTabla }"
-            class="relative isolate overflow-auto rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl bg-white dark:bg-gray-950 w-full">
+            class="relative isolate overflow-auto rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl bg-white dark:bg-[#0a0a0a] w-full"
+            :class="altoFijo ? 'flex-1 min-h-[220px]' : ''">
             <table
                 :id="'table_' + idTable"
                 class="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
                 <caption
                     v-if="tablaTitle !== ''"
-                    class="p-5 text-lg font-bold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800">
+                    class="font-bold text-left text-gray-900 bg-white dark:text-white dark:bg-[#0a0a0a] border-b border-gray-100 dark:border-gray-800"
+                    :class="altoFijo ? 'px-4 py-2 text-sm' : 'p-5 text-lg'">
                     <div class="flex justify-between items-center w-full">
                         <div class="flex items-center gap-2">
                             <div class="w-1 h-6 bg-brand rounded-full"></div>
@@ -857,7 +1062,10 @@
                         <!-- Columna de selección -->
                         <th v-if="multipleSelected" class="w-12 text-center py-4 px-2 select-none">
                             <div class="flex justify-center">
-                                <check id="check-all" v-model="checkAllValue" @update:modelValue="toggleAllRows" />
+                                <check
+                                    :id="`${idTable}-check-all`"
+                                    v-model="checkAllValue"
+                                    @update:modelValue="toggleAllRows" />
                             </div>
                         </th>
 
@@ -875,7 +1083,7 @@
                             :class="[
                                 smallLine ? 'py-2 px-3' : 'py-4 px-6',
                                 'font-bold tracking-wider hover:bg-white/5 transition-colors cursor-pointer group select-none',
-                                col.type === 'actions' ? 'sticky right-0 z-10 bg-black' : '',
+                                esFija(col) ? 'sticky right-0 z-10 bg-black' : '',
                             ]"
                             @click="
                                 col.type !== 'actions' && col.type !== 'file' && col.type !== 'position'
@@ -921,7 +1129,7 @@
                     </tr>
                     <template :key="row.id ?? index" v-for="(row, index) in data.data">
                         <!-- Fila Principal -->
-                        <tr :class="classLineTable(row)">
+                        <tr :class="classLineTable(row)" @dblclick="rowDblClick($event, row)">
                             <!-- Selección -->
                             <td v-if="multipleSelected" class="text-center align-middle w-12 py-2 px-2">
                                 <div class="flex justify-center">
@@ -942,7 +1150,7 @@
                                     :class="
                                         expandedRows[row.id ?? index]
                                             ? 'bg-red-500 text-white rotate-180 hover:bg-red-600'
-                                            : 'bg-brand text-white hover:scale-110 active:scale-95'
+                                            : `bg-brand ${textoMarca} hover:scale-110 active:scale-95`
                                     "
                                     :title="expandedRows[row.id ?? index] ? 'Contraer fila' : 'Ver más detalles'">
                                     <i :class="expandedRows[row.id ?? index] ? 'bi bi-dash' : 'bi bi-plus'"></i>
@@ -952,7 +1160,7 @@
                             <td
                                 :class="[
                                     smallLine ? 'py-2 px-3' : 'py-4 px-6',
-                                    col.type === 'actions' ? 'sticky right-0 z-10 bg-white dark:bg-[#0a0a0a]' : '',
+                                    esFija(col) ? 'sticky right-0 z-10 bg-white dark:bg-[#0a0a0a]' : '',
                                 ]"
                                 :key="col.field"
                                 v-for="col in getVisibleColumns">
@@ -994,6 +1202,15 @@
                                         }}
                                     </span>
                                 </div>
+                                <!--estados propios del proyecto (AppConfig.tabla.estados)-->
+                                <div v-else-if="esEstado(col.type)">
+                                    <span
+                                        class="inline-flex items-center justify-center px-3 py-1 text-xs font-bold leading-none rounded-full"
+                                        :class="estadoBadge(col.type, row[col.field]).clase">
+                                        <i class="bi mr-1" :class="estadoBadge(col.type, row[col.field]).icono"></i>
+                                        {{ estadoBadge(col.type, row[col.field]).texto }}
+                                    </span>
+                                </div>
                                 <!--affirmative-->
                                 <div v-else-if="col.type === 'affirmative'" class="flex justify-start">
                                     <span
@@ -1024,8 +1241,19 @@
                                 <!--currency / money-->
                                 <div
                                     v-else-if="col.type === 'currency' || col.type === 'money'"
-                                    class="font-mono font-bold">
+                                    class="font-mono font-bold"
+                                    :class="configTabla.montosDerecha ? 'text-right' : ''">
                                     {{ formatCurrency(row[col.field], row[col.moneda] || 'CLP') }}
+                                </div>
+                                <!--date: DD-MM-AAAA / number: miles con punto-->
+                                <div v-else-if="col.type === 'date'" class="whitespace-nowrap">
+                                    {{ formatFecha(row[col.field]) }}
+                                </div>
+                                <div
+                                    v-else-if="col.type === 'number'"
+                                    class="font-mono"
+                                    :class="configTabla.montosDerecha ? 'text-right' : ''">
+                                    {{ formatCantidad(row[col.field]) }}
                                 </div>
                                 <!--file-->
                                 <div v-else-if="col.type === 'file'" class="flex items-center gap-3">
@@ -1037,6 +1265,9 @@
                                         <a
                                             :href="row[col.field]"
                                             target="_blank"
+                                            @click="
+                                                abrirArchivoFila($event, row[col.field], row[col.config?.nameField])
+                                            "
                                             class="text-sm font-semibold hover:text-brand transition-colors truncate max-w-[150px]">
                                             {{
                                                 row[col.config?.nameField] ||
@@ -1056,7 +1287,8 @@
                                             v-for="btn in col.buttons"
                                             :key="btn.id"
                                             @click="accion({ item: row, accion: btn.action })"
-                                            class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-brand hover:text-white transition-all"
+                                            class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-brand transition-all"
+                                            :class="hoverMarca"
                                             :title="btn.title">
                                             <i :class="btn.icon"></i>
                                         </button>
@@ -1153,7 +1385,8 @@
                                     <span class="font-mono text-xs truncate max-w-[120px]">{{ row[col.field] }}</span>
                                     <button
                                         @click="copyText(row[col.field])"
-                                        class="p-1.5 rounded-lg bg-gray-50 dark:bg-white/5 opacity-0 group-hover/copy:opacity-100 transition-all hover:bg-brand hover:text-white">
+                                        class="p-1.5 rounded-lg bg-gray-50 dark:bg-white/5 opacity-0 group-hover/copy:opacity-100 transition-all hover:bg-brand"
+                                        :class="hoverMarca">
                                         <i class="bi bi-clipboard text-xs"></i>
                                     </button>
                                 </div>
@@ -1207,8 +1440,16 @@
                                                     })
                                                 "
                                                 v-if="
-                                                    !(action.type === 'up' && Number(index) === 0) &&
-                                                    !(action.type === 'down' && Number(index) === data.data.length - 1)
+                                                    !(
+                                                        action.type === 'up' &&
+                                                        data.meta.page === 1 &&
+                                                        Number(index) === 0
+                                                    ) &&
+                                                    !(
+                                                        action.type === 'down' &&
+                                                        data.meta.page >= data.meta.total_pages &&
+                                                        Number(index) === data.data.length - 1
+                                                    )
                                                 ">
                                                 <i :class="action.icon"></i>
                                             </button>
@@ -1216,8 +1457,8 @@
                                     </div>
                                 </div>
                                 <!--actions-->
-                                <div v-else-if="col.type === 'actions'" class="flex justify-start gap-2">
-                                    <template v-for="action in col.buttons">
+                                <div v-else-if="col.type === 'actions'" class="flex justify-start items-center gap-2">
+                                    <template v-for="action in col.buttons.filter(b => !b.menu)">
                                         <!-- Loader condition -->
                                         <div
                                             v-if="action.loader && row[action.loader]"
@@ -1239,6 +1480,35 @@
                                             v-if="!action.condition || action.condition_value == row[action.condition]">
                                             <i :class="action.icon"></i>
                                         </button>
+                                    </template>
+                                    <template v-if="gruposMenu(col.buttons, row).length > 0">
+                                        <button
+                                            type="button"
+                                            title="Más acciones"
+                                            class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white"
+                                            @click="abrirMenu($event, `acciones-${uidMenu}-${index}`)">
+                                            <i class="bi bi-three-dots-vertical text-xl"></i>
+                                        </button>
+                                        <div
+                                            :id="`acciones-${uidMenu}-${index}`"
+                                            popover
+                                            class="w-64 p-1 rounded-xl border border-gray-200 bg-white text-gray-700 shadow-xl dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
+                                            <div v-for="grupo in gruposMenu(col.buttons, row)" :key="grupo.nombre">
+                                                <p
+                                                    class="px-3 pt-2 pb-1 text-[11px] font-bold uppercase tracking-wide text-gray-400">
+                                                    {{ grupo.nombre }}
+                                                </p>
+                                                <button
+                                                    v-for="action in grupo.acciones"
+                                                    :key="action.action"
+                                                    type="button"
+                                                    class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
+                                                    @click="elegirDelMenu(`acciones-${uidMenu}-${index}`, row, action)">
+                                                    <i :class="action.icon" class="w-5 text-center"></i>
+                                                    {{ action.title }}
+                                                </button>
+                                            </div>
+                                        </div>
                                     </template>
                                 </div>
                                 <!--others-->
@@ -1315,12 +1585,25 @@
                                                     {{ formatCurrency(row[col.field], row[col.moneda] || 'CLP') }}
                                                 </span>
                                             </template>
+                                            <template v-else-if="col.type === 'date'">
+                                                <span>{{ formatFecha(row[col.field]) }}</span>
+                                            </template>
+                                            <template v-else-if="col.type === 'number'">
+                                                <span class="font-mono">{{ formatCantidad(row[col.field]) }}</span>
+                                            </template>
                                             <template v-else-if="col.type === 'file'">
                                                 <div class="flex items-center gap-2">
                                                     <i :class="['bi', getFileTypeIcon(row[col.field])]"></i>
                                                     <a
                                                         :href="row[col.field]"
                                                         target="_blank"
+                                                        @click="
+                                                            abrirArchivoFila(
+                                                                $event,
+                                                                row[col.field],
+                                                                row[col.config?.nameField],
+                                                            )
+                                                        "
                                                         class="hover:text-brand truncate max-w-[200px]">
                                                         {{
                                                             row[col.config?.nameField] ||
@@ -1444,7 +1727,7 @@
         <!-- Pagination -->
         <nav ref="pieTabla" class="flex flex-col md:flex-row justify-between items-center w-full px-2 gap-4">
             <div
-                class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-950 px-4 py-2 rounded-xl shadow-xs border border-gray-100 dark:border-gray-800">
+                class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-[#0a0a0a] px-4 py-2 rounded-xl shadow-xs border border-gray-100 dark:border-gray-800">
                 <span>Mostrando</span>
                 <span class="font-bold text-gray-900 dark:text-white">{{ data.meta.from || 0 }}</span>
                 <span>al</span>
@@ -1455,7 +1738,7 @@
             </div>
 
             <ul
-                class="inline-flex items-center -space-x-px text-sm bg-white dark:bg-gray-950 rounded-xl shadow-xs border border-gray-100 dark:border-gray-800 p-1">
+                class="inline-flex items-center -space-x-px text-sm bg-white dark:bg-[#0a0a0a] rounded-xl shadow-xs border border-gray-100 dark:border-gray-800 p-1">
                 <template v-if="Array.isArray(getLimitPages)">
                     <li>
                         <a

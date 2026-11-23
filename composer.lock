@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3d7937c2c5e04e9c83d40d408a6d36a4",
+    "content-hash": "d0cc9308ec483aa5dfe268e2e89b8990",
     "packages": [
         {
             "name": "doctrine/lexer",
@@ -1583,16 +1583,16 @@
         },
         {
             "name": "versawys/kernel",
-            "version": "v3.16.1",
+            "version": "v3.17.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kriollo/versawys-kernel.git",
-                "reference": "266b7d939ece64e3f24b423d20168d4663aa4370"
+                "reference": "5fa289e24e1c2f46a4ab1396e9b88b87f6082a2d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kriollo/versawys-kernel/zipball/266b7d939ece64e3f24b423d20168d4663aa4370",
-                "reference": "266b7d939ece64e3f24b423d20168d4663aa4370",
+                "url": "https://api.github.com/repos/kriollo/versawys-kernel/zipball/5fa289e24e1c2f46a4ab1396e9b88b87f6082a2d",
+                "reference": "5fa289e24e1c2f46a4ab1396e9b88b87f6082a2d",
                 "shasum": ""
             },
             "require": {
@@ -1648,8 +1648,8 @@
                 "issues": "https://github.com/kriollo/versawys-kernel/issues",
                 "source": "https://github.com/kriollo/versawys-kernel"
             },
-            "time": "2026-11-23T18:15:21+00:00",
-            "published-time": "2026-11-23T18:20:26+00:00"
+            "time": "2026-11-23T20:16:32+00:00",
+            "published-time": "2026-11-23T20:20:22+00:00"
         }
     ],
     "packages-dev": [

@@ -3,6 +3,11 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/); versionado [SemVer](https://semver.org/lang/es/).
 Los cambios del núcleo están en el CHANGELOG de `versawys/kernel`.
 
+## [Unreleased]
+
+### Cambiado
+- `versawys/kernel` 3.17.0 y sus versiones comunes de `customTable` y `customTableSimple`. Lo propio de cada proyecto se configura en `window.AppConfig.tabla`.
+
 ## [3.18.1] - 2026-11-23
 
 ### Corregido
