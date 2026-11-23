@@ -6,6 +6,7 @@ Los cambios del núcleo están en el CHANGELOG de `versawys/kernel`.
 ## [Unreleased]
 
 ### Cambiado
+- `versawys/kernel` 3.17.1: el límite de peticiones ya no se reinicia con tráfico simultáneo.
 - `versawys/kernel` 3.17.0 y sus versiones comunes de `customTable` y `customTableSimple`. Lo propio de cada proyecto se configura en `window.AppConfig.tabla`.
 
 ## [3.18.1] - 2026-11-23
