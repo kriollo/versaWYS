@@ -133,7 +133,7 @@ const SPA_EVENTS = {
  */
 const logger = {
     info: (message: string, ...args: any[]) => {
-        if (localStorage.getItem('spa_debug') === 'true' || window.location.hostname === 'localhost') {
+        if (localStorage.getItem('spa_debug') === 'true' || (window as any).AppConfig?.debug === true) {
             console.info(
                 `%c[SPA]%c ${message}`,
                 'background: #3b82f6; color: white; padding: 2px 5px; border-radius: 3px;',
@@ -416,10 +416,7 @@ class SPANavigation {
                 return this.navigate(data.url, pushState, options);
             }
 
-            // Actualizar el DOM
-            await this.updateContent(data, targetUrl);
-
-            // Actualizar historial
+            // La URL cambia antes de montar: hay páginas que eligen su pantalla leyendo location
             if (pushState) {
                 const stateData = {
                     spa: true,
@@ -435,6 +432,9 @@ class SPANavigation {
                     history.pushState(stateData, '', targetUrl);
                 }
             }
+
+            // Actualizar el DOM
+            await this.updateContent(data, targetUrl);
 
             // Gestión de scroll y estado
             this.restoreScrollPosition(targetUrl, options.preserveScroll);
@@ -655,15 +655,15 @@ class SPANavigation {
             }
 
             this.safeInsertHTML(mainContent, data.content);
-
-            // Cargar el módulo Vue especificado
-            if (data.module) {
-                this.loadVueModule(data.module);
-            }
         }
 
         // === Actualización unificada de estado global (aplicable a HTML y Vue) ===
         this.syncGlobalState(data, targetUrl);
+
+        // Después del estado global: el módulo lee la URL y el token al montarse
+        if (data.type === 'vue' && data.module) {
+            this.loadVueModule(data.module);
+        }
 
         // Cargar estilos y scripts si existen
         if (data.styles && data.styles.length > 0) {

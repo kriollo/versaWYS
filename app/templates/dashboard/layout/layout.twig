@@ -49,6 +49,7 @@
 
 	<script nonce="{{ csp_nonce() }}">
 		window.AppConfig = {
+debug: {{ config.build.debug ? 'true' : 'false' }},
 timezone: "{{ config.build.timezone }}",
 version: "{{ config.build.debug ? 'now'|date('U') : config.build.version }}"
 };

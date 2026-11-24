@@ -123,6 +123,9 @@ const loadModule = async (): Promise<void> => {
                 $contenedor.before($csrfToken);
             }
 
+            if (localStorage.getItem('spa_debug') === 'true' || (window as any).AppConfig?.debug === true) {
+                console.log(`[SPA] Link: ${window.location.href} | Página: ${validatedModule}`);
+            }
             app.mount($contenedor, true);
         }
     } catch (error) {
